@@ -1,3 +1,3 @@
 import type { Settings } from './types';
 
-export const DEFAULT_SETTINGS: Settings = { acceptLegacy: false, colorFormat: 'oklch', gamut: 'srgb', contrast: ['wcag-aa'] };
+export const DEFAULT_SETTINGS: Settings = { acceptLegacy: false, colorFormat: 'oklch', gamut: 'srgb', contrast: ['wcag-aa'], cvdDistance: 0.1 };

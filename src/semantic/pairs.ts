@@ -1,7 +1,9 @@
+import { simulate, type Vision } from '../color/cvd';
 import { colorInfo, infoFrom, mapped, type ColorInfo } from '../color/format';
 import { levelById, type ContrastTarget, type Level, type Metric } from '../contrast/levels';
 import { contrast } from '../contrast/metrics';
-import type { Edit, Model } from '../model/types';
+import type { JPath } from '../json/cst';
+import type { Edit, Model, Token } from '../model/types';
 
 /**
  * Foreground/background pairs in the semantic layer, inferred from token
@@ -48,7 +50,8 @@ const NOISE = new Set(['color', 'colors', 'colour', 'colours', 'semantic', 'sema
 /** Roles that also tell variants apart, so they stay in the modifiers: primary-container is not primary. */
 const KEPT = new Set(['container']);
 
-const words = (id: string) =>
+/** A token name as lowercase words: path segments split on "-", "_" and camelCase. */
+export const words = (id: string) =>
   id
     .split('.')
     .flatMap((seg) => seg.replace(/([a-z0-9])([A-Z])/g, '$1-$2').split(/[-_\s]+/))
@@ -63,6 +66,9 @@ interface Parsed {
   on: boolean;
   key: string;
 }
+
+/** Whether a name has a background or foreground role word: true for `text.danger`, false for `red.500`. */
+export const hasRole = (ws: readonly string[]) => ws.some((w) => BG.has(w) || TEXT.has(w) || UI.has(w));
 
 function parse(id: string): Parsed {
   const ws = words(id);
@@ -82,6 +88,18 @@ function parse(id: string): Parsed {
   return { id, role, kind, on, key };
 }
 
+/** A name with its role word blanked out, e.g. "color.*.default" for `color.bg.default` and `color.fg.default`. */
+function shape(id: string): string {
+  let done = false;
+  return words(id)
+    .map((w) => {
+      if (done || !(BG.has(w) || TEXT.has(w) || UI.has(w))) return w;
+      done = true;
+      return '*';
+    })
+    .join('.');
+}
+
 /** Pairs inferred from the names of `ids` (color tokens), in the order of their foregrounds. */
 export function detectPairs(ids: readonly string[]): Pair[] {
   const parsed = ids.map(parse);
@@ -94,6 +112,10 @@ export function detectPairs(ids: readonly string[]): Pair[] {
     // "on-primary" sits on "primary", which has no background word of its own.
     if (fg.on) match = [...match, ...byKey(parsed.filter((p) => p.role === 'none'), fg.key)];
     if (!match.length) match = defaults;
+    // Of several candidates, keep those named in the same shape: color.fg goes with
+    // color.bg, color.fg.default with color.bg.default, not across.
+    const same = match.filter((bg) => shape(bg.id) === shape(fg.id));
+    if (same.length) match = same;
     for (const bg of match) {
       if (bg.id === fg.id) continue;
       const id = pairId(fg.id, bg.id);
@@ -144,10 +166,33 @@ export function over(fg: ColorInfo, bg: ColorInfo): ColorInfo {
   return infoFrom({ space: mapped(bg, 'srgb').space, coords, alpha: 1 });
 }
 
-const colorOf = (model: Model, id: string) => {
-  const t = model.tokens.get(id);
-  return t?.type === 'color' && t.resolution === 'ok' ? colorInfo(t.value) : undefined;
-};
+/** The color a token shows: the value of a color token, or the color part of a composite border. */
+export function tokenColor(t: Token | undefined): ColorInfo | undefined {
+  if (!t || t.resolution !== 'ok') return undefined;
+  if (t.type === 'color') return colorInfo(t.value);
+  if (t.type === 'border' && t.value && typeof t.value === 'object') return colorInfo((t.value as { color?: unknown }).color);
+  return undefined;
+}
+
+const REF = /^\{([^{}]+)\}$/;
+
+/**
+ * The reference that gives a token its color, and where it is written: the
+ * whole value of a color alias, or the `color` part of a composite border.
+ * Undefined for a literal color, or a border that is an alias of another border.
+ */
+export function colorRef(t: Token): { target: string; path: JPath } | undefined {
+  if (t.extendedFrom) return undefined;
+  if (t.type === 'color' && t.aliasOf) return { target: t.aliasOf, path: [...t.keyPath, ...t.valuePath] };
+  if (t.type === 'border' && !t.aliasOf && t.rawValue && typeof t.rawValue === 'object') {
+    const color = (t.rawValue as { color?: unknown }).color;
+    const m = typeof color === 'string' ? REF.exec(color) : null;
+    if (m) return { target: m[1]!, path: [...t.keyPath, ...t.valuePath, 'color'] };
+  }
+  return undefined;
+}
+
+const colorOf = (model: Model, id: string) => tokenColor(model.tokens.get(id));
 
 /** Check a foreground on a background for a pair of `kind`. */
 export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, targets: readonly ContrastTarget[]): PairCheck {
@@ -159,11 +204,14 @@ export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, target
   return { fg, bg, shown, values, results, pass: results.every((r) => r.pass) };
 }
 
-/** Check a pair in one model (theme). Undefined when either token is missing or not a color there. */
-export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTarget[]): PairCheck | undefined {
+/**
+ * Check a pair in one model (theme), as seen with `vision`. Undefined when
+ * either token is missing or not a color there.
+ */
+export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTarget[], vision: Vision = 'normal'): PairCheck | undefined {
   const fg = colorOf(model, pair.fg);
   const bg = colorOf(model, pair.bg);
-  return fg && bg ? checkColors(fg, bg, pair.kind, targets) : undefined;
+  return fg && bg ? checkColors(simulate(fg, vision), simulate(bg, vision), pair.kind, targets) : undefined;
 }
 
 export interface AliasCandidate {
@@ -191,13 +239,13 @@ export function aliasCandidates(model: Model): { label: string; tokens: AliasCan
  */
 export function realias(model: Model, id: string, target: string): Edit | undefined {
   const t = model.tokens.get(id);
-  if (!t?.aliasOf || t.extendedFrom) return undefined;
-  return { fileId: t.fileId, path: [...t.keyPath, ...t.valuePath], value: `{${target}}` };
+  const ref = t && colorRef(t);
+  return ref ? { fileId: t.fileId, path: ref.path, value: `{${target}}` } : undefined;
 }
 
-/** Color token ids across `models` (every theme), in source order. */
+/** Tokens with a color across `models` (every theme): color tokens and composite borders, in source order. */
 export function colorTokenIds(models: readonly Model[]): string[] {
   const seen = new Map<string, number>();
-  for (const m of models) for (const t of m.tokens.values()) if (t.type === 'color' && !seen.has(t.id)) seen.set(t.id, t.order);
+  for (const m of models) for (const t of m.tokens.values()) if ((t.type === 'color' || t.type === 'border') && !seen.has(t.id) && tokenColor(t)) seen.set(t.id, t.order);
   return [...seen].sort((a, b) => a[1] - b[1]).map(([id]) => id);
 }

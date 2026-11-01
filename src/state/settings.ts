@@ -25,6 +25,8 @@ export function loadSettings(): Settings {
       contrast: Array.isArray(parsed.contrast)
         ? (['wcag-aa', 'wcag-aaa', 'apca'] as const).filter((t) => (parsed.contrast as unknown[]).includes(t))
         : DEFAULT_SETTINGS.contrast,
+      cvdDistance:
+        typeof parsed.cvdDistance === 'number' && parsed.cvdDistance > 0 && parsed.cvdDistance <= 1 ? parsed.cvdDistance : DEFAULT_SETTINGS.cvdDistance,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

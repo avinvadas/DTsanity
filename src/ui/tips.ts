@@ -24,9 +24,16 @@ export const TIP = {
   pairMissing: 'One of the two tokens is not in this theme.',
   pairAdded: 'A pair you added.',
   pairRemove: 'Stop checking this pair. Nothing changes in your files.',
-  pairRealias: 'Point this pair’s tokens at other existing tokens, theme by theme. Only the references change.',
   pairOwnValue: 'This token has a color value of its own rather than a reference, so there is nothing to re-point.',
   pairRealiasFile: 'The file the reference is written in. Themes that read the same file change together.',
+  pairFailCvd: 'Pairs that pass with typical vision but not with a color-vision deficiency in at least one theme.',
+  pairCvdMiss: 'This pair passes with typical vision but falls below the level with these deficiencies (simulated at full strength).',
+  siblingsFail: 'Groups of status colors (danger, warning, success…) whose closest two look too alike with some vision type.',
+  vision: 'Show previews and results as seen with a color-vision deficiency. Simulated with the Machado 2009 model at full strength (dichromacy); achromatopsia keeps only luminance.',
+  cvdDistance: 'The smallest OKLab difference (ΔE OK) at which two status colors count as different. 0.1 is clearly visible side by side; raise it for small marks such as icons.',
+  siblingRealias: 'Point this group’s tokens at other existing tokens, theme by theme, to keep them apart with every vision type. Only the references change.',
+  realias: 'Re-alias: point this token at another existing token, theme by theme. Only the reference changes.',
+  pairBorderAlias: 'This token is an alias of another token as a whole, so its color is changed there.',
   pairsReset: 'Forget the pairs you added, removed or re-kinded.',
 
   // Files

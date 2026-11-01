@@ -22,6 +22,14 @@ describe('pair detection', () => {
     expect(ids(detectPairs(['bg.default', 'surface', 'text.subtle.hover']))).toEqual(['text.subtle.hover on bg.default', 'text.subtle.hover on surface']);
   });
 
+  it('pairs within the same naming shape when several backgrounds qualify', () => {
+    // A modes file with color.fg/color.bg loaded beside color.fg.default/color.bg.default.
+    expect(ids(detectPairs(['color.bg.default', 'color.fg.default', 'color.bg', 'color.fg']))).toEqual([
+      'color.fg.default on color.bg.default',
+      'color.fg on color.bg',
+    ]);
+  });
+
   it('reads hyphenated and camelCase names', () => {
     expect(ids(detectPairs(['color.bg-warning', 'color.textWarning']))).toEqual(['color.textWarning on color.bg-warning']);
   });
@@ -106,5 +114,33 @@ describe('pair checks', () => {
     const edit = realias(model, 'color.text.default', 'color.gray.300')!;
     expect(edit).toEqual({ fileId: model.files[0]!.id, path: ['color', 'text', 'default', '$value'], value: '{color.gray.300}' });
     expect(realias(model, 'color.gray.500', 'color.gray.0')).toBeUndefined();
+  });
+});
+
+describe('composite border tokens', () => {
+  const gray = (v: number) => ({ $value: { colorSpace: 'srgb', components: [v, v, v] } });
+  const doc = {
+    color: { $type: 'color', gray: { 0: gray(1), 200: gray(0.8), 600: gray(0.35) }, bg: { default: { $value: '{color.gray.0}' } } },
+    border: {
+      $type: 'border',
+      input: { $value: { color: '{color.gray.200}', width: { value: 1, unit: 'px' }, style: 'solid' } },
+      focus: { $value: '{border.input}' },
+      raw: { $value: { color: { colorSpace: 'srgb', components: [0, 0, 0] }, width: { value: 1, unit: 'px' }, style: 'solid' } },
+    },
+  };
+  const model = analyze([loadText(JSON.stringify(doc))], DEFAULT_SETTINGS);
+
+  it('pairs a border by its color part, as a UI part', () => {
+    const pairs = detectPairs(colorTokenIds([model]));
+    const input = pairs.find((p) => p.fg === 'border.input')!;
+    expect(input).toMatchObject({ bg: 'color.bg.default', kind: 'ui' });
+    expect(checkPair(input, model, ['wcag-aa'])!.values.wcag).toBeLessThan(3);
+  });
+
+  it('re-points only the color reference of a border', () => {
+    expect(realias(model, 'border.input', 'color.gray.600')).toEqual({ fileId: model.files[0]!.id, path: ['border', 'input', '$value', 'color'], value: '{color.gray.600}' });
+    // An alias of a whole border, or a literal color, has no color reference of its own.
+    expect(realias(model, 'border.focus', 'color.gray.600')).toBeUndefined();
+    expect(realias(model, 'border.raw', 'color.gray.600')).toBeUndefined();
   });
 });

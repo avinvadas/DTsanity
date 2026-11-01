@@ -1,5 +1,5 @@
 import { ALL_THEMES, setActiveTheme, store, type AppState } from '../state/app';
-import { pairsOf } from '../state/pairs';
+import { pairsOf, siblingFails } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
 import { h, masked, severityIcon } from './dom';
 import { TIP } from './tips';
@@ -126,8 +126,10 @@ export class TTNav extends HTMLElement {
     const errors = v.model.issues.filter((i) => i.severity === 'error').length;
     const warnings = v.model.issues.filter((i) => i.severity === 'warning').length;
     const included = has ? palettesOf(store.get()).palettes.filter((p) => p.included) : [];
-    const pairs = has ? pairsOf(store.get()).rows : [];
+    const semantic = has ? pairsOf(store.get()) : undefined;
+    const pairs = semantic?.rows ?? [];
     const failing = pairs.filter((r) => !r.pass);
+    const cvdFailing = pairs.some((r) => r.cvdFails.length) || (semantic?.siblings.some((g) => siblingFails(g)) ?? false);
     // Each count is led by the severest indication active in that view.
     const counts: Partial<Record<ViewId, { n: number; tone?: Tone }>> = has
       ? {
@@ -136,7 +138,7 @@ export class TTNav extends HTMLElement {
           issues: { n: errors + warnings, tone: severest(v.model.issues.map((i) => i.severity)) },
           colors: { n: included.length, tone: severest(included.flatMap((p) => p.flags.map((f) => f.severity))) },
           semantic: pairs.length
-            ? { n: pairs.length, tone: failing.some((r) => r.pair.kind === 'text') ? 'error' : failing.length ? 'warning' : undefined }
+            ? { n: pairs.length, tone: failing.some((r) => r.pair.kind === 'text') ? 'error' : failing.length || cvdFailing ? 'warning' : undefined }
             : undefined,
           tokens: { n: v.model.tokens.size },
         }

@@ -18,7 +18,14 @@ export function createStore<S extends object>(initial: S): Store<S> {
       const prev = state;
       const next = typeof patch === 'function' ? patch(state) : patch;
       state = { ...state, ...next };
-      for (const fn of [...listeners]) fn(state, prev);
+      // One view failing must not keep the others from seeing the change.
+      for (const fn of [...listeners]) {
+        try {
+          fn(state, prev);
+        } catch (err) {
+          console.error(err);
+        }
+      }
     },
     subscribe(fn) {
       listeners.add(fn);

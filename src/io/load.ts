@@ -174,7 +174,7 @@ export function readDropped(dt: DataTransfer): Promise<(RawSource | LoadError)[]
     // Both must be captured synchronously: the DataTransfer is emptied after the drop event.
     const files = items.map((i) => i.getAsFile());
     const pending = items.map((i) => i.getAsFileSystemHandle!());
-    const plain = () => readFiles(files.filter((f): f is File => f !== null));
+    const plain = () => readFiles(files.filter((f): f is File => f !== null)).then((read) => [...read, ...unreadable(files.filter((f) => f === null).length)]);
     // Some embedded browsers never settle the handles; read the plain files then.
     const stalled = new Promise<never>((_, fail) => setTimeout(() => fail(new Error('timeout')), HANDLE_MS));
     return Promise.race([Promise.all(pending), stalled]).then(
@@ -182,7 +182,14 @@ export function readDropped(dt: DataTransfer): Promise<(RawSource | LoadError)[]
       plain,
     );
   }
-  return readFiles(dt.files);
+  // Counted now: the DataTransfer is emptied after the drop event.
+  const missing = items.length - dt.files.length;
+  return readFiles(dt.files).then((read) => [...read, ...unreadable(missing)]);
+}
+
+/** An error for dropped items the browser gave no file for, so a partial drop never passes unnoticed. */
+function unreadable(n: number): LoadError[] {
+  return n > 0 ? [{ name: n === 1 ? 'A dropped item' : `${n} dropped items`, message: "The browser didn't hand over these items as files, so they weren't read. Drop the files again, or click the drop zone to choose them." }] : [];
 }
 
 /** Read a loaded file's source again: refetch its URL or re-read it from disk. */

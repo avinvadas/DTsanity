@@ -2,7 +2,7 @@ import type { Category, Fix, Issue, Model, Severity } from '../model/types';
 import { ALL_THEMES, applyFixes, setActiveTheme, store, undo, type AppState } from '../state/app';
 import { mergeModels } from '../themes/merge';
 import { h, masked, plural, severityIcon } from './dom';
-import { reloadAll } from './loader';
+import { reloadControl } from './loader';
 import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
 
 const SEVERITIES: Severity[] = ['error', 'warning', 'info'];
@@ -17,31 +17,19 @@ const CATEGORY_LABEL: Record<Category, string> = {
   metadata: 'Metadata',
 };
 
-const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 export class TTIssues extends HTMLElement {
   private unsubs: (() => void)[] = [];
-  private status = h('span', { class: 'reload-status', role: 'status' });
-  private reload = h(
-    'button',
-    { type: 'button', class: 'reload', 'data-tip': TIP.reload },
-    h('span', { 'aria-hidden': 'true' }, '↻ '),
-    'Reload files',
-  );
+  private reload = reloadControl(TIP.reload);
 
   connectedCallback() {
-    this.reload.onclick = async () => {
-      this.setStatus('');
-      const summary = await reloadAll();
-      if (summary) this.setStatus(`${summary} · ${timeNow()}`);
-    };
     this.unsubs.push(
       store.select(
         (s): Pick<AppState, 'model' | 'themeModels' | 'activeTheme' | 'themes'> => s,
         (v) => this.render(v.model, v),
         (a, b) => a.model === b.model && a.themeModels === b.themeModels && a.activeTheme === b.activeTheme,
       ),
-      store.select((s) => s.busy, (busy) => (this.reload.disabled = busy)),
+      this.reload.unsub,
     );
   }
 
@@ -51,8 +39,8 @@ export class TTIssues extends HTMLElement {
   }
 
   private setStatus(text: string, withUndo = false) {
-    this.status.replaceChildren(text);
-    if (withUndo) this.status.append(' · ', h('button', { type: 'button', class: 'link', onclick: () => (undo(), this.setStatus('Undone')) }, 'Undo'));
+    this.reload.status.replaceChildren(text);
+    if (withUndo) this.reload.status.append(' · ', h('button', { type: 'button', class: 'link', onclick: () => (undo(), this.setStatus('Undone')) }, 'Undo'));
   }
 
   private apply(fixes: Fix[], label?: string) {
@@ -102,7 +90,7 @@ export class TTIssues extends HTMLElement {
           'Issues ',
           h('span', { class: 'counts' }, SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase())))),
         ),
-        h('div', { class: 'reload-wrap' }, this.status, this.reload),
+        this.reload.el,
       ),
       this.otherThemes(v) ?? '',
       groups.length === 0

@@ -13,6 +13,8 @@ export interface Settings {
   gamut: 'srgb' | 'p3';
   /** Contrast compliance targets checked in the palette view. */
   contrast: ('wcag-aa' | 'wcag-aaa' | 'apca')[];
+  /** The smallest OKLab difference at which sibling colors (danger, success…) count as told apart. */
+  cvdDistance: number;
 }
 
 /** One change to a document. */

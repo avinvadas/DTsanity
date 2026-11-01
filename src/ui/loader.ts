@@ -83,6 +83,25 @@ export async function reloadAll(): Promise<string | null> {
   }
 }
 
+const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+/**
+ * A "Reload files" button with its status line: reads every loaded file again
+ * from disk or its URL, without loading them anew. Disabled while loading.
+ * Returns the element and an unsubscribe for the busy state.
+ */
+export function reloadControl(tip: string): { el: HTMLElement; status: HTMLElement; unsub: () => void } {
+  const status = h('span', { class: 'reload-status', role: 'status' });
+  const button = h('button', { type: 'button', class: 'reload', 'data-tip': tip }, h('span', { 'aria-hidden': 'true' }, '↻ '), 'Reload files');
+  button.addEventListener('click', async () => {
+    status.replaceChildren('');
+    const summary = await reloadAll();
+    if (summary) status.replaceChildren(`${summary} · ${timeNow()}`);
+  });
+  const unsub = store.select((s) => s.busy, (busy) => (button.disabled = busy));
+  return { el: h('div', { class: 'reload-wrap' }, status, button), status, unsub };
+}
+
 export class TTLoader extends HTMLElement {
   private unsubs: (() => void)[] = [];
 
