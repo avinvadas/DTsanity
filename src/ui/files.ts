@@ -42,6 +42,9 @@ export class TTFiles extends HTMLElement {
 
   private render(state: Pick<AppState, 'files' | 'model' | 'themeModels' | 'past' | 'future'>) {
     const { files, past, future } = state;
+    // The Files header's summary line, like every view's.
+    const summary = document.getElementById('files-summary');
+    if (summary) summary.textContent = files.length ? `${plural(files.length, 'file')} loaded` : '';
     if (!files.length) {
       this.replaceChildren();
       return;

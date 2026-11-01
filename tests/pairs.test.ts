@@ -106,8 +106,15 @@ describe('pair checks', () => {
   });
 
   it('offers base colors as alias targets, grouped by palette', () => {
-    expect(aliasCandidates(model)).toEqual([{ label: 'color.gray', tokens: expect.any(Array) }]);
+    expect(aliasCandidates(model)).toEqual([{ label: 'Base · color.gray', tokens: expect.any(Array) }]);
     expect(aliasCandidates(model)[0]!.tokens.map((t) => t.id)).toEqual(['color.gray.0', 'color.gray.300', 'color.gray.500']);
+  });
+
+  it('offers a semantic token base and other semantic tokens, never itself or a loop', () => {
+    const groups = aliasCandidates(model, 'color.bg.default');
+    expect(groups.map((g) => g.label)).toEqual(['Base · color.gray', 'Semantic · color.text', 'Semantic · color.icon']);
+    const ids = groups.flatMap((g) => g.tokens.map((t) => t.id));
+    expect(ids).not.toContain('color.bg.default');
   });
 
   it('re-points an alias in its own file without writing a value', () => {

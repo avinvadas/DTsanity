@@ -4,6 +4,7 @@ import type { Issue, Model, Settings, SourceFile, ThemeScope } from '../model/ty
 import { metadataRules } from './metadata';
 import { referenceRules } from './references';
 import { structureRules } from './structure';
+import { tierRules } from './tiers';
 import { typeAndValueRules } from './values';
 
 const key = (i: Issue) => `${i.fileId}\u0000${(i.keyPath ?? []).join('\u0000')}`;
@@ -11,7 +12,7 @@ const key = (i: Issue) => `${i.fileId}\u0000${(i.keyPath ?? []).join('\u0000')}`
 /** Build the model and run every rule. The result's `issues` holds model and rule findings together. */
 export function analyze(files: SourceFile[], settings: Settings, scope: ThemeScope = {}): Model {
   const model = buildModel(files, settings, scope);
-  const ruleIssues = [...structureRules(model), ...typeAndValueRules(model), ...referenceRules(model), ...metadataRules(model)];
+  const ruleIssues = [...structureRules(model), ...typeAndValueRules(model), ...referenceRules(model), ...metadataRules(model), ...tierRules(model)];
 
   // A legacy property in a group (`"value": "#fff"`) is reported, with a fix,
   // by the structure rules; drop the model's generic "not a token or group" for it.

@@ -6,6 +6,7 @@ import type { Palette, PaletteSet } from '../palette/detect';
 import { setContrastEnd, updateSettings } from '../state/app';
 import type { ContrastView } from '../state/contrast';
 import { displayGamut } from './canvas';
+import { collapsible } from './collapsible';
 import { h, masked } from './dom';
 import { swatchSelect } from './swatch-select';
 import { TIP } from './tips';
@@ -63,8 +64,6 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
   return h(
     'div',
     { class: 'contrast-controls' },
-    h('span', { class: 'label' }, 'Contrast:'),
-    targetToggles(settings),
     settings.contrast.length ? [picker('light'), picker('dark')] : null,
     settings.contrast.length
       ? h('span', { class: 'legend' }, 'Pick a neutral token for each end of the system; only its lightness is used. Each row gets its own ends at that lightness, tinted with its hue, and marks where each level is first reached as text on them.')
@@ -92,10 +91,12 @@ export function paletteContrast(p: Palette, r: PaletteContrast | undefined, view
     h(
       'div',
       { class: 'palette-contrast' },
-      h(
-        'details',
-        { class: 'distance' },
-        h('summary', { 'data-tip': TIP.stepDistance }, 'Step distance within this scale'),
+      collapsible({
+        key: `distance:${p.id}`,
+        class: 'distance',
+        tip: TIP.stepDistance,
+        summary: 'Step distance within this scale',
+        content: () => [
         h('ul', null, distances),
         h(
           'div',
@@ -113,7 +114,8 @@ export function paletteContrast(p: Palette, r: PaletteContrast | undefined, view
             ),
           ),
         ),
-      ),
+        ],
+      }),
     ),
   );
 }

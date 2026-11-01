@@ -1,15 +1,16 @@
 import { formatContrast } from '../contrast/metrics';
 import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
+import { TIER_LABEL, type Tier } from '../model/tiers';
 import type { Model } from '../model/types';
 import { aliasCandidates, checkColors, colorRef, hasRole, realias, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
-import { targetToggles } from './contrast';
+import { collapsible, disclosure, expand, isOpen, setAll } from './collapsible';
 import { reloadControl } from './loader';
 import { swatchSelect } from './swatch-select';
-import { h, icon, masked, plural, severityIcon } from './dom';
+import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
 import { TIP } from './tips';
 
 const KINDS: { id: PairKind; label: string }[] = [
@@ -29,15 +30,21 @@ const statusOf = (id: string, group: string) => {
 };
 
 /**
- * Semantic: foreground/background pairs found by name, each checked for
- * contrast in every theme. Pairs can be removed, re-kinded or added by hand.
+ * Foreground/background pairs found by name, each checked for contrast and
+ * color-vision deficiencies in every theme. One element per tier: the
+ * `tier` attribute picks semantic pairs (the default) or component pairs.
+ * Pairs can be removed, re-kinded or added by hand.
  */
 export class TTSemantic extends HTMLElement {
+  private get tier(): PairRow['tier'] {
+    return this.getAttribute('tier') === 'component' ? 'component' : 'semantic';
+  }
+
   private unsub?: () => void;
   private reload = reloadControl(TIP.reload);
   private onlyFailing = false;
-  /** Status groups whose re-alias panel is open. */
-  private openGroups = new Set<string>();
+  /** The component filter text. */
+  private query = '';
   /** A re-alias popover to open again after the pick that re-rendered the view. */
   private keepOpen?: string;
   /** How to open each re-alias popover of the current render, by pair id and side. */
@@ -68,9 +75,13 @@ export class TTSemantic extends HTMLElement {
 
   private render(v: View) {
     this.reopeners.clear();
+    this.rowEls.clear();
     const result = pairsOf(store.get());
     this.rendered = result;
-    const { rows, colorIds, edited, siblings } = result;
+    const { colorIds, edited } = result;
+    const rows = result.rows.filter((r) => r.tier === this.tier);
+    const siblings = result.siblings.filter((g) => g.tier === this.tier);
+    const component = this.tier === 'component';
     const failing = rows.filter((r) => !r.pass);
     const failText = failing.filter((r) => r.pair.kind === 'text').length;
     const failUi = failing.length - failText;
@@ -83,35 +94,27 @@ export class TTSemantic extends HTMLElement {
     const themeNames = v.themeModels.length ? v.themeModels.map((m) => m.theme.name) : [null];
 
     this.replaceChildren(
-      h(
-        'div',
-        { class: 'semantic-head' },
-        h(
-          'h2',
-          null,
-          'Semantic pairs ',
-          h(
-            'span',
-            { class: 'counts' },
-            h('span', { class: 'n' }, plural(rows.length, 'pair')),
-            failText ? h('span', { class: 'chip error', 'data-tip': TIP.pairFailText }, severityIcon('error'), `${failText} text failing`) : null,
-            failUi ? h('span', { class: 'chip warning', 'data-tip': TIP.pairFailUi }, severityIcon('warning'), `${failUi} UI failing`) : null,
-            failCvd ? h('span', { class: 'chip warning', 'data-tip': TIP.pairFailCvd }, severityIcon('warning'), `${failCvd} failing with CVD`) : null,
-            failSiblings ? h('span', { class: 'chip warning', 'data-tip': TIP.siblingsFail }, severityIcon('warning'), `${plural(failSiblings, 'status group')} too close`) : null,
-            rows.length && !anyFail.length && !failSiblings && targets.length ? h('span', { class: 'badge ok' }, icon('check'), ' All pass') : null,
-          ),
-        ),
-        this.reload.el,
-      ),
-      h('div', { class: 'contrast-controls' }, h('span', { class: 'label' }, 'Contrast:'), targetToggles(v.settings)),
+      viewHead(component ? 'Components' : 'Semantic', {
+        summary: [
+          h('span', { class: 'n' }, plural(rows.length, 'pair')),
+          failText ? h('span', { class: 'chip error', 'data-tip': TIP.pairFailText }, severityIcon('error'), `${failText} text failing`) : null,
+          failUi ? h('span', { class: 'chip warning', 'data-tip': TIP.pairFailUi }, severityIcon('warning'), `${failUi} UI failing`) : null,
+          failCvd ? h('span', { class: 'chip warning', 'data-tip': TIP.pairFailCvd }, severityIcon('warning'), `${failCvd} failing with CVD`) : null,
+          failSiblings ? h('span', { class: 'chip warning', 'data-tip': TIP.siblingsFail }, severityIcon('warning'), `${plural(failSiblings, 'status group')} too close`) : null,
+          rows.length && !anyFail.length && !failSiblings && targets.length ? h('span', { class: 'badge ok' }, icon('check'), ' All pass') : null,
+        ],
+        actions: this.reload.el,
+      }),
       h(
         'p',
         { class: 'meta' },
-        'Pairs are found from token names: a foreground (text, fg, icon, border, on-…) is checked on the background (bg, surface, container…) that shares its other words, such as “danger” or “subtle hover”, or else on the default background. ',
+        component
+          ? 'Component tokens are one component’s use of a color, such as button.primary.bg. They are found from layer groups or files (components) or component names (button, input, card…), and each foreground (content, text, fg, border…) is checked on the background of the same component and variant. '
+          : 'Pairs are found from token names: a foreground (text, fg, icon, border, on-…) is checked on the background (bg, surface, container…) that shares its other words, such as “danger” or “subtle hover”, or else on the default background. ',
         'Text must reach the text level; icons and borders the level for UI parts. The token icon beside a name points it at another token, theme by theme; only the reference changes, and ⌘Z undoes it.',
         themeNames.length > 1 ? ' Each pair is checked in every theme and fails if it fails in any.' : '',
       ),
-      targets.length === 0 ? h('p', { class: 'note' }, 'Pick a contrast target above to check the pairs.') : '',
+      targets.length === 0 ? h('p', { class: 'note' }, 'Pick a contrast target in the sidebar to check the pairs.') : '',
       rows.length
         ? h(
             'div',
@@ -139,13 +142,20 @@ export class TTSemantic extends HTMLElement {
                 ),
               ),
             ),
+            component ? this.componentTools(v) : null,
             h('span', { class: 'spacer' }),
             edited ? h('button', { type: 'button', class: 'link', 'data-tip': TIP.pairsReset, onclick: resetPairs }, 'Reset to the pairs found by name') : null,
           )
-        : this.noPairs(colorIds),
-      shown.length ? this.table(shown, themeNames, v) : rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
-      rows.length ? this.visionTable(rows, themeNames, v) : '',
-      siblings.length ? this.siblingsPanel(siblings, themeNames, v) : '',
+        : component
+          ? h('p', { class: 'empty' }, 'No component pairs found. Component tokens are read from a components group or file, or from names that start with a component, such as button.primary.bg or card.content.')
+          : this.noPairs(colorIds),
+      ...(component && rows.length
+        ? [this.componentSections(rows, siblings, themeNames, v)]
+        : [
+            shown.length ? this.table(shown, themeNames, v) : rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
+            rows.length ? this.visionTable(rows, themeNames, v) : '',
+            siblings.length ? this.siblingsPanel(siblings, themeNames, v) : '',
+          ]),
       colorIds.length ? this.addForm(colorIds) : '',
     );
     requestAnimationFrame(() => paintAll(this));
@@ -157,7 +167,6 @@ export class TTSemantic extends HTMLElement {
   }
 
   private table(rows: PairRow[], themeNames: (string | null)[], v: View) {
-    this.rowEls.clear();
     return masked(
       h(
         'div',
@@ -185,11 +194,17 @@ export class TTSemantic extends HTMLElement {
               const row = h(
                 'tr',
                 { class: r.pass ? '' : `fail ${failTone(r.pair.kind)}` },
-                h('td', { class: 'token-id' }, h('span', { class: 'token-cell' }, r.pair.fg, this.realiasButton(r, 'fg', v))),
+                h(
+                  'td',
+                  { class: 'token-id' },
+                  h('span', { class: 'token-cell' }, r.pair.fg, this.realiasButton(r, 'fg', v)),
+                  this.tierTag(r.tiers.fg),
+                ),
                 h(
                   'td',
                   { class: 'token-id' },
                   h('span', { class: 'token-cell' }, r.pair.bg, r.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, ' added') : null, this.realiasButton(r, 'bg', v)),
+                  this.tierTag(r.tiers.bg),
                 ),
                 h('td', null, this.kindSelect(r)),
                 r.seen.normal.map((c, i) => h('td', null, this.result(c, r, i, v))),
@@ -225,7 +240,7 @@ export class TTSemantic extends HTMLElement {
     const file = store.get().files.find((f) => f.id === t.fileId)?.name;
     const select = swatchSelect({
       label: `${theme ?? ''} reference of ${id}`.trim(),
-      groups: aliasCandidates(model).map((g) => ({
+      groups: aliasCandidates(model, id).map((g) => ({
         label: g.label,
         options: g.tokens.map((cand) => ({ value: cand.id, label: cand.id, meta: meta(cand), info: cand.info })),
       })),
@@ -380,7 +395,7 @@ export class TTSemantic extends HTMLElement {
    * Every pair as seen with each vision type: one row per type, one column per
    * theme, so the effect of each deficiency reads straight down a column.
    */
-  private visionTable(rows: PairRow[], themeNames: (string | null)[], v: View) {
+  private visionTable(rows: PairRow[], themeNames: (string | null)[], v: View, compact = false) {
     const gamut = displayGamut(v.settings.gamut);
     const tile = (r: PairRow, c: PairCheck | undefined) => {
       if (!c) return h('span', { class: 'vision-tile empty', 'data-tip': TIP.pairMissing });
@@ -402,8 +417,10 @@ export class TTSemantic extends HTMLElement {
     return h(
       'section',
       { class: 'vision' },
-      h('h3', { 'data-tip': TIP.vision }, 'Seen with each vision type'),
-      h('p', { class: 'meta' }, 'Every pair above, in the same order, as seen with typical vision and with each color-vision deficiency. A mark shows a pair that falls below its level as seen that way. Hover a tile for its tokens; click it to go to the pair.'),
+      h(compact ? 'h4' : 'h3', { 'data-tip': TIP.vision }, 'Seen with each vision type'),
+      compact
+        ? null
+        : h('p', { class: 'meta' }, 'Every pair above, in the same order, as seen with typical vision and with each color-vision deficiency. A mark shows a pair that falls below its level as seen that way. Hover a tile for its tokens; click it to go to the pair.'),
       masked(
         h(
           'div',
@@ -431,7 +448,7 @@ export class TTSemantic extends HTMLElement {
   }
 
   /** Status colors (danger, warning, success…) that must stay apart, checked under every vision type. */
-  private siblingsPanel(groups: SiblingRow[], themeNames: (string | null)[], v: View) {
+  private siblingsPanel(groups: SiblingRow[], themeNames: (string | null)[], v: View, compact = false) {
     const gamut = displayGamut(v.settings.gamut);
     const min = h('input', { type: 'number', min: '0.02', max: '0.5', step: '0.01', value: String(v.settings.cvdDistance), 'aria-label': 'Minimum difference' });
     min.addEventListener('change', () => {
@@ -468,14 +485,18 @@ export class TTSemantic extends HTMLElement {
     return h(
       'section',
       { class: 'siblings' },
-      h('h3', null, 'Status colors told apart'),
-      h(
-        'p',
-        { class: 'meta' },
-        'Tokens whose names differ only in a status word (danger, warning, success, info…) must look different. The two closest in each group are compared under each vision type, as an OKLab difference. ',
-        'Achromatopsia is rare and only marked as information: where status relies on color alone, pair it with an icon or a label.',
-      ),
-      h('label', { class: 'field inline', 'data-tip': TIP.cvdDistance }, 'Minimum difference ', min),
+      h(compact ? 'h4' : 'h3', null, 'Status colors told apart'),
+      compact
+        ? null
+        : [
+            h(
+              'p',
+              { class: 'meta' },
+              'Tokens whose names differ only in a status word (danger, warning, success, info…) must look different. The two closest in each group are compared under each vision type, as an OKLab difference. ',
+              'Achromatopsia is rare and only marked as information: where status relies on color alone, pair it with an icon or a label.',
+            ),
+            h('label', { class: 'field inline', 'data-tip': TIP.cvdDistance }, 'Minimum difference ', min),
+          ],
       masked(
         h(
           'div',
@@ -488,7 +509,8 @@ export class TTSemantic extends HTMLElement {
               'tbody',
               null,
               groups.flatMap((g) => {
-                const open = this.openGroups.has(g.group.id);
+                const key = `group:${g.group.id}`;
+                const open = isOpen(key, false);
                 const row = h(
                   'tr',
                   { class: [siblingFails(g) ? 'fail warning' : '', open ? 'open' : ''].join(' ').trim() },
@@ -497,22 +519,7 @@ export class TTSemantic extends HTMLElement {
                   h(
                     'td',
                     { class: 'pair-actions' },
-                    h(
-                      'button',
-                      {
-                        type: 'button',
-                        class: `ghost small${open ? ' on' : ''}`,
-                        'aria-expanded': String(open),
-                        'aria-label': 'Change aliases',
-                        'data-tip': TIP.siblingRealias,
-                        onclick: () => {
-                          if (open) this.openGroups.delete(g.group.id);
-                          else this.openGroups.add(g.group.id);
-                          this.render(store.get());
-                        },
-                      },
-                      icon('token'),
-                    ),
+                    disclosure({ key, open: false, label: `re-alias panel of ${g.group.id}`, text: 'Re-alias', tip: TIP.siblingRealias, onToggle: () => this.render(store.get()) }),
                   ),
                 );
                 return open ? [row, this.siblingRealiasRow(g, themeNames, v)] : [row];
@@ -522,6 +529,100 @@ export class TTSemantic extends HTMLElement {
         ),
       ),
     );
+  }
+
+  /** Components view: find a component, expand or collapse all sections, and the status difference threshold. */
+  private componentTools(v: View) {
+    const find = h('input', { type: 'search', class: 'component-find', placeholder: 'Find a component or token', 'aria-label': 'Find a component or token', value: this.query });
+    find.addEventListener('input', () => {
+      this.query = find.value;
+      this.applyQuery();
+    });
+    const all = (open: boolean) => () => setAll(this, open);
+    const min = h('input', { type: 'number', min: '0.02', max: '0.5', step: '0.01', value: String(v.settings.cvdDistance), 'aria-label': 'Minimum status difference' });
+    min.addEventListener('change', () => {
+      const n = Number(min.value);
+      if (n > 0 && n <= 1) updateSettings({ cvdDistance: n });
+    });
+    return [
+      masked(find),
+      h('button', { type: 'button', class: 'ghost small', onclick: all(true) }, 'Expand all'),
+      h('button', { type: 'button', class: 'ghost small', onclick: all(false) }, 'Collapse all'),
+      h('label', { class: 'field inline', 'data-tip': TIP.cvdDistance }, 'Status difference ', min),
+    ];
+  }
+
+  /** Show only the component sections whose component or token names contain the filter text. */
+  private applyQuery() {
+    const q = this.query.trim().toLowerCase();
+    let visible = 0;
+    for (const d of this.querySelectorAll<HTMLElement>('.component-section')) {
+      const match = !q || d.dataset.search!.includes(q);
+      d.hidden = !match;
+      if (match) visible++;
+    }
+    const none = this.querySelector<HTMLElement>('.no-component-match');
+    if (none) none.hidden = visible > 0;
+  }
+
+  /**
+   * One collapsible section per component, each with its pairs, its vision
+   * rows and its status groups. Sections with failures start open; with more
+   * than five components the others start closed.
+   */
+  private componentSections(rows: PairRow[], siblings: SiblingRow[], themeNames: (string | null)[], v: View) {
+    const names = [...new Set([...rows.map((r) => r.component!), ...siblings.map((g) => g.component!)])].sort((a, b) => a.localeCompare(b));
+    const many = names.length > 5;
+    const fails = (r: PairRow) => !r.pass || r.cvdFails.length > 0;
+    const sections = names.flatMap((name) => {
+      const own = rows.filter((r) => r.component === name);
+      const groups = siblings.filter((g) => g.component === name);
+      const failing = own.filter(fails);
+      const groupFails = groups.filter((g) => siblingFails(g)).length;
+      if (this.onlyFailing && !failing.length && !groupFails) return [];
+      const shown = this.onlyFailing ? failing : own;
+      const failText = own.filter((r) => !r.pass && r.pair.kind === 'text').length;
+      const failUi = own.filter((r) => !r.pass && r.pair.kind === 'ui').length;
+      const failCvd = own.filter((r) => r.pass && r.cvdFails.length).length;
+      const search = [name, ...own.flatMap((r) => [r.pair.fg, r.pair.bg]), ...groups.flatMap((g) => g.group.members)].join(' ').toLowerCase();
+      const section = collapsible({
+        key: `component:${name}`,
+        open: !many || failing.length + groupFails > 0,
+        variant: 'row',
+        class: 'component-section',
+        attrs: { 'data-component': name, 'data-search': search },
+        summary: [
+          h('h3', { class: 'component-name' }, name),
+          h('span', { class: 'meta' }, plural(own.length, 'pair')),
+          failText ? h('span', { class: 'chip error' }, severityIcon('error'), `${failText} text`) : null,
+          failUi ? h('span', { class: 'chip warning' }, severityIcon('warning'), `${failUi} UI`) : null,
+          failCvd ? h('span', { class: 'chip warning' }, severityIcon('warning'), `${failCvd} CVD`) : null,
+          groupFails ? h('span', { class: 'chip warning' }, severityIcon('warning'), `${plural(groupFails, 'status group')} too close`) : null,
+          !failing.length && !groupFails ? h('span', { class: 'badge ok' }, icon('check'), ' Pass') : null,
+        ],
+        // Built when first opened, so large libraries stay quick.
+        content: () => [
+          shown.length ? this.table(shown, themeNames, v) : h('p', { class: 'empty' }, 'Every pair passes.'),
+          own.length ? this.visionTable(own, themeNames, v, true) : '',
+          groups.length ? this.siblingsPanel(groups, themeNames, v, true) : '',
+        ],
+        onToggle: (open) => open && requestAnimationFrame(() => paintAll(section)),
+      });
+      return [section];
+    });
+    const wrap = masked(h('div', { class: 'component-sections' }, sections, h('p', { class: 'empty no-component-match', hidden: true }, 'No component or token matches.')));
+    requestAnimationFrame(() => this.applyQuery());
+    return wrap;
+  }
+
+  /**
+   * Marks a token from another tier than the view's: in Components, a
+   * semantic or base token paired with a component one; in Semantic, a base
+   * token used as a background.
+   */
+  private tierTag(tier: Tier) {
+    const own = this.tier === 'component' ? 'component' : 'semantic';
+    return tier === own ? null : h('span', { class: `tier-tag ${tier}`, 'data-tip': TIP.tierOther }, TIER_LABEL[tier].toLowerCase());
   }
 
   /** Why no pairs were found: what is loaded, and which semantic tokens lack a foreground or background word. */
@@ -534,7 +635,14 @@ export class TTSemantic extends HTMLElement {
     return h(
       'div',
       { class: 'empty no-pairs' },
-      h('p', null, h('strong', null, 'No pairs found. '), `${plural(files, 'file')} loaded, with ${plural(colorIds.length, 'color token')}.`),
+      h(
+        'p',
+        null,
+        h('strong', null, 'No pairs found. '),
+        `${plural(files, 'file')} loaded (`,
+        masked(h('span', { class: 'token-id' }, s.files.map((f) => f.name).join(', '))),
+        `), with ${plural(colorIds.length, 'color token')}.`,
+      ),
       refs.length === 0
         ? h('p', null, 'All of them have their own values: these are base colors, with no semantic layer of references to pair. Load your semantic files as well (such as semantic.light.json), then press Reload files if you changed them on disk.')
         : h(
@@ -553,7 +661,13 @@ export class TTSemantic extends HTMLElement {
       this.onlyFailing = false;
       this.render(store.get());
     }
-    const row = this.rowEls.get(r.pair.id);
+    let row = this.rowEls.get(r.pair.id);
+    if (!row && r.component) {
+      // Its section hasn't been opened yet, so its rows aren't built: open it.
+      const section = this.querySelector<HTMLDetailsElement>(`.component-section[data-component="${CSS.escape(r.component)}"]`);
+      if (section) expand(section);
+      row = this.rowEls.get(r.pair.id);
+    }
     if (!row) return;
     row.scrollIntoView({ block: 'center', behavior: 'smooth' });
     row.classList.remove('flash');
@@ -563,11 +677,12 @@ export class TTSemantic extends HTMLElement {
   }
 
   private addForm(colorIds: string[]) {
-    const list = masked(h('datalist', { id: 'tt-color-ids' }, colorIds.map((id) => h('option', { value: id }))));
+    const listId = `tt-color-ids-${this.tier}`;
+    const list = masked(h('datalist', { id: listId }, colorIds.map((id) => h('option', { value: id }))));
     const field = (label: string, id: string) =>
-      h('label', { class: 'field' }, h('span', null, label), masked(h('input', { type: 'text', id, list: 'tt-color-ids', autocomplete: 'off', spellcheck: 'false', placeholder: 'color token' })));
-    const fg = field('Foreground', 'tt-pair-fg');
-    const bg = field('Background', 'tt-pair-bg');
+      h('label', { class: 'field' }, h('span', null, label), masked(h('input', { type: 'text', id, list: listId, autocomplete: 'off', spellcheck: 'false', placeholder: 'color token' })));
+    const fg = field('Foreground', `tt-pair-fg-${this.tier}`);
+    const bg = field('Background', `tt-pair-bg-${this.tier}`);
     const kind = h('select', { 'aria-label': 'Kind' }, KINDS.map((k) => h('option', { value: k.id }, k.label)));
     const message = h('small', { class: 'hint', role: 'status' });
     const known = new Set(colorIds);

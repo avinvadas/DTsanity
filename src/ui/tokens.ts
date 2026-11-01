@@ -2,7 +2,7 @@ import { colorInfo, formatColor } from '../color/format';
 import type { Model, Settings, Token } from '../model/types';
 import { ALL_THEMES, store } from '../state/app';
 import type { ThemeModel } from '../themes/merge';
-import { h, masked, plural } from './dom';
+import { h, masked, plural, viewHead } from './dom';
 import { TIP } from './tips';
 
 const PAGE = 300;
@@ -53,9 +53,8 @@ export class TTTokens extends HTMLElement {
     });
 
     this.replaceChildren(
-      h('h2', null, 'Tokens'),
+      viewHead('Tokens', { summary: masked(this.summary) }),
       h('div', { class: 'toolbar' }, masked(search), masked(this.typeSelect)),
-      masked(this.summary),
       masked(
         h(
           'div',

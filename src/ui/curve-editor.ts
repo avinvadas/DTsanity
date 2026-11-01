@@ -30,7 +30,8 @@ import { palettesOf } from '../state/palettes';
 import { clearPreview, clearPreviewColors, preview, setPreview } from '../state/preview';
 import { displayGamut, paintAll, swatchCanvas } from './canvas';
 import { CurveCanvas } from './curve-canvas';
-import { h, masked, pinButton, plural } from './dom';
+import { collapsible } from './collapsible';
+import { h, masked, pinButton, plural, type Child } from './dom';
 import { CURVE_TIP } from './tips';
 
 /**
@@ -272,8 +273,8 @@ class CurveEditor {
       ),
       this.notes,
       this.mappedNote,
-      this.others.length ? h('details', { class: 'ce-more' }, h('summary', null, 'Apply to more palettes'), this.batchBox) : '',
-      h('details', { class: 'ce-more' }, h('summary', null, 'Semantic tokens affected'), this.impact),
+      this.others.length ? collapsible({ class: 'ce-more', summary: 'Apply to more palettes', content: this.batchBox }) : '',
+      collapsible({ class: 'ce-more', summary: 'Semantic tokens affected', content: this.impact }),
       h(
         'footer',
         { class: 'ce-foot' },
@@ -481,11 +482,8 @@ class CurveEditor {
     const view = contrastOf(store.get());
     const ends = view.rowEnds.get(this.p.id) ?? view.ends;
     const levels = view.levels.length ? view.levels : [];
-    const details = h('details', { class: 'ce-contrast' });
-    if (!levels.length) {
-      details.append(h('summary', { 'data-tip': CURVE_TIP.contrast }, 'Contrast-targeted…'), h('p', { class: 'meta' }, 'Turn on a contrast target in Base colors to use this.'));
-      return details;
-    }
+    const form = (content: Child) => collapsible({ class: 'ce-contrast', tip: CURVE_TIP.contrast, summary: 'Contrast-targeted…', content });
+    if (!levels.length) return form(h('p', { class: 'meta' }, 'Turn on a contrast target in the sidebar to use this.'));
     const levelSelect = h('select', { 'aria-label': 'Contrast level' }, levels.map((l, i) => h('option', { value: String(i) }, l.label)));
     const stepSelect = (end: EndId) =>
       h(
@@ -510,8 +508,7 @@ class CurveEditor {
       this.notes.replaceChildren(...notes.map((n) => h('li', { class: 'warning' }, n)));
       this.set(state, true);
     };
-    details.append(
-      h('summary', { 'data-tip': CURVE_TIP.contrast }, 'Contrast-targeted…'),
+    return form([
       h(
         'div',
         { class: 'ce-inline' },
@@ -521,8 +518,7 @@ class CurveEditor {
         h('button', { type: 'button', 'data-tip': CURVE_TIP.solve, onclick: run }, 'Solve'),
       ),
       h('p', { class: 'meta' }, 'Sets those steps’ lightness so they just pass, keeping chroma and hue; the rest of the curve runs smoothly through the ends and the anchor.'),
-    );
-    return details;
+    ]);
   }
 
   // -------------------------------------------------------------------------

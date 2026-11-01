@@ -21,25 +21,31 @@
 
       <main class="workspace">
         <section class="view" data-view="files" aria-labelledby="files-h">
-          <header class="view-head">
-            <h1 id="files-h">Files</h1>
-            <p>Check design-token files for DTCG compliance, contrast and color-vision accessibility. Files are read in this browser tab and never leave it.</p>
+          <header class="vh">
+            <div class="vh-row">
+              <h1 class="vh-title" id="files-h"><span class="landing-only brand-title"><span class="logo" aria-hidden="true"></span>Tokens Tester</span><span class="loaded-only">Files</span></h1>
+            </div>
+            <div class="vh-summary loaded-only" id="files-summary"></div>
+            <p class="vh-summary landing-only">Check design-token files for DTCG compliance, contrast and color-vision accessibility. Files are read in this browser tab and never leave it.</p>
           </header>
+          <tt-files></tt-files>
+          <h3 class="section-title loaded-only">Add more files</h3>
           <div class="load-card">
             <tt-loader></tt-loader>
             <tt-settings></tt-settings>
           </div>
-          <tt-files></tt-files>
+          <p class="landing-only landing-foot"><a class="local" href="#privacy" data-tip="Your files are processed only in this browser tab. Click to see how to check it."><span class="dot" aria-hidden="true"></span>Runs locally</a></p>
         </section>
         <section class="view" data-view="themes" hidden><tt-themes></tt-themes></section>
         <section class="view" data-view="issues" hidden><tt-issues></tt-issues></section>
         <section class="view" data-view="colors" hidden><tt-palettes></tt-palettes></section>
         <section class="view" data-view="semantic" hidden><tt-semantic></tt-semantic></section>
+        <section class="view" data-view="components" hidden><tt-semantic tier="component"></tt-semantic></section>
         <section class="view" data-view="tokens" hidden><tt-tokens></tt-tokens></section>
         <section class="view" data-view="privacy" aria-labelledby="privacy-h" hidden>
-          <header class="view-head">
-            <h1 id="privacy-h">Privacy</h1>
-            <p>Your tokens never leave this browser tab.</p>
+          <header class="vh">
+            <div class="vh-row"><h1 class="vh-title" id="privacy-h">Privacy</h1></div>
+            <p class="vh-summary">Your tokens never leave this browser tab.</p>
           </header>
           <div class="prose">
             <p>Files are read and processed on this page only. Their names, values and structure are never uploaded, stored or sent anywhere.</p>

@@ -53,7 +53,8 @@ describe('Tokens Studio → DTCG', () => {
 
   it('reports what has no DTCG equivalent', () => {
     const codes = m.issues.map((i) => `${i.code} ${i.target}`).sort();
-    expect(codes).toEqual(['legacy-conversion global.space.md', 'unknown-type case'].sort());
+    // `body` is a base token (set "global") built from references: tier rule 4.
+    expect(codes).toEqual(['legacy-conversion global.space.md', 'tier-base-reference body', 'unknown-type case'].sort());
   });
 
   it('round-trips back to Tokens Studio', () => {

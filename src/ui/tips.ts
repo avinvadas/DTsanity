@@ -14,6 +14,7 @@ export const TIP = {
   navIssues: 'Problems with the DTCG format, with suggested fixes. The number counts errors and warnings.',
   navColors: 'Base color palettes: scale checks, gamut and contrast, and the curve editor.',
   navSemantic: 'Foreground and background pairs found by name, checked for contrast in every theme. The number counts pairs.',
+  navComponents: 'Component tokens (button, input, card…) in foreground and background pairs, checked like semantic ones. The number counts pairs.',
   navTokens: 'Every token with its written and resolved value.',
   themePick: 'The theme that Issues, Base colors and Tokens show. “All themes” combines them: a check fails if it fails in any theme.',
 
@@ -34,6 +35,7 @@ export const TIP = {
   siblingRealias: 'Point this group’s tokens at other existing tokens, theme by theme, to keep them apart with every vision type. Only the references change.',
   realias: 'Re-alias: point this token at another existing token, theme by theme. Only the reference changes.',
   pairBorderAlias: 'This token is an alias of another token as a whole, so its color is changed there.',
+  tierOther: 'This token belongs to another tier than this view’s: a semantic or base token paired with a component token, or a base token used as a semantic background.',
   pairsReset: 'Forget the pairs you added, removed or re-kinded.',
 
   // Files
@@ -79,8 +81,10 @@ export const TIP = {
 
   // Palettes
   paletteMeta: 'Number of steps, and whether lightness goes from light to dark, dark to light, or has no clear order.',
-  notBase: 'Shown. Click to hide this palette from the system, for example when it is a set of one-off colors.',
-  treatAsBase: 'Hidden. Click to show this palette in the system and run the scale and contrast checks on it.',
+  notBase: 'Leave this palette out of the scale and contrast checks, for example when it is a set of one-off colors.',
+  treatAsBase: 'Run the scale and contrast checks on this palette as part of the system.',
+  collapseRow: 'Collapse this palette to its heading. Its checks still count.',
+  expandRow: 'Expand this palette to see its steps and checks.',
   formats: {
     oklch: 'Show colors as oklch(lightness chroma hue), the space every check here uses.',
     hex: 'Show colors as hex. Colors outside sRGB are shown approximately (≈).',

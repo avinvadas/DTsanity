@@ -11,10 +11,11 @@ import { contrastOf, type ContrastView } from '../state/contrast';
 import { palettesOf } from '../state/palettes';
 import { preview } from '../state/preview';
 import { displayGamut, paintAll, swatchCanvas } from './canvas';
+import { disclosure, isOpen } from './collapsible';
 import { contrastControls, paletteContrast, parityPanel } from './contrast';
 import { defaultAnchor } from '../curves/model';
 import { openCurveEditor } from './curve-editor';
-import { h, icon, masked, pinButton, plural } from './dom';
+import { h, icon, masked, pinButton, plural, viewHead } from './dom';
 import { FLAG_TIP, flagTip, levelTip, TIP } from './tips';
 
 /**
@@ -118,13 +119,11 @@ export class TTPalettes extends HTMLElement {
     const scroll = [...this.querySelectorAll('.sys-scroll')].map((el) => el.scrollLeft);
 
     this.replaceChildren(
-      h(
-        'div',
-        { class: 'palettes-head' },
-        h('h2', null, 'Base colors ', h('span', { class: 'n' }, total ? `${plural(included.length, 'palette')} · ${plural(total, 'color')}` : '')),
-        h('div', { class: 'controls' }, this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut)),
-      ),
-      total ? contrastControls(settings, set, contrast) : '',
+      viewHead('Base colors', {
+        summary: total ? `${plural(included.length, 'palette')} · ${plural(total, 'color')}` : null,
+        actions: [this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut)],
+      }),
+      total && settings.contrast.length ? contrastControls(settings, set, contrast) : '',
       h(
         'div',
         { class: 'palettes-body' },
@@ -176,7 +175,7 @@ export class TTPalettes extends HTMLElement {
   }
 
   /** One step scheme: column headers, then each palette as a block of rows. */
-  /** Every palette in file order: shown ones in their step grid, hidden ones collapsed in place. */
+  /** Every palette in file order: each in its step grid (collapsible), excluded ones as a single row in place. */
   private systems(all: Palette[], settings: Settings, shown: Settings['gamut'], contrast: ContrastView) {
     // The global ends scope every row: columns come from the steps within them.
     const whole = new Map(all.map((p) => [p.id, p]));
@@ -239,15 +238,17 @@ export class TTPalettes extends HTMLElement {
     const notes = p.flags.filter((f) => !PAIR_KINDS.has(f.kind) && !PLACED_KINDS.has(f.kind) && !(f.kind === 'unordered' && f.steps.length));
     const details = paletteContrast(p, result, contrast);
 
-    cells.push(at(this.heading(p, live, past), row, `1 / ${actions}`));
-    cells.push(
-      at(
-        h('span', { class: 'row-end heading-end' }, h('button', { type: 'button', class: 'icon-btn eye', 'aria-label': 'Hide palette', 'aria-pressed': 'true', 'data-tip': TIP.notBase, onclick: () => setPaletteIncluded(p.id, false) }, icon('eye'))),
-        row,
-        actions,
-      ),
-    );
+    const key = `palette:${p.id}`;
+    const open = isOpen(key, true);
+    const toggle = disclosure({ key, open: true, label: p.name, tip: open ? TIP.collapseRow : TIP.expandRow, onToggle: () => this.schedule() });
+    cells.push(at(this.heading(p, live, past, open, toggle), row, `1 / ${actions}`));
+    cells.push(at(h('span', { class: 'row-end heading-end' }), row, actions));
     row++;
+    // Collapsed: the heading alone, with its checks still counted.
+    if (!open) {
+      cells.push(at(h('span', { class: 'row-sep' }), row, '1 / -1'));
+      return row + 1;
+    }
 
     // The row's units. Every column is a step some row in the system
     // has, so a step this row lacks is a gap, wherever it falls.
@@ -351,7 +352,7 @@ export class TTPalettes extends HTMLElement {
   }
 
   /** Heading above a palette's units: its identity, and the eye that hides it from the system. */
-  private heading(p: Palette, live: boolean, past: { step: string; end: EndId }[]) {
+  private heading(p: Palette, live: boolean, past: { step: string; end: EndId }[], open = true, toggle?: HTMLElement) {
     const pastTip = (['light', 'dark'] as const)
       .map((end) => {
         const steps = past.filter((x) => x.end === end).map((x) => x.step);
@@ -365,12 +366,21 @@ export class TTPalettes extends HTMLElement {
       h(
         'div',
         { class: 'row-heading-inner' },
+        toggle ?? null,
         h('h3', null, p.name),
         h('span', { class: 'meta', 'data-tip': TIP.paletteMeta }, `${plural(p.swatches.length, 'step')} · ${DIRECTION[p.direction]}`),
         past.length ? h('span', { class: 'outl', 'data-tip': `${pastTip} ${TIP.pastEnds}` }, `${past.length} past the ends`) : null,
         live ? h('span', { class: 'outl', 'data-tip': TIP.previewRow }, 'Preview') : null,
+        open ? null : this.flagSummary(p),
+        h('button', { type: 'button', class: 'link small', 'data-tip': TIP.notBase, onclick: () => setPaletteIncluded(p.id, false) }, 'Exclude from checks'),
       ),
     );
+  }
+
+  /** On a collapsed row, how many scale flags it has, so problems stay visible. */
+  private flagSummary(p: Palette) {
+    const n = p.flags.filter((f) => f.severity !== 'info').length;
+    return n ? h('span', { class: 'chip warning' }, `${plural(n, 'flag')}`) : null;
   }
 
   /** One token as a fixed-size unit: its color, and the checks about its value alone. */
@@ -450,7 +460,7 @@ export class TTPalettes extends HTMLElement {
     );
   }
 
-  /** A hidden palette: one collapsed row in its place in the stack. The eye shows it again. */
+  /** A palette left out of the checks: one row in its place in the stack, with the action to include it. */
   private hiddenRow(cells: HTMLElement[], row: number, cols: number, p: Palette): number {
     const actions = actionCol(cols);
     cells.push(
@@ -462,20 +472,15 @@ export class TTPalettes extends HTMLElement {
             'div',
             { class: 'row-heading-inner' },
             h('h3', null, p.name),
-            h('span', { class: 'meta' }, `${plural(p.swatches.length, 'color')} · hidden${p.excludedReason ? `: ${p.excludedReason}` : ''}`),
+            h('span', { class: 'meta' }, `${plural(p.swatches.length, 'color')} · excluded from checks${p.excludedReason ? `: ${p.excludedReason}` : ''}`),
+            h('button', { type: 'button', class: 'link small', 'data-tip': TIP.treatAsBase, onclick: () => setPaletteIncluded(p.id, true) }, 'Include in checks'),
           ),
         ),
         row,
         `1 / ${actions}`,
       ),
     );
-    cells.push(
-      at(
-        h('span', { class: 'row-end heading-end' }, h('button', { type: 'button', class: 'icon-btn eye off', 'aria-label': 'Show palette', 'aria-pressed': 'false', 'data-tip': TIP.treatAsBase, onclick: () => setPaletteIncluded(p.id, true) }, icon('eye-off'))),
-        row,
-        actions,
-      ),
-    );
+    cells.push(at(h('span', { class: 'row-end heading-end' }), row, actions));
     cells.push(at(h('span', { class: 'row-sep' }), row + 1, '1 / -1'));
     return row + 2;
   }

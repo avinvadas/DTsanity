@@ -1,6 +1,7 @@
 import { ALL_THEMES, setActiveTheme, store, type AppState } from '../state/app';
 import { pairsOf, siblingFails } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
+import { targetToggles } from './contrast';
 import { h, masked, severityIcon } from './dom';
 import { TIP } from './tips';
 
@@ -10,7 +11,7 @@ import { TIP } from './tips';
  * the back button and reloads work.
  */
 
-export type ViewId = 'files' | 'themes' | 'issues' | 'colors' | 'semantic' | 'tokens' | 'privacy';
+export type ViewId = 'files' | 'themes' | 'issues' | 'colors' | 'semantic' | 'components' | 'tokens' | 'privacy';
 
 interface ViewDef {
   id: ViewId;
@@ -21,14 +22,19 @@ interface ViewDef {
   tip: string;
 }
 
+// Results first; the views that manage the loaded files come last.
 const VIEWS: ViewDef[] = [
-  { id: 'files', label: 'Files', needsFiles: false, tip: TIP.navFiles },
-  { id: 'themes', label: 'Themes', needsFiles: true, tip: TIP.navThemes },
   { id: 'issues', label: 'Issues', needsFiles: true, tip: TIP.navIssues },
   { id: 'colors', label: 'Base colors', needsFiles: true, tip: TIP.navColors },
   { id: 'semantic', label: 'Semantic', needsFiles: true, tip: TIP.navSemantic },
+  { id: 'components', label: 'Components', needsFiles: true, tip: TIP.navComponents },
   { id: 'tokens', label: 'Tokens', needsFiles: true, tip: TIP.navTokens },
+  { id: 'themes', label: 'Themes', needsFiles: true, tip: TIP.navThemes },
+  { id: 'files', label: 'Files', needsFiles: false, tip: TIP.navFiles },
 ];
+
+/** How many views come before the separator: the results, then the file management views. */
+const RESULT_VIEWS = 5;
 
 const isView = (v: string): v is ViewId => VIEWS.some((d) => d.id === v) || v === 'privacy';
 
@@ -126,10 +132,16 @@ export class TTNav extends HTMLElement {
     const errors = v.model.issues.filter((i) => i.severity === 'error').length;
     const warnings = v.model.issues.filter((i) => i.severity === 'warning').length;
     const included = has ? palettesOf(store.get()).palettes.filter((p) => p.included) : [];
-    const semantic = has ? pairsOf(store.get()) : undefined;
-    const pairs = semantic?.rows ?? [];
-    const failing = pairs.filter((r) => !r.pass);
-    const cvdFailing = pairs.some((r) => r.cvdFails.length) || (semantic?.siblings.some((g) => siblingFails(g)) ?? false);
+    const pairs = has ? pairsOf(store.get()) : undefined;
+    /** The count and tone for one tier's pairs view: red for failing text, amber for UI or CVD failures. */
+    const tierCount = (tier: 'semantic' | 'component') => {
+      const rows = pairs?.rows.filter((r) => r.tier === tier) ?? [];
+      if (!rows.length) return undefined;
+      const failing = rows.filter((r) => !r.pass);
+      const cvd = rows.some((r) => r.cvdFails.length) || (pairs?.siblings.some((g) => g.tier === tier && siblingFails(g)) ?? false);
+      const tone: Tone | undefined = failing.some((r) => r.pair.kind === 'text') ? 'error' : failing.length || cvd ? 'warning' : undefined;
+      return { n: rows.length, tone };
+    };
     // Each count is led by the severest indication active in that view.
     const counts: Partial<Record<ViewId, { n: number; tone?: Tone }>> = has
       ? {
@@ -137,9 +149,8 @@ export class TTNav extends HTMLElement {
           themes: v.themes.length ? { n: v.themes.length, tone: severest(v.themeModels.flatMap((m) => m.model.issues.map((i) => i.severity))) } : undefined,
           issues: { n: errors + warnings, tone: severest(v.model.issues.map((i) => i.severity)) },
           colors: { n: included.length, tone: severest(included.flatMap((p) => p.flags.map((f) => f.severity))) },
-          semantic: pairs.length
-            ? { n: pairs.length, tone: failing.some((r) => r.pair.kind === 'text') ? 'error' : failing.length || cvdFailing ? 'warning' : undefined }
-            : undefined,
+          semantic: tierCount('semantic'),
+          components: tierCount('component'),
           tokens: { n: v.model.tokens.size },
         }
       : {};
@@ -166,7 +177,15 @@ export class TTNav extends HTMLElement {
       );
     });
 
-    this.replaceChildren(h('nav', { class: 'nav', 'aria-label': 'Sections' }, items.slice(0, 2), h('div', { class: 'nav-sep', role: 'separator' }), items.slice(2)), this.themePicker(v));
+    this.replaceChildren(
+      h('nav', { class: 'nav', 'aria-label': 'Sections' }, items.slice(0, RESULT_VIEWS), h('div', { class: 'nav-sep', role: 'separator' }), items.slice(RESULT_VIEWS)),
+      h('div', { class: 'nav-checks' }, this.themePicker(v), this.contrastPicker(v)),
+    );
+  }
+
+  /** Contrast targets: a global setting, so it sits in the sidebar rather than moving from view to view. */
+  private contrastPicker(v: View) {
+    return h('div', { class: 'contrast-pick', role: 'group', 'aria-labelledby': 'tt-contrast-label' }, h('span', { class: 'pick-label', id: 'tt-contrast-label' }, 'Contrast'), targetToggles(v.settings));
   }
 
   /** Active theme, shown wherever results depend on it. Theme names come from the files, so the picker is masked. */

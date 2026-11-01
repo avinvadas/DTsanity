@@ -3,6 +3,7 @@ import { colorInfo, infoFrom, mapped, type ColorInfo } from '../color/format';
 import { levelById, type ContrastTarget, type Level, type Metric } from '../contrast/levels';
 import { contrast } from '../contrast/metrics';
 import type { JPath } from '../json/cst';
+import { MAY_REFERENCE, TIER_LABEL, tiersOf } from '../model/tiers';
 import type { Edit, Model, Token } from '../model/types';
 
 /**
@@ -219,17 +220,37 @@ export interface AliasCandidate {
   info: ColorInfo;
 }
 
-/** Tokens a semantic token can be pointed at: color tokens with their own value, grouped by their parent group. */
-export function aliasCandidates(model: Model): { label: string; tokens: AliasCandidate[] }[] {
+/**
+ * Tokens `id` can be pointed at, grouped by tier and parent group: the tiers
+ * its own tier may reference (semantic: base and semantic; component:
+ * semantic and base), leaving out itself and any token that already leads
+ * back to it, which would make a loop. Without `id`, base colors only.
+ */
+export function aliasCandidates(model: Model, id?: string): { label: string; tokens: AliasCandidate[] }[] {
+  const tiers = tiersOf(model);
+  const allowed = id ? MAY_REFERENCE[tiers.get(id) ?? 'semantic'] : (['base'] as const);
+  const loops = id ? leadsTo(model, id) : new Set<string>();
   const groups = new Map<string, AliasCandidate[]>();
-  for (const t of [...model.tokens.values()].sort((a, b) => a.order - b.order)) {
-    if (t.type !== 'color' || t.aliasOf || t.resolution !== 'ok') continue;
-    const info = colorInfo(t.value);
+  const tokens = [...model.tokens.values()].sort((a, b) => allowed.indexOf(tiers.get(a.id)!) - allowed.indexOf(tiers.get(b.id)!) || a.order - b.order);
+  for (const t of tokens) {
+    const tier = tiers.get(t.id)!;
+    if (t.type !== 'color' || !allowed.includes(tier) || t.id === id || loops.has(t.id)) continue;
+    const info = tokenColor(t);
     if (!info) continue;
-    const label = t.path.slice(0, -1).join('.') || 'Top level';
+    const label = `${TIER_LABEL[tier]} · ${t.path.slice(0, -1).join('.') || 'top level'}`;
     groups.set(label, [...(groups.get(label) ?? []), { id: t.id, info }]);
   }
   return [...groups].map(([label, tokens]) => ({ label, tokens }));
+}
+
+/** Tokens whose references lead to `id`, directly or through others. */
+function leadsTo(model: Model, id: string): Set<string> {
+  const back = new Map<string, string[]>();
+  for (const t of model.tokens.values()) for (const r of t.refs) back.set(r, [...(back.get(r) ?? []), t.id]);
+  const found = new Set<string>();
+  const queue = [id];
+  while (queue.length) for (const from of back.get(queue.pop()!) ?? []) if (!found.has(from)) found.add(from), queue.push(from);
+  return found;
 }
 
 /**

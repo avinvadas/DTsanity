@@ -1,7 +1,7 @@
 import type { Category, Fix, Issue, Model, Severity } from '../model/types';
 import { ALL_THEMES, applyFixes, setActiveTheme, store, undo, type AppState } from '../state/app';
 import { mergeModels } from '../themes/merge';
-import { h, masked, plural, severityIcon } from './dom';
+import { h, masked, plural, severityIcon, viewHead } from './dom';
 import { reloadControl } from './loader';
 import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
 
@@ -81,17 +81,10 @@ export class TTIssues extends HTMLElement {
     })).filter((g) => g.issues.length > 0);
 
     this.replaceChildren(
-      h(
-        'div',
-        { class: 'issues-head' },
-        h(
-          'h2',
-          null,
-          'Issues ',
-          h('span', { class: 'counts' }, SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase())))),
-        ),
-        this.reload.el,
-      ),
+      viewHead('Issues', {
+        summary: SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
+        actions: this.reload.el,
+      }),
       this.otherThemes(v) ?? '',
       groups.length === 0
         ? h('p', { class: 'empty' }, model.files.length ? 'No problems found. The files follow the DTCG format.' : '')

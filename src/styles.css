@@ -228,6 +228,11 @@ details > summary { cursor: pointer; }
    ============================================================ */
 
 .app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; }
+/* The scrollbar's space is always kept, so pages of any length start at the same place. */
+html { scrollbar-gutter: stable; }
+/* Before anything is loaded there is nothing to navigate: only the loader shows. */
+body:not(.has-files) .app { grid-template-columns: minmax(0, 1fr); }
+body:not(.has-files) .sidebar { display: none; }
 
 .sidebar {
   position: sticky;
@@ -266,7 +271,7 @@ tt-nav { display: flex; flex-direction: column; gap: var(--space-4); }
 .nav-item .soon-tag { margin-left: auto; font-size: var(--font-2xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--subtle); }
 .nav-sep { height: 1px; background: var(--border); margin: var(--space-2); }
 
-.theme-pick { display: flex; flex-direction: column; gap: var(--space-1); padding: 0 var(--space-2); }
+.theme-pick { display: flex; flex-direction: column; gap: var(--space-1); }
 .theme-pick label { font-size: var(--font-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--subtle); }
 .theme-pick select { width: 100%; }
 
@@ -276,21 +281,18 @@ tt-nav { display: flex; flex-direction: column; gap: var(--space-4); }
 .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex: none; }
 
 .workspace { min-width: 0; padding: var(--space-5) var(--space-6) var(--space-7); }
-.view { max-width: var(--content-w); margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-5); }
+.view { max-width: var(--content-w); margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
+/* Every view's content follows its header at the same distance. */
+.view > tt-issues, .view > tt-palettes, .view > tt-semantic, .view > tt-tokens, .view > tt-themes { display: flex; flex-direction: column; gap: var(--space-4); }
 .view[hidden] { display: none; }
 .view h1, .view h2 { font-size: var(--font-title); }
 .view h2 { display: flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
 .view h2 .n, .view h2 .counts { font-size: var(--font-base); font-weight: 400; color: var(--muted); }
-.view-head { display: flex; flex-direction: column; gap: var(--space-1); }
-.view-head p { margin: 0; color: var(--muted); max-width: 70ch; }
 
-/* Section heads shared by every view: title left, controls right */
-.issues-head, .palettes-head, .themes-head, .semantic-head {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); flex-wrap: wrap;
-}
 
 @media (max-width: 820px) {
-  .app { grid-template-columns: 1fr; }
+  /* The top bar keeps its own height; short pages must not stretch it. */
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .sidebar {
     position: sticky; height: auto; z-index: 5;
     flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
@@ -418,8 +420,6 @@ body.dragging .dropzone {
 /* Before any file is loaded the Files view is a centered landing with a large drop zone. */
 .loader { display: flex; flex-direction: column; align-items: center; gap: var(--space-5); }
 .view[data-empty] { text-align: center; align-items: center; }
-.view[data-empty] .view-head { align-items: center; }
-.view[data-empty] .view-head p { margin-inline: auto; }
 .view[data-empty] .load-card { border: 0; background: transparent; padding: var(--space-4) 0; align-items: center; width: 100%; }
 .view[data-empty] .dropzone { --zone: min(360px, 80vw); }
 .view[data-empty] .dropzone strong { font-size: var(--font-title); }
@@ -517,7 +517,6 @@ table.theme-matrix td.file-name { min-width: 14ch; overflow-wrap: anywhere; }
    Base colors view
    ============================================================ */
 
-tt-palettes { display: flex; flex-direction: column; gap: var(--space-4); }
 .controls { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
 .palettes-body { display: flex; flex-direction: column; gap: var(--space-3); }
 
@@ -667,7 +666,6 @@ button.pin-btn .icon { width: 13px; height: 13px; }
 .palette-contrast { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-sm); }
 .range.fail { color: var(--subtle); }
 .range b { font-weight: 600; }
-.distance summary { color: var(--muted); }
 .distance ul { margin: 6px 0; padding-left: 18px; }
 .distance .table-wrap { width: fit-content; max-width: 100%; }
 table.nearest { font-size: var(--font-sm); }
@@ -749,8 +747,6 @@ dialog.curve-editor[data-side='above']::before { bottom: -7px; border-left: 0; b
 .ce-curves .ce-curve { margin-top: var(--space-2); }
 .ce-channel { font-weight: 600; font-size: var(--font-md); }
 .ce-more { margin-top: var(--space-3); font-size: var(--font-sm); }
-.ce-more summary { color: var(--muted); }
-.ce-more[open] summary { margin-bottom: var(--space-2); }
 .ce-mapped:empty { display: none; }
 dialog.curve-editor section { margin-top: var(--space-4); }
 dialog.curve-editor h3 { margin: 0 0 6px; }
@@ -791,7 +787,6 @@ dialog.curve-editor .meta { font-size: var(--font-sm); margin-top: 6px; margin-b
 .ce-curve-head h3 { margin: 0; min-width: 6em; }
 .ce-inline { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--font-sm); }
 .ce-inline input[type='number'] { width: 64px; }
-.ce-contrast summary { font-size: var(--font-sm); color: var(--accent); }
 .ce-contrast[open] { flex-basis: 100%; }
 .curve-box { position: relative; }
 .curve-canvas { display: block; width: 100%; height: 130px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); touch-action: none; }
@@ -832,7 +827,6 @@ dialog.curve-editor .ok { font-size: var(--font-sm); margin: var(--space-1) 0; }
    Semantic pairs
    ============================================================ */
 
-tt-semantic { display: flex; flex-direction: column; gap: var(--space-3); }
 tt-semantic .meta { max-width: 80ch; }
 .view h2 .counts { display: inline-flex; align-items: center; gap: var(--space-2); }
 .badge.ok .icon { width: 12px; height: 12px; }
@@ -909,3 +903,89 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .realias-pop .swatch-select { display: flex; min-width: 0; }
 .no-pairs p { margin: 0 0 var(--space-1); }
 .no-pairs .token-id { font-family: var(--mono); font-size: var(--font-sm); }
+.tier-tag { display: inline-block; margin-left: var(--space-2); padding: 0 6px; border-radius: var(--radius-pill); background: var(--info-soft); color: var(--info); font-family: var(--sans); font-size: var(--font-2xs); font-weight: 600; vertical-align: 1px; }
+.tier-tag.semantic, .tier-tag.base { background: var(--surface-2); color: var(--muted); }
+.tier-tag.component { background: var(--info-soft); color: var(--info); }
+.component-find { min-width: 220px; }
+.component-sections { display: flex; flex-direction: column; }
+/* Component names read like palette names in Base colors. */
+.component-section .component-name { margin: 0; font-family: var(--mono); font-size: var(--font-md); color: var(--text); }
+.component-section .meta { font-size: var(--font-sm); }
+.component-section section.vision, .component-section section.siblings { margin-top: var(--space-2); }
+.component-section h4 { margin: 0; font-size: var(--font-sm); color: var(--muted); }
+
+/* ============================================================
+   View header: the same title row and summary line on every view
+   ============================================================ */
+
+.vh { display: flex; flex-direction: column; gap: var(--space-1); }
+.vh-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); min-height: 36px; flex-wrap: wrap; }
+.vh-title { margin: 0; font-size: var(--font-title); line-height: 1.2; }
+.vh-actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-left: auto; }
+.vh-summary { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; min-height: 26px; margin: 0; color: var(--muted); }
+.vh-summary .chip { margin-right: 0; }
+.vh-actions .reload-wrap { display: flex; align-items: center; gap: var(--space-2); }
+
+/* Files view: brand and intro while empty, the "Files" title once loaded. */
+.view:not([data-empty]) .landing-only, .view[data-empty] .loaded-only { display: none; }
+.brand-title { display: inline-flex; align-items: center; gap: var(--space-2); }
+.brand-title .logo { width: 24px; height: 24px; border-radius: var(--radius-sm); background: conic-gradient(from 200deg, #e8564f, #f2b33d, #4cb97c, #3d7bf0, #8f5ce8, #e8564f); }
+.view[data-empty] .vh { align-items: center; }
+.view[data-empty] .vh-row { justify-content: center; }
+.view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
+.landing-foot { margin: 0; font-size: var(--font-sm); }
+
+/* Global checks in the sidebar: theme and contrast targets. */
+.nav-checks { display: flex; flex-direction: column; gap: var(--space-3); padding: 0 var(--space-2); }
+.contrast-pick { display: flex; flex-direction: column; gap: var(--space-1); }
+.pick-label { font-size: var(--font-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--subtle); }
+.contrast-pick .chips { gap: 4px; }
+@media (max-width: 820px) {
+  .nav-checks { flex-direction: row; align-items: center; flex-wrap: wrap; margin-left: auto; padding: 0; gap: var(--space-3); }
+  .contrast-pick { flex-direction: row; align-items: center; gap: var(--space-2); }
+}
+/* Spacing between blocks comes from the view's gap, not from paragraph margins. */
+tt-semantic > p { margin: 0; }
+
+/* ============================================================
+   Collapsible: one look for every expandable container and toggle
+   ============================================================ */
+
+.cl > .cl-summary { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; list-style: none; user-select: none; }
+.cl > .cl-summary::-webkit-details-marker { display: none; }
+.cl-label { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; min-width: 0; }
+.cl-chevron { display: inline-flex; flex: none; color: var(--muted); transition: transform 0.15s ease; }
+.cl-chevron .icon { width: 14px; height: 14px; }
+/* Closed points right; open points down. */
+.cl:not([open]) > .cl-summary .cl-chevron, .cl-toggle[aria-expanded='false'] .cl-chevron { transform: rotate(-90deg); }
+.cl > .cl-summary:hover .cl-chevron, .cl-toggle:hover .cl-chevron { color: var(--text); }
+.cl-inner { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* plain: inline, for "more" areas */
+.cl-plain > .cl-summary { color: var(--muted); font-size: var(--font-sm); padding: 2px 0; width: fit-content; }
+.cl-plain > .cl-summary:hover { color: var(--text); }
+.cl-plain[open] > .cl-summary { margin-bottom: var(--space-2); }
+
+/* row: like a base color row — heading, content, then a separator line */
+.cl-row { border-bottom: 1px solid var(--border-strong); }
+.cl-row > .cl-summary { padding: var(--space-4) 0 var(--space-2); }
+.cl-row > .cl-body > .cl-inner { padding-bottom: var(--space-3); }
+/* The chevron sits in the same 26px box as the toggle button beside palette names. */
+.cl-row > .cl-summary .cl-chevron { width: 26px; height: 26px; align-items: center; justify-content: center; margin-left: -6px; border-radius: var(--radius); }
+.cl-row > .cl-summary:hover .cl-chevron { background: var(--surface-hover); }
+
+/* card: a bordered section */
+.cl-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.cl-card > .cl-summary { padding: var(--space-2) var(--space-3); }
+.cl-card > .cl-body > .cl-inner { padding: 0 var(--space-3) var(--space-3); }
+
+/* the toggle on its own, for rows that can't be wrapped */
+button.cl-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 26px; min-width: 26px; padding: 0 4px; border-color: transparent; background: transparent; color: var(--muted); }
+button.cl-toggle.with-text { padding: 0 var(--space-2); font-size: var(--font-sm); }
+button.cl-toggle:hover:not(:disabled) { background: var(--surface-hover); color: var(--text); border-color: var(--border); }
+button.cl-toggle[aria-expanded='true'] { color: var(--text); }
+button.link.small { font-size: var(--font-sm); }
+.row-heading-inner .link.small { color: var(--subtle); margin-left: var(--space-2); }
+.row-heading-inner .link.small:hover { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .cl-chevron { transition: none; } }
+.row-heading-inner > .cl-toggle { margin-left: -6px; }

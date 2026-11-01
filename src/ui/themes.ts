@@ -9,7 +9,7 @@ import {
   store,
   type AppState,
 } from '../state/app';
-import { h, masked } from './dom';
+import { h, masked, plural, viewHead } from './dom';
 import { TIP } from './tips';
 
 const SOURCE: Record<ThemeSource, string> = {
@@ -42,7 +42,7 @@ export class TTThemes extends HTMLElement {
     if (v.themes.length === 0) {
       // Say why there's no switcher, rather than hiding the panel.
       this.replaceChildren(
-        h('h2', null, 'Themes'),
+        viewHead('Themes'),
         h(
           'p',
           { class: 'meta' },
@@ -67,7 +67,7 @@ export class TTThemes extends HTMLElement {
     const counts = new Map(v.themeModels.map((m) => [m.theme.id, m.model.issues.filter((i) => i.severity === 'error').length]));
 
     this.replaceChildren(
-      h('div', { class: 'themes-head' }, h('h2', null, 'Themes')),
+      viewHead('Themes', { summary: plural(v.themes.length, 'theme') }),
       h(
         'p',
         { class: 'meta' },
