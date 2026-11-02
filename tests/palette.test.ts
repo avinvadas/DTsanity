@@ -4,7 +4,7 @@ import { DEFAULT_SETTINGS } from '../src/model/defaults';
 import { detectPalettes, type Palette } from '../src/palette/detect';
 import { orderSteps } from '../src/palette/order';
 import { analyze } from '../src/validate';
-import { loadFixture } from './helpers';
+import { loadFixture, loadText } from './helpers';
 
 const model = analyze([loadFixture('palettes.tokens.json')], DEFAULT_SETTINGS);
 const srgb = detectPalettes(model, {}, 'srgb');
@@ -40,8 +40,9 @@ describe('tiers and palettes', () => {
     expect(pal(srgb, 'color.blue')).toMatchObject({ order: 'numeric', direction: 'light-to-dark', included: true });
   });
 
-  it('keeps single colors outside palettes', () => {
-    expect(srgb.loose.map((s) => s.token.id)).toEqual(['color.white', 'color.black']);
+  it('keeps single colors outside palettes, and unrelated colors that only share a group', () => {
+    // sky, sun and leaf have no scale names and three different hues: not a ramp.
+    expect(srgb.loose.map((s) => s.token.id)).toEqual(['color.white', 'color.black', 'brand.sky', 'brand.sun', 'brand.leaf']);
   });
 
   it('leaves semantic-looking groups out by default, and honours overrides', () => {
@@ -62,7 +63,10 @@ describe('scale checks', () => {
   it('notes hue drift, uneven lightness and unordered names', () => {
     expect(pal(srgb, 'color.green').flags.find((f) => f.kind === 'hue-drift')?.message).toMatch(/Hue shifts 55°/);
     expect(pal(srgb, 'color.orange').flags.find((f) => f.kind === 'uneven-lightness')).toMatchObject({ steps: ['300', '400'] });
-    expect(kinds(pal(srgb, 'brand'))).toEqual(['unordered']);
+    // A ramp of one hue whose names follow no scale stays a palette, in file order.
+    const ok = (l: number) => ({ $value: { colorSpace: 'oklch', components: [l, 0.05, 200] } });
+    const sea = detectPalettes(analyze([loadText(JSON.stringify({ sea: { $type: 'color', mist: ok(0.9), wave: ok(0.7), deep: ok(0.4) } }))], DEFAULT_SETTINGS), {}, 'srgb');
+    expect(kinds(pal(sea, 'sea'))).toContain('unordered');
   });
 
   it('compares step sets against the full palettes', () => {
@@ -112,5 +116,24 @@ describe('gamut mapping', () => {
     const info = colorInfo({ colorSpace: 'srgb', components: [1.2, -0.1, 0.5] })!;
     mapped(info, 'srgb');
     expect(info.source.coords).toEqual([1.2, -0.1, 0.5]);
+  });
+});
+
+describe('base tier only', () => {
+  it('leaves hardcoded component and semantic colors out of the base view', () => {
+    const ok = (l: number) => ({ $value: { colorSpace: 'oklch', components: [l, 0.05, 250] } });
+    const set = detectPalettes(
+      analyze(
+        [
+          loadText(JSON.stringify({ color: { $type: 'color', blue: { 100: ok(0.9), 500: ok(0.6), 900: ok(0.3) }, white: ok(1) } }), 'primitives.tokens.json'),
+          loadText(JSON.stringify({ button: { $type: 'color', ghost: { content: ok(0.5) } } }), 'components.tokens.json'),
+        ],
+        DEFAULT_SETTINGS,
+      ),
+      {},
+      'srgb',
+    );
+    expect(set.palettes.map((p) => p.id)).toEqual(['color.blue']);
+    expect(set.loose.map((s) => s.token.id)).toEqual(['color.white']);
   });
 });

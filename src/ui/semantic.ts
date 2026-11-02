@@ -1,9 +1,9 @@
 import { formatContrast } from '../contrast/metrics';
 import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
-import { TIER_LABEL, type Tier } from '../model/tiers';
+import { TIER_LABEL, tierNames, type Tier } from '../model/tiers';
 import type { Model } from '../model/types';
-import { aliasCandidates, checkColors, colorRef, hasRole, realias, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
+import { aliasCandidates, checkColors, colorRef, glyphOf, hasRole, realias, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
@@ -94,7 +94,7 @@ export class TTSemantic extends HTMLElement {
     const themeNames = v.themeModels.length ? v.themeModels.map((m) => m.theme.name) : [null];
 
     this.replaceChildren(
-      viewHead(component ? 'Components' : 'Semantic', {
+      viewHead(masked(h('span', null, `${tierNames(v.model)[component ? 'component' : 'semantic']} tier`)), {
         summary: [
           h('span', { class: 'n' }, plural(rows.length, 'pair')),
           failText ? h('span', { class: 'chip error', 'data-tip': TIP.pairFailText }, severityIcon('error'), `${failText} text failing`) : null,
@@ -365,21 +365,20 @@ export class TTSemantic extends HTMLElement {
 
   private result(c: PairCheck | undefined, r: PairRow, theme: number, v: View) {
     if (!c) return h('span', { class: 'muted', 'data-tip': TIP.pairMissing }, '—');
-    const kind = r.pair.kind;
     // With typical vision shown, say which deficiencies this theme's pair fails under.
     const cvd = c.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r.seen[id][theme] && !r.seen[id][theme]!.pass) : [];
     return h(
       'div',
       { class: `pair-result${c.pass ? '' : ' fail'}` },
-      pairCanvas(c.shown, c.bg, kind, displayGamut(v.settings.gamut)),
+      pairCanvas(c.shown, c.bg, glyphOf(r.pair), displayGamut(v.settings.gamut)),
       h(
         'div',
         { class: 'pair-values' },
         c.results.map((x) =>
           h(
             'span',
-            { class: x.pass ? 'pass' : `miss ${failTone(kind)}`, 'data-tip': `${x.level.label}: ${x.pass ? 'passes' : 'fails'}` },
-            x.pass ? icon('check') : severityIcon(failTone(kind)),
+            { class: x.pass ? 'pass' : `miss ${failTone(r.pair.kind)}`, 'data-tip': `${x.level.label}: ${x.pass ? 'passes' : 'fails'}` },
+            x.pass ? icon('check') : severityIcon(failTone(r.pair.kind)),
             ` ${formatContrast(x.value, x.level.metric)} `,
             h('small', null, x.level.short),
           ),
@@ -410,7 +409,7 @@ export class TTSemantic extends HTMLElement {
           'aria-label': `Change aliases of ${r.pair.fg} on ${r.pair.bg}`,
           onclick: () => this.openPair(r),
         },
-        pairCanvas(c.shown, c.bg, r.pair.kind, gamut),
+        pairCanvas(c.shown, c.bg, glyphOf(r.pair), gamut),
         c.pass ? null : severityIcon(failTone(r.pair.kind)),
       );
     };

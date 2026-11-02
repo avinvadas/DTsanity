@@ -17,7 +17,7 @@ export class TTSettings extends HTMLElement {
           'label',
           { for: 'tt-legacy' },
           h('strong', null, 'Accept legacy formats'),
-          h('span', null, 'Tokens Studio and Style Dictionary v3 files are converted to DTCG when loaded. When off, only DTCG files are read.'),
+          h('span', null, 'Converts Tokens Studio and Style Dictionary v3 files to DTCG.'),
         ),
       ),
     );

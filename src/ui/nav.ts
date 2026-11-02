@@ -2,7 +2,10 @@ import { ALL_THEMES, setActiveTheme, store, type AppState } from '../state/app';
 import { pairsOf, siblingFails } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
 import { targetToggles } from './contrast';
-import { h, masked, severityIcon } from './dom';
+import { download, exportAs, isUnchanged } from '../io/export';
+import { fixPrompt } from '../io/prompt';
+import { tierNames } from '../model/tiers';
+import { h, icon, masked, plural, severityIcon } from './dom';
 import { TIP } from './tips';
 
 /**
@@ -25,10 +28,10 @@ interface ViewDef {
 // Results first; the views that manage the loaded files come last.
 const VIEWS: ViewDef[] = [
   { id: 'issues', label: 'Issues', needsFiles: true, tip: TIP.navIssues },
-  { id: 'colors', label: 'Base colors', needsFiles: true, tip: TIP.navColors },
-  { id: 'semantic', label: 'Semantic', needsFiles: true, tip: TIP.navSemantic },
-  { id: 'components', label: 'Components', needsFiles: true, tip: TIP.navComponents },
-  { id: 'tokens', label: 'Tokens', needsFiles: true, tip: TIP.navTokens },
+  { id: 'colors', label: 'Base tier', needsFiles: true, tip: TIP.navColors },
+  { id: 'semantic', label: 'Semantic tier', needsFiles: true, tip: TIP.navSemantic },
+  { id: 'components', label: 'Component tier', needsFiles: true, tip: TIP.navComponents },
+  { id: 'tokens', label: 'Tokens list', needsFiles: true, tip: TIP.navTokens },
   { id: 'themes', label: 'Themes', needsFiles: true, tip: TIP.navThemes },
   { id: 'files', label: 'Files', needsFiles: false, tip: TIP.navFiles },
 ];
@@ -43,11 +46,15 @@ function requested(): ViewId {
   return isView(id) ? id : 'files';
 }
 
+/** With nothing to show, the Issues view is disabled: results open on the base tier instead. */
+const noIssues = () => store.get().model.issues.length === 0;
+
 /** The view that can actually be shown for a request, given what is loaded. */
 function resolve(id: ViewId, hasFiles: boolean): ViewId {
   const def = VIEWS.find((d) => d.id === id);
-  if (def?.soon) return hasFiles ? 'issues' : 'files';
+  if (def?.soon) return hasFiles ? resolve('issues', hasFiles) : 'files';
   if (def?.needsFiles && !hasFiles) return 'files';
+  if (id === 'issues' && noIssues()) return 'colors';
   return id;
 }
 
@@ -103,8 +110,9 @@ export class TTNav extends HTMLElement {
         this.render(v);
         // First files loaded from the Files view: move on to the results.
         if (has && !hadFiles && current === 'files' && requested() === 'files') {
-          goTo('issues');
-          fadeIn('issues');
+          const first = resolve('issues', true);
+          goTo(first);
+          fadeIn(first);
         }
         else show(resolve(requested(), has));
         hadFiles = has;
@@ -155,9 +163,28 @@ export class TTNav extends HTMLElement {
         }
       : {};
 
+    // Tier views take the names the files use for their layers (`Primitives tier`).
+    const tiers = has ? tierNames(v.model) : undefined;
+    const issueCount = v.model.issues.length;
+    const label = (d: ViewDef): HTMLElement => {
+      if (d.id === 'issues' && has) return h('span', null, issueCount ? `${plural(issueCount, 'issue')} found` : 'No issues found');
+      const tier = { colors: 'base', semantic: 'semantic', components: 'component' } as const;
+      const t = tiers && tier[d.id as keyof typeof tier];
+      return t ? masked(h('span', null, `${tiers[t]} tier`)) : h('span', null, d.label);
+    };
+
     const items = VIEWS.map((d) => {
-      const disabled = d.soon || (d.needsFiles && !has);
+      const clean = d.id === 'issues' && has && issueCount === 0;
+      const disabled = d.soon || (d.needsFiles && !has) || clean;
       const c = counts[d.id];
+      // The issue count is in the label, so the badge shows only its severity, or a check when there are none.
+      const badge = clean
+        ? h('span', { class: 'count ok', 'aria-label': 'none' }, icon('check'))
+        : d.id === 'issues' && c?.tone
+          ? h('span', { class: `count ${c.tone}`, 'aria-label': c.tone }, severityIcon(c.tone))
+          : c && (c.n > 0 || c.tone)
+            ? h('span', { class: `count${c.tone ? ` ${c.tone}` : ''}`, 'aria-label': c.tone ? `${c.n}, ${c.tone}` : undefined }, c.tone ? severityIcon(c.tone) : null, c.n > 0 ? String(c.n) : null)
+            : null;
       return h(
         'a',
         {
@@ -168,19 +195,57 @@ export class TTNav extends HTMLElement {
           'aria-current': d.id === current ? 'page' : undefined,
           'data-tip': d.tip,
         },
-        h('span', null, d.label),
-        d.soon
-          ? h('span', { class: 'soon-tag' }, 'Soon')
-          : c && (c.n > 0 || c.tone)
-            ? h('span', { class: `count${c.tone ? ` ${c.tone}` : ''}`, 'aria-label': c.tone ? `${c.n}, ${c.tone}` : undefined }, c.tone ? severityIcon(c.tone) : null, c.n > 0 ? String(c.n) : null)
-            : null,
+        label(d),
+        d.soon ? h('span', { class: 'soon-tag' }, 'Soon') : badge,
       );
     });
 
     this.replaceChildren(
       h('nav', { class: 'nav', 'aria-label': 'Sections' }, items.slice(0, RESULT_VIEWS), h('div', { class: 'nav-sep', role: 'separator' }), items.slice(RESULT_VIEWS)),
       h('div', { class: 'nav-checks' }, this.themePicker(v), this.contrastPicker(v)),
+      has ? this.loopActions(v) : '',
     );
+  }
+
+  /**
+   * Closing the loop: the edited files to take back, and a prompt listing
+   * what is still to fix, for an AI assistant or a ticket.
+   */
+  private loopActions(v: View) {
+    const edited = v.files.filter((f) => !isUnchanged(f));
+    const save = h(
+      'button',
+      {
+        type: 'button',
+        class: 'primary-neutral',
+        disabled: !edited.length,
+        'data-tip': edited.length ? TIP.downloadUpdated : TIP.downloadUpdatedNone,
+        onclick: () => edited.forEach((f) => download(f.name, exportAs(f).text)),
+      },
+      icon('download'),
+      h('span', null, edited.length === 1 ? 'Download updated file' : edited.length ? `Download ${edited.length} updated files` : 'Download updated files'),
+    );
+    const copy = h(
+      'button',
+      {
+        type: 'button',
+        'data-tip': TIP.copyFixPrompt,
+        onclick: async () => {
+          const { text, count } = fixPrompt(store.get());
+          const label = copy.lastElementChild!;
+          try {
+            await navigator.clipboard.writeText(text || 'No corrections needed: every check passes.');
+            label.textContent = count ? `Copied ${plural(count, 'correction')}` : 'Nothing to fix';
+          } catch {
+            label.textContent = 'Copy failed';
+          }
+          setTimeout(() => (label.textContent = 'Copy fix prompt'), 1800);
+        },
+      },
+      icon('copy'),
+      h('span', null, 'Copy fix prompt'),
+    );
+    return h('div', { class: 'nav-actions' }, save, copy);
   }
 
   /** Contrast targets: a global setting, so it sits in the sidebar rather than moving from view to view. */

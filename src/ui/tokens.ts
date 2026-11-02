@@ -53,7 +53,7 @@ export class TTTokens extends HTMLElement {
     });
 
     this.replaceChildren(
-      viewHead('Tokens', { summary: masked(this.summary) }),
+      viewHead('Tokens list', { summary: masked(this.summary) }),
       h('div', { class: 'toolbar' }, masked(search), masked(this.typeSelect)),
       masked(
         h(

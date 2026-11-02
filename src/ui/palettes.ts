@@ -3,7 +3,7 @@ import { analyzePalette, passPoint, type EndId, type PaletteContrast } from '../
 import { beyondEnds, rowEnds, withinEnds } from '../contrast/ends';
 import { formatContrast } from '../contrast/metrics';
 import { checkPalettes, type FlagKind, type ScaleFlag } from '../palette/checks';
-import { stacks, type Stack } from '../palette/columns';
+import { columnOf, stacks, type Stack } from '../palette/columns';
 import type { Palette, PaletteSet, Swatch } from '../palette/detect';
 import type { Settings } from '../model/types';
 import { ALL_THEMES, setPaletteIncluded, setPins, store, updateSettings, type AppState } from '../state/app';
@@ -11,10 +11,11 @@ import { contrastOf, type ContrastView } from '../state/contrast';
 import { palettesOf } from '../state/palettes';
 import { preview } from '../state/preview';
 import { displayGamut, paintAll, swatchCanvas } from './canvas';
-import { disclosure, isOpen } from './collapsible';
+import { collapsible, disclosure, isOpen } from './collapsible';
 import { contrastControls, paletteContrast, parityPanel } from './contrast';
 import { defaultAnchor } from '../curves/model';
 import { openCurveEditor } from './curve-editor';
+import { tierNames } from '../model/tiers';
 import { h, icon, masked, pinButton, plural, viewHead } from './dom';
 import { FLAG_TIP, flagTip, levelTip, TIP } from './tips';
 
@@ -52,9 +53,13 @@ const FORMATS: { value: Settings['colorFormat']; label: string }[] = [
  * The end columns bracket every row with that palette's own ends.
  */
 /** Row labels (◻ Light, ΔL…) sit at the start of the first step's column, so the grid starts with the first swatch. */
-const LABEL_COL = 1;
-const STEP_COL = 1;
+// Column 1 is the indent under the row toggle; rail labels sit at the start of the first step.
+const LABEL_COL = 2;
+const STEP_COL = 2;
+/** After the steps: a filler that stretches rows to the container's width, then the row actions. */
 const actionCol = (steps: number) => STEP_COL + steps;
+/** Row ends span the filler and the actions column, so their lines and buttons reach the right edge. */
+const endSpan = (steps: number) => `${actionCol(steps)} / span 2`;
 
 type View = Pick<AppState, 'model' | 'paletteOverrides' | 'settings' | 'contrastEnds' | 'pins' | 'themes' | 'activeTheme'>;
 
@@ -119,7 +124,7 @@ export class TTPalettes extends HTMLElement {
     const scroll = [...this.querySelectorAll('.sys-scroll')].map((el) => el.scrollLeft);
 
     this.replaceChildren(
-      viewHead('Base colors', {
+      viewHead(masked(h('span', null, `${tierNames(v.model).base} tier`)), {
         summary: total ? `${plural(included.length, 'palette')} · ${plural(total, 'color')}` : null,
         actions: [this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut)],
       }),
@@ -190,7 +195,7 @@ export class TTPalettes extends HTMLElement {
     const cells: HTMLElement[] = [];
     if (g.columns.length) {
       g.columns.forEach((c, i) => cells.push(at(h('span', { class: 'col-head', 'data-tip': TIP.step }, c), 1, STEP_COL + i)));
-      cells.push(at(h('span', { class: 'col-corner col-end' }), 1, actionCol(g.columns.length)));
+      cells.push(at(h('span', { class: 'col-corner col-end' }), 1, endSpan(g.columns.length)));
     }
     let row = 2;
     const editing = preview.get().colors;
@@ -209,10 +214,10 @@ export class TTPalettes extends HTMLElement {
       const result = live && contrast.levels.length ? analyzePalette(p, ends, contrast.levels) : contrast.results.get(p.id);
       // The row's pin (one at most), shared with the curve editor; by default the step a curve edit starts from.
       const pins = store.get().pins[original.id] ?? (p.swatches.length ? [p.swatches[defaultAnchor(p)]!.step] : []);
-      row = this.paletteRows(cells, row, g.columns, p, !!live, settings, shown, contrast, result, past, pins);
+      row = this.paletteRows(cells, row, g.columns, (step) => columnOf(g, original.id, step), p, !!live, settings, shown, contrast, result, past, pins);
     }
     // A grid of hidden palettes only (nothing shown) has no step columns: just names and eyes.
-    const style = g.columns.length ? `--cols: ${g.columns.length}` : 'grid-template-columns: minmax(240px, max-content) 0 0 var(--action-w)';
+    const style = g.columns.length ? `--cols: ${g.columns.length}` : 'grid-template-columns: minmax(240px, max-content) minmax(0, 1fr) var(--action-w)';
     return masked(h('div', { class: 'sys-scroll' }, h('div', { class: 'sys-grid', style }, cells)));
   }
 
@@ -221,6 +226,8 @@ export class TTPalettes extends HTMLElement {
     cells: HTMLElement[],
     row: number,
     columns: string[],
+    /** The column a step sits in (its own name, or where its lightness placed it). */
+    place: (step: string) => string,
     p: Palette,
     live: boolean,
     settings: Settings,
@@ -231,8 +238,10 @@ export class TTPalettes extends HTMLElement {
     pins: readonly string[],
   ): number {
     const col = new Map(columns.map((c, i) => [c, STEP_COL + i]));
+    const colOf = (step: string) => col.get(place(step))!;
     const actions = actionCol(columns.length);
-    const byStep = new Map(p.swatches.map((s) => [s.step, s]));
+    const ends = endSpan(columns.length);
+    const byColumn = new Map(p.swatches.map((s) => [place(s.step), s]));
     const offScale = new Map(p.flags.filter((f) => f.kind === 'unordered').flatMap((f) => f.steps.map((step) => [step, f] as const)));
     const endIds: EndId[] = result && contrast.levels.length ? ['light', 'dark'] : [];
     const notes = p.flags.filter((f) => !PAIR_KINDS.has(f.kind) && !PLACED_KINDS.has(f.kind) && !(f.kind === 'unordered' && f.steps.length));
@@ -242,7 +251,7 @@ export class TTPalettes extends HTMLElement {
     const open = isOpen(key, true);
     const toggle = disclosure({ key, open: true, label: p.name, tip: open ? TIP.collapseRow : TIP.expandRow, onToggle: () => this.schedule() });
     cells.push(at(this.heading(p, live, past, open, toggle), row, `1 / ${actions}`));
-    cells.push(at(h('span', { class: 'row-end heading-end' }), row, actions));
+    cells.push(at(h('span', { class: 'row-end heading-end' }), row, ends));
     row++;
     // Collapsed: the heading alone, with its checks still counted.
     if (!open) {
@@ -253,7 +262,7 @@ export class TTPalettes extends HTMLElement {
     // The row's units. Every column is a step some row in the system
     // has, so a step this row lacks is a gap, wherever it falls.
     columns.forEach((c, i) => {
-      const s = byStep.get(c);
+      const s = byColumn.get(c);
       cells.push(at(s ? this.unit(s, settings, shown, offScale.get(c), { pinned: pins.includes(s.step), toggle: () => setPins(p.id, pins.includes(s.step) ? [] : [s.step]) }) : h('div', { class: 'unit-gap', 'data-tip': TIP.missingStep }), row, STEP_COL + i));
     });
     row++;
@@ -264,7 +273,7 @@ export class TTPalettes extends HTMLElement {
       for (const level of contrast.levels) {
         const pp = passPoint(p, result!, end, level);
         if (!pp) continue;
-        const c = col.get(pp.step)!;
+        const c = colOf(pp.step);
         const score = result!.scores[pp.step]?.[end][level.metric] ?? 0;
         const m = marks.get(c) ?? { side: pp.side, badges: [] };
         m.badges.push(h('span', { class: 'lvl', 'data-tip': `${levelTip(level)} First reached at ${pp.step}: ${formatContrast(score, level.metric)}. ${TIP.passPoint}` }, level.badge));
@@ -281,7 +290,7 @@ export class TTPalettes extends HTMLElement {
         const m = marks.get(STEP_COL + i);
         cells.push(at(h('span', { class: `rail-cell${i === 0 ? ' labelled' : ''}${m ? ` mark ${m.side === 'start' ? 'pp-l' : 'pp-r'}` : ''}` }, m?.badges ?? null), row, STEP_COL + i));
       });
-      cells.push(at(h('span', { class: 'row-end' }), row, actions));
+      cells.push(at(h('span', { class: 'row-end' }), row, ends));
       row++;
     }
 
@@ -291,7 +300,7 @@ export class TTPalettes extends HTMLElement {
       cells.push(at(h('span', { class: 'rail-label delta', 'data-tip': TIP.delta[ch] }, `Δ${ch.toUpperCase()}`), row, LABEL_COL));
       columns.forEach((_, i) => cells.push(at(h('span', { class: 'rail-cell' }), row, STEP_COL + i)));
       // Each change sits on the left edge of the right-hand unit of the pair.
-      const seq = p.swatches.map((s) => ({ info: s.info, step: s.step, at: col.get(s.step)! }));
+      const seq = p.swatches.map((s) => ({ info: s.info, step: s.step, at: colOf(s.step) }));
       seq.forEach((s, i) => {
         const a = seq[i - 1];
         if (!a) return;
@@ -322,7 +331,7 @@ export class TTPalettes extends HTMLElement {
             ),
           ),
           row,
-          actions,
+          ends,
         ),
       );
       row++;
@@ -342,7 +351,7 @@ export class TTPalettes extends HTMLElement {
             ),
           ),
           row,
-          '1 / -1',
+          `${STEP_COL} / -1`,
         ),
       );
       row++;
@@ -445,18 +454,46 @@ export class TTPalettes extends HTMLElement {
     return unit;
   }
 
+  /**
+   * Base colors outside any scale, as the file groups them: colors that share
+   * a group (`brand.sky`, `brand.sun`) form a series in one row; a color alone
+   * in its group is a single, in a row of its own. In file order.
+   */
   private loose(set: PaletteSet, settings: Settings, shown: Settings['gamut']) {
+    const groups = new Map<string, Swatch[]>();
+    for (const s of set.loose) {
+      const parent = s.token.path.slice(0, -1).join('.');
+      groups.set(parent, [...(groups.get(parent) ?? []), s]);
+    }
+    const rows = [...groups].map(([parent, swatches]) =>
+      swatches.length > 1 && parent
+        ? collapsible({
+            variant: 'row',
+            class: 'loose-series',
+            key: `loose:${parent}`,
+            open: true,
+            summary: [h('h3', null, parent), h('span', { class: 'meta' }, `${plural(swatches.length, 'color')} · a series, not a scale`)],
+            content: () =>
+              h(
+                'div',
+                { class: 'unit-row' },
+                swatches.map((s) => h('div', { class: 'unit-named' }, h('code', { class: 'col-head', 'data-tip': TIP.unitName }, s.step), this.unit(s, settings, shown))),
+              ),
+          })
+        : swatches.map((s) =>
+            h(
+              'div',
+              { class: 'loose-single' },
+              h('div', { class: 'loose-single-head' }, h('h3', null, s.token.id), h('span', { class: 'meta' }, 'Single color')),
+              h('div', { class: 'unit-named' }, this.unit(s, settings, shown)),
+            ),
+          ),
+    );
     return h(
       'section',
       { class: 'loose' },
-      h('div', { class: 'palette-head' }, h('h3', null, 'Other base colors'), h('span', { class: 'meta' }, 'Single colors that are not part of a scale')),
-      masked(
-        h(
-          'div',
-          { class: 'unit-row' },
-          set.loose.map((s) => h('div', { class: 'unit-named' }, h('code', { class: 'col-head' }, s.token.id), this.unit(s, settings, shown))),
-        ),
-      ),
+      h('div', { class: 'palette-head' }, h('h3', null, 'Other base colors'), h('span', { class: 'meta' }, 'Colors that are not part of a scale, grouped as in the file')),
+      masked(h('div', { class: 'loose-rows' }, rows)),
     );
   }
 
@@ -480,7 +517,7 @@ export class TTPalettes extends HTMLElement {
         `1 / ${actions}`,
       ),
     );
-    cells.push(at(h('span', { class: 'row-end heading-end' }), row, actions));
+    cells.push(at(h('span', { class: 'row-end heading-end' }), row, endSpan(cols)));
     cells.push(at(h('span', { class: 'row-sep' }), row + 1, '1 / -1'));
     return row + 2;
   }

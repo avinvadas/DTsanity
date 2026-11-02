@@ -39,21 +39,30 @@ const fileWords = (name: string) =>
     .split(/[.\-_\s]+/)
     .map((w) => w.toLowerCase());
 
+/**
+ * The layer a token's file names explicitly, and the word it uses for it:
+ * first the top two groups (`semantic.color.bg`, a Tokens Studio set name
+ * such as `global`), then the file name (`primitives.tokens.json`).
+ */
+function layerOf(t: Token, fileName: string): { tier: Tier; word: string } | undefined {
+  const top = t.keyPath.slice(0, 2).flatMap((seg) => words(seg));
+  for (const layer of [top, fileWords(fileName)]) {
+    for (const [tier, set] of [['component', COMPONENT_GROUP], ['base', BASE], ['semantic', SEMANTIC]] as const) {
+      const word = layer.find((w) => set.has(w));
+      if (word) return { tier, word };
+    }
+  }
+  return undefined;
+}
+
 /** The tier of a token, from its name, its file name and its value. */
 export function tierOf(t: Token, fileName = ''): Tier {
   const ws = words(t.id);
   const firstRole = ws.findIndex((w) => hasRole([w]));
   const beforeRole = firstRole < 0 ? ws : ws.slice(0, firstRole);
-  const file = fileWords(fileName);
-  // The top two levels name the layer when a file holds several (`semantic.color.bg`, `color.base.blue`).
-  // Read from the place in the file, which includes a Tokens Studio set name (`global`).
-  const top = t.keyPath.slice(0, 2).flatMap((seg) => words(seg));
-  // An explicit layer name wins: first the top groups, then the file name.
-  for (const layer of [top, file]) {
-    if (layer.some((w) => COMPONENT_GROUP.has(w))) return 'component';
-    if (layer.some((w) => BASE.has(w))) return 'base';
-    if (layer.some((w) => SEMANTIC.has(w))) return 'semantic';
-  }
+  // An explicit layer name wins.
+  const named = layerOf(t, fileName);
+  if (named) return named.tier;
   if (beforeRole.some((w) => COMPONENTS.has(w))) return 'component';
   // A numbered step without a role word (`blue.500`) is a palette step, even when it is a reference.
   if (/^\d+$/.test(t.path.at(-1) ?? '') && firstRole < 0) return 'base';
@@ -95,3 +104,28 @@ export const MAY_REFERENCE: Record<Tier, readonly Tier[]> = {
   semantic: ['base', 'semantic'],
   component: ['semantic', 'base'],
 };
+
+const names = new WeakMap<Model, Record<Tier, string>>();
+
+/**
+ * What the files call each tier: the layer word used most for it in group
+ * or file names (`Primitives`, `Sys`), or the generic name when none is used.
+ * Comes from the files, so callers mask it.
+ */
+export function tierNames(model: Model): Record<Tier, string> {
+  const known = names.get(model);
+  if (known) return known;
+  const files = new Map(model.files.map((f: SourceFile) => [f.id, f.name]));
+  const seen: Record<Tier, Map<string, number>> = { base: new Map(), semantic: new Map(), component: new Map() };
+  for (const t of model.tokens.values()) {
+    const l = layerOf(t, files.get(t.fileId) ?? '');
+    if (l) seen[l.tier].set(l.word, (seen[l.tier].get(l.word) ?? 0) + 1);
+  }
+  const pick = (tier: Tier) => {
+    const top = [...seen[tier]].sort((a, b) => b[1] - a[1])[0]?.[0];
+    return top ? top[0]!.toUpperCase() + top.slice(1) : TIER_LABEL[tier];
+  };
+  const out = { base: pick('base'), semantic: pick('semantic'), component: pick('component') };
+  names.set(model, out);
+  return out;
+}

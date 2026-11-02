@@ -2,7 +2,7 @@ import { isUnchanged } from '../io/export';
 import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
 import type { SourceFile } from '../model/types';
 import { addFiles, replaceFiles, setBusy, store, type LoadError } from '../state/app';
-import { h, masked, plural } from './dom';
+import { h, icon, masked, plural } from './dom';
 
 /** Length of each step on the first load: the ring fill, the landing fading out, the results fading in. */
 export const LOAD_MS = 330;
@@ -130,13 +130,13 @@ export class TTLoader extends HTMLElement {
         },
       },
       h('span', { class: 'zone-ring', 'aria-hidden': 'true' }),
-      h('strong', null, 'Drop token files here'),
-      h('span', null, 'or click to choose files'),
-      h('small', null, 'DTCG .json or .tokens files. Load several at once, such as primitives and semantic.'),
+      icon('file-token'),
+      h('strong', null, 'Drop token files here or click to select them.'),
+      h('small', null, 'DTCG .json or .tokens files, several at once.'),
     );
 
     const url = masked(h('input', { type: 'url', id: 'tt-url', placeholder: 'https://…/tokens.json', autocomplete: 'off', spellcheck: 'false', required: true }));
-    const hint = h('small', { class: 'hint' }, 'Only the address you enter is requested, without cookies or referrer.');
+    const hint = h('small', { class: 'hint' }, 'Fetched without cookies or referrer.');
     url.addEventListener('input', () => {
       let rewritten = false;
       try {
@@ -145,8 +145,8 @@ export class TTLoader extends HTMLElement {
         /* not a URL yet */
       }
       hint.textContent = rewritten
-        ? 'GitHub page link detected: the raw file will be loaded instead.'
-        : 'Only the address you enter is requested, without cookies or referrer.';
+        ? 'GitHub link: the raw file will be loaded.'
+        : 'Fetched without cookies or referrer.';
     });
     const submit = h('button', { type: 'submit' }, 'Load');
     const form = h(
@@ -158,7 +158,7 @@ export class TTLoader extends HTMLElement {
           if (url.value.trim()) void ingest(fetchSource(url.value).then((r) => [r]));
         },
       },
-      h('label', { for: 'tt-url' }, 'Or load from a URL'),
+      h('label', { for: 'tt-url' }, 'Or load from an external link:'),
       h('div', { class: 'row' }, url, submit),
       hint,
     );

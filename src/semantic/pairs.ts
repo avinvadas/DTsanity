@@ -68,6 +68,18 @@ interface Parsed {
   key: string;
 }
 
+/** Foreground words for a line around a shape rather than a mark on it. */
+const EDGE = new Set(['border', 'borders', 'outline', 'outlines', 'stroke', 'ring', 'frame', 'edge']);
+
+/**
+ * How a pair is drawn: "Aa" for text, a line around the background for
+ * borders and outlines, a ring and bar for other UI parts (icons…). A pair
+ * set to text is drawn as text, whatever its name.
+ */
+export type PairGlyph = 'text' | 'border' | 'ui';
+export const glyphOf = (pair: Pick<Pair, 'fg' | 'kind'>): PairGlyph =>
+  pair.kind === 'text' ? 'text' : words(pair.fg).some((w) => EDGE.has(w)) ? 'border' : 'ui';
+
 /** Whether a name has a background or foreground role word: true for `text.danger`, false for `red.500`. */
 export const hasRole = (ws: readonly string[]) => ws.some((w) => BG.has(w) || TEXT.has(w) || UI.has(w));
 

@@ -11,12 +11,12 @@ export const TIP = {
   // Navigation
   navFiles: 'Load token files and download your changes.',
   navThemes: 'Which files each theme reads, such as light and dark.',
-  navIssues: 'Problems with the DTCG format, with suggested fixes. The number counts errors and warnings.',
+  navIssues: 'Problems with the DTCG format, with suggested fixes. The icon shows the severest one found.',
   navColors: 'Base color palettes: scale checks, gamut and contrast, and the curve editor.',
   navSemantic: 'Foreground and background pairs found by name, checked for contrast in every theme. The number counts pairs.',
   navComponents: 'Component tokens (button, input, card…) in foreground and background pairs, checked like semantic ones. The number counts pairs.',
   navTokens: 'Every token with its written and resolved value.',
-  themePick: 'The theme that Issues, Base colors and Tokens show. “All themes” combines them: a check fails if it fails in any theme.',
+  themePick: 'The theme that Issues, the base tier and the tokens list show. “All themes” combines them: a check fails if it fails in any theme.',
 
   // Semantic pairs
   pairKind: 'Text must reach the text level (AA 4.5, AAA 7, Lc 60). UI parts such as icons and borders need the non-text level (3, or Lc 45).',
@@ -50,6 +50,9 @@ export const TIP = {
   undoNone: 'Nothing to undo',
   redoNone: 'Nothing to redo',
   downloadAll: 'Save every loaded file in the DTCG format.',
+  downloadUpdated: 'Save the files you changed here (fixes, re-aliased tokens, curve edits) in the DTCG format, under their own names.',
+  downloadUpdatedNone: 'Active once you change the tokens here: apply a fix, re-alias a token or edit a curve.',
+  copyFixPrompt: 'Copy a prompt that lists every correction still needed (errors, warnings, contrast, color-vision and scale checks) for an AI assistant or a ticket. It names your tokens and stays on your clipboard.',
   clearAll: 'Remove every loaded file and start over.',
 
   // Issues

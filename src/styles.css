@@ -268,6 +268,10 @@ tt-nav { display: flex; flex-direction: column; gap: var(--space-4); }
 .nav-item .count.error { color: var(--error); font-weight: 600; }
 .nav-item .count.warning { color: var(--warn); font-weight: 600; }
 .nav-item .count.info .sev-icon { color: var(--info); }
+.nav-item .count.ok { color: var(--ok); }
+/* Nothing to open, but the all-clear stays readable: muted text and a full-strength check. */
+.nav-item[aria-disabled='true']:has(.count.ok) { opacity: 1; color: var(--subtle); }
+.nav-item .count.ok .icon { width: 14px; height: 14px; }
 .nav-item .soon-tag { margin-left: auto; font-size: var(--font-2xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--subtle); }
 .nav-sep { height: 1px; background: var(--border); margin: var(--space-2); }
 
@@ -383,6 +387,9 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
   background: var(--surface-2);
   transition: border-color 0.15s, background 0.2s, transform 0.2s ease-out;
 }
+.dropzone > .icon { width: 40px; height: 40px; margin-bottom: var(--space-2); color: var(--muted); }
+.view[data-empty] .dropzone > .icon { width: clamp(48px, 12vmin, 88px); height: auto; }
+.dropzone:hover:not(:disabled) > .icon, body.dragging .dropzone > .icon { color: var(--accent); }
 .dropzone strong { font-size: var(--font-md); }
 .dropzone span { color: var(--muted); }
 .dropzone small { color: var(--subtle); margin-top: var(--space-2); font-size: var(--font-sm); max-width: 24ch; }
@@ -421,7 +428,8 @@ body.dragging .dropzone {
 .loader { display: flex; flex-direction: column; align-items: center; gap: var(--space-5); }
 .view[data-empty] { text-align: center; align-items: center; }
 .view[data-empty] .load-card { border: 0; background: transparent; padding: var(--space-4) 0; align-items: center; width: 100%; }
-.view[data-empty] .dropzone { --zone: min(360px, 80vw); }
+/* Half the smaller side, but never smaller than its text needs (phones) or wider than the screen. */
+.view[data-empty] .dropzone { --zone: min(max(50vmin, 300px), 88vw); }
 .view[data-empty] .dropzone strong { font-size: var(--font-title); }
 .view[data-empty] .url-form { align-items: center; }
 .view[data-empty] .setting { text-align: left; max-width: 52ch; }
@@ -577,14 +585,17 @@ table.theme-matrix td.file-name { min-width: 14ch; overflow-wrap: anywhere; }
 
 /* System grid: palettes on one step scheme share fixed-size columns.
    Units never stretch; a step a palette lacks is an empty slot.
-   Columns: one per step (row labels sit at the start of the first) | row actions (stays at the right edge). */
+   Columns: indent | one per step (row labels sit at the start of the first) | filler | row actions (stays at the right edge). */
 .palettes-body { --unit-w: 116px; --action-w: 84px; }
+/* The first column indents a palette's units to where its name starts, past the toggle. */
+.sys-grid { --indent-w: calc(var(--toggle-box) - var(--toggle-pull) + var(--space-2) - var(--space-1)); }
 .sys-scroll { overflow-x: auto; padding-bottom: var(--space-2); }
 .sys-grid {
   display: grid;
-  grid-template-columns: repeat(var(--cols), var(--unit-w)) var(--action-w);
+  /* The filler before the actions stretches rows to the container; units keep their width. */
+  grid-template-columns: var(--indent-w) repeat(var(--cols), var(--unit-w)) minmax(0, 1fr) var(--action-w);
   column-gap: var(--space-1);
-  width: max-content;
+  min-width: max-content;
 }
 .col-corner, .rail-label, .row-heading-inner, .row-notes-inner { position: sticky; left: 0; background: var(--bg); z-index: 2; }
 .col-corner { border-bottom: 1px solid var(--border-strong); }
@@ -658,10 +669,17 @@ button.pin-btn .icon { width: 13px; height: 13px; }
 .row-sep { height: var(--space-3); border-bottom: 1px solid var(--border-strong); }
 
 
-.loose { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.loose { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-4); }
 .unit-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .unit-named { width: var(--unit-w); display: flex; flex-direction: column; }
 .unit-named .col-head { font-family: var(--mono); font-weight: 500; font-size: var(--font-2xs); margin-bottom: var(--space-1); }
+/* Other base colors: series (one collapsible row per group) and singles (one row each), ruled like palette rows. */
+.loose-rows { display: flex; flex-direction: column; }
+.loose-series h3, .loose-single h3 { font-family: var(--mono); font-size: var(--font-md); margin: 0; }
+.loose-series .meta, .loose-single .meta { font-size: var(--font-sm); }
+/* A single has no toggle: its name and swatch start where a series' name and swatches do. */
+.loose-single { --cl-indent: calc(var(--toggle-box) - var(--toggle-pull) + var(--space-2)); padding: var(--space-4) 0 var(--space-3) var(--cl-indent); border-bottom: 1px solid var(--border-strong); display: flex; flex-direction: column; gap: var(--space-2); }
+.loose-single-head { display: flex; align-items: center; gap: var(--space-2); min-height: var(--toggle-box); flex-wrap: wrap; }
 
 .palette-contrast { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-sm); }
 .range.fail { color: var(--subtle); }
@@ -862,11 +880,17 @@ section.siblings, section.vision { display: flex; flex-direction: column; gap: v
 section.siblings h3, section.vision h3 { font-size: var(--font-md); margin: 0; }
 .field.inline { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-sm); color: var(--muted); }
 .field.inline input { width: 72px; }
+/* Rows run the full width; the slack goes after the last theme, so tiles keep their size and place. */
+table.vision-table { width: 100%; }
+table.vision-table th, table.vision-table td { width: 1%; }
+table.vision-table th:last-child, table.vision-table td:last-child { width: auto; }
 table.vision-table th[scope='row'] { display: table-cell; background: var(--surface-2); white-space: nowrap; vertical-align: middle; }
 table.vision-table th[scope='row'] span { display: block; color: var(--text); }
 table.vision-table th[scope='row'] small { font-weight: 400; color: var(--muted); }
 .vision-strip { display: flex; gap: 4px; }
 .vision-tile { position: relative; display: block; flex: none; padding: 0; border: 0; background: none; min-height: 0; border-radius: var(--radius-sm); cursor: pointer; }
+/* A border pair draws its own edge, so the page hairline would read as a second border. */
+.pair-canvas.border { box-shadow: none; }
 .vision-tile:hover:not(.empty) .pair-canvas { box-shadow: 0 0 0 2px var(--accent); }
 .vision-tile .pair-canvas { width: 40px; height: 26px; display: block; }
 .vision-tile.empty { width: 40px; height: 26px; border-radius: var(--radius-sm); border: 1px dashed var(--border); }
@@ -935,6 +959,16 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
 .landing-foot { margin: 0; font-size: var(--font-sm); }
 
+/* Closing the loop: take the edits back, and hand over what is left to fix. */
+.nav-actions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-2) 0; margin-top: var(--space-2); border-top: 1px solid var(--border); }
+/* The two actions the visit is for: tall, and the download as the neutral primary. */
+.nav-actions button { display: inline-flex; align-items: center; gap: var(--space-2); justify-content: flex-start; min-height: 3rem; padding: 0 var(--space-3); font-size: var(--font-sm); font-weight: 600; }
+.nav-actions button.primary-neutral { background: var(--text); border-color: var(--text); color: var(--bg); }
+.nav-actions button.primary-neutral:hover:not(:disabled) { background: color-mix(in oklch, var(--text), var(--bg) 18%); }
+.nav-actions .icon { width: 15px; height: 15px; }
+@media (max-width: 820px) {
+  .nav-actions { flex-direction: row; flex-wrap: wrap; padding: 0; margin: 0; border: 0; }
+}
 /* Global checks in the sidebar: theme and contrast targets. */
 .nav-checks { display: flex; flex-direction: column; gap: var(--space-3); padding: 0 var(--space-2); }
 .contrast-pick { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -951,6 +985,9 @@ tt-semantic > p { margin: 0; }
    Collapsible: one look for every expandable container and toggle
    ============================================================ */
 
+/* The toggle's box, and how far it reaches left of the content edge so its chevron lines up with text. */
+:root { --toggle-box: 26px; --toggle-pull: 6px; }
+
 .cl > .cl-summary { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; list-style: none; user-select: none; }
 .cl > .cl-summary::-webkit-details-marker { display: none; }
 .cl-label { display: inline-flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; min-width: 0; }
@@ -959,7 +996,10 @@ tt-semantic > p { margin: 0; }
 /* Closed points right; open points down. */
 .cl:not([open]) > .cl-summary .cl-chevron, .cl-toggle[aria-expanded='false'] .cl-chevron { transform: rotate(-90deg); }
 .cl > .cl-summary:hover .cl-chevron, .cl-toggle:hover .cl-chevron { color: var(--text); }
-.cl-inner { display: flex; flex-direction: column; gap: var(--space-2); }
+.cl-inner { display: flex; flex-direction: column; gap: var(--space-2); padding-left: var(--cl-indent); }
+/* Content starts where the heading text does, not at the chevron. */
+.cl { --cl-indent: calc(14px + var(--space-2)); }
+.cl-row { --cl-indent: calc(var(--toggle-box) - var(--toggle-pull) + var(--space-2)); }
 
 /* plain: inline, for "more" areas */
 .cl-plain > .cl-summary { color: var(--muted); font-size: var(--font-sm); padding: 2px 0; width: fit-content; }
@@ -971,13 +1011,13 @@ tt-semantic > p { margin: 0; }
 .cl-row > .cl-summary { padding: var(--space-4) 0 var(--space-2); }
 .cl-row > .cl-body > .cl-inner { padding-bottom: var(--space-3); }
 /* The chevron sits in the same 26px box as the toggle button beside palette names. */
-.cl-row > .cl-summary .cl-chevron { width: 26px; height: 26px; align-items: center; justify-content: center; margin-left: -6px; border-radius: var(--radius); }
+.cl-row > .cl-summary .cl-chevron { width: var(--toggle-box); height: var(--toggle-box); align-items: center; justify-content: center; margin-left: calc(-1 * var(--toggle-pull)); border-radius: var(--radius); }
 .cl-row > .cl-summary:hover .cl-chevron { background: var(--surface-hover); }
 
 /* card: a bordered section */
 .cl-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .cl-card > .cl-summary { padding: var(--space-2) var(--space-3); }
-.cl-card > .cl-body > .cl-inner { padding: 0 var(--space-3) var(--space-3); }
+.cl-card > .cl-body > .cl-inner { padding: 0 var(--space-3) var(--space-3) calc(var(--space-3) + var(--cl-indent)); }
 
 /* the toggle on its own, for rows that can't be wrapped */
 button.cl-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 26px; min-width: 26px; padding: 0 4px; border-color: transparent; background: transparent; color: var(--muted); }
@@ -988,4 +1028,4 @@ button.link.small { font-size: var(--font-sm); }
 .row-heading-inner .link.small { color: var(--subtle); margin-left: var(--space-2); }
 .row-heading-inner .link.small:hover { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .cl-chevron { transition: none; } }
-.row-heading-inner > .cl-toggle { margin-left: -6px; }
+.row-heading-inner > .cl-toggle { margin-left: calc(-1 * var(--toggle-pull)); }

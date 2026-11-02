@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { componentOf, tiersOf } from '../src/model/tiers';
+import { componentOf, tierNames, tiersOf } from '../src/model/tiers';
 import { aliasCandidates } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
@@ -26,6 +26,17 @@ describe('tier detection', () => {
     expect(tiers.get('button.primary.bg')).toBe('component');
     // A component word after the role word is a semantic variant, not a component.
     expect(tiers.get('color.bg.input')).toBe('semantic');
+  });
+
+  it('names tiers as the files do, or generically when they do not', () => {
+    const model = analyze(
+      [
+        loadText(JSON.stringify({ color: { $type: 'color', gray: { 100: c(0.9) } } }), 'primitives.tokens.json'),
+        loadText(JSON.stringify({ sys: { color: { $type: 'color', bg: { default: ref('color.gray.100') } } } })),
+      ],
+      DEFAULT_SETTINGS,
+    );
+    expect(tierNames(model)).toEqual({ base: 'Primitives', semantic: 'Sys', component: 'Component' });
   });
 
   it('lets a layer group win over a component word', () => {

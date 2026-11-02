@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { colorInfo } from '../src/color/format';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, NO_PAIR_EDITS, over, pairId, realias } from '../src/semantic/pairs';
+import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, NO_PAIR_EDITS, over, pairId, realias } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -149,5 +149,17 @@ describe('composite border tokens', () => {
     // An alias of a whole border, or a literal color, has no color reference of its own.
     expect(realias(model, 'border.focus', 'color.gray.600')).toBeUndefined();
     expect(realias(model, 'border.raw', 'color.gray.600')).toBeUndefined();
+  });
+});
+
+describe('glyphOf', () => {
+  it('draws borders and outlines as a line around the background', () => {
+    expect(glyphOf({ fg: 'color.border.danger', kind: 'ui' })).toBe('border');
+    expect(glyphOf({ fg: 'button.primary.outline', kind: 'ui' })).toBe('border');
+    expect(glyphOf({ fg: 'focusRing', kind: 'ui' })).toBe('border');
+    expect(glyphOf({ fg: 'color.icon.danger', kind: 'ui' })).toBe('ui');
+    expect(glyphOf({ fg: 'color.text.danger', kind: 'text' })).toBe('text');
+    // Set to text by hand: drawn as text.
+    expect(glyphOf({ fg: 'color.border.danger', kind: 'text' })).toBe('text');
   });
 });

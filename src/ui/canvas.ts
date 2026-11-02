@@ -1,4 +1,5 @@
 import { paintStyle, type ColorInfo, type Gamut } from '../color/format';
+import type { PairGlyph } from '../semantic/pairs';
 
 /**
  * Swatches are painted on <canvas> rather than as CSS backgrounds: usability
@@ -26,12 +27,13 @@ export function paintAll(root: ParentNode) {
 }
 
 /**
- * A foreground on its background: "Aa" for text, a ring and bar for UI parts
- * (icons, borders). Painted like swatches, so the colors stay out of recordings.
+ * A foreground on its background: "Aa" for text, a line around the
+ * background for borders, a ring and bar for other UI parts (icons).
+ * Painted like swatches, so the colors stay out of recordings.
  */
-export function pairCanvas(fg: ColorInfo, bg: ColorInfo, kind: 'text' | 'ui', gamut: Gamut): HTMLCanvasElement {
+export function pairCanvas(fg: ColorInfo, bg: ColorInfo, glyph: PairGlyph, gamut: Gamut): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
-  canvas.className = 'swatch-canvas pair-canvas';
+  canvas.className = `swatch-canvas pair-canvas ${glyph}`;
   canvas.setAttribute('aria-hidden', 'true');
   (canvas as HTMLCanvasElement & { paint?: () => void }).paint = () => {
     const dpr = window.devicePixelRatio || 1;
@@ -46,7 +48,12 @@ export function pairCanvas(fg: ColorInfo, bg: ColorInfo, kind: 'text' | 'ui', ga
     ctx.fillStyle = paintStyle(bg, gamut);
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = ctx.strokeStyle = paintStyle(fg, gamut);
-    if (kind === 'text') {
+    if (glyph === 'border') {
+      // Along the edge of the background shape; the rounded corners come from the canvas's own radius.
+      const lw = 2 * dpr;
+      ctx.lineWidth = lw;
+      ctx.strokeRect(lw / 2, lw / 2, w - lw, h - lw);
+    } else if (glyph === 'text') {
       ctx.font = `600 ${Math.round(h * 0.5)}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
