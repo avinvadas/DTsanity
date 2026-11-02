@@ -2,7 +2,7 @@ import { ALL_THEMES, setActiveTheme, store, type AppState } from '../state/app';
 import { pairsOf, siblingFails } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
 import { targetToggles } from './contrast';
-import { download, exportAs, isUnchanged } from '../io/export';
+import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
 import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
 import { h, icon, masked, plural, severityIcon } from './dom';
@@ -208,7 +208,7 @@ export class TTNav extends HTMLElement {
   }
 
   /**
-   * Closing the loop: the edited files to take back, and a prompt listing
+   * Closing the loop: the fixed file set to take back, and a prompt listing
    * what is still to fix, for an AI assistant or a ticket.
    */
   private loopActions(v: View) {
@@ -220,10 +220,11 @@ export class TTNav extends HTMLElement {
         class: 'primary-neutral',
         disabled: !edited.length,
         'data-tip': edited.length ? TIP.downloadUpdated : TIP.downloadUpdatedNone,
-        onclick: () => edited.forEach((f) => download(f.name, exportAs(f).text)),
+        // The whole set as received, edited or not, with CHANGES.md: one zip, so the browser doesn't block extra downloads.
+        onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip'),
       },
       icon('download'),
-      h('span', null, edited.length === 1 ? 'Download updated file' : edited.length ? `Download ${edited.length} updated files` : 'Download updated files'),
+      h('span', null, v.files.length === 1 ? 'Get fixed file' : 'Get fixed files'),
     );
     const copy = h(
       'button',
