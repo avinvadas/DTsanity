@@ -63,3 +63,5 @@ document.addEventListener('keydown', (e) => {
   else undo();
 });
 
+// Which build this is, for telling a hosted copy from a newer one.
+console.info(`DTsanity build ${__VERSION__}`);

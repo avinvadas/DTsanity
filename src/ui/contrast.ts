@@ -13,7 +13,7 @@ import { TIP } from './tips';
 
 /** UI pieces for contrast: target toggles, end pickers, step distance, parity. */
 
-const END_LABEL: Record<EndId, string> = { light: 'Bright end', dark: 'Dark end' };
+const END_LABEL: Record<EndId, string> = { light: 'Light end', dark: 'Dark end' };
 
 /** Toggles for the compliance targets, shared by Base colors and Semantic. */
 export function targetToggles(settings: Settings) {
