@@ -961,7 +961,7 @@ table.pairs select { font-size: var(--font-sm); }
 .add-pair .row { display: flex; gap: var(--space-2); align-items: flex-end; flex-wrap: wrap; }
 .add-pair .field { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 180px; font-size: var(--font-sm); color: var(--muted); }
 .add-pair input { font-family: var(--mono); }
-.pair-actions { white-space: nowrap; }
+.pair-actions { white-space: nowrap; text-align: right; }
 .pair-actions .ghost.on { color: var(--accent); }
 table.pairs tr.open td { border-bottom: 0; }
 table.pairs tr.pair-detail td { background: var(--surface-2); padding: var(--space-3); }
@@ -976,10 +976,11 @@ section.siblings, section.vision { display: flex; flex-direction: column; gap: v
 section.siblings h3, section.vision h3 { font-size: var(--font-md); margin: 0; }
 .field.inline { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-sm); color: var(--muted); }
 .field.inline input { width: 72px; }
-/* Rows run the full width; the slack goes after the last theme, so tiles keep their size and place. */
-table.vision-table { width: 100%; }
-table.vision-table th, table.vision-table td { width: 1%; }
-table.vision-table th:last-child, table.vision-table td:last-child { width: auto; }
+/* Pair, vision and status tables run the full width of their frame; the slack goes to the last
+   column, so the other columns keep their size and place. */
+table.pairs { width: 100%; }
+table.pairs th, table.pairs td { width: 1%; }
+table.pairs th:last-child, table.pairs td:last-child { width: auto; }
 table.vision-table th[scope='row'] { display: table-cell; background: var(--surface-2); white-space: nowrap; vertical-align: middle; }
 table.vision-table th[scope='row'] span { display: block; color: var(--text); }
 table.vision-table th[scope='row'] small { font-weight: 400; color: var(--muted); }
@@ -1053,7 +1054,10 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .view[data-empty] .vh { align-items: center; }
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
-.landing-foot { margin: 0; font-size: var(--font-sm); }
+.landing-foot { margin: 0; font-size: var(--font-sm); color: var(--subtle); }
+/* The credit reads as part of the footer: quiet text, the name underlined as a link. */
+.credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.credit a:hover { color: var(--text); }
 
 /* Closing the loop: take the edits back, and hand over what is left to fix. */
 .nav-actions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-2) 0; margin-top: var(--space-2); border-top: 1px solid var(--border); }
