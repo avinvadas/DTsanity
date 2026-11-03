@@ -160,6 +160,7 @@ export class TTLoader extends HTMLElement {
   private unsubs: (() => void)[] = [];
 
   connectedCallback() {
+    const phone = !!this.closest('tt-mobile');
     const input = h('input', {
       type: 'file',
       class: 'visually-hidden',
@@ -186,8 +187,13 @@ export class TTLoader extends HTMLElement {
       },
       h('span', { class: 'zone-ring', 'aria-hidden': 'true' }),
       tokenFileIcon(),
-      h('strong', { class: 'zone-title' }, 'Drop JSON tokens files here'),
-      h('span', { class: 'zone-sub' }, 'or click to select them'),
+      // Phones can't drag files, so there the zone is a button to choose them.
+      h(
+        'span',
+        { class: 'zone-text' },
+        h('strong', { class: 'zone-title' }, phone ? 'Choose token files' : 'Drop JSON tokens files here'),
+        h('span', { class: 'zone-sub' }, phone ? 'From Files, iCloud or Drive. DTCG .json, several at once.' : 'or click to select them'),
+      ),
     );
 
     const url = masked(h('input', { type: 'url', id: 'tt-url', placeholder: 'https://…/tokens.json', autocomplete: 'off', spellcheck: 'false', required: true }));

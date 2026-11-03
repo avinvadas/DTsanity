@@ -435,6 +435,7 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
   .dropzone > .icon.token-file-icon, .tf-point { animation: none; }
 }
 .zone-title { font-size: max(14px, calc(var(--zone) * 0.0374)); font-weight: 500; line-height: 1.2; color: var(--text); }
+.zone-text { display: contents; }
 .zone-sub { font-size: max(12px, calc(var(--zone) * 0.0255)); font-weight: 300; line-height: 1.3; color: var(--text-soft); }
 .dropzone:hover:not(:disabled) { border-color: var(--line-strong); }
 body.dragging .dropzone {
@@ -1154,3 +1155,85 @@ button.link.small { font-size: var(--font-sm); }
 .row-heading-inner .link.small:hover { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .cl-chevron { transition: none; } }
 .row-heading-inner > .cl-toggle { margin-left: calc(-1 * var(--toggle-pull)); }
+
+/* ============================================================
+   Phone layout: Check → Issues → Done, in place of the desktop views
+   ============================================================ */
+
+tt-mobile { display: none; }
+@media (max-width: 640px) {
+  .app { display: none; }
+  tt-mobile { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+}
+.m-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; padding: var(--space-3) var(--space-4); background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 600; }
+.m-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-4) var(--space-4) calc(88px + env(safe-area-inset-bottom)); }
+.m-lede { margin: 0; color: var(--muted); font-size: var(--font-md); }
+.m-note { margin: 0; color: var(--muted); font-size: var(--font-sm); }
+.m-empty { color: var(--muted); }
+
+/* Files in: a large button instead of the drop circle (phones can't drag), the link field below. */
+.m-load .loader { align-items: stretch; gap: var(--space-4); }
+.m-load .dropzone {
+  --zone: 260px;
+  width: 100%; height: auto; min-height: 120px; border-radius: 16px; padding: var(--space-5);
+  flex-direction: row; gap: var(--space-4); text-align: left; justify-content: flex-start;
+}
+.m-load .dropzone > .icon { width: 56px; }
+.m-load .zone-title { font-size: var(--font-md); }
+.m-load .zone-ring { display: none; }
+.m-load .zone-text { display: flex; flex-direction: column; gap: 2px; }
+.m-load .zone-sub { font-size: var(--font-sm); color: var(--muted); }
+.m-load .url-form { width: 100%; }
+.m-load .url-form input { min-height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming in */
+.m-load .url-form button { min-height: 44px; }
+
+/* Once files are loaded, the loader shrinks to a row: add more without leaving the page. */
+.m-load.compact .dropzone { min-height: 64px; padding: var(--space-3) var(--space-4); }
+.m-load.compact .dropzone > .icon { width: 36px; }
+.m-load.compact .zone-sub { display: none; }
+.m-load.compact .loader { gap: var(--space-3); }
+
+/* One flat list, grouped by kind: a heading with its count, then the cards. */
+.m-stack { display: flex; flex-direction: column; gap: var(--space-6); }
+.m-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.m-section-head { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-md); padding-bottom: var(--space-2); border-bottom: 1px solid var(--border); }
+.m-n { min-width: 22px; padding: 0 7px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--text); font-size: var(--font-xs); line-height: 22px; text-align: center; }
+.m-ok { display: inline-flex; color: var(--ok); }
+.m-ok .icon { width: 16px; height: 16px; }
+.m-clear { margin: 0; color: var(--muted); }
+.m-fixall { width: 100%; min-height: 48px; font-size: var(--font-md); font-weight: 600; }
+.m-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.m-item { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); }
+.m-item p { margin: 0; overflow-wrap: anywhere; }
+.m-item code { font-size: var(--font-sm); overflow-wrap: anywhere; }
+.m-item-head { display: flex; align-items: center; gap: var(--space-2); }
+.m-item.error .m-item-head .sev-icon { color: var(--error); }
+.m-item.warning .m-item-head .sev-icon { color: var(--warn); }
+.m-item.info .m-item-head .sev-icon { color: var(--info); }
+.m-where { color: var(--muted); font-family: var(--mono); overflow-wrap: anywhere; }
+.m-fix { align-self: flex-start; min-height: 40px; font-weight: 600; }
+.m-later { color: var(--muted); font-size: var(--font-sm); }
+.m-pair { display: flex; align-items: center; gap: var(--space-3); }
+.m-pair .pair-canvas { width: 56px; height: 36px; }
+.m-pair div { display: flex; flex-direction: column; min-width: 0; }
+.m-pair small { color: var(--muted); font-family: var(--mono); overflow-wrap: anywhere; }
+.m-results { margin: 0; padding-left: var(--space-4); font-size: var(--font-sm); }
+.m-results small { color: var(--muted); }
+
+.m-filelist { list-style: none; margin: 0; padding: 0; }
+.m-filelist li { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: var(--font-sm); }
+.m-filelist li span:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.m-filelist .icon-btn { width: 40px; min-height: 40px; }
+
+/* Fixed footer: the two ways out, side by side within thumb reach. */
+.m-foot {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 4;
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom));
+  background: var(--bg); border-top: 1px solid var(--border-strong);
+}
+.m-foot button { display: flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; font-size: var(--font-md); font-weight: 600; }
+.m-foot .icon { width: 16px; height: 16px; }
+.m-foot .m-primary:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--bg); }
+.m-toast { position: fixed; left: var(--space-4); right: var(--space-4); bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); background: var(--tooltip-bg); color: var(--tooltip-text); }
+.m-toast .link { color: inherit; text-decoration: underline; }
