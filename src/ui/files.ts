@@ -44,7 +44,7 @@ export class TTFiles extends HTMLElement {
     const { files, past, future } = state;
     // The Files header's summary line, like every view's.
     const summary = document.getElementById('files-summary');
-    if (summary) summary.textContent = files.length ? `${plural(files.length, 'file')} loaded` : '';
+    if (summary) summary.textContent = files.length ? 'Add, reload or remove token files' : '';
     if (!files.length) {
       this.replaceChildren();
       return;
@@ -80,7 +80,7 @@ export class TTFiles extends HTMLElement {
               h('button', { class: 'ghost', 'data-tip': TIP.downloadLegacy, onclick: () => this.save(f, 'original') }, `Download as ${kind}`),
             ]
           : h('button', { class: 'ghost', 'data-tip': TIP.download, onclick: () => this.save(f, 'dtcg') }, 'Download'),
-        h('button', { class: 'ghost danger', onclick: () => removeFile(f.id), 'aria-label': 'Remove file', 'data-tip': TIP.remove }, 'Remove'),
+        h('button', { type: 'button', class: 'ghost icon-btn file-remove', onclick: () => removeFile(f.id), 'aria-label': 'Remove file', 'data-tip': TIP.remove }, '✕'),
         notes
           ? masked(
               h(
@@ -97,7 +97,7 @@ export class TTFiles extends HTMLElement {
     const lastUndo = past.at(-1)?.label;
     const nextRedo = future[0]?.label;
     this.replaceChildren(
-      h('h3', { class: 'section-title' }, 'Loaded files'),
+      h('h3', { class: 'section-title' }, `${plural(files.length, 'file')} loaded`),
       h('ul', { class: 'file-list' }, rows),
       h(
         'div',

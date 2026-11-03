@@ -545,8 +545,9 @@ dialog.files-dialog[open] > * { flex: none; }
 dialog.files-dialog::backdrop { background: rgba(28, 28, 28, 0.35); }
 dialog.files-dialog .vh-row { align-items: center; }
 dialog.files-dialog .file-list { margin: 0; }
-dialog.files-dialog .file .file-remove { margin-left: auto; color: var(--muted); }
-dialog.files-dialog .file .file-remove:hover:not(:disabled) { color: var(--text); }
+.file .file-remove { color: var(--muted); }
+.file .file-remove:hover:not(:disabled) { color: var(--text); }
+dialog.files-dialog .file .file-remove { margin-left: auto; }
 /* No frame: the target fills the dialog's width, and the link field runs edge to edge below it. */
 /* The loader's wrappers step out of the layout, so the target is a direct item of the dialog's column and can give way to the list. */
 dialog.files-dialog .load-card, dialog.files-dialog tt-loader, dialog.files-dialog .loader { display: contents; }
@@ -573,6 +574,22 @@ dialog.files-dialog .zone-ring { display: none; }
 button.primary-neutral:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--bg); }
 button.primary-neutral:hover:not(:disabled), button.primary-neutral:focus-visible:not(:disabled) { background: color-mix(in oklch, var(--text), var(--bg) 18%); }
 dialog.files-dialog .url-form { width: 100%; }
+
+/* The Files view, once files are loaded, has the same layout as the Add token files dialog:
+   the loader on top (a rounded rectangle and a full-width link field), then the files. */
+.view[data-view='files']:not([data-empty]) .load-card { padding: 0; border: 0; background: none; gap: var(--space-3); }
+.view[data-view='files']:not([data-empty]) .loader { align-items: stretch; gap: var(--space-3); }
+.view[data-view='files']:not([data-empty]) .url-form { width: 100%; }
+.view[data-view='files']:not([data-empty]) .dropzone {
+  --grow: 1.02;
+  container-type: size;
+  width: 100%; height: clamp(180px, 40vh, 400px);
+  border-radius: 16px; padding: var(--space-5);
+}
+.view[data-view='files']:not([data-empty]) .dropzone > * { --zone: 100cqh; }
+.view[data-view='files']:not([data-empty]) .zone-ring { display: none; }
+/* Downloads and the remove ✕ sit together at the end of each file's row. */
+tt-files .file .badge + button { margin-left: auto; }
 
 .issue-groups { display: flex; flex-direction: column; gap: var(--space-5); }
 .group-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
@@ -631,12 +648,12 @@ table.theme-matrix td.file-name { min-width: 14ch; overflow-wrap: anywhere; }
 .controls { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
 .palettes-body { display: flex; flex-direction: column; gap: var(--space-3); }
 
-.contrast-controls {
-  display: flex; align-items: center; gap: var(--space-2) var(--space-3); flex-wrap: wrap;
-  padding: var(--space-2) var(--space-3); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg);
-}
-.contrast-controls .label { font-weight: 600; }
-.end-picker { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+/* The contrast ends: both pickers on one line, then a paragraph on what they do. No frame. */
+.contrast-controls { display: flex; flex-direction: column; gap: var(--space-2); }
+.end-pickers { display: flex; align-items: center; gap: var(--space-2) var(--space-5); flex-wrap: wrap; }
+.end-picker { display: inline-flex; align-items: center; gap: var(--space-2); }
+.end-label { color: var(--text); font-weight: 500; }
+.contrast-note { margin: 0; max-width: 80ch; color: var(--muted); }
 .swatch-select { display: inline-flex; }
 .ss-button {
   display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 0 6px 0 4px;
@@ -660,7 +677,6 @@ table.theme-matrix td.file-name { min-width: 14ch; overflow-wrap: anywhere; }
 .ss-option[aria-selected="true"]::after { content: "✓"; margin-left: var(--space-2); }
 .ss-option[aria-disabled="true"] { color: var(--subtle); cursor: not-allowed; }
 .ss-option[aria-disabled="true"] .swatch-canvas { opacity: 0.45; }
-.contrast-controls .legend { flex-basis: 100%; color: var(--muted); font-size: var(--font-sm); }
 
 .palette-head { display: flex; align-items: center; gap: var(--space-2) var(--space-3); flex-wrap: wrap; }
 .palette-head h3 { font-family: var(--mono); font-size: var(--font-md); }

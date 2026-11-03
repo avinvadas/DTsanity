@@ -13,7 +13,7 @@ import { TIP } from './tips';
 
 /** UI pieces for contrast: target toggles, end pickers, step distance, parity. */
 
-const END_LABEL: Record<EndId, string> = { light: 'Light end', dark: 'Dark end' };
+const END_LABEL: Record<EndId, string> = { light: 'Bright end', dark: 'Dark end' };
 
 /** Toggles for the compliance targets, shared by Base colors and Semantic. */
 export function targetToggles(settings: Settings) {
@@ -47,7 +47,7 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
     return h(
       'span',
       { class: 'end-picker' },
-      h('span', { 'data-tip': TIP.endPicker }, `${END_LABEL[end]}:`),
+      h('span', { class: 'end-label', 'data-tip': TIP.endPicker }, `${END_LABEL[end]}:`),
       swatchSelect({
         label: END_LABEL[end],
         value: current.name,
@@ -61,13 +61,17 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
       }),
     );
   };
+  // The two pickers on one line, then what they do as a paragraph. No frame.
+  // Shown only with contrast targets on (the caller checks).
   return h(
     'div',
     { class: 'contrast-controls' },
-    settings.contrast.length ? [picker('light'), picker('dark')] : null,
-    settings.contrast.length
-      ? h('span', { class: 'legend' }, 'Pick a neutral token for each end of the system; only its lightness is used. Each row gets its own ends at that lightness, tinted with its hue, and marks where each level is first reached as text on them.')
-      : null,
+    h('div', { class: 'end-pickers' }, picker('light'), picker('dark')),
+    h(
+      'p',
+      { class: 'contrast-note' },
+      'Contrast is measured against the light and dark ends and only their lightness is used: each row gets its own ends at that lightness, tinted with its hue, and marks where each level is first reached as text on them.',
+    ),
   );
 }
 
