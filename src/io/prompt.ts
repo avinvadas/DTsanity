@@ -91,7 +91,7 @@ export function fixPrompt(s: AppState): FixPrompt {
   const text = [
     '# Corrections for design token files',
     '',
-    'Tokens Tester checked these design token files (DTCG format) for format, token tiers, contrast and color-vision accessibility. Apply the corrections below to the files.',
+    'DTsanity checked these design token files (DTCG format) for format, token tiers, contrast and color-vision accessibility. Apply the corrections below to the files.',
     '',
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
     themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',

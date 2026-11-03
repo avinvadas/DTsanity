@@ -75,7 +75,7 @@ describe('Style Dictionary v3 → DTCG', () => {
 
   it('types untyped hex colors, keeps comments and extra attributes, and drops the .value reference suffix', () => {
     expect(m.tokens.get('color.base.red')).toMatchObject({ type: 'color', description: 'Pure red' });
-    expect(m.tokens.get('color.base.gray')!.extensions).toEqual({ 'com.tokens-tester.legacy': { attributes: { category: 'color' } } });
+    expect(m.tokens.get('color.base.gray')!.extensions).toEqual({ 'com.dtsanity.legacy': { attributes: { category: 'color' } } });
     expect(m.tokens.get('color.font')).toMatchObject({ aliasOf: 'color.base.red', type: 'color', resolution: 'ok' });
   });
 

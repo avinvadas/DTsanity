@@ -1,4 +1,4 @@
-# Tokens Tester
+# DTsanity
 
 A one-page, browser-only evaluator for design-token files. Load your tokens, check them against the [DTCG format](https://www.designtokens.org/), see your base colors as ordered palettes, and download a corrected file.
 

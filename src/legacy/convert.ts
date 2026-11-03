@@ -1,6 +1,6 @@
 import { entry, isInline, reshape, setChild, toJS, type JDoc, type JEntry, type JNode, type JObject, type JStyle } from '../json/cst';
 import type { ConversionNote, LegacyKind } from '../model/types';
-import { DTCG_TYPES, LEGACY_EXT, LEGACY_TO_DTCG, TOKENS_STUDIO_TYPES } from './types';
+import { DTCG_TYPES, LEGACY_EXT, LEGACY_EXT_OLD, LEGACY_TO_DTCG, TOKENS_STUDIO_TYPES } from './types';
 import { addValueSuffix, convertLegacyValue, looksLikeHex, toLegacyValue } from './values';
 
 /**
@@ -151,7 +151,7 @@ export function dtcgToLegacy(doc: JDoc, kind: LegacyKind): { doc: JDoc; notes: s
     const dtcgType = ownType?.kind === 'string' ? ownType.value : inherited;
     const extNode = entry(node, '$extensions')?.value;
     const ext = extNode?.kind === 'object' ? (toJS(extNode) as Record<string, unknown>) : undefined;
-    const legacy = (ext?.[LEGACY_EXT] ?? {}) as Record<string, unknown>;
+    const legacy = (ext?.[LEGACY_EXT] ?? ext?.[LEGACY_EXT_OLD] ?? {}) as Record<string, unknown>;
     const legacyType = typeof legacy.type === 'string' ? legacy.type : dtcgType;
     const value = toJS(entry(node, '$value')!.value);
     if (value && typeof value === 'object' && '$ref' in value) notes.push(`${keyPath.join('.')}: “$ref” pointers have no legacy equivalent and were kept as is.`);
@@ -168,7 +168,7 @@ export function dtcgToLegacy(doc: JDoc, kind: LegacyKind): { doc: JDoc; notes: s
       } else if (e.key === '$description') {
         out.push(rename(e, descKey));
       } else if (e.key === '$extensions') {
-        const { [LEGACY_EXT]: _legacy, ...others } = ext ?? {};
+        const { [LEGACY_EXT]: _legacy, [LEGACY_EXT_OLD]: _old, ...others } = ext ?? {};
         if (Object.keys(others).length) out.push({ ...e, value: reshape(e.value, others, depth + 1, style) });
       } else {
         out.push(e);

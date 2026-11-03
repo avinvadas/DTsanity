@@ -9,13 +9,15 @@ export { DEFAULT_SETTINGS };
  * windows, file://, blocked site data), so every access is guarded.
  */
 
-const KEY = 'tokens-tester:settings:v1';
+const KEY = 'dtsanity:settings:v1';
+/** Settings saved before the rename to DTsanity, read when there are none under the new key. */
+const OLD_KEY = 'tokens-tester:settings:v1';
 
 const oneOf = <T extends string>(v: unknown, options: readonly T[], fallback: T): T => (options.includes(v as T) ? (v as T) : fallback);
 
 export function loadSettings(): Settings {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(OLD_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
     const parsed = JSON.parse(raw) as Partial<Settings>;
     return {

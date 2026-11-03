@@ -59,7 +59,9 @@ export const TOKENS_STUDIO_TYPES = new Set([
 ]);
 
 /** Extension key holding legacy details that DTCG has no place for, so they survive a round-trip. */
-export const LEGACY_EXT = 'com.tokens-tester.legacy';
+export const LEGACY_EXT = 'com.dtsanity.legacy';
+/** The key used before the rename to DTsanity, still read so earlier conversions convert back. */
+export const LEGACY_EXT_OLD = 'com.tokens-tester.legacy';
 
 export const DTCG_TYPES = [
   'color',

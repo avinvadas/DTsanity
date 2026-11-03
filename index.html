@@ -5,18 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <!-- tt:csp -->
-    <title>Tokens Tester</title>
+    <title>DTsanity</title>
     <meta name="description" content="Check design-token files for DTCG compliance, contrast and color-vision accessibility. Runs entirely in your browser.">
   </head>
   <body>
     <div class="app">
       <aside class="sidebar">
-        <div class="brand"><span class="logo" aria-hidden="true"></span><span>Tokens Tester</span></div>
+        <div class="brand"><span class="logo" aria-hidden="true"></span><span>DTsanity</span></div>
         <tt-nav></tt-nav>
         <footer class="sidebar-foot">
-          <a class="local" href="#privacy" data-nav="privacy" data-tip="Your files are processed only in this browser tab. Click to see how to check it."><span class="dot" aria-hidden="true"></span>Runs locally</a>
           <span id="build-label"></span>
-          <span class="credit">Created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span>
+          <span class="credit">DTsanity is an <a href="https://github.com/avinvadas/DTsanity" target="_blank" rel="noopener">open source project</a> created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span>
         </footer>
       </aside>
 
@@ -24,10 +23,10 @@
         <section class="view" data-view="files" aria-labelledby="files-h">
           <header class="vh">
             <div class="vh-row">
-              <h1 class="vh-title" id="files-h"><span class="landing-only brand-title"><span class="logo" aria-hidden="true"></span>Tokens Tester</span><span class="loaded-only">Files</span></h1>
+              <h1 class="vh-title" id="files-h"><span class="landing-only brand-title"><span class="logo" aria-hidden="true"></span>DTsanity</span><span class="loaded-only">Files</span></h1>
             </div>
             <div class="vh-summary loaded-only" id="files-summary"></div>
-            <p class="vh-summary landing-only">Check your design-tokens system for accessibility and compliance</p>
+            <p class="vh-summary landing-only">Validate and refine your design tokens system</p>
           </header>
           <tt-files></tt-files>
           <h3 class="section-title loaded-only">Add more files</h3>
@@ -35,7 +34,7 @@
             <tt-loader></tt-loader>
             <tt-settings></tt-settings>
           </div>
-          <p class="landing-only landing-foot"><a class="local" href="#privacy" data-tip="Your files are processed only in this browser tab. Click to see how to check it."><span class="dot" aria-hidden="true"></span>Runs locally</a> · <span class="credit">Created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span></p>
+          <p class="landing-only landing-foot"><span class="credit">DTsanity is an <a href="https://github.com/avinvadas/DTsanity" target="_blank" rel="noopener">open source project</a> created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span></p>
         </section>
         <section class="view" data-view="themes" hidden><tt-themes></tt-themes></section>
         <section class="view" data-view="issues" hidden><tt-issues></tt-issues></section>

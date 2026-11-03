@@ -1,4 +1,4 @@
-# Tokens Tester — Plan
+# DTsanity — Plan
 
 A single-page, browser-only evaluator for design-token files. All parsing, validation, color math and export happen locally in the browser. Token data never leaves the user's machine.
 
@@ -149,7 +149,7 @@ Each rule is a pure function `(model) => Issue[]` in its own file, so rules are 
 
 ## 9. Semantic layer: CVD distinction and alias suggestions
 
-- **Pair detection:** foreground/background pairs are inferred from naming (`bg`, `background`, `surface`, `fill`, `container` ↔ `fg`, `text`, `on-*`, `icon`, `border`, matched on shared modifiers such as `danger` or `subtle-hover`). An editable pairing table lets users fix or add pairs. Pairs are optionally saved to `$extensions["com.tokens-tester.pairs"]` so the next run needs no setup.
+- **Pair detection:** foreground/background pairs are inferred from naming (`bg`, `background`, `surface`, `fill`, `container` ↔ `fg`, `text`, `on-*`, `icon`, `border`, matched on shared modifiers such as `danger` or `subtle-hover`). An editable pairing table lets users fix or add pairs. Pairs are optionally saved to `$extensions["com.dtsanity.pairs"]` so the next run needs no setup.
 - **Sibling groups:** sets that must be told apart (success/warning/danger/info, chart series), auto-detected and editable.
 - **Simulation (own module, since Color.js has no CVD):** Machado 2009 matrices for protan/deutan/tritan at the chosen severity, plus achromatopsia from luminance. Runs in linear sRGB.
 - **Checks per theme × vision type:**

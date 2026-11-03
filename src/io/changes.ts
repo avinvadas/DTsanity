@@ -65,7 +65,7 @@ export function fileChanges(f: SourceFile): TokenChange[] {
 const code = (s: string) => `\`${s.replaceAll('`', 'ˋ')}\``;
 
 /**
- * CHANGES.md: the edits made in Tokens Tester, per file and token, then
+ * CHANGES.md: the edits made in DTsanity, per file and token, then
  * the actions as they were applied. `notes` lists values that couldn't be
  * written back to a legacy format, per file name.
  */
@@ -76,7 +76,7 @@ export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: Read
   const lines = [
     '# Token changes',
     '',
-    `Made in Tokens Tester on ${now.toISOString().slice(0, 10)}. This folder holds the whole token set as it was loaded, with these changes applied; every file keeps its name and format.`,
+    `Made in DTsanity on ${now.toISOString().slice(0, 10)}. This folder holds the whole token set as it was loaded, with these changes applied; every file keeps its name and format.`,
     '',
     `${total} ${total === 1 ? 'change' : 'changes'} in ${edited.length} of ${s.files.length} ${s.files.length === 1 ? 'file' : 'files'}.`,
     '',
