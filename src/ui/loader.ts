@@ -137,7 +137,9 @@ let iconCount = 0;
 
 /**
  * The drop zone's token-file icon. Fixed markup, never built from file data.
- * Strokes follow the text color so it suits both themes; the color point in
+ * Strokes follow the text color so it suits both themes. The file body has a
+ * solid base in the page color, so the whole file casts its shadow (the
+ * translucent gradient alone barely does); the color point in
  * the middle cycles through the hues (see .tf-point in styles.css). Each
  * copy gets its own gradient id, as the landing and the dialog both show one.
  */
@@ -146,6 +148,7 @@ function tokenFileIcon(): SVGSVGElement {
   const t = document.createElement('template');
   t.innerHTML = `<svg class="icon token-file-icon" viewBox="0 0 500 500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
     <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(300,-400,400,300,100,450)"><stop offset="0" stop-color="white" stop-opacity="0.07"/><stop offset="1" stop-color="white" stop-opacity="0.15"/></linearGradient></defs>
+    <path class="tf-base" d="M400,50l0,325c0,41.394 -33.606,75 -75,75l-225,0l0,-400l300,0Z" stroke="none"/>
     <path d="M400,50l0,325c0,41.394 -33.606,75 -75,75l-225,0l0,-400l300,0Z" fill="url(#${id})" stroke-opacity="0.25" vector-effect="non-scaling-stroke"/>
     <path stroke-opacity="0.5" vector-effect="non-scaling-stroke" d="M250,352.392l-82.562,-44.721c-7.664,-4.152 -12.438,-12.167 -12.438,-20.883l-0,-92.729m95,158.333l82.562,-44.721c7.664,-4.152 12.438,-12.167 12.438,-20.883l-0,-92.729m-95,158.333l-0,-71.25m-95,-87.083l84.029,-43.765c6.875,-3.581 15.067,-3.581 21.942,-0l84.029,43.765m-190,-0l63.669,34.488m126.331,-34.488l-63.669,34.488m-31.331,52.595c19.676,0 35.625,-15.949 35.625,-35.625c-0,-6.144 -1.556,-11.925 -4.294,-16.97m-31.331,52.595c-19.676,0 -35.625,-15.949 -35.625,-35.625c-0,-6.144 1.556,-11.925 4.294,-16.97m62.662,-0c-6.031,-11.112 -17.801,-18.655 -31.331,-18.655c-13.53,0 -25.3,7.543 -31.331,18.655"/>
     <circle class="tf-point" cx="250" cy="245" r="20" stroke="none"/>

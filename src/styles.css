@@ -89,7 +89,7 @@
   --well-strong: rgb(28 28 28 / 0.06);
   --line: rgb(28 28 28 / 0.05);
   --line-strong: rgb(28 28 28 / 0.15);
-  --shadow-soft: 0 0 48px rgb(28 28 28 / 0.05);
+  --shadow-soft: 0 0 48px rgb(28 28 28 / 0.1);
   /* Interactive emphasis (links, primary buttons, selected filters, focus) uses the darkest foreground, not a hue. */
   --accent: var(--ref-neutral-900);
   --accent-soft: var(--ref-neutral-150);
@@ -427,6 +427,7 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 /* The token-file icon fades in; its color point cycles slowly through the whole spectrum at one lightness. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out both; filter: drop-shadow(var(--shadow-soft)); }
+.tf-base { fill: var(--bg); }
 .tf-point { fill: oklch(0.66 0.24 var(--tf-hue)); animation: tf-hue 18s linear infinite; }
 @keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
