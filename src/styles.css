@@ -18,6 +18,8 @@
   --ref-neutral-100: #eeeeee;
   --ref-neutral-150: #e1e1e1;
   --ref-neutral-200: #c8c8c8;
+  --ref-neutral-500: #858585; /* 3:1 on every light surface: control edges */
+  --ref-neutral-600: #616161; /* 4.5:1 on every light surface, selected rows included: quiet text */
   --ref-neutral-850: #222222;
   --ref-neutral-900: #1c1c1c;
   --ref-gray-25: #fbfbfc;
@@ -45,6 +47,7 @@
   --ref-green-900: #15301f;
   --ref-amber-50: #fcf2e0;
   --ref-amber-700: #94590a;
+  --ref-amber-800: #7f4c08;
   --ref-amber-300: #e8ad55;
   --ref-amber-900: #33260f;
   --ref-red-50: #fdeceb;
@@ -76,9 +79,11 @@
   --text: var(--ref-neutral-900);
   --text-soft: var(--ref-neutral-850); /* secondary lines set in a lighter weight rather than a lighter color */
   --muted: var(--ref-gray-600);
-  --subtle: var(--ref-gray-500);
+  --subtle: var(--ref-neutral-600);
   --border: var(--ref-neutral-150);
   --border-strong: var(--ref-neutral-200);
+  /* Edges that identify a control (text fields, selects, a selected segment): 3:1 against what is around them (WCAG 1.4.11). */
+  --control-border: var(--ref-neutral-500);
   /* Translucent fills and lines over whatever is behind (drop zone, illustrations). */
   --well: rgb(28 28 28 / 0.035);
   --well-strong: rgb(28 28 28 / 0.06);
@@ -93,7 +98,7 @@
   --graphic-accent: var(--ref-blue-500);
   --ok: var(--ref-green-600);
   --ok-soft: var(--ref-green-50);
-  --warn: var(--ref-amber-700);
+  --warn: var(--ref-amber-800);
   --warn-soft: var(--ref-amber-50);
   --error: var(--ref-red-600);
   --error-soft: var(--ref-red-50);
@@ -150,7 +155,8 @@
     --line-strong: rgb(255 255 255 / 0.15);
     --shadow-soft: 0 0 48px rgb(28 28 28 / 0.4);
     --muted: var(--ref-gray-400);
-    --subtle: var(--ref-gray-500);
+    --subtle: #9a9ea6;
+    --control-border: #72767e;
     --border: var(--ref-gray-800);
     --border-strong: var(--ref-gray-700);
     --accent: var(--ref-gray-100);
@@ -232,12 +238,13 @@ input, select {
   height: var(--control-h);
   padding: 0 var(--space-2);
   border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-border);
   background: var(--surface);
   color: var(--text);
   min-width: 0;
 }
-input[type='checkbox'], input[type='radio'] { height: auto; accent-color: var(--accent); }
+/* 18px with room around it: a 24px target by WCAG 2.5.8's spacing rule. */
+input[type='checkbox'], input[type='radio'] { width: 18px; height: 18px; margin: 3px; accent-color: var(--accent); }
 input::placeholder { color: var(--subtle); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
@@ -369,9 +376,9 @@ tt-nav { display: flex; flex-direction: column; gap: var(--space-4); }
 .chip.info { background: var(--info-soft); color: var(--info); }
 
 .segmented { display: inline-flex; padding: 2px; gap: 2px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
-.segmented button { min-height: 22px; border: 0; border-radius: var(--radius-sm); padding: 0 var(--space-2); background: transparent; color: var(--muted); font-size: var(--font-sm); }
+.segmented button { min-height: 24px; border: 0; border-radius: var(--radius-sm); padding: 0 var(--space-2); background: transparent; color: var(--muted); font-size: var(--font-sm); }
 .segmented button:hover:not(:disabled) { background: var(--surface-hover); color: var(--text); }
-.segmented button.on { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border-strong); }
+.segmented button.on { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--control-border); }
 
 .chips { display: inline-flex; gap: var(--space-1); flex-wrap: wrap; }
 .chip-toggle { min-height: 24px; font-size: var(--font-sm); padding: 0 var(--space-2); border-radius: var(--radius-pill); color: var(--muted); }
@@ -488,7 +495,7 @@ body.dragging .dropzone {
 
 tt-settings { display: block; padding-top: var(--space-3); border-top: 1px solid var(--border); }
 .setting { display: flex; gap: var(--space-2); align-items: flex-start; }
-.setting input { margin-top: 2px; width: 15px; height: 15px; flex: none; }
+.setting input { margin: 1px 3px 3px; width: 18px; height: 18px; flex: none; }
 .setting label { display: flex; flex-direction: column; cursor: pointer; }
 .setting label span { color: var(--muted); font-size: var(--font-sm); }
 
@@ -727,7 +734,7 @@ button.curve-btn { border-color: var(--border-strong); }
 /* A hairline keeps very light swatches visible on the page. */
 .unit-fill .swatch-canvas { border-radius: var(--radius); outline: 1px solid var(--border); outline-offset: -1px; }
 /* Pin toggles: faint when off, full when on. */
-button.pin-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 0; width: 18px; height: 18px; padding: 0; border: 0; background: transparent; color: var(--text); opacity: 0.33; cursor: pointer; }
+button.pin-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 0; width: 24px; height: 24px; margin: -3px; padding: 0; border: 0; background: transparent; color: var(--text); opacity: 0.33; cursor: pointer; }
 button.pin-btn:hover:not(:disabled) { background: transparent; opacity: 0.66; }
 button.pin-btn.on, button.pin-btn.on:hover:not(:disabled) { opacity: 1; }
 button.pin-btn .icon { width: 13px; height: 13px; }
@@ -1055,6 +1062,8 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
 .landing-foot { margin: 0; font-size: var(--font-sm); color: var(--subtle); }
+/* Under the subtitle: what it checks, in about 12 words a line. Plain page text, so search engines read it too. */
+.landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-sm); line-height: 1.55; color: var(--muted); text-align: center; text-wrap: balance; }
 /* The credit reads as part of the footer: quiet text, the name underlined as a link. */
 .credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .credit a:hover { color: var(--text); }
@@ -1101,7 +1110,7 @@ tt-semantic > p { margin: 0; }
 .cl-row { --cl-indent: calc(var(--toggle-box) - var(--toggle-pull) + var(--space-2)); }
 
 /* plain: inline, for "more" areas */
-.cl-plain > .cl-summary { color: var(--muted); font-size: var(--font-sm); padding: 2px 0; width: fit-content; }
+.cl-plain > .cl-summary { color: var(--muted); font-size: var(--font-sm); min-height: 24px; padding: 2px 0; width: fit-content; }
 .cl-plain > .cl-summary:hover { color: var(--text); }
 .cl-plain[open] > .cl-summary { margin-bottom: var(--space-2); }
 

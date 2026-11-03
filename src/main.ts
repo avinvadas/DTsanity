@@ -63,5 +63,3 @@ document.addEventListener('keydown', (e) => {
   else undo();
 });
 
-const label = document.getElementById('build-label');
-if (label) label.textContent = __STRICT__ ? 'Strict build: no usability recording, works offline.' : 'Hosted build.';

@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Browser-only design-tokens evaluator. Token data never leaves the browser.",
+  "description": "Design tokens validator and accessibility checker: DTCG format, contrast (WCAG, APCA) and color blindness, with fixes. Runs in your browser.",
+  "keywords": ["design-tokens", "dtcg", "design-system", "validator", "linter", "accessibility", "wcag", "apca", "color-contrast", "color-blindness", "tokens-studio", "style-dictionary", "oklch"],
+  "homepage": "https://github.com/avinvadas/DTsanity",
+  "repository": { "type": "git", "url": "git+https://github.com/avinvadas/DTsanity.git" },
+  "author": "Avin Vadas (https://avinvadas.com)",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
