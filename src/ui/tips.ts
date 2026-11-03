@@ -57,6 +57,12 @@ export const TIP = {
 
   // Issues
   reload: 'Read the files again from disk or their URL and re-run the checks.',
+  dropzone: 'DTCG .json or .tokens files, several at once (such as primitives and semantic). Tokens Studio and Style Dictionary files too, with legacy formats on.',
+  fileActions: 'Reload the files, or add more without leaving this view.',
+  addMoreFiles: 'Open the loaded files in a dialog: remove any of them, or drop, pick or link more.',
+  closeDialog: 'Cancel and close (Esc): the files go back to how they were.',
+  filesSave: 'Keep these files and re-run every check on them.',
+  filesCancel: 'Put the files back as they were when you opened this, and close.',
   fixAll: 'Apply every suggested fix in this group as one undoable step.',
   fix: 'Apply this suggested fix. You can undo it.',
   fixBefore: 'The value as it is now.',

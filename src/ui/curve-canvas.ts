@@ -257,7 +257,7 @@ export class CurveCanvas {
 
     // The curve.
     const f = evaluate(this.o.curve());
-    ctx.strokeStyle = color('--accent');
+    ctx.strokeStyle = color('--graphic-accent');
     ctx.lineWidth = 2;
     ctx.beginPath();
     for (let k = 0; k <= 120; k++) {
@@ -295,8 +295,8 @@ export class CurveCanvas {
     this.o.curve().points.forEach((p, i) => {
       const x = this.x(p.t);
       const y = this.y(Math.min(hi, Math.max(lo, p.v)));
-      ctx.fillStyle = i === this.selected ? color('--accent') : color('--surface');
-      ctx.strokeStyle = color('--accent');
+      ctx.fillStyle = i === this.selected ? color('--graphic-accent') : color('--surface');
+      ctx.strokeStyle = color('--graphic-accent');
       ctx.lineWidth = 2;
       ctx.beginPath();
       if (this.isAnchor(p)) {

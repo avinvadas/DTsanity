@@ -158,6 +158,22 @@ export function removeFile(id: string) {
   store.set((s) => ({ ...derive(s, s.files.filter((f) => f.id !== id), s.settings), ...dropHistory(s, new Set([id])) }));
 }
 
+/** The loaded files and their history, to put back later (Cancel in the Add token files dialog). */
+export type FileSnapshot = Pick<AppState, 'files' | 'themes' | 'themesCustomized' | 'past' | 'future' | 'loadErrors'>;
+
+export function snapshotFiles(): FileSnapshot {
+  const { files, themes, themesCustomized, past, future, loadErrors } = store.get();
+  return { files, themes, themesCustomized, past, future, loadErrors };
+}
+
+/** Put back a snapshot: the same file objects, themes and undo history, with the checks run again. */
+export function restoreFiles(snap: FileSnapshot) {
+  store.set((s) => {
+    const base = { ...s, themes: snap.themes, themesCustomized: snap.themesCustomized };
+    return { ...derive(base, snap.files, s.settings, snap.themesCustomized ? snap.themes : undefined), past: snap.past, future: snap.future, loadErrors: snap.loadErrors };
+  });
+}
+
 export function clearAll() {
   store.set((s) => initial(s.settings));
 }

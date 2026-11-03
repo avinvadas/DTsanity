@@ -16,6 +16,7 @@ import { contrastControls, paletteContrast, parityPanel } from './contrast';
 import { defaultAnchor } from '../curves/model';
 import { openCurveEditor } from './curve-editor';
 import { tierNames } from '../model/tiers';
+import { reloadControl } from './loader';
 import { h, icon, masked, pinButton, plural, viewHead } from './dom';
 import { FLAG_TIP, flagTip, levelTip, TIP } from './tips';
 
@@ -83,6 +84,7 @@ function previewed(p: Palette, colors: ReadonlyMap<string, ColorInfo>, gamut: Se
 
 export class TTPalettes extends HTMLElement {
   private unsubs: (() => void)[] = [];
+  private reload = reloadControl(TIP.reload);
   private resize = new ResizeObserver(() => paintAll(this));
   private frame = 0;
 
@@ -95,6 +97,7 @@ export class TTPalettes extends HTMLElement {
       ),
       // Curve drags update the preview many times a second: draw at most once per frame.
       preview.select((s) => s.colors, () => this.schedule()),
+      this.reload.unsub,
     );
     this.resize.observe(this);
   }
@@ -126,7 +129,7 @@ export class TTPalettes extends HTMLElement {
     this.replaceChildren(
       viewHead(masked(h('span', null, `${tierNames(v.model).base} tier`)), {
         summary: total ? `${plural(included.length, 'palette')} · ${plural(total, 'color')}` : null,
-        actions: [this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut)],
+        actions: [this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut), this.reload.el],
       }),
       total && settings.contrast.length ? contrastControls(settings, set, contrast) : '',
       h(

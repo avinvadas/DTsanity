@@ -3,6 +3,7 @@ import type { Model, Settings, Token } from '../model/types';
 import { ALL_THEMES, store } from '../state/app';
 import type { ThemeModel } from '../themes/merge';
 import { h, masked, plural, viewHead } from './dom';
+import { reloadControl } from './loader';
 import { TIP } from './tips';
 
 const PAGE = 300;
@@ -27,6 +28,7 @@ export function formatValue(v: unknown, format: Settings['colorFormat'] = 'oklch
 
 export class TTTokens extends HTMLElement {
   private unsub?: () => void;
+  private reload = reloadControl(TIP.reload);
   private model?: Model;
   private format: Settings['colorFormat'] = 'oklch';
   private query = '';
@@ -53,7 +55,7 @@ export class TTTokens extends HTMLElement {
     });
 
     this.replaceChildren(
-      viewHead('Tokens list', { summary: masked(this.summary) }),
+      viewHead('Tokens list', { summary: masked(this.summary), actions: this.reload.el }),
       h('div', { class: 'toolbar' }, masked(search), masked(this.typeSelect)),
       masked(
         h(
@@ -91,6 +93,7 @@ export class TTTokens extends HTMLElement {
 
   disconnectedCallback() {
     this.unsub?.();
+    this.reload.unsub();
   }
 
   private renderTypes() {

@@ -3,6 +3,8 @@ import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles,
 import type { SourceFile } from '../model/types';
 import { addFiles, replaceFiles, setBusy, store, type LoadError } from '../state/app';
 import { h, icon, masked, plural } from './dom';
+import { openFilesDialog } from './files-dialog';
+import { TIP } from './tips';
 
 /** Length of each step on the first load: the ring fill, the landing fading out, the results fading in. */
 export const LOAD_MS = 330;
@@ -86,20 +88,69 @@ export async function reloadAll(): Promise<string | null> {
 const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 /**
- * A "Reload files" button with its status line: reads every loaded file again
- * from disk or its URL, without loading them anew. Disabled while loading.
- * Returns the element and an unsubscribe for the busy state.
+ * The loaded file set as a split button: the main part says how many files
+ * are read and reloads them from disk or their URL (without loading them
+ * anew); the menu beside it offers Reload files and Add more files, which
+ * opens the loader in a dialog over the current view. Disabled while
+ * loading. Returns the element, its status line and an unsubscribe.
  */
 export function reloadControl(tip: string): { el: HTMLElement; status: HTMLElement; unsub: () => void } {
   const status = h('span', { class: 'reload-status', role: 'status' });
-  const button = h('button', { type: 'button', class: 'reload', 'data-tip': tip }, h('span', { 'aria-hidden': 'true' }, '↻ '), 'Reload files');
-  button.addEventListener('click', async () => {
+  const reload = async () => {
+    menu.hidePopover();
     status.replaceChildren('');
     const summary = await reloadAll();
     if (summary) status.replaceChildren(`${summary} · ${timeNow()}`);
+  };
+  const count = h('span', null);
+  const main = h('button', { type: 'button', class: 'reload split-main', 'data-tip': tip, onclick: reload }, h('span', { 'aria-hidden': 'true' }, '↻ '), count);
+  const toggle = h('button', { type: 'button', class: 'split-toggle', 'aria-label': 'File actions', 'aria-haspopup': 'menu', 'data-tip': TIP.fileActions }, icon('chevron-down'));
+  const item = (label: string, tipText: string, act: () => void) => h('button', { type: 'button', role: 'menuitem', class: 'menu-item', 'data-tip': tipText, onclick: act }, label);
+  const menu = h(
+    'div',
+    { class: 'split-menu', popover: 'auto', role: 'menu', 'aria-label': 'File actions' },
+    item('Reload files', tip, () => void reload()),
+    item('Add more files…', TIP.addMoreFiles, () => {
+      menu.hidePopover();
+      openFilesDialog();
+    }),
+  );
+  // Below the toggle, right edges aligned, kept on screen.
+  menu.addEventListener('toggle', (e) => {
+    toggle.setAttribute('aria-expanded', String((e as ToggleEvent).newState === 'open'));
+    if ((e as ToggleEvent).newState !== 'open') return;
+    const b = split.getBoundingClientRect();
+    menu.style.top = `${b.bottom + 4}px`;
+    menu.style.left = `${Math.max(8, Math.min(b.right - menu.offsetWidth, window.innerWidth - menu.offsetWidth - 8))}px`;
+    menu.querySelector<HTMLElement>('.menu-item')?.focus();
   });
-  const unsub = store.select((s) => s.busy, (busy) => (button.disabled = busy));
-  return { el: h('div', { class: 'reload-wrap' }, status, button), status, unsub };
+  toggle.addEventListener('click', () => menu.togglePopover());
+  const split = h('div', { class: 'split-button' }, main, toggle, menu);
+  const unsubs = [
+    store.select((s) => s.busy, (busy) => (main.disabled = toggle.disabled = busy)),
+    store.select((s) => s.files.length, (n) => (count.textContent = `${plural(n, 'file')} loaded`)),
+  ];
+  return { el: h('div', { class: 'reload-wrap' }, status, split), status, unsub: () => unsubs.forEach((u) => u()) };
+}
+
+let iconCount = 0;
+
+/**
+ * The drop zone's token-file icon. Fixed markup, never built from file data.
+ * Strokes follow the text color so it suits both themes; the color point in
+ * the middle cycles through the hues (see .tf-point in styles.css). Each
+ * copy gets its own gradient id, as the landing and the dialog both show one.
+ */
+function tokenFileIcon(): SVGSVGElement {
+  const id = `tt-tf-${++iconCount}`;
+  const t = document.createElement('template');
+  t.innerHTML = `<svg class="icon token-file-icon" viewBox="0 0 500 500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(300,-400,400,300,100,450)"><stop offset="0" stop-color="white" stop-opacity="0.07"/><stop offset="1" stop-color="white" stop-opacity="0.15"/></linearGradient></defs>
+    <path d="M400,50l0,325c0,41.394 -33.606,75 -75,75l-225,0l0,-400l300,0Z" fill="url(#${id})" stroke-opacity="0.25" vector-effect="non-scaling-stroke"/>
+    <path stroke-opacity="0.5" vector-effect="non-scaling-stroke" d="M250,352.392l-82.562,-44.721c-7.664,-4.152 -12.438,-12.167 -12.438,-20.883l-0,-92.729m95,158.333l82.562,-44.721c7.664,-4.152 12.438,-12.167 12.438,-20.883l-0,-92.729m-95,158.333l-0,-71.25m-95,-87.083l84.029,-43.765c6.875,-3.581 15.067,-3.581 21.942,-0l84.029,43.765m-190,-0l63.669,34.488m126.331,-34.488l-63.669,34.488m-31.331,52.595c19.676,0 35.625,-15.949 35.625,-35.625c-0,-6.144 -1.556,-11.925 -4.294,-16.97m-31.331,52.595c-19.676,0 -35.625,-15.949 -35.625,-35.625c-0,-6.144 1.556,-11.925 4.294,-16.97m62.662,-0c-6.031,-11.112 -17.801,-18.655 -31.331,-18.655c-13.53,0 -25.3,7.543 -31.331,18.655"/>
+    <circle class="tf-point" cx="250" cy="245" r="20" stroke="none"/>
+  </svg>`;
+  return t.content.firstElementChild as SVGSVGElement;
 }
 
 export class TTLoader extends HTMLElement {
@@ -124,15 +175,16 @@ export class TTLoader extends HTMLElement {
       {
         type: 'button',
         class: 'dropzone',
+        'data-tip': TIP.dropzone,
         onclick: async () => {
           const picked = await pickFiles(input);
           if (picked) void ingest(Promise.resolve(picked));
         },
       },
       h('span', { class: 'zone-ring', 'aria-hidden': 'true' }),
-      icon('file-token'),
-      h('strong', null, 'Drop token files here or click to select them.'),
-      h('small', null, 'DTCG .json or .tokens files, several at once.'),
+      tokenFileIcon(),
+      h('strong', { class: 'zone-title' }, 'Drop JSON tokens files here'),
+      h('span', { class: 'zone-sub' }, 'or click to select them'),
     );
 
     const url = masked(h('input', { type: 'url', id: 'tt-url', placeholder: 'https://…/tokens.json', autocomplete: 'off', spellcheck: 'false', required: true }));

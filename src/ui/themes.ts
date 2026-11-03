@@ -10,6 +10,7 @@ import {
   type AppState,
 } from '../state/app';
 import { h, masked, plural, viewHead } from './dom';
+import { reloadControl } from './loader';
 import { TIP } from './tips';
 
 const SOURCE: Record<ThemeSource, string> = {
@@ -24,6 +25,7 @@ type View = Pick<AppState, 'files' | 'themes' | 'themesCustomized' | 'activeThem
 /** Themes: a switcher for the active theme and a files × themes matrix to edit what each theme reads. */
 export class TTThemes extends HTMLElement {
   private unsub?: () => void;
+  private reload = reloadControl(TIP.reload);
 
   connectedCallback() {
     this.unsub = store.select(
@@ -35,6 +37,7 @@ export class TTThemes extends HTMLElement {
 
   disconnectedCallback() {
     this.unsub?.();
+    this.reload.unsub();
   }
 
   private render(v: View) {
@@ -42,7 +45,7 @@ export class TTThemes extends HTMLElement {
     if (v.themes.length === 0) {
       // Say why there's no switcher, rather than hiding the panel.
       this.replaceChildren(
-        viewHead('Themes'),
+        viewHead('Themes', { actions: this.reload.el }),
         h(
           'p',
           { class: 'meta' },
@@ -67,7 +70,7 @@ export class TTThemes extends HTMLElement {
     const counts = new Map(v.themeModels.map((m) => [m.theme.id, m.model.issues.filter((i) => i.severity === 'error').length]));
 
     this.replaceChildren(
-      viewHead('Themes', { summary: plural(v.themes.length, 'theme') }),
+      viewHead('Themes', { summary: plural(v.themes.length, 'theme'), actions: this.reload.el }),
       h(
         'p',
         { class: 'meta' },

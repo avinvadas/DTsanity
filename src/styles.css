@@ -5,13 +5,21 @@
  *   --ref-*  primitives (raw grays, hues, sizes); never used by components.
  *   the rest semantic roles (surfaces, text, borders, status, type, space),
  *            redefined for dark mode. Components use only these.
- * The curve canvas reads --text, --muted, --border, --surface, --accent and
+ * The curve canvas reads --text, --muted, --border, --surface, --graphic-accent and
  * --warn at draw time, so keep those names.
  */
 
 :root {
   /* ---- Tier 1: primitives ---- */
   --ref-gray-0: #ffffff;
+  /* Neutral (untinted) grays of the current design language. */
+  --ref-neutral-25: #fafafa;
+  --ref-neutral-50: #f3f3f3;
+  --ref-neutral-100: #eeeeee;
+  --ref-neutral-150: #e1e1e1;
+  --ref-neutral-200: #c8c8c8;
+  --ref-neutral-850: #222222;
+  --ref-neutral-900: #1c1c1c;
   --ref-gray-25: #fbfbfc;
   --ref-gray-50: #f5f6f7;
   --ref-gray-100: #eeeff1;
@@ -59,20 +67,30 @@
   --ref-size-48: 48px;
 
   /* ---- Tier 2: semantic roles (light) ---- */
-  --bg: var(--ref-gray-0);            /* workspace */
-  --sidebar: var(--ref-gray-50);
+  --bg: var(--ref-neutral-25);        /* workspace */
+  --sidebar: var(--ref-neutral-50);
   --surface: var(--ref-gray-0);       /* controls, dialogs, cards */
-  --surface-2: var(--ref-gray-50);    /* sunken: table heads, wells */
-  --surface-hover: var(--ref-gray-100);
-  --surface-selected: var(--ref-gray-150);
-  --text: var(--ref-gray-900);
+  --surface-2: var(--ref-neutral-100); /* sunken, opaque: table heads, wells (5% black on the workspace) */
+  --surface-hover: var(--ref-neutral-100);
+  --surface-selected: var(--ref-neutral-150);
+  --text: var(--ref-neutral-900);
+  --text-soft: var(--ref-neutral-850); /* secondary lines set in a lighter weight rather than a lighter color */
   --muted: var(--ref-gray-600);
   --subtle: var(--ref-gray-500);
-  --border: var(--ref-gray-150);
-  --border-strong: var(--ref-gray-200);
-  --accent: var(--ref-blue-500);
-  --accent-soft: var(--ref-blue-50);
+  --border: var(--ref-neutral-150);
+  --border-strong: var(--ref-neutral-200);
+  /* Translucent fills and lines over whatever is behind (drop zone, illustrations). */
+  --well: rgb(28 28 28 / 0.035);
+  --well-strong: rgb(28 28 28 / 0.06);
+  --line: rgb(28 28 28 / 0.05);
+  --line-strong: rgb(28 28 28 / 0.15);
+  --shadow-soft: 0 0 48px rgb(28 28 28 / 0.05);
+  /* Interactive emphasis (links, primary buttons, selected filters, focus) uses the darkest foreground, not a hue. */
+  --accent: var(--ref-neutral-900);
+  --accent-soft: var(--ref-neutral-150);
   --on-accent: var(--ref-gray-0);
+  /* Blue is kept for graphics only (curve editor lines and points). */
+  --graphic-accent: var(--ref-blue-500);
   --ok: var(--ref-green-600);
   --ok-soft: var(--ref-green-50);
   --warn: var(--ref-amber-700);
@@ -81,11 +99,11 @@
   --error-soft: var(--ref-red-50);
   --info: var(--ref-slate-600);
   --info-soft: var(--ref-slate-50);
-  --tooltip-bg: var(--ref-gray-900);
+  --tooltip-bg: var(--ref-neutral-900);
   --tooltip-text: var(--ref-gray-25);
-  --backdrop: rgba(19, 20, 22, 0.45);
-  --swatch-edge: rgba(0, 0, 0, 0.12);
-  --shadow-pop: 0 6px 24px rgba(19, 20, 22, 0.14), 0 1px 3px rgba(19, 20, 22, 0.08);
+  --backdrop: rgba(28, 28, 28, 0.45);
+  --swatch-edge: rgba(28, 28, 28, 0.12);
+  --shadow-pop: 0 6px 24px rgba(28, 28, 28, 0.14), 0 1px 3px rgba(28, 28, 28, 0.08);
 
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -125,13 +143,20 @@
     --surface-hover: var(--ref-gray-800);
     --surface-selected: var(--ref-gray-800);
     --text: var(--ref-gray-100);
+    --text-soft: var(--ref-gray-200);
+    --well: rgb(255 255 255 / 0.035);
+    --well-strong: rgb(255 255 255 / 0.06);
+    --line: rgb(255 255 255 / 0.05);
+    --line-strong: rgb(255 255 255 / 0.15);
+    --shadow-soft: 0 0 48px rgb(28 28 28 / 0.4);
     --muted: var(--ref-gray-400);
     --subtle: var(--ref-gray-500);
     --border: var(--ref-gray-800);
     --border-strong: var(--ref-gray-700);
-    --accent: var(--ref-blue-300);
-    --accent-soft: var(--ref-blue-900);
-    --on-accent: var(--ref-gray-950);
+    --accent: var(--ref-gray-100);
+    --accent-soft: var(--ref-gray-800);
+    --on-accent: var(--ref-gray-900);
+    --graphic-accent: var(--ref-blue-300);
     --ok: var(--ref-green-300);
     --ok-soft: var(--ref-green-900);
     --warn: var(--ref-amber-300);
@@ -141,10 +166,10 @@
     --info: var(--ref-slate-300);
     --info-soft: var(--ref-slate-900);
     --tooltip-bg: var(--ref-gray-100);
-    --tooltip-text: var(--ref-gray-900);
-    --backdrop: rgba(0, 0, 0, 0.6);
+    --tooltip-text: var(--ref-neutral-900);
+    --backdrop: rgba(28, 28, 28, 0.6);
     --swatch-edge: rgba(255, 255, 255, 0.1);
-    --shadow-pop: 0 6px 24px rgba(0, 0, 0, 0.5);
+    --shadow-pop: 0 6px 24px rgba(28, 28, 28, 0.5);
     color-scheme: dark;
   }
 }
@@ -196,7 +221,7 @@ button.danger:hover:not(:disabled) { color: var(--error); background: var(--erro
 button.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); font-weight: 500; }
 button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
 button.primary, button[type='submit'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-button.primary:hover:not(:disabled), button[type='submit']:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
+button.primary:hover:not(:disabled), button[type='submit']:hover:not(:disabled) { background: color-mix(in oklch, var(--accent), var(--bg) 18%); }
 /* A disabled primary looks like a disabled secondary: nothing to act on yet, so no emphasis. */
 button.primary:disabled, button[type='submit']:disabled { background: transparent; border-color: var(--border-strong); color: var(--text); }
 button.small { min-height: 24px; font-size: var(--font-sm); padding: 0 var(--space-2); }
@@ -382,36 +407,49 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 .dropzone {
   --zone: 220px;
   --grow: 1.08;
-  position: relative; font: inherit; color: inherit;
+  position: relative; font: inherit; color: var(--text);
   width: var(--zone); height: var(--zone); flex: none; border-radius: 50%;
-  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px;
-  text-align: center; white-space: normal; padding: var(--space-6);
-  border: 1.5px dashed var(--border-strong);
-  background: var(--surface-2);
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0;
+  text-align: center; white-space: normal; padding: calc(var(--zone) * 0.1);
+  border: 1px solid var(--line);
+  background: var(--well);
   transition: border-color 0.15s, background 0.2s, transform 0.2s ease-out;
 }
-.dropzone > .icon { width: 40px; height: 40px; margin-bottom: var(--space-2); color: var(--muted); }
-.view[data-empty] .dropzone > .icon { width: clamp(48px, 12vmin, 88px); height: auto; }
-.dropzone:hover:not(:disabled) > .icon, body.dragging .dropzone > .icon { color: var(--accent); }
-.dropzone strong { font-size: var(--font-md); }
-.dropzone span { color: var(--muted); }
-.dropzone small { color: var(--subtle); margin-top: var(--space-2); font-size: var(--font-sm); max-width: 24ch; }
-.dropzone:hover:not(:disabled) { border-color: var(--accent); }
+/* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
+.dropzone > .icon { width: calc(var(--zone) * 0.381); height: auto; color: var(--text); }
+/* The token-file icon fades in; its color point cycles slowly through the whole spectrum at one lightness. */
+@property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
+.dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out both; filter: drop-shadow(var(--shadow-soft)); }
+.tf-point { fill: oklch(0.66 0.24 var(--tf-hue)); animation: tf-hue 18s linear infinite; }
+@keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
+@media (prefers-reduced-motion: reduce) {
+  .dropzone > .icon.token-file-icon, .tf-point { animation: none; }
+}
+.zone-title { font-size: max(14px, calc(var(--zone) * 0.0374)); font-weight: 500; line-height: 1.2; color: var(--text); }
+.zone-sub { font-size: max(12px, calc(var(--zone) * 0.0255)); font-weight: 300; line-height: 1.3; color: var(--text-soft); }
+.dropzone:hover:not(:disabled) { border-color: var(--line-strong); }
 body.dragging .dropzone {
-  border-color: var(--accent);
-  background: color-mix(in oklch, var(--surface-2), white 10%);
+  border-color: var(--line-strong);
+  background: var(--well-strong);
   transform: scale(var(--grow));
 }
 .dropzone.loading {
   border-color: transparent;
-  background: color-mix(in oklch, var(--surface-2), white 5%);
+  background: var(--well-strong);
   transform: scale(calc(1 + (var(--grow) - 1) / 2));
 }
 .zone-ring {
   position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
-  background: conic-gradient(var(--accent) calc(var(--fill) * 1turn), transparent 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  /* A rainbow at one lightness, revealed clockwise from the top as --fill goes from 0 to 1. */
+  background: conic-gradient(
+    oklch(0.68 0.22 355), oklch(0.68 0.22 55), oklch(0.68 0.22 115), oklch(0.68 0.22 175),
+    oklch(0.68 0.22 235), oklch(0.68 0.22 295), oklch(0.68 0.22 355)
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
+  -webkit-mask-composite: source-in;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
+  mask-composite: intersect;
   opacity: 0;
 }
 .dropzone.loading .zone-ring { opacity: 1; animation: ring-fill 0.33s linear forwards; }
@@ -432,8 +470,7 @@ body.dragging .dropzone {
 .view[data-empty] { text-align: center; align-items: center; }
 .view[data-empty] .load-card { border: 0; background: transparent; padding: var(--space-4) 0; align-items: center; width: 100%; }
 /* Half the smaller side, but never smaller than its text needs (phones) or wider than the screen. */
-.view[data-empty] .dropzone { --zone: min(max(50vmin, 300px), 88vw); }
-.view[data-empty] .dropzone strong { font-size: var(--font-title); }
+.view[data-empty] .dropzone { --zone: min(max(50vmin, 300px), 88vw, 588px); }
 .view[data-empty] .url-form { align-items: center; }
 .view[data-empty] .setting { text-align: left; max-width: 52ch; }
 
@@ -473,6 +510,62 @@ tt-files:empty { display: none; }
 tt-issues { display: flex; flex-direction: column; gap: var(--space-4); }
 .reload-wrap { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; justify-content: flex-end; }
 .reload-status { color: var(--muted); font-size: var(--font-sm); }
+/* The file set as a split button: reload on the main part, more actions in the menu beside it. */
+.split-button { display: inline-flex; }
+.split-button .split-main { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.split-button .split-toggle { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0; padding: 0 var(--space-2); }
+.split-toggle .icon { width: 14px; height: 14px; }
+.split-toggle[aria-expanded='true'] { background: var(--surface-hover); }
+.split-menu {
+  position: fixed; inset: auto; margin: 0; padding: var(--space-1); min-width: 180px;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--text);
+  box-shadow: 0 8px 28px rgba(28, 28, 28, 0.2);
+}
+.split-menu:not(:popover-open) { display: none; }
+.split-menu .menu-item { justify-content: flex-start; border: 0; width: 100%; }
+
+/* Add token files: the loader on top, the loaded files below, Cancel and Save in a footer that stays put. */
+dialog.files-dialog {
+  --dialog-h: calc(100vh - 64px);
+  width: min(560px, calc(100vw - 32px)); max-height: var(--dialog-h); overflow: auto;
+  padding: var(--space-5) var(--space-5) 0; border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  background: var(--bg); color: var(--text); box-shadow: 0 16px 48px rgba(28, 28, 28, 0.3);
+}
+/* Everything but the target keeps its size; the target takes what is left, up to half the dialog. */
+dialog.files-dialog[open] { display: flex; flex-direction: column; gap: var(--space-3); }
+dialog.files-dialog[open] > * { flex: none; }
+dialog.files-dialog::backdrop { background: rgba(28, 28, 28, 0.35); }
+dialog.files-dialog .vh-row { align-items: center; }
+dialog.files-dialog .file-list { margin: 0; }
+dialog.files-dialog .file .file-remove { margin-left: auto; color: var(--muted); }
+dialog.files-dialog .file .file-remove:hover:not(:disabled) { color: var(--text); }
+/* No frame: the target fills the dialog's width, and the link field runs edge to edge below it. */
+/* The loader's wrappers step out of the layout, so the target is a direct item of the dialog's column and can give way to the list. */
+dialog.files-dialog .load-card, dialog.files-dialog tt-loader, dialog.files-dialog .loader { display: contents; }
+dialog.files-dialog .url-form, dialog.files-dialog .load-errors { width: 100%; flex: none; }
+/* A rounded rectangle, full width: as tall as the space allows, at most half the dialog, at least room for its content.
+   It is a size container, so the icon and text scale with the height it gets. */
+dialog.files-dialog .dropzone {
+  --grow: 1.02;
+  container-type: size;
+  width: 100%; height: auto; flex: 1 1 calc(var(--dialog-h) / 2); max-height: calc(var(--dialog-h) / 2); min-height: 180px;
+  border-radius: 16px; padding: var(--space-5);
+}
+dialog.files-dialog .dropzone > * { --zone: 100cqh; }
+/* The ring only plays on the first load, which never happens in the dialog; its round mask wouldn't fit a rectangle. */
+dialog.files-dialog .zone-ring { display: none; }
+/* The footer sits on the dialog's bottom edge; anything that scrolls passes behind it. */
+.dialog-foot {
+  position: sticky; bottom: 0; z-index: 2;
+  display: flex; justify-content: flex-end; gap: var(--space-2);
+  margin: 0 calc(-1 * var(--space-5)); padding: var(--space-3) var(--space-5);
+  background: var(--bg); border-top: 1px solid var(--border);
+}
+.dialog-foot button { min-height: 36px; padding: 0 var(--space-4); }
+button.primary-neutral:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--bg); }
+button.primary-neutral:hover:not(:disabled), button.primary-neutral:focus-visible:not(:disabled) { background: color-mix(in oklch, var(--text), var(--bg) 18%); }
+dialog.files-dialog .url-form { width: 100%; }
 
 .issue-groups { display: flex; flex-direction: column; gap: var(--space-5); }
 .group-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
@@ -919,7 +1012,7 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .realias-pop {
   position: fixed; inset: auto; margin: 0; padding: var(--space-3); width: min(420px, calc(100vw - 16px)); overflow: visible;
   border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--text);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25); font-family: var(--sans); font-size: var(--font-base); white-space: normal; text-align: left;
+  box-shadow: 0 8px 28px rgba(28, 28, 28, 0.25); font-family: var(--sans); font-size: var(--font-base); white-space: normal; text-align: left;
 }
 .realias-pop .realias-head { font-size: var(--font-sm); margin-bottom: var(--space-2); }
 .realias-pop .realias-head strong { font-family: var(--mono); }
@@ -966,8 +1059,7 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .nav-actions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-2) 0; margin-top: var(--space-2); border-top: 1px solid var(--border); }
 /* The two actions the visit is for: tall, and the download as the neutral primary. */
 .nav-actions button { display: inline-flex; align-items: center; gap: var(--space-2); justify-content: flex-start; min-height: 3rem; padding: 0 var(--space-3); font-size: var(--font-sm); font-weight: 600; }
-.nav-actions button.primary-neutral:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--bg); }
-.nav-actions button.primary-neutral:hover:not(:disabled), .nav-actions button.primary-neutral:focus-visible:not(:disabled) { background: color-mix(in oklch, var(--text), var(--bg) 18%); }
+
 .nav-actions .icon { width: 15px; height: 15px; }
 @media (max-width: 820px) {
   .nav-actions { flex-direction: row; flex-wrap: wrap; padding: 0; margin: 0; border: 0; }

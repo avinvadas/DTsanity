@@ -69,3 +69,20 @@ describe('edits and history', () => {
     expect(store.get().files).toHaveLength(1);
   });
 });
+
+describe('file snapshots', () => {
+  it('puts back removed and added files, and the undo history, as they were', async () => {
+    const { restoreFiles, snapshotFiles } = await import('../src/state/app');
+    addFiles([loadFixture('dtcg/primitives.tokens.json'), loadFixture('dtcg/semantic.tokens.json')]);
+    const [prim] = store.get().files;
+    applyEdits('Edit', [{ fileId: prim!.id, path: ['color', 'red', '700', '$value'], value: '#800000' }]);
+    const before = snapshotFiles();
+    removeFile(store.get().files[1]!.id);
+    addFiles([loadFixture('compact.tokens.json')]);
+    restoreFiles(before);
+    const s = store.get();
+    expect(s.files).toBe(before.files);
+    expect(s.past).toBe(before.past);
+    expect(s.model.tokens.get('color.red.700')!.value).toBe('#800000');
+  });
+});
