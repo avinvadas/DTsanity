@@ -12,7 +12,8 @@ import { h, icon, masked, plural, severityIcon } from './dom';
 
 /**
  * The phone layout (narrow screens, whatever the input): the core loop on
- * one page. Files on top (the list and a compact loader), then every finding
+ * one page. Cards for the four kinds of findings on top, each a link to its
+ * section; the files (the list and a compact loader); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
  * blindness), each card with a single action. Copy fix prompt and Get fixed
  * files stay in a fixed footer. The tools for fine control (curve editor,
@@ -58,6 +59,7 @@ export class TTMobile extends HTMLElement {
   private media = matchMedia(NARROW);
   // A fixed skeleton; renders update only its parts, so the loader (and a half-typed link) is never rebuilt.
   private lede = h('p', { class: 'm-lede' }, 'Check your design tokens for DTCG format, contrast and color blindness, and fix what you can on the go.');
+  private navSlot = h('div', null);
   private fileSlot = h('div', null);
   private loadSection = h('section', { class: 'm-load' }, document.createElement('tt-loader'));
   private issueSlot = h('div', { class: 'm-stack' });
@@ -99,7 +101,7 @@ export class TTMobile extends HTMLElement {
       this.built = true;
       this.replaceChildren(
         h('header', { class: 'm-head' }, h('span', { class: 'brand-title' }, h('span', { class: 'logo', 'aria-hidden': 'true' }), 'DTsanity')),
-        h('main', { class: 'm-body' }, this.lede, this.fileSlot, this.loadSection, this.issueSlot),
+        h('main', { class: 'm-body' }, this.lede, this.navSlot, this.fileSlot, this.loadSection, this.issueSlot),
         this.toastSlot,
         this.footSlot,
       );
@@ -108,8 +110,10 @@ export class TTMobile extends HTMLElement {
     const has = s.files.length > 0;
     this.lede.hidden = has;
     this.loadSection.classList.toggle('compact', has);
+    const found = has ? findings(s) : undefined;
+    this.navSlot.replaceChildren(found ? this.jumps(found) : '');
     this.fileSlot.replaceChildren(has ? this.files(s) : '');
-    this.issueSlot.replaceChildren(...(has ? this.issues(s, findings(s)).filter((x): x is HTMLElement => !!x) : []));
+    this.issueSlot.replaceChildren(...(found ? this.issues(s, found).filter((x): x is HTMLElement => !!x) : []));
     this.toastSlot.replaceChildren(
       this.toast
         ? h('div', { class: 'm-toast', role: 'status' }, this.toast, this.undoable ? h('button', { type: 'button', class: 'link', onclick: () => (undo(), this.say('Undone')) }, 'Undo') : null)
@@ -117,6 +121,26 @@ export class TTMobile extends HTMLElement {
     );
     this.footSlot.replaceChildren(has ? this.footer(s) : '');
     paintAll(this);
+  }
+
+  /** The four kinds at a glance, each a link to its section below. */
+  private jumps(f: Findings) {
+    const card = (id: string, title: string, n: number, tone: 'error' | 'warning') =>
+      h(
+        'a',
+        { class: `m-jump${n ? ` ${tone}` : ' ok'}`, href: `#${id}`, onclick: (e: Event) => (e.preventDefault(), document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })) },
+        h('span', { class: 'm-jump-head' }, n ? severityIcon(tone) : h('span', { class: 'm-ok' }, icon('check')), title),
+        h('span', { class: 'm-jump-n' }, n ? String(n) : 'OK'),
+      );
+    const vision = f.vision.length + f.groups.length;
+    return h(
+      'nav',
+      { class: 'm-jumps', 'aria-label': 'Findings' },
+      card('m-format', 'Format', f.format.length, f.format.some((i) => i.severity === 'error') ? 'error' : 'warning'),
+      card('m-tiers', 'Tiers', f.tiers.length, 'warning'),
+      card('m-contrast', 'Contrast', f.contrast.length, f.contrast.some((r) => r.pair.kind === 'text') ? 'error' : 'warning'),
+      card('m-vision', 'Color blindness', vision, 'warning'),
+    );
   }
 
   /** The loaded files, each removable; the loader below adds more. */
@@ -144,10 +168,10 @@ export class TTMobile extends HTMLElement {
   private issues(s: AppState, f: Findings) {
     const gamut = displayGamut(s.settings.gamut);
     const themes = s.themeModels.map((m) => m.theme.name);
-    const section = (title: string, cards: HTMLElement[], clear: string) =>
+    const section = (id: string, title: string, cards: HTMLElement[], clear: string) =>
       h(
         'section',
-        { class: 'm-section' },
+        { class: 'm-section', id },
         h(
           'h2',
           { class: 'm-section-head' },
@@ -158,10 +182,11 @@ export class TTMobile extends HTMLElement {
       );
     return [
       f.fixable.length ? h('button', { type: 'button', class: 'm-fixall', onclick: () => this.fixAll(f.fixable) }, `Fix ${plural(f.fixable.length, 'safe issue')}`) : null,
-      section('Format', f.format.map((i) => this.issueCard(i, s)), 'Follows the DTCG format.'),
-      section('Tiers', f.tiers.map((i) => this.issueCard(i, s)), 'Each tier points the right way.'),
-      section('Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.'),
+      section('m-format', 'Format', f.format.map((i) => this.issueCard(i, s)), 'Follows the DTCG format.'),
+      section('m-tiers', 'Tiers', f.tiers.map((i) => this.issueCard(i, s)), 'Each tier points the right way.'),
+      section('m-contrast', 'Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.'),
       section(
+        'm-vision',
         'Color blindness',
         [...f.vision.map((r) => this.visionCard(r, themes)), ...f.groups.map((g) => this.groupCard(g, themes, s.settings.cvdDistance))],
         'Pairs and status colors stay apart.',
