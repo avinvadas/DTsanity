@@ -485,8 +485,8 @@ body.dragging .dropzone {
 .view[data-empty] .dropzone::before, .m-load:not(.compact) .dropzone::before {
   content: ''; position: absolute; inset: -1px; border-radius: 50%; pointer-events: none;
   background: conic-gradient(from var(--glint),
-    transparent 0deg, oklch(0.68 0.22 var(--tf-hue) / 0.55) 30deg, oklch(0.68 0.22 var(--tf-hue) / 0.9) 45deg,
-    oklch(0.68 0.22 var(--tf-hue) / 0.55) 60deg, transparent 90deg, transparent 360deg);
+    transparent 0deg, oklch(0.68 0.22 var(--tf-hue) / 0.55) 39deg, oklch(0.68 0.22 var(--tf-hue) / 0.9) 58.5deg,
+    oklch(0.68 0.22 var(--tf-hue) / 0.55) 78deg, transparent 117deg, transparent 360deg);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
   filter: blur(0.5px);
