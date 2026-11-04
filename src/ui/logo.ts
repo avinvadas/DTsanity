@@ -40,7 +40,7 @@ export function logo(): SVGSVGElement {
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', 'DTsanity');
   // Size and paint as attributes too, so it never fills its container if the stylesheet is missing or stale; CSS overrides them.
-  svg.setAttribute('height', '20');
+  svg.setAttribute('height', '22.4');
   svg.setAttribute('fill', 'currentColor');
   const lines: [string, number][] = [[MARK, MARK_WIDTH], ...BRACKETS.map((d): [string, number] => [d, BRACKET_WIDTH])];
   for (const [d, width] of lines) {

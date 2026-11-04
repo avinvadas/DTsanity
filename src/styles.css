@@ -308,8 +308,16 @@ body:not(.has-files) .sidebar { display: none; }
   overflow-y: auto;
 }
 .brand { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-2); font-weight: 600; font-size: var(--font-md); }
+/*
+ * Side by side, the wordmark sits on the view heading's baseline (before scrolling).
+ * The heading's baseline is 48.3px down the page; the wordmark's is 72% down the
+ * 22.4px logo (16.2px), under the sidebar's 16px padding: 48.3 - 16 - 16.2 = 16.1.
+ */
+@media (min-width: 821px) {
+  .brand { margin-top: 16.1px; }
+}
 /* The logo (mark and wordmark) in the foreground color, so it follows the theme; its height sets its size. */
-svg.logo { display: block; width: auto; height: 20px; flex: none; color: var(--text); fill: currentColor; }
+svg.logo { display: block; width: auto; height: 22.4px; flex: none; color: var(--text); fill: currentColor; }
 /* Its lines keep the widths set on them (the brackets a touch heavier than the cube). */
 .logo-mark { fill: none; stroke: currentColor; }
 
@@ -1119,7 +1127,7 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 /* Files view: brand and intro while empty, the "Files" title once loaded. */
 .view:not([data-empty]) .landing-only, .view[data-empty] .loaded-only { display: none; }
 .brand-title { display: inline-flex; align-items: center; gap: var(--space-2); }
-.brand-title .logo { height: 36px; }
+.brand-title .logo { height: 41.6px; }
 .view[data-empty] .vh { align-items: center; }
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
@@ -1281,8 +1289,8 @@ tt-mobile .finding-cards { grid-template-columns: 1fr 1fr; }
 .m-filelist li { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: var(--font-sm); }
 .m-filelist li span:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .m-filelist .icon-btn { width: 40px; min-height: 40px; }
-.m-head .m-add { width: 40px; height: 40px; min-height: 40px; padding: 0; margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0; justify-content: center; }
-.m-head .m-add .icon { width: 22px; height: 22px; }
+.m-head .m-add { display: flex; align-items: center; gap: var(--space-1); min-height: 40px; margin: calc(-1 * var(--space-2)) 0; padding: 0 var(--space-3); font-weight: 600; }
+.m-head .m-add .icon { width: 18px; height: 18px; }
 .m-head .m-add[hidden] { display: none; }
 
 /* Fixed footer: the two ways out, side by side within thumb reach. */

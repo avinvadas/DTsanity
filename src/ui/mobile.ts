@@ -52,7 +52,7 @@ export class TTMobile extends HTMLElement {
       this.picker.value = '';
     },
   });
-  private addButton = h('button', { type: 'button', class: 'ghost icon-btn m-add', 'aria-label': 'Add token files', onclick: () => this.picker.click() }, icon('plus'));
+  private addButton = h('button', { type: 'button', class: 'm-add', onclick: () => this.picker.click() }, icon('plus'), 'Add files');
   private issueSlot = h('div', { class: 'm-stack' });
   private toastSlot = h('div', null);
   private footSlot = h('div', null);
