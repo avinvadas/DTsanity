@@ -6,6 +6,7 @@ import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
 import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
 import { h, icon, masked, plural, severityIcon } from './dom';
+import { findings, findingTotal } from './findings';
 import { TIP } from './tips';
 
 /**
@@ -47,7 +48,7 @@ function requested(): ViewId {
 }
 
 /** With nothing to show, the Issues view is disabled: results open on the base tier instead. */
-const noIssues = () => store.get().model.issues.length === 0;
+const noIssues = () => findingTotal(findings(store.get())) === 0;
 
 /** The view that can actually be shown for a request, given what is loaded. */
 function resolve(id: ViewId, hasFiles: boolean): ViewId {
@@ -137,8 +138,10 @@ export class TTNav extends HTMLElement {
 
   private render(v: View) {
     const has = v.files.length > 0;
-    const errors = v.model.issues.filter((i) => i.severity === 'error').length;
-    const warnings = v.model.issues.filter((i) => i.severity === 'warning').length;
+    // The Issues label and badge sum up the same findings as the cards on top of that view.
+    const found = has ? findings(store.get()) : undefined;
+    const issueCount = found ? findingTotal(found) : 0;
+    const issueTone: Tone | undefined = !found || !issueCount ? undefined : found.format.some((i) => i.severity === 'error') || found.contrast.some((r) => r.pair.kind === 'text') ? 'error' : 'warning';
     const included = has ? palettesOf(store.get()).palettes.filter((p) => p.included) : [];
     const pairs = has ? pairsOf(store.get()) : undefined;
     /** The count and tone for one tier's pairs view: red for failing text, amber for UI or CVD failures. */
@@ -155,7 +158,7 @@ export class TTNav extends HTMLElement {
       ? {
           files: { n: v.files.length, tone: v.loadErrors.length ? 'error' : undefined },
           themes: v.themes.length ? { n: v.themes.length, tone: severest(v.themeModels.flatMap((m) => m.model.issues.map((i) => i.severity))) } : undefined,
-          issues: { n: errors + warnings, tone: severest(v.model.issues.map((i) => i.severity)) },
+          issues: { n: issueCount, tone: issueTone },
           colors: { n: included.length, tone: severest(included.flatMap((p) => p.flags.map((f) => f.severity))) },
           semantic: tierCount('semantic'),
           components: tierCount('component'),
@@ -165,7 +168,6 @@ export class TTNav extends HTMLElement {
 
     // Tier views take the names the files use for their layers (`Primitives tier`).
     const tiers = has ? tierNames(v.model) : undefined;
-    const issueCount = v.model.issues.length;
     const label = (d: ViewDef): HTMLElement => {
       if (d.id === 'issues' && has) return h('span', null, issueCount ? `${plural(issueCount, 'issue')} found` : 'No issues found');
       const tier = { colors: 'base', semantic: 'semantic', components: 'component' } as const;
@@ -217,7 +219,6 @@ export class TTNav extends HTMLElement {
       'button',
       {
         type: 'button',
-        class: 'primary-neutral',
         disabled: !edited.length,
         'data-tip': edited.length ? TIP.downloadUpdated : TIP.downloadUpdatedNone,
         // The whole set as received, edited or not, with CHANGES.md: one zip, so the browser doesn't block extra downloads.
@@ -230,6 +231,7 @@ export class TTNav extends HTMLElement {
       'button',
       {
         type: 'button',
+        class: 'primary-neutral',
         'data-tip': TIP.copyFixPrompt,
         onclick: async () => {
           const { text, count } = fixPrompt(store.get());
@@ -246,7 +248,8 @@ export class TTNav extends HTMLElement {
       icon('copy'),
       h('span', null, 'Copy fix prompt'),
     );
-    return h('div', { class: 'nav-actions' }, save, copy);
+    // The prompt is the main way out: it works whether or not anything was fixed here.
+    return h('div', { class: 'nav-actions' }, copy, save);
   }
 
   /** Contrast targets: a global setting, so it sits in the sidebar rather than moving from view to view. */

@@ -5,18 +5,21 @@ import { fixPrompt } from '../io/prompt';
 import type { Fix, Issue } from '../model/types';
 import { glyphOf } from '../semantic/pairs';
 import { applyFixes, removeFile, store, undo, type AppState } from '../state/app';
-import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
-import { mergeModels } from '../themes/merge';
+import type { PairRow, SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas } from './canvas';
+import { findingCards, findings, type Findings } from './findings';
+import { ingest } from './loader';
+import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon } from './dom';
+import { logo } from './logo';
 
 /**
  * The phone layout (narrow screens, whatever the input): the core loop on
  * one page. Cards for the four kinds of findings on top, each a link to its
- * section; the files (the list and a compact loader); then every finding
+ * section; the files (the list; a + in the top bar adds more); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
- * blindness), each card with a single action. Copy fix prompt and Get fixed
- * files stay in a fixed footer. The tools for fine control (curve editor,
+ * blindness), each card with a single action. Copy fix prompt (the main action)
+ * and Get fixed files stay in a fixed footer. The tools for fine control (curve editor,
  * palette grid, re-aliasing, themes matrix) stay on larger screens; where one
  * would be expected, the card says so and the item goes into the fix prompt.
  *
@@ -25,32 +28,6 @@ import { h, icon, masked, plural, severityIcon } from './dom';
  */
 
 const NARROW = '(max-width: 640px)';
-const isTier = (i: Issue) => i.code.startsWith('tier-');
-
-/** Issues across every theme, as the fix prompt sees them. */
-const issuesOf = (s: AppState): Issue[] => (s.themeModels.length ? mergeModels(s.themeModels) : s.model).issues;
-
-interface Findings {
-  format: Issue[];
-  tiers: Issue[];
-  fixable: Fix[];
-  contrast: PairRow[];
-  vision: PairRow[];
-  groups: SiblingRow[];
-}
-
-function findings(s: AppState): Findings {
-  const issues = issuesOf(s).filter((i) => i.severity !== 'info');
-  const pairs = pairsOf(s);
-  return {
-    format: issues.filter((i) => !isTier(i)),
-    tiers: issues.filter(isTier),
-    fixable: issues.filter((i) => i.fix && 'edits' in i.fix).map((i) => i.fix!),
-    contrast: pairs.rows.filter((r) => !r.pass),
-    vision: pairs.rows.filter((r) => r.cvdFails.length),
-    groups: pairs.siblings.filter(siblingFails),
-  };
-}
 
 export class TTMobile extends HTMLElement {
   private toast = '';
@@ -62,6 +39,20 @@ export class TTMobile extends HTMLElement {
   private navSlot = h('div', null);
   private fileSlot = h('div', null);
   private loadSection = h('section', { class: 'm-load' }, document.createElement('tt-loader'));
+  // Once files are in, adding more is a + in the top bar; the large loader is for the first files only.
+  private picker = h('input', {
+    type: 'file',
+    class: 'visually-hidden',
+    tabindex: '-1',
+    'aria-hidden': 'true',
+    multiple: true,
+    accept: ACCEPT,
+    onchange: () => {
+      if (this.picker.files?.length) void ingest(readFiles(this.picker.files));
+      this.picker.value = '';
+    },
+  });
+  private addButton = h('button', { type: 'button', class: 'ghost icon-btn m-add', 'aria-label': 'Add token files', onclick: () => this.picker.click() }, icon('plus'));
   private issueSlot = h('div', { class: 'm-stack' });
   private toastSlot = h('div', null);
   private footSlot = h('div', null);
@@ -100,7 +91,7 @@ export class TTMobile extends HTMLElement {
     if (!this.built) {
       this.built = true;
       this.replaceChildren(
-        h('header', { class: 'm-head' }, h('span', { class: 'brand-title' }, h('span', { class: 'logo', 'aria-hidden': 'true' }), 'DTsanity')),
+        h('header', { class: 'm-head' }, logo(), this.addButton, this.picker),
         h('main', { class: 'm-body' }, this.lede, this.navSlot, this.fileSlot, this.loadSection, this.issueSlot),
         this.toastSlot,
         this.footSlot,
@@ -109,9 +100,10 @@ export class TTMobile extends HTMLElement {
     const s = store.get();
     const has = s.files.length > 0;
     this.lede.hidden = has;
-    this.loadSection.classList.toggle('compact', has);
+    this.loadSection.hidden = has;
+    this.addButton.hidden = !has;
     const found = has ? findings(s) : undefined;
-    this.navSlot.replaceChildren(found ? this.jumps(found) : '');
+    this.navSlot.replaceChildren(found ? findingCards(found, (k) => document.getElementById(`m-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), (k) => `#m-${k}`) : '');
     this.fileSlot.replaceChildren(has ? this.files(s) : '');
     this.issueSlot.replaceChildren(...(found ? this.issues(s, found).filter((x): x is HTMLElement => !!x) : []));
     this.toastSlot.replaceChildren(
@@ -123,27 +115,7 @@ export class TTMobile extends HTMLElement {
     paintAll(this);
   }
 
-  /** The four kinds at a glance, each a link to its section below. */
-  private jumps(f: Findings) {
-    const card = (id: string, title: string, n: number, tone: 'error' | 'warning') =>
-      h(
-        'a',
-        { class: `m-jump${n ? ` ${tone}` : ' ok'}`, href: `#${id}`, onclick: (e: Event) => (e.preventDefault(), document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })) },
-        h('span', { class: 'm-jump-head' }, n ? severityIcon(tone) : h('span', { class: 'm-ok' }, icon('check')), title),
-        h('span', { class: 'm-jump-n' }, n ? String(n) : 'OK'),
-      );
-    const vision = f.vision.length + f.groups.length;
-    return h(
-      'nav',
-      { class: 'm-jumps', 'aria-label': 'Findings' },
-      card('m-format', 'Format', f.format.length, f.format.some((i) => i.severity === 'error') ? 'error' : 'warning'),
-      card('m-tiers', 'Tiers', f.tiers.length, 'warning'),
-      card('m-contrast', 'Contrast', f.contrast.length, f.contrast.some((r) => r.pair.kind === 'text') ? 'error' : 'warning'),
-      card('m-vision', 'Color blindness', vision, 'warning'),
-    );
-  }
-
-  /** The loaded files, each removable; the loader below adds more. */
+  /** The loaded files, each removable; the + in the top bar adds more. */
   private files(s: AppState) {
     return h(
       'section',
@@ -278,10 +250,10 @@ export class TTMobile extends HTMLElement {
     return h(
       'footer',
       { class: 'm-foot' },
-      h('button', { type: 'button', class: 'm-secondary', onclick: copy }, icon('copy'), 'Copy fix prompt'),
+      h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy fix prompt'),
       h(
         'button',
-        { type: 'button', class: 'm-primary', disabled: !changed, onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip') },
+        { type: 'button', class: 'm-secondary', disabled: !changed, onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip') },
         icon('download'),
         s.files.length === 1 ? 'Get fixed file' : 'Get fixed files',
       ),

@@ -35,6 +35,7 @@ function csp(strict: boolean, stamp: string): Plugin {
     "default-src 'none'",
     "script-src 'unsafe-inline'",
     "style-src 'unsafe-inline'",
+    'font-src data:',
     'img-src data: blob:',
     'connect-src https: http://localhost:* http://127.0.0.1:*',
     "base-uri 'none'",

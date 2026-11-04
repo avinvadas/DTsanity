@@ -54,7 +54,7 @@ export function pairCanvas(fg: ColorInfo, bg: ColorInfo, glyph: PairGlyph, gamut
       ctx.lineWidth = lw;
       ctx.strokeRect(lw / 2, lw / 2, w - lw, h - lw);
     } else if (glyph === 'text') {
-      ctx.font = `600 ${Math.round(h * 0.5)}px system-ui, sans-serif`;
+      ctx.font = `600 ${Math.round(h * 0.5)}px 'Sofia Sans', system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('Aa', w / 2, h / 2 + h * 0.03);

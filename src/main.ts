@@ -4,6 +4,7 @@ import { redo, store, undo } from './state/app';
 import { TTFiles } from './ui/files';
 import { TTIssues } from './ui/issues';
 import { ingest, TTLoader } from './ui/loader';
+import { logo } from './ui/logo';
 import { TTMobile } from './ui/mobile';
 import { TTNav } from './ui/nav';
 import { TTPalettes } from './ui/palettes';
@@ -12,6 +13,9 @@ import { TTSettings } from './ui/settings';
 import { TTThemes } from './ui/themes';
 import { TTTokens } from './ui/tokens';
 import { installTooltips } from './ui/tooltip';
+
+// The logo in the page's static places (sidebar, landing title); their text stays as the fallback.
+document.querySelectorAll('[data-logo]').forEach((el) => el.replaceWith(logo()));
 
 customElements.define('tt-loader', TTLoader);
 customElements.define('tt-files', TTFiles);

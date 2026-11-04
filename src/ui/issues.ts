@@ -2,7 +2,9 @@ import type { Category, Fix, Issue, Model, Severity } from '../model/types';
 import { ALL_THEMES, applyFixes, setActiveTheme, store, undo, type AppState } from '../state/app';
 import { mergeModels } from '../themes/merge';
 import { h, masked, plural, severityIcon, viewHead } from './dom';
+import { findingCards, findings, type FindingKind } from './findings';
 import { reloadControl } from './loader';
+import { goTo } from './nav';
 import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
 
 const SEVERITIES: Severity[] = ['error', 'warning', 'info'];
@@ -25,9 +27,10 @@ export class TTIssues extends HTMLElement {
   connectedCallback() {
     this.unsubs.push(
       store.select(
-        (s): Pick<AppState, 'model' | 'themeModels' | 'activeTheme' | 'themes'> => s,
+        (s) => s,
         (v) => this.render(v.model, v),
-        (a, b) => a.model === b.model && a.themeModels === b.themeModels && a.activeTheme === b.activeTheme,
+        // The finding cards also count contrast and color blindness, which follow the settings and re-aliased pairs.
+        (a, b) => a.model === b.model && a.themeModels === b.themeModels && a.activeTheme === b.activeTheme && a.settings === b.settings && a.pairEdits === b.pairEdits,
       ),
       this.reload.unsub,
     );
@@ -63,7 +66,22 @@ export class TTIssues extends HTMLElement {
     );
   }
 
-  private render(model: Model, v: Pick<AppState, 'themeModels' | 'activeTheme' | 'themes'>) {
+  /** Format and tier issues are listed here; contrast and color blindness in the first tier view that has them. */
+  private go(kind: FindingKind) {
+    if (kind === 'format' || kind === 'tiers') {
+      const target = this.querySelector(kind === 'tiers' ? '#issues-references' : '.issue-group');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    const f = findings(store.get());
+    const rows = kind === 'contrast' ? f.contrast : f.vision;
+    const tier = rows[0]?.tier ?? f.groups[0]?.tier ?? 'semantic';
+    const view = tier === 'component' ? 'components' : 'semantic';
+    goTo(view);
+    if (kind === 'vision') requestAnimationFrame(() => document.querySelector(`.view[data-view="${view}"] .vision`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+
+  private render(model: Model, v: AppState) {
     // All loaded files: a theme's model only knows its own, and the all-themes view merges several.
     const names = new Map(store.get().files.map((f) => [f.id, f.name]));
     const count = (s: Severity) => model.issues.filter((i) => i.severity === s).length;
@@ -85,6 +103,7 @@ export class TTIssues extends HTMLElement {
         summary: SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
         actions: this.reload.el,
       }),
+      findingCards(findings(v), (k) => this.go(k), (k) => (k === 'format' || k === 'tiers' ? '#issues' : '#semantic')),
       this.otherThemes(v) ?? '',
       groups.length === 0
         ? h('p', { class: 'empty' }, model.files.length ? 'No problems found. The files follow the DTCG format.' : '')
@@ -95,7 +114,7 @@ export class TTIssues extends HTMLElement {
               const fixes = issues.map((i) => i.fix).filter((f): f is Fix => !!f);
               return h(
                 'section',
-                { class: 'issue-group' },
+                { class: 'issue-group', id: `issues-${category}` },
                 h(
                   'div',
                   { class: 'group-head' },

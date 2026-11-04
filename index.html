@@ -9,7 +9,7 @@
     <meta name="description" content="Validate design token files against the DTCG spec, check contrast (WCAG, APCA) and color blindness, fix issues and download the fixed set. Runs in your browser.">
     <meta name="keywords" content="design tokens, DTCG, design tokens validator, design token linter, design system, color contrast, WCAG, APCA, color blindness, Tokens Studio, Style Dictionary, OKLCH">
     <meta name="theme-color" content="#fafafa">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23e8564f'/%3E%3Cstop offset='.35' stop-color='%23f2b33d'/%3E%3Cstop offset='.6' stop-color='%234cb97c'/%3E%3Cstop offset='1' stop-color='%238f5ce8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20width='225'%20height='225'%20viewBox='0%200%20225%20225'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3Eg%7Bstroke:%231c1c1c%7D@media%20(prefers-color-scheme:dark)%7Bg%7Bstroke:%23eeeff1%7D%7D%3C/style%3E%3Cg%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M186.494%2071.2224L121.293%2037.2581C115.958%2034.4846%20109.6%2034.4846%20104.264%2037.2581L39.0631%2071.2224V143.168C39.0631%20149.932%2042.7673%20156.152%2048.7106%20159.377L112.779%20194.078L176.847%20159.377C182.79%20156.152%20186.494%20149.932%20186.494%20143.168V71.2224ZM112.779%20194.078V138.792M39.0631%2071.2224L88.4709%2097.981M186.494%2071.2224L137.086%2097.981M112.779%20138.792C97.5103%20138.792%2085.1353%20126.417%2085.1353%20111.148C85.1353%20106.385%2086.3424%20101.897%2088.4709%2097.981C93.1519%2089.3564%20102.283%2083.5052%20112.779%2083.5052C123.274%2083.5052%20132.415%2089.3564%20137.086%2097.981C139.215%20101.897%20140.422%20106.385%20140.422%20111.148C140.422%20126.417%20128.047%20138.792%20112.779%20138.792Z'%20stroke-width='6.17366'/%3E%3Cpath%20d='M156.078%2025L214.208%2055.2769V153.657C214.208%20162.905%20209.143%20171.409%20201.012%20175.814L156.078%20200.153'%20stroke-width='6.49999'/%3E%3Cpath%20d='M68.13%2025L10.0001%2055.2769V153.657C10.0001%20162.905%2015.065%20171.409%2023.196%20175.814L68.13%20200.153'%20stroke-width='6.49999'/%3E%3C/g%3E%3C/svg%3E">
     <!-- Link previews (Slack, LinkedIn, X…) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="DTsanity">
@@ -23,7 +23,7 @@
   <body>
     <div class="app">
       <aside class="sidebar">
-        <div class="brand"><span class="logo" aria-hidden="true"></span><span>DTsanity</span></div>
+        <div class="brand"><span data-logo>DTsanity</span></div>
         <tt-nav></tt-nav>
         <footer class="sidebar-foot">
           <span class="credit">DTsanity is an <a href="https://github.com/avinvadas/DTsanity" target="_blank" rel="noopener">open source project</a> created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span>
@@ -34,7 +34,7 @@
         <section class="view" data-view="files" aria-labelledby="files-h">
           <header class="vh">
             <div class="vh-row">
-              <h1 class="vh-title" id="files-h"><span class="landing-only brand-title"><span class="logo" aria-hidden="true"></span>DTsanity</span><span class="loaded-only">Files</span></h1>
+              <h1 class="vh-title" id="files-h"><span class="landing-only brand-title"><span data-logo>DTsanity</span></span><span class="loaded-only">Files</span></h1>
             </div>
             <div class="vh-summary loaded-only" id="files-summary"></div>
             <p class="vh-summary landing-only">Validate and refine your design tokens system</p>
