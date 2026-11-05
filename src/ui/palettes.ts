@@ -261,6 +261,13 @@ export class TTPalettes extends HTMLElement {
         const c = colOf(pp.step);
         const score = result!.scores[pp.step]?.[end][level.metric] ?? 0;
         const m = marks.get(c) ?? { side: pp.side, badges: [] };
+        // Levels run highest first: where a higher one is already marked at this step, it covers this one too.
+        const top = m.side === pp.side ? m.badges[0] : undefined;
+        if (top) {
+          top.dataset.tip += ` Also reaches ${level.badge} here.`;
+          top.setAttribute('aria-label', `${top.getAttribute('aria-label')}; also ${level.badge}`);
+          continue;
+        }
         // The arrow points the way the passing steps run from here.
         const arrow = h('span', { class: 'lvl-arrow', 'aria-hidden': 'true' }, pp.side === 'start' ? '→' : '←');
         const passing = pp.side === 'start' ? 'this step and those after it pass' : 'this step and those before it pass';
