@@ -109,9 +109,9 @@ export class TTSemantic extends HTMLElement {
         'p',
         { class: 'meta' },
         component
-          ? 'Component tokens are one component’s use of a color, such as button.primary.bg. They are found from layer groups or files (components) or component names (button, input, card…), and each foreground (content, text, fg, border…) is checked on the background of the same component and variant. '
-          : 'Pairs are found from token names: a foreground (text, fg, icon, border, on-…) is checked on the background (bg, surface, container…) that shares its other words, such as “danger” or “subtle hover”, or else on the default background. ',
-        'Text must reach the text level; icons and borders the level for UI parts. The token icon beside a name points it at another token, theme by theme; only the reference changes, and ⌘Z undoes it.',
+          ? 'Component tokens are one component’s use of a color, such as button.primary.bg. Each foreground (content, text, fg, border…) is checked on the background of the same component and variant. '
+          : 'Pairs are found from token names: a foreground (text, fg, icon, border, on-…) is checked on the background (bg, surface, container…) that shares its other words, such as “danger” or “subtle hover”, or against the default background. ',
+        'Text needs the text level; icons and borders the UI level. The token icon beside a name points it at another token; ⌘Z undoes it.',
         themeNames.length > 1 ? ' Each pair is checked in every theme and fails if it fails in any.' : '',
       ),
       targets.length === 0 ? h('p', { class: 'note' }, 'Pick a contrast target in the sidebar to check the pairs.') : '',
@@ -419,7 +419,7 @@ export class TTSemantic extends HTMLElement {
       h(compact ? 'h4' : 'h3', { 'data-tip': TIP.vision }, 'Seen with each vision type'),
       compact
         ? null
-        : h('p', { class: 'meta' }, 'Every pair above, in the same order, as seen with typical vision and with each color-vision deficiency. A mark shows a pair that falls below its level as seen that way. Hover a tile for its tokens; click it to go to the pair.'),
+        : h('p', { class: 'meta' }, 'Every pair above, as seen with each vision type. A mark shows a pair below its level; hover a tile for its tokens, click to go to it.'),
       masked(
         h(
           'div',
@@ -491,8 +491,8 @@ export class TTSemantic extends HTMLElement {
             h(
               'p',
               { class: 'meta' },
-              'Tokens whose names differ only in a status word (danger, warning, success, info…) must look different. The two closest in each group are compared under each vision type, as an OKLab difference. ',
-              'Achromatopsia is rare and only marked as information: where status relies on color alone, pair it with an icon or a label.',
+              'Tokens that differ only by a status word (danger, warning, success…) must look different; the two closest in each group are compared per vision type. ',
+              'Achromatopsia is only marked as information: pair status colors with an icon or label.',
             ),
             h('label', { class: 'field inline', 'data-tip': TIP.cvdDistance }, 'Minimum difference ', min),
           ],

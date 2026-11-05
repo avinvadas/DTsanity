@@ -65,7 +65,7 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
     h(
       'p',
       { class: 'contrast-note' },
-      'Contrast is measured against the light and dark ends and only their lightness is used: each row gets its own ends at that lightness, tinted with its hue, and marks where each level is first reached as text on them.',
+      'Contrast is measured against the light and dark ends, and only their lightness is used.',
     ),
   );
 }
@@ -132,7 +132,7 @@ export function parityPanel(view: ContrastView, palettes: Palette[]) {
     h(
       'p',
       { class: 'meta' },
-      'Palettes that share step names should pass at the same step, so a semantic role can switch palettes (for example danger.600 for info.600) without losing contrast.',
+      'Palettes that share step names should pass at the same step, so a role can switch palettes (danger.600 for info.600) safely.',
     ),
     rows.length === 0
       ? h('p', { class: 'ok' }, `All ${numeric.length} numbered palettes start passing at the same steps.`)

@@ -50,14 +50,14 @@ export class TTThemes extends HTMLElement {
           'p',
           { class: 'meta' },
           files.length < 2 ? 'No themes found: this file describes a single theme. ' : 'No themes found: all files are read together as one set. ',
-          'Themes are read from Tokens Studio “$themes”, from file names such as semantic.light.json and semantic.dark.json, or from per-mode values in “$extensions”.',
+          'Themes come from Tokens Studio “$themes”, file names such as semantic.light.json, or per-mode values in “$extensions”.',
         ),
         h(
           'div',
           null,
           files.length >= 2
             ? [
-                h('p', { class: 'meta' }, 'If some of these files are alternatives of each other, add themes so each one is checked on its own over the shared files.'),
+                h('p', { class: 'meta' }, 'If some files are alternatives, add themes to check each one on its own.'),
                 h('button', { type: 'button', onclick: addTheme }, 'Add themes'),
               ]
             : null,
