@@ -7,7 +7,7 @@
  * thresholds follow the APCA "bronze" readability guidance.
  */
 
-export type ContrastTarget = 'wcag-aa' | 'wcag-aaa' | 'apca';
+export type ContrastTarget = 'wcag' | 'apca';
 export type Metric = 'wcag' | 'apca';
 
 export interface Level {
@@ -23,19 +23,16 @@ export interface Level {
 }
 
 export const TARGETS: { id: ContrastTarget; label: string }[] = [
-  { id: 'wcag-aa', label: 'WCAG 2.2 AA' },
-  { id: 'wcag-aaa', label: 'WCAG 2.2 AAA' },
+  { id: 'wcag', label: 'WCAG 2.2' },
   { id: 'apca', label: 'APCA' },
 ];
 
 const LEVELS: Record<ContrastTarget, Level[]> = {
-  'wcag-aa': [
+  // AAA large text needs 4.5, the same as AA text, so it isn't listed apart.
+  wcag: [
+    { id: 'aaa', metric: 'wcag', threshold: 7, label: 'AAA text (7)', short: 'AAA', badge: 'AAA' },
     { id: 'aa', metric: 'wcag', threshold: 4.5, label: 'AA text (4.5)', short: 'AA', badge: 'AA' },
     { id: 'aa-large', metric: 'wcag', threshold: 3, label: 'AA large text & UI (3)', short: 'AA large', badge: 'AA L' },
-  ],
-  'wcag-aaa': [
-    { id: 'aaa', metric: 'wcag', threshold: 7, label: 'AAA text (7)', short: 'AAA', badge: 'AAA' },
-    { id: 'aaa-large', metric: 'wcag', threshold: 4.5, label: 'AAA large text (4.5)', short: 'AAA large', badge: 'AAA L' },
   ],
   apca: [
     { id: 'lc75', metric: 'apca', threshold: 75, label: 'Lc 75 body text', short: 'Lc 75', badge: 'Lc75' },
@@ -50,7 +47,7 @@ export const levelById = (id: string): Level | undefined => Object.values(LEVELS
 
 /** Levels for the selected targets, strictest first within each metric. */
 export function levelsFor(targets: readonly ContrastTarget[]): Level[] {
-  const order: ContrastTarget[] = ['wcag-aaa', 'wcag-aa', 'apca'];
+  const order: ContrastTarget[] = ['wcag', 'apca'];
   return order.filter((t) => targets.includes(t)).flatMap((t) => LEVELS[t]);
 }
 

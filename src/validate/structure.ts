@@ -1,5 +1,5 @@
 import { entry, toJS } from '../json/cst';
-import { makeIssue, quote } from '../model/build';
+import { makeIssue } from '../model/build';
 import { closest } from '../model/suggest';
 import type { Issue, Model } from '../model/types';
 import { walkNodes } from './walk';
@@ -46,7 +46,7 @@ export function structureRules(model: Model): Issue[] {
             'warning',
             'structure',
             'unknown-property',
-            `${quote(v.path.join('.'))} has an unknown property “${e.key}”.${hint ? ` Did you mean “${hint}”?` : ''}`,
+            `“${e.key}” isn't a DTCG property.${hint ? ` Did you mean “${hint}”?` : ''}`,
             at(e.key, e.pos),
             hint && !has(hint)
               ? { label: `Rename to “${hint}”`, preview: { before: `"${e.key}"`, after: `"${hint}"` }, edits: [{ fileId: file.id, path: [...keyPath, e.key], rename: hint }] }
@@ -62,10 +62,10 @@ export function structureRules(model: Model): Issue[] {
           makeIssue(
             'error',
             'structure',
-            'token-has-children',
+            target ? 'legacy-property' : 'token-has-children',
             target
-              ? `Token ${quote(v.path.join('.'))} has a legacy property “${e.key}”; DTCG calls it “${target}”.`
-              : `Token ${quote(v.path.join('.'))} contains “${e.key}”. Tokens can't contain other tokens or groups.`,
+              ? `“${e.key}” is legacy; DTCG uses “${target}”.`
+              : `Contains “${e.key}”; tokens can't hold tokens or groups.`,
             at(e.key, e.pos),
             target && !has(target)
               ? { label: `Rename to “${target}”`, preview: { before: `"${e.key}"`, after: `"${target}"` }, edits: [{ fileId: file.id, path: [...keyPath, e.key], rename: target }] }
@@ -83,7 +83,7 @@ export function structureRules(model: Model): Issue[] {
             'error',
             'structure',
             'legacy-property',
-            `${quote(v.path.join('.'))} uses the legacy property “${e.key}”; DTCG calls it “${target}”.`,
+            `“${e.key}” is legacy; DTCG uses “${target}”.`,
             at(e.key, e.pos),
             !has(target)
               ? { label: `Rename to “${target}”`, preview: { before: `"${e.key}"`, after: `"${target}"` }, edits: [{ fileId: file.id, path: [...keyPath, e.key], rename: target }] }
@@ -99,7 +99,7 @@ export function structureRules(model: Model): Issue[] {
             'error',
             'structure',
             'invalid-name',
-            `“${e.key}” in ${quote(v.path.join('.'))} contains “{”, “}” or “.”, which DTCG doesn't allow in names because they break references.`,
+            `Names can't contain “{”, “}” or “.”; they break references.`,
             at(e.key, e.pos),
             fixed && !has(fixed)
               ? { label: `Rename to “${fixed}”`, preview: { before: `"${e.key}"`, after: `"${fixed}"` }, edits: [{ fileId: file.id, path: [...keyPath, e.key], rename: fixed }] }
@@ -117,7 +117,7 @@ export function structureRules(model: Model): Issue[] {
           'info',
           'structure',
           'empty-group',
-          `Group ${quote(v.path.join('.'))} is empty.`,
+          `Has no tokens or groups.`,
           { fileId: file.id, target: v.path.join('.'), keyPath, pos: v.pos },
           { label: 'Remove the empty group', preview: { before: JSON.stringify(toJS(node)), after: '(removed)' }, edits: [{ fileId: file.id, path: keyPath, delete: true }] },
         ),
@@ -136,7 +136,7 @@ export function structureRules(model: Model): Issue[] {
         'error',
         'structure',
         'token-group-conflict',
-        `${quote(t.id)} is a token in ${name(t.fileId)} but a group in ${name(g.fileId)}. References to it are ambiguous.`,
+        `A token in ${name(t.fileId)}, a group in ${name(g.fileId)}; references to it are ambiguous.`,
         { fileId: t.fileId, target: t.id, keyPath: t.keyPath, pos: t.pos },
       ),
     );

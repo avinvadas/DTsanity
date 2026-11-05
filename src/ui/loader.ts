@@ -1,9 +1,11 @@
 import { isUnchanged } from '../io/export';
 import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
 import type { SourceFile } from '../model/types';
-import { addFiles, replaceFiles, setBusy, store, type LoadError } from '../state/app';
-import { h, icon, masked, plural } from './dom';
-import { openFilesDialog } from './files-dialog';
+import { addFiles, clearAll, replaceFiles, setBusy, store, type LoadError } from '../state/app';
+import { createStore } from '../state/store';
+import { targetSelect } from './contrast';
+import { h, masked, plural } from './dom';
+import { moreMenu, type MenuItem } from './menu';
 import { TIP } from './tips';
 
 /** Length of each step on the first load: the ring fill, the landing fading out, the results fading in. */
@@ -41,9 +43,16 @@ export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
       if (isLoadError(parsed)) errors.push(parsed);
       else files.push(parsed);
     }
+    // A file named like a loaded one replaces it; if that one has edits not yet downloaded, ask first.
+    const edited = new Set(store.get().files.filter((f) => !isUnchanged(f)).map((f) => f.name));
+    const clashes = files.filter((f) => edited.has(f.name)).map((f) => f.name);
+    const keep =
+      !clashes.length ||
+      confirm(`Replace ${clashes.join(', ')}? Your changes to ${clashes.length === 1 ? 'it' : 'them'} haven't been downloaded and will be lost.`);
+    const adding = keep ? files : files.filter((f) => !edited.has(f.name));
     if (ring) await ring;
-    if (view && files.length) await fadeOut(view);
-    addFiles(files, errors);
+    if (view && adding.length) await fadeOut(view);
+    if (adding.length || errors.length) addFiles(adding, errors);
   } finally {
     zone?.classList.remove('loading');
     view?.classList.remove('fade-out');
@@ -79,61 +88,78 @@ export async function reloadAll(): Promise<string | null> {
     replaceFiles(updated, errors);
     const parts = [changed ? `${plural(changed, 'file')} changed` : 'No changes in the source files'];
     if (errors.length) parts.push(`${plural(errors.length, 'file')} couldn't be reloaded`);
-    return parts.join(' · ');
+    const summary = parts.join(' · ');
+    fileStatus.set({ at: new Date() });
+    return summary;
   } finally {
     setBusy(false);
   }
 }
 
-const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+/**
+ * The contrast target every pair is measured against: a labeled dropdown,
+ * kept in step with the setting wherever it changes. Returns it and an unsubscribe.
+ */
+export function contrastControl(className = 'contrast-pick'): { el: HTMLElement; unsub: () => void } {
+  const pickId = `contrast-pick-${++pickCount}`;
+  const target = targetSelect(store.get().settings, pickId);
+  const unsub = store.select((s) => s.settings.contrast, (c) => {
+    target.value = c[0] ?? 'wcag';
+    target.dataset.tip = TIP.targets[c[0] ?? 'wcag'];
+  });
+  return { el: h('div', { class: className }, h('label', { class: 'pick-label', for: pickId }, 'Contrast'), target), unsub };
+}
 
 /**
- * The loaded file set as a split button: the main part says how many files
- * are read and reloads them from disk or their URL (without loading them
- * anew); the menu beside it offers Reload files and Add more files, which
- * opens the loader in a dialog over the current view. Disabled while
- * loading. Returns the element, its status line and an unsubscribe.
+ * The controls at the right of every view's header: a status line for the
+ * view's own messages. The contrast target and the file actions are global,
+ * so they sit in the sidebar under the logo. Returns the element, its status
+ * line and an unsubscribe.
  */
-export function reloadControl(tip: string): { el: HTMLElement; status: HTMLElement; unsub: () => void } {
+export function viewControls(): { el: HTMLElement; status: HTMLElement; unsub: () => void } {
   const status = h('span', { class: 'reload-status', role: 'status' });
-  const reload = async () => {
-    menu.hidePopover();
-    status.replaceChildren('');
-    const summary = await reloadAll();
-    if (summary) status.replaceChildren(`${summary} · ${timeNow()}`);
+  return { el: h('div', { class: 'reload-wrap' }, status), status, unsub: () => {} };
+}
+
+/** Clear every file, asking first when edits made here haven't been downloaded (they live only in this tab). */
+export function confirmClearAll() {
+  const edited = store.get().files.filter((f) => !isUnchanged(f)).length;
+  if (edited && !confirm(`Clear all files? Changes to ${plural(edited, 'file')} haven't been downloaded and will be lost.`)) return;
+  clearAll();
+}
+
+/** The last change to the loaded files: what happened (and any detail) and when. */
+export const fileStatus = createStore<{ at: Date | null }>({ at: null });
+store.select(
+  (s) => s.files,
+  (files, prev) => {
+    if (prev && files.length) fileStatus.set({ at: new Date() });
+  },
+);
+
+/**
+ * The status line: how many files, and when they were last updated (loaded,
+ * reloaded, added, removed or edited). Nothing more, unless a file couldn't
+ * be read (missing, or damaged): then it says which, as an error.
+ * Returns it and an unsubscribe.
+ */
+export function fileStatusLine(): { el: HTMLElement; unsub: () => void } {
+  const el = h('p', { class: 'files-status', role: 'status' });
+  const paint = () => {
+    const { files, loadErrors } = store.get();
+    const { at } = fileStatus.get();
+    const time = at?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const text = files.length ? [plural(files.length, 'file'), time ? `Updated ${time}` : ''].filter(Boolean).join(' · ') : '';
+    const failed = loadErrors.length === 1 ? `${loadErrors[0].name} couldn't be read` : loadErrors.length ? `${plural(loadErrors.length, 'file')} couldn't be read` : '';
+    // Masked: the error names a file.
+    el.replaceChildren(text, failed ? masked(h('span', { class: 'files-error' }, failed)) : '');
   };
-  const count = h('span', null);
-  const main = h('button', { type: 'button', class: 'reload split-main', 'data-tip': tip, onclick: reload }, h('span', { 'aria-hidden': 'true' }, '↻ '), count);
-  const toggle = h('button', { type: 'button', class: 'split-toggle', 'aria-label': 'File actions', 'aria-haspopup': 'menu', 'data-tip': TIP.fileActions }, icon('chevron-down'));
-  const item = (label: string, tipText: string, act: () => void) => h('button', { type: 'button', role: 'menuitem', class: 'menu-item', 'data-tip': tipText, onclick: act }, label);
-  const menu = h(
-    'div',
-    { class: 'split-menu', popover: 'auto', role: 'menu', 'aria-label': 'File actions' },
-    item('Reload files', tip, () => void reload()),
-    item('Add more files…', TIP.addMoreFiles, () => {
-      menu.hidePopover();
-      openFilesDialog();
-    }),
-  );
-  // Below the toggle, right edges aligned, kept on screen.
-  menu.addEventListener('toggle', (e) => {
-    toggle.setAttribute('aria-expanded', String((e as ToggleEvent).newState === 'open'));
-    if ((e as ToggleEvent).newState !== 'open') return;
-    const b = split.getBoundingClientRect();
-    menu.style.top = `${b.bottom + 4}px`;
-    menu.style.left = `${Math.max(8, Math.min(b.right - menu.offsetWidth, window.innerWidth - menu.offsetWidth - 8))}px`;
-    menu.querySelector<HTMLElement>('.menu-item')?.focus();
-  });
-  toggle.addEventListener('click', () => menu.togglePopover());
-  const split = h('div', { class: 'split-button' }, main, toggle, menu);
-  const unsubs = [
-    store.select((s) => s.busy, (busy) => (main.disabled = toggle.disabled = busy)),
-    store.select((s) => s.files.length, (n) => (count.textContent = `${plural(n, 'file')} loaded`)),
-  ];
-  return { el: h('div', { class: 'reload-wrap' }, status, split), status, unsub: () => unsubs.forEach((u) => u()) };
+  const unsubs = [fileStatus.select((s) => s, paint), store.select((s) => s.files, paint), store.select((s) => s.loadErrors, paint)];
+  return { el, unsub: () => unsubs.forEach((u) => u()) };
 }
 
 let iconCount = 0;
+let pickCount = 0;
 
 /**
  * The drop zone's token-file icon. Fixed markup, never built from file data.
@@ -265,4 +291,14 @@ export class TTLoader extends HTMLElement {
     this.unsubs.forEach((u) => u());
     this.unsubs = [];
   }
+}
+
+/**
+ * The loaded files at a glance, under the logo: the status line on the left,
+ * the file actions in a menu on the right. Returns it and an unsubscribe.
+ */
+export function filesBar(items: MenuItem[]): { el: HTMLElement; unsub: () => void } {
+  const status = fileStatusLine();
+  const el = h('div', { class: 'files-bar' }, status.el, moreMenu('File actions', items));
+  return { el, unsub: status.unsub };
 }

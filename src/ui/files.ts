@@ -2,7 +2,8 @@ import { download, exportAs, isUnchanged, type ExportFormat } from '../io/export
 import { isStudioMetaFile } from '../model/format';
 import type { SourceFile } from '../model/types';
 import { allModels, clearAll, redo, removeFile, store, undo, type AppState } from '../state/app';
-import { h, masked, plural } from './dom';
+import { h, masked, plural, xButton } from './dom';
+import { viewControls } from './loader';
 import { TIP } from './tips';
 
 const LEGACY_LABEL = { 'tokens-studio': 'Tokens Studio', 'style-dictionary': 'Style Dictionary' } as const;
@@ -17,6 +18,7 @@ function formatLabel(f: SourceFile): string {
 
 export class TTFiles extends HTMLElement {
   private unsub?: () => void;
+  private reload?: ReturnType<typeof viewControls>;
   /** What couldn't be converted back on the last legacy export, per file. */
   private exportNotes = new Map<string, string[]>();
 
@@ -29,6 +31,12 @@ export class TTFiles extends HTMLElement {
   }
 
   connectedCallback() {
+    // The Files header is static markup; it gets the same global controls as every other view.
+    const row = document.getElementById('files-h')?.closest('.vh-row');
+    if (row && !row.querySelector('.vh-actions')) {
+      this.reload = viewControls();
+      row.append(h('div', { class: 'vh-actions loaded-only' }, this.reload.el));
+    }
     this.unsub = store.select(
       (s): Pick<AppState, 'files' | 'model' | 'themeModels' | 'past' | 'future'> => s,
       (s) => this.render(s),
@@ -37,6 +45,7 @@ export class TTFiles extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.reload?.unsub();
     this.unsub?.();
   }
 
@@ -80,7 +89,7 @@ export class TTFiles extends HTMLElement {
               h('button', { class: 'ghost', 'data-tip': TIP.downloadLegacy, onclick: () => this.save(f, 'original') }, `Download as ${kind}`),
             ]
           : h('button', { class: 'ghost', 'data-tip': TIP.download, onclick: () => this.save(f, 'dtcg') }, 'Download'),
-        h('button', { type: 'button', class: 'ghost icon-btn file-remove', onclick: () => removeFile(f.id), 'aria-label': 'Remove file', 'data-tip': TIP.remove }, '✕'),
+        xButton('Remove file', () => removeFile(f.id), TIP.remove, 'file-remove'),
         notes
           ? masked(
               h(

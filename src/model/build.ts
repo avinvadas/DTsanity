@@ -85,7 +85,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
     for (const d of f.duplicates) {
       const where = d.path.length ? quote(d.path.join('.')) : 'the root object';
       model.issues.push(
-        makeIssue('warning', 'structure', 'duplicate-key', `“${d.key}” appears more than once in ${where}. Only the last one is used.`, {
+        makeIssue('warning', 'structure', 'duplicate-key', `Appears more than once in ${where}; the last one wins.`, {
           fileId: f.id,
           target: [...d.path, d.key].join('.'),
           pos: d.pos,
@@ -94,7 +94,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
     }
     if (f.doc.root.kind !== 'object') {
       model.issues.push(
-        makeIssue('error', 'structure', 'root-not-object', `${f.name} must contain a JSON object at the top level, not a ${f.doc.root.kind}.`, {
+        makeIssue('error', 'structure', 'root-not-object', `${f.name} holds a ${f.doc.root.kind}; DTCG files hold an object.`, {
           fileId: f.id,
           pos: f.doc.root.pos,
         }),
@@ -108,7 +108,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
           'error',
           'format',
           'legacy-format',
-          `${f.name} uses the ${kind} format (“value” / “type” without “$”). Turn on legacy support to convert it to DTCG.`,
+          `${f.name} uses ${kind} keys (“value”, “type” without “$”).`,
           { fileId: f.id },
           { label: 'Turn on legacy support', setting: { acceptLegacy: true } },
         ),
@@ -175,12 +175,12 @@ function walkGroup(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPa
     const childKeyPath = [...keyPath, e.key];
     if (e.key === '$root') {
       if (e.value.kind === 'object' && entry(e.value, '$value')) addToken(ctx, f, e.value, childPath, childKeyPath, type, e.pos);
-      else invalidNode(ctx, f, childPath, childKeyPath, e.pos, '“$root” must be a token object with a “$value”.');
+      else invalidNode(ctx, f, childPath, childKeyPath, e.pos, '“$root” must be a token with a “$value”.');
       continue;
     }
     if (e.key.startsWith('$')) continue;
     if (e.value.kind !== 'object') {
-      invalidNode(ctx, f, childPath, childKeyPath, e.pos, `${quote(childPath.join('.'))} is neither a token nor a group: expected an object, found a ${e.value.kind}.`);
+      invalidNode(ctx, f, childPath, childKeyPath, e.pos, `Expected an object, found a ${e.value.kind}.`);
       continue;
     }
     if (entry(e.value, '$value')) addToken(ctx, f, e.value, childPath, childKeyPath, type, e.pos);
@@ -226,7 +226,7 @@ function addToken(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPat
       return set ? `set “${set}” of ${name}` : name;
     };
     ctx.model.issues.push(
-      makeIssue('warning', 'structure', 'duplicate-path', `${quote(id)} is defined in both ${where(prev)} and ${where(t)}. The definition in ${where(t)} is used.`, {
+      makeIssue('warning', 'structure', 'duplicate-path', `In ${where(prev)} and ${where(t)}; ${where(t)} wins.`, {
         fileId: f.id,
         target: id,
         keyPath,
@@ -255,19 +255,19 @@ function applyExtends(ctx: Ctx) {
   const run = (g: Group) => {
     if (done.has(g)) return;
     if (active.has(g)) {
-      report(g, 'circular-extends', `${quote(g.id)} extends itself through a chain of “$extends”.`);
+      report(g, 'circular-extends', `Extends itself through a chain of “$extends”.`);
       return;
     }
     active.add(g);
     const target = parseAlias(g.extends);
     if (target === undefined) {
-      report(g, 'invalid-extends', `“$extends” on ${quote(g.id)} must be a reference like "{group.name}".`);
+      report(g, 'invalid-extends', `Must be a reference like "{group.name}".`);
     } else if (!byId.has(target)) {
       if (model.tokens.has(target)) {
-        report(g, 'extends-token', `“$extends” on ${quote(g.id)} references the token ${quote(target)}; it must reference a group.`);
+        report(g, 'extends-token', `${quote(target)} is a token; “$extends” takes a group.`);
       } else {
         const hint = closest(target, byId.keys());
-        report(g, 'unresolved-extends', `“$extends” on ${quote(g.id)} references ${quote(target)}, which doesn't exist.${hint ? ` Did you mean ${quote(hint)}?` : ''}`);
+        report(g, 'unresolved-extends', `${quote(target)} doesn't exist.${hint ? ` Did you mean ${quote(hint)}?` : ''}`);
       }
     } else {
       for (const tg of byId.get(target)!) if (tg.extends !== undefined) run(tg);
@@ -316,7 +316,7 @@ function resolveAll(ctx: Ctx) {
       const key = [...new Set(cycle)].sort().join('\u0000');
       if (!cycles.has(key)) {
         cycles.add(key);
-        report(t, 'circular-reference', `Circular reference: ${cycle.map((c) => `{${c}}`).join(' → ')}.`);
+        report(t, 'circular-reference', `${cycle.map((c) => `{${c}}`).join(' → ')}`);
       }
       return undefined;
     }
@@ -351,7 +351,7 @@ function resolveAll(ctx: Ctx) {
           'warning',
           'types',
           'alias-type-mismatch',
-          `${quote(t.id)} has type “${own}” but references ${quote(target.id)} of type “${target.type}”.`,
+          `Is “${own}”, but {${target.id}} is “${target.type}”.`,
           { fileId: t.fileId, target: t.id, keyPath: t.keyPath, pos: t.pos },
           fix,
         ),
@@ -370,7 +370,7 @@ function resolveAll(ctx: Ctx) {
         report(
           owner,
           'reference-to-group',
-          `${quote(owner.id)} references {${targetId}}, which is a group, not a token.${root ? ` Did you mean its root token {${root}}?` : ''}`,
+          `{${targetId}} is a group.${root ? ` Did you mean its root token {${root}}?` : ''}`,
           root ? refFix(owner, targetId, root) : undefined,
         );
       } else {
@@ -378,7 +378,7 @@ function resolveAll(ctx: Ctx) {
         report(
           owner,
           'unresolved-reference',
-          `${quote(owner.id)} references {${targetId}}, which doesn't exist.${hint ? ` Did you mean {${hint}}?` : ''}`,
+          `{${targetId}} doesn't exist.${hint ? ` Did you mean {${hint}}?` : ''}`,
           hint ? refFix(owner, targetId, hint) : undefined,
         );
       }
@@ -405,21 +405,21 @@ function resolveAll(ctx: Ctx) {
       return undefined;
     };
     const hash = ref.indexOf('#');
-    if (hash === -1) return fail('invalid-ref', `“$ref” in ${quote(owner.id)} must be a JSON Pointer such as "#/color/blue/$value".`);
+    if (hash === -1) return fail('invalid-ref', `Must be a JSON Pointer like "#/color/blue/$value".`);
     const fileName = ref.slice(0, hash);
     const file = fileName
       ? model.files.find((f) => f.name === fileName || f.name.endsWith(`/${fileName}`))
       : model.files.find((f) => f.id === owner.fileId);
-    if (!file) return fail('unresolved-ref', `“$ref” in ${quote(owner.id)} points into “${fileName}”, which isn't loaded.`);
+    if (!file) return fail('unresolved-ref', `“${fileName}” isn't loaded.`);
     const frag = ref.slice(hash + 1);
-    if (frag !== '' && !frag.startsWith('/')) return fail('invalid-ref', `“$ref” in ${quote(owner.id)} must start with "#/".`);
+    if (frag !== '' && !frag.startsWith('/')) return fail('invalid-ref', `Must start with "#/".`);
     let segs: string[];
     try {
       segs = frag === '' ? [] : frag.slice(1).split('/').map((s) => decodeURIComponent(s).replace(/~1/g, '/').replace(/~0/g, '~'));
     } catch {
-      return fail('invalid-ref', `“$ref” in ${quote(owner.id)} is not a valid JSON Pointer.`);
+      return fail('invalid-ref', `Not a valid JSON Pointer.`);
     }
-    const missing = () => fail('unresolved-ref', `“$ref” in ${quote(owner.id)} points to "${ref}", which doesn't exist.`);
+    const missing = () => fail('unresolved-ref', `"${ref}" doesn't exist.`);
 
     for (let k = segs.length; k >= 1; k--) {
       const tok = ctx.byKeyPath.get(keyOf(file.id, segs.slice(0, k)));

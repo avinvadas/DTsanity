@@ -1,6 +1,6 @@
 import { isUnchanged } from '../io/export';
 import { removeFile, restoreFiles, snapshotFiles, store } from '../state/app';
-import { h, masked, plural } from './dom';
+import { h, masked, plural, xButton } from './dom';
 import { TIP } from './tips';
 
 /**
@@ -23,7 +23,7 @@ export function openFilesDialog() {
 
   const list = h('ul', { class: 'file-list' });
   const summary = h('h3', { class: 'section-title' });
-  const close = h('button', { type: 'button', class: 'ghost icon-btn', 'aria-label': 'Cancel', 'data-tip': TIP.closeDialog }, '✕');
+  const close = xButton('Cancel', () => undefined, TIP.closeDialog);
   const save = h('button', { type: 'button', class: 'primary-neutral', 'data-tip': TIP.filesSave }, 'Reload and Save');
   const cancel = h('button', { type: 'button', 'data-tip': TIP.filesCancel }, 'Cancel');
   const dialog = h(
@@ -58,7 +58,7 @@ export function openFilesDialog() {
             { class: 'file' },
             masked(h('span', { class: 'file-name' }, f.name)),
             isUnchanged(f) ? null : h('span', { class: 'badge changed', 'data-tip': TIP.edited }, 'Edited'),
-            h('button', { type: 'button', class: 'ghost icon-btn file-remove', 'aria-label': 'Remove file', 'data-tip': TIP.remove, onclick: () => removeFile(f.id) }, '✕'),
+            xButton('Remove file', () => removeFile(f.id), TIP.remove, 'file-remove'),
           ),
         ),
       );

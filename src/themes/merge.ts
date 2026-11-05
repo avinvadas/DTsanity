@@ -31,6 +31,6 @@ export function mergeModels(list: readonly ThemeModel[]): Model {
 /** An info issue for each file that no theme reads (it would otherwise go unchecked). */
 export function orphanIssues(orphans: readonly SourceFile[]): Issue[] {
   return orphans.map((f) =>
-    makeIssue('info', 'format', 'file-not-in-theme', `${f.name} isn't part of any theme, so it isn't checked. Add it to a theme in the Themes panel.`, { fileId: f.id }),
+    makeIssue('info', 'format', 'file-not-in-theme', `${f.name} goes unchecked; add it to a theme in Themes.`, { fileId: f.id }),
   );
 }

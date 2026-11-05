@@ -8,15 +8,17 @@ import { applyFixes, removeFile, store, undo, type AppState } from '../state/app
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas } from './canvas';
 import { findingCards, findings, type Findings } from './findings';
-import { ingest } from './loader';
+import { issueData, issueDetail, issueHead } from './issue';
+import { targetSelect } from './contrast';
+import { filesBar, ingest, reloadAll } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
-import { h, icon, masked, plural, severityIcon } from './dom';
+import { h, icon, masked, plural, severityIcon, xButton } from './dom';
 import { logo } from './logo';
 
 /**
  * The phone layout (narrow screens, whatever the input): the core loop on
  * one page. Cards for the four kinds of findings on top, each a link to its
- * section; the files (the list; a + in the top bar adds more); then every finding
+ * section; the files (the list; a + in its heading adds more); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
  * blindness), each card with a single action. Copy fix prompt (the main action)
  * and Get fixed files stay in a fixed footer. The tools for fine control (curve editor,
@@ -52,7 +54,11 @@ export class TTMobile extends HTMLElement {
       this.picker.value = '';
     },
   });
-  private addButton = h('button', { type: 'button', class: 'm-add', onclick: () => this.picker.click() }, icon('plus'), 'Add files');
+  // Between the header and the findings: the files' count and last change, and their actions (no Clear all on phones).
+  private bar = filesBar([
+    { label: 'Add files…', icon: 'plus', act: () => this.picker.click() },
+    { label: 'Reload files', icon: 'refresh', act: () => void reloadAll() },
+  ]);
   private issueSlot = h('div', { class: 'm-stack' });
   private toastSlot = h('div', null);
   private footSlot = h('div', null);
@@ -72,6 +78,7 @@ export class TTMobile extends HTMLElement {
   disconnectedCallback() {
     this.media.removeEventListener('change', this.onMedia);
     this.unsub?.();
+    this.bar.unsub();
   }
 
   private say(text: string, undoable = false) {
@@ -91,8 +98,8 @@ export class TTMobile extends HTMLElement {
     if (!this.built) {
       this.built = true;
       this.replaceChildren(
-        h('header', { class: 'm-head' }, logo(), this.addButton, this.picker),
-        h('main', { class: 'm-body' }, this.lede, this.navSlot, this.fileSlot, this.loadSection, this.issueSlot),
+        h('header', { class: 'm-head' }, logo(), this.picker),
+        h('main', { class: 'm-body' }, this.lede, this.bar.el, this.navSlot, this.fileSlot, this.loadSection, this.issueSlot),
         this.toastSlot,
         this.footSlot,
       );
@@ -101,9 +108,17 @@ export class TTMobile extends HTMLElement {
     const has = s.files.length > 0;
     this.lede.hidden = has;
     this.loadSection.hidden = has;
-    this.addButton.hidden = !has;
+    this.bar.el.hidden = !has;
     const found = has ? findings(s) : undefined;
-    this.navSlot.replaceChildren(found ? findingCards(found, (k) => document.getElementById(`m-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), (k) => `#m-${k}`) : '');
+    const cards = found ? findingCards(found, (k) => document.getElementById(`m-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), (k) => `#m-${k}`) : null;
+    // The target every contrast finding is measured against, on the line that counts them.
+    const title = cards?.querySelector('.findings-title');
+    if (title) {
+      const head = h('div', { class: 'm-findings-head' });
+      title.before(head);
+      head.append(title, h('div', { class: 'contrast-pick' }, h('label', { class: 'pick-label', for: 'm-contrast-pick' }, 'Contrast'), targetSelect(s.settings, 'm-contrast-pick')));
+    }
+    this.navSlot.replaceChildren(cards ?? '');
     this.fileSlot.replaceChildren(has ? this.files(s) : '');
     this.issueSlot.replaceChildren(...(found ? this.issues(s, found).filter((x): x is HTMLElement => !!x) : []));
     this.toastSlot.replaceChildren(
@@ -115,17 +130,23 @@ export class TTMobile extends HTMLElement {
     paintAll(this);
   }
 
-  /** The loaded files, each removable; the + in the top bar adds more. */
+  /** The loaded files, each removable; the + in the heading adds more, in the X's column. */
   private files(s: AppState) {
     return h(
       'section',
       { class: 'm-section' },
-      h('h2', { class: 'm-section-head' }, h('span', null, 'Files'), h('span', { class: 'm-n' }, String(s.files.length))),
+      h(
+        'h2',
+        { class: 'm-section-head m-files-head' },
+        h('span', null, 'Files'),
+        h('span', { class: 'm-n' }, String(s.files.length)),
+        h('button', { type: 'button', class: 'x-btn m-add', 'aria-label': 'Add files', onclick: () => this.picker.click() }, icon('plus')),
+      ),
       masked(
         h(
           'ul',
           { class: 'm-filelist' },
-          s.files.map((f) => h('li', null, h('span', null, f.name), isUnchanged(f) ? null : h('span', { class: 'badge changed' }, 'Edited'), h('button', { type: 'button', class: 'ghost icon-btn', 'aria-label': 'Remove file', onclick: () => removeFile(f.id) }, '✕'))),
+          s.files.map((f) => h('li', null, h('span', null, f.name), isUnchanged(f) ? null : h('span', { class: 'badge changed' }, 'Edited'), xButton('Remove file', () => removeFile(f.id)))),
         ),
       ),
     );
@@ -173,12 +194,13 @@ export class TTMobile extends HTMLElement {
       i.fix && 'edits' in i.fix
         ? h('button', { type: 'button', class: 'm-fix', onclick: () => (applyFixes([i.fix!]), this.say('Fixed', true)) }, i.fix.label)
         : h('span', { class: 'm-later' }, 'In the fix prompt');
+    const where = file && i.pos ? `${file}:${i.pos.line}` : (file ?? '');
     return h(
       'article',
-      { class: `m-item ${i.severity}` },
-      h('div', { class: 'm-item-head' }, severityIcon(i.severity), i.target ? h('code', null, i.target) : null),
-      h('p', null, i.message),
-      file ? h('small', { class: 'm-where' }, file) : null,
+      { class: `m-item ${i.severity}`, ...issueData(i, where) },
+      h('div', { class: 'm-item-head' }, severityIcon(i.severity), issueHead(i)),
+      issueDetail(i),
+      where ? h('small', { class: 'm-where' }, where) : null,
       action,
     );
   }

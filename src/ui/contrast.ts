@@ -15,23 +15,16 @@ import { TIP } from './tips';
 
 const END_LABEL: Record<EndId, string> = { light: 'Light end', dark: 'Dark end' };
 
-/** Toggles for the compliance targets, shared by Base colors and Semantic. */
-export function targetToggles(settings: Settings) {
-  const toggle = (t: ContrastTarget, label: string) => {
-    const on = settings.contrast.includes(t);
-    return h(
-      'button',
-      {
-        type: 'button',
-        class: `chip-toggle${on ? ' on' : ''}`,
-        'aria-pressed': String(on),
-        'data-tip': TIP.targets[t],
-        onclick: () => updateSettings({ contrast: on ? settings.contrast.filter((x) => x !== t) : [...settings.contrast, t] }),
-      },
-      label,
-    );
-  };
-  return h('div', { class: 'chips', role: 'group', 'aria-label': 'Contrast compliance targets' }, TARGETS.map((t) => toggle(t.id, t.label)));
+/** The compliance target: one at a time, as a dropdown. */
+export function targetSelect(settings: Settings, id: string) {
+  const current = settings.contrast[0];
+  const select = h(
+    'select',
+    { id, 'data-tip': current ? TIP.targets[current] : undefined },
+    TARGETS.map((t) => h('option', { value: t.id, selected: t.id === current }, t.label)),
+  );
+  select.addEventListener('change', () => updateSettings({ contrast: [select.value as ContrastTarget] }));
+  return select;
 }
 
 export function contrastControls(settings: Settings, set: PaletteSet, view: ContrastView) {
@@ -44,6 +37,8 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
     const other = view.ends[end === 'light' ? 'dark' : 'light'].info.oklch.l;
     const ok = (l: number) => (end === 'light' ? l > other : l < other);
     const pct = (l: number) => `L ${+(l * 100).toFixed(1)}`;
+    // Picked by step alone (the group names the palette), so the picker stays short.
+    const step = groups.flatMap((g) => g.tokens).find((t) => t.id === current.name)?.step;
     return h(
       'span',
       { class: 'end-picker' },
@@ -54,9 +49,9 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
         gamut: displayGamut(settings.gamut),
         groups: groups.map((g) => ({
           label: g.label,
-          options: g.tokens.map((t) => ({ value: t.id, label: t.id, meta: pct(t.l), info: t.info, disabled: !ok(t.l) && t.id !== current.name })),
+          options: g.tokens.map((t) => ({ value: t.id, label: t.step, title: t.id, meta: pct(t.l), info: t.info, disabled: !ok(t.l) && t.id !== current.name })),
         })),
-        fallback: { label: `${current.name} (no neutral tokens)`, info: current.info },
+        fallback: { label: step ?? `${current.name} (no neutral tokens)`, info: current.info },
         onPick: (id) => setContrastEnd(end, id),
       }),
     );

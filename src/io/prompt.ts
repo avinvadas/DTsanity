@@ -1,6 +1,7 @@
 import { VISIONS } from '../color/cvd';
 import { TARGETS } from '../contrast/levels';
 import { formatContrast } from '../contrast/metrics';
+import { ruleTitle } from '../model/rules';
 import type { Issue } from '../model/types';
 import type { AppState } from '../state/app';
 import { pairsOf } from '../state/pairs';
@@ -42,10 +43,13 @@ export function fixPrompt(s: AppState): FixPrompt {
   };
 
   // Format, structure, references and tier rules, by file.
+  // One line per issue, in the order the page shows it: place, title [rule], detail, fix.
   const issueLine = (i: Issue) => {
-    const where = [i.fileId ? fileName.get(i.fileId) : undefined, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
+    const file = i.fileId ? fileName.get(i.fileId) : undefined;
+    const where = [file && i.pos ? `${file}:${i.pos.line}` : file, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
     const themes = i.themes?.length ? ` (${i.themes.join(', ')} only)` : '';
-    return `${where ? `${where}: ` : ''}${i.message}${themes}${i.fix ? ` Suggested fix: ${i.fix.label}.` : ''}`;
+    const fix = i.fix ? ` Fix: ${i.fix.label}${i.fix.preview ? ` (${i.fix.preview.before} → ${i.fix.preview.after})` : ''}.` : '';
+    return `${where ? `${where}: ` : ''}${ruleTitle(i.code)} [${i.code}]${themes}.${i.message ? ` ${i.message}` : ''}${fix}`;
   };
   const byFile = (xs: Issue[]) => [...xs].sort((a, b) => (fileName.get(a.fileId ?? '') ?? '').localeCompare(fileName.get(b.fileId ?? '') ?? ''));
   section(required, 'Errors', byFile(model.issues.filter((i) => i.severity === 'error')).map(issueLine));

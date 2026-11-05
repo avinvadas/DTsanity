@@ -26,7 +26,7 @@ const model = analyze([loadText(JSON.stringify(doc, null, 2))], DEFAULT_SETTINGS
 const set = detectPalettes(model, {}, 'srgb');
 const neutral = set.palettes.find((p) => p.id === 'color.neutral')!;
 const brand = set.palettes.find((p) => p.id === 'color.brand')!;
-const AA = levelsFor(['wcag-aa']);
+const AA = levelsFor(['wcag']).filter((l) => l.id !== 'aaa');
 const ends = resolveEnds(set, {});
 
 describe('metrics', () => {
@@ -43,7 +43,7 @@ describe('metrics', () => {
     expect(pairContrast(black, white, 'apca')).toBeCloseTo(106, 0);
   });
   it('finds the strictest level passed', () => {
-    const levels = levelsFor(['wcag-aa', 'wcag-aaa', 'apca']);
+    const levels = levelsFor(['wcag', 'apca']);
     expect(bestLevel(4.6, 'wcag', levels)?.short).toMatch(/^(AA|AAA large)$/);
     expect(bestLevel(7.2, 'wcag', levels)?.short).toBe('AAA');
     expect(bestLevel(3.1, 'wcag', levels)?.short).toBe('AA large');
@@ -79,7 +79,7 @@ describe('ends', () => {
 });
 
 describe('pass ranges', () => {
-  const r = analyzePalette(neutral, ends, levelsFor(['wcag-aa', 'wcag-aaa']));
+  const r = analyzePalette(neutral, ends, levelsFor(['wcag']));
   const range = (end: string, id: string) => r.ranges.find((x) => x.end === end && x.level.id === id)!;
 
   it('finds the passing run on the light end, from the dark side of the scale', () => {

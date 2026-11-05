@@ -1,7 +1,7 @@
 import { DTCG_SPACES, cssToDtcg, round, toHex } from '../color/dtcg';
 import { DTCG_TYPES, FONT_WEIGHT_NAMES, LEGACY_TO_DTCG } from '../legacy/types';
 import { convertLegacyValue, isAlias, parseCubicBezier, parseDimension, parseDuration, parseFontWeight, parseNumber } from '../legacy/values';
-import { makeIssue, parseAlias, quote } from '../model/build';
+import { makeIssue, parseAlias } from '../model/build';
 import { closest } from '../model/suggest';
 import type { Fix, Issue, Model } from '../model/types';
 import { findEmbedded } from './references';
@@ -258,7 +258,7 @@ export function typeAndValueRules(model: Model): Issue[] {
         'error',
         'types',
         'unknown-type',
-        `Group ${quote(g.id)} has type “${g.type}”, which is not a DTCG type.${suggestion ? ` Did you mean “${suggestion}”?` : ''}`,
+        `“${g.type}” isn't a DTCG type.${suggestion ? ` Did you mean “${suggestion}”?` : ''}`,
         { fileId: g.fileId, target: g.id, keyPath: g.keyPath, pos: g.pos },
         suggestion ? typeFix(g.fileId, g.keyPath, g.type, suggestion) : undefined,
       ),
@@ -276,7 +276,7 @@ export function typeAndValueRules(model: Model): Issue[] {
           'error',
           'types',
           'unknown-type',
-          `${quote(t.id)} has type “${t.declaredType}”, which is not a DTCG type.${suggestion ? ` Did you mean “${suggestion}”?` : ' Its value is not checked.'}`,
+          `“${t.declaredType}” isn't a DTCG type.${suggestion ? ` Did you mean “${suggestion}”?` : ' The value goes unchecked.'}`,
           at,
           suggestion ? typeFix(t.fileId, t.keyPath, t.declaredType, suggestion) : undefined,
         ),
@@ -292,7 +292,7 @@ export function typeAndValueRules(model: Model): Issue[] {
           'error',
           'types',
           'missing-type',
-          `${quote(t.id)} has no type. Set “$type” on the token or on a parent group.${inferred ? ` Its value looks like a ${inferred}.` : ''}`,
+          `Set “$type” here or on a parent group.${inferred ? ` The value looks like a ${inferred}.` : ''}`,
           at,
           inferred
             ? { label: `Set “$type” to “${inferred}”`, preview: { before: '(no type)', after: `"$type": "${inferred}"` }, edits: [{ fileId: t.fileId, path: [...t.keyPath, '$type'], value: inferred }] }
@@ -334,7 +334,7 @@ export function typeAndValueRules(model: Model): Issue[] {
         hasError ? 'error' : 'warning',
         'values',
         hasError ? 'invalid-value' : legacyOnly ? 'legacy-value' : 'inconsistent-value',
-        `${quote(t.id)} (${t.type}): ${lines.length === 1 ? lines[0] : lines.join(' ')}`,
+        lines.join(' '),
         at,
         fix,
       ),

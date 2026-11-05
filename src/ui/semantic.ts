@@ -8,9 +8,9 @@ import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, st
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
 import { collapsible, disclosure, expand, isOpen, setAll } from './collapsible';
-import { reloadControl } from './loader';
+import { viewControls } from './loader';
 import { swatchSelect } from './swatch-select';
-import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
+import { h, icon, masked, plural, severityIcon, viewHead, xButton } from './dom';
 import { TIP } from './tips';
 
 const KINDS: { id: PairKind; label: string }[] = [
@@ -41,7 +41,7 @@ export class TTSemantic extends HTMLElement {
   }
 
   private unsub?: () => void;
-  private reload = reloadControl(TIP.reload);
+  private reload = viewControls();
   private onlyFailing = false;
   /** The component filter text. */
   private query = '';
@@ -211,7 +211,7 @@ export class TTSemantic extends HTMLElement {
                 h(
                   'td',
                   { class: 'pair-actions' },
-                  h('button', { type: 'button', class: 'ghost small danger', 'aria-label': 'Remove pair', 'data-tip': TIP.pairRemove, onclick: () => removePair(r.pair.id) }, '×'),
+                  xButton('Remove pair', () => removePair(r.pair.id), TIP.pairRemove),
                 ),
               );
               this.rowEls.set(r.pair.id, row);

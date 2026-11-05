@@ -58,7 +58,6 @@ export const TIP = {
   // Issues
   reload: 'Read the files again from disk or their URL and re-run the checks.',
   dropzone: 'DTCG .json or .tokens files, several at once (such as primitives and semantic). Tokens Studio and Style Dictionary files too, with legacy formats on.',
-  fileActions: 'Reload the files, or add more without leaving this view.',
   addMoreFiles: 'Open the loaded files in a dialog: remove any of them, or drop, pick or link more.',
   closeDialog: 'Cancel and close (Esc): the files go back to how they were.',
   filesSave: 'Keep these files and re-run every check on them.',
@@ -127,8 +126,7 @@ export const TIP = {
 
   // Contrast
   targets: {
-    'wcag-aa': 'WCAG 2.2 AA: ratio of at least 4.5 for text and 3 for large text and UI parts. The usual legal baseline.',
-    'wcag-aaa': 'WCAG 2.2 AAA: ratio of at least 7 for text and 4.5 for large text. The enhanced level.',
+    wcag: 'WCAG 2.2: pairs pass at AA, a ratio of at least 4.5 for text and 3 for large text and UI parts (the usual legal baseline). Where AAA (7) is reached is shown too.',
     apca: 'APCA: the contrast method proposed for WCAG 3. Lc scores depend on which color is the text; higher is easier to read.',
   },
   endPicker: 'The neutral token this end of the whole system sits at. Only its lightness is used, without chroma. Each row gets its own end at this lightness, tinted with its hue, and steps past it are left out of the rows. Defaults to your lightest or darkest neutral, otherwise white or black.',

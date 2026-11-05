@@ -12,7 +12,7 @@ export interface Settings {
   /** Target gamut: colors outside it are flagged. */
   gamut: 'srgb' | 'p3';
   /** Contrast compliance targets checked in the palette view. */
-  contrast: ('wcag-aa' | 'wcag-aaa' | 'apca')[];
+  contrast: ('wcag' | 'apca')[];
   /** The smallest OKLab difference at which sibling colors (danger, success…) count as told apart. */
   cvdDistance: number;
 }

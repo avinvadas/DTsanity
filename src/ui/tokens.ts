@@ -3,7 +3,7 @@ import type { Model, Settings, Token } from '../model/types';
 import { ALL_THEMES, store } from '../state/app';
 import type { ThemeModel } from '../themes/merge';
 import { h, masked, plural, viewHead } from './dom';
-import { reloadControl } from './loader';
+import { viewControls } from './loader';
 import { TIP } from './tips';
 
 const PAGE = 300;
@@ -28,7 +28,7 @@ export function formatValue(v: unknown, format: Settings['colorFormat'] = 'oklch
 
 export class TTTokens extends HTMLElement {
   private unsub?: () => void;
-  private reload = reloadControl(TIP.reload);
+  private reload = viewControls();
   private model?: Model;
   private format: Settings['colorFormat'] = 'oklch';
   private query = '';

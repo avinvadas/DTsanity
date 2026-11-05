@@ -9,8 +9,8 @@ import {
   store,
   type AppState,
 } from '../state/app';
-import { h, masked, plural, viewHead } from './dom';
-import { reloadControl } from './loader';
+import { h, masked, plural, viewHead, xButton } from './dom';
+import { viewControls } from './loader';
 import { TIP } from './tips';
 
 const SOURCE: Record<ThemeSource, string> = {
@@ -25,7 +25,7 @@ type View = Pick<AppState, 'files' | 'themes' | 'themesCustomized' | 'activeThem
 /** Themes: a switcher for the active theme and a files × themes matrix to edit what each theme reads. */
 export class TTThemes extends HTMLElement {
   private unsub?: () => void;
-  private reload = reloadControl(TIP.reload);
+  private reload = viewControls();
 
   connectedCallback() {
     this.unsub = store.select(
@@ -101,7 +101,7 @@ export class TTThemes extends HTMLElement {
                       'div',
                       { class: 'theme-name' },
                       name,
-                      h('button', { type: 'button', class: 'ghost small danger', 'aria-label': 'Remove theme', 'data-tip': TIP.removeTheme, onclick: () => removeTheme(t.id) }, '×'),
+                      xButton('Remove theme', () => removeTheme(t.id), TIP.removeTheme),
                     ),
                     t.scope.mode !== undefined ? h('small', { 'data-tip': TIP.themeMode }, `mode “${t.scope.mode}”`) : null,
                   );

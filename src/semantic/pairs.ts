@@ -149,8 +149,9 @@ export function applyPairEdits(detected: readonly Pair[], edits: PairEdits): Pai
 
 /** The level each target requires of a pair: the text level, or the non-text one for UI parts. */
 const REQUIRED: Record<PairKind, Record<ContrastTarget, string>> = {
-  text: { 'wcag-aa': 'aa', 'wcag-aaa': 'aaa', apca: 'lc60' },
-  ui: { 'wcag-aa': 'aa-large', 'wcag-aaa': 'aa-large', apca: 'lc45' },
+  // WCAG passes at AA; AAA is shown as a level reached, not required.
+  text: { wcag: 'aa', apca: 'lc60' },
+  ui: { wcag: 'aa-large', apca: 'lc45' },
 };
 
 export function requiredLevels(kind: PairKind, targets: readonly ContrastTarget[]): Level[] {

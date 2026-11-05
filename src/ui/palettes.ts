@@ -16,8 +16,8 @@ import { contrastControls, paletteContrast, parityPanel } from './contrast';
 import { defaultAnchor } from '../curves/model';
 import { openCurveEditor } from './curve-editor';
 import { tierNames } from '../model/tiers';
-import { reloadControl } from './loader';
-import { h, icon, masked, pinButton, plural, viewHead } from './dom';
+import { viewControls } from './loader';
+import { h, icon, masked, pinButton, plural, segmentedPick, viewHead } from './dom';
 import { FLAG_TIP, flagTip, levelTip, TIP } from './tips';
 
 /**
@@ -84,7 +84,7 @@ function previewed(p: Palette, colors: ReadonlyMap<string, ColorInfo>, gamut: Se
 
 export class TTPalettes extends HTMLElement {
   private unsubs: (() => void)[] = [];
-  private reload = reloadControl(TIP.reload);
+  private reload = viewControls();
   private resize = new ResizeObserver(() => paintAll(this));
   private frame = 0;
 
@@ -129,12 +129,14 @@ export class TTPalettes extends HTMLElement {
     this.replaceChildren(
       viewHead(masked(h('span', null, `${tierNames(v.model).base} tier`)), {
         summary: total ? `${plural(included.length, 'palette')} · ${plural(total, 'color')}` : null,
-        actions: [this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut), this.reload.el],
+        actions: this.reload.el,
       }),
       total && settings.contrast.length ? contrastControls(settings, set, contrast) : '',
       h(
         'div',
         { class: 'palettes-body' },
+        // How the palettes below are drawn: these belong to this view, so they sit on top of its colors, not in the header.
+        total ? h('div', { class: 'toolbar palette-display', role: 'group', 'aria-label': 'Color display' }, this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut)) : null,
         v.themes.length > 1 && v.activeTheme === ALL_THEMES
           ? h('p', { class: 'note' }, 'Base colors are shown for the first theme, ', masked(h('b', null, v.themes[0]!.name)), '. Pick a theme in the sidebar to see its own.')
           : null,
@@ -151,35 +153,15 @@ export class TTPalettes extends HTMLElement {
   }
 
   private formatToggle(current: Settings['colorFormat']) {
-    return h(
-      'div',
-      { class: 'segmented', role: 'radiogroup', 'aria-label': 'Color format' },
-      FORMATS.map((f) =>
-        h(
-          'button',
-          {
-            type: 'button',
-            role: 'radio',
-            'aria-checked': String(f.value === current),
-            class: f.value === current ? 'on' : undefined,
-            'data-tip': TIP.formats[f.value],
-            onclick: () => updateSettings({ colorFormat: f.value }),
-          },
-          f.label,
-        ),
-      ),
-    );
+    return segmentedPick('Format', FORMATS.map((f) => ({ ...f, tip: TIP.formats[f.value] })), current, (colorFormat) => updateSettings({ colorFormat }));
   }
 
   private gamutSelect(current: Settings['gamut']) {
-    const select = h(
-      'select',
-      { 'aria-label': 'Target gamut', 'data-tip': TIP.gamut },
-      h('option', { value: 'srgb', selected: current === 'srgb' }, 'Target: sRGB'),
-      h('option', { value: 'p3', selected: current === 'p3' }, 'Target: Display P3'),
-    );
-    select.addEventListener('change', () => updateSettings({ gamut: select.value as Settings['gamut'] }));
-    return select;
+    const gamuts: { value: Settings['gamut']; label: string }[] = [
+      { value: 'srgb', label: 'sRGB' },
+      { value: 'p3', label: 'Display P3' },
+    ];
+    return segmentedPick('Target', gamuts, current, (gamut) => updateSettings({ gamut }), TIP.gamut);
   }
 
   /** One step scheme: column headers, then each palette as a block of rows. */
@@ -279,7 +261,16 @@ export class TTPalettes extends HTMLElement {
         const c = colOf(pp.step);
         const score = result!.scores[pp.step]?.[end][level.metric] ?? 0;
         const m = marks.get(c) ?? { side: pp.side, badges: [] };
-        m.badges.push(h('span', { class: 'lvl', 'data-tip': `${levelTip(level)} First reached at ${pp.step}: ${formatContrast(score, level.metric)}. ${TIP.passPoint}` }, level.badge));
+        // The arrow points the way the passing steps run from here.
+        const arrow = h('span', { class: 'lvl-arrow', 'aria-hidden': 'true' }, pp.side === 'start' ? '→' : '←');
+        const passing = pp.side === 'start' ? 'this step and those after it pass' : 'this step and those before it pass';
+        m.badges.push(
+          h(
+            'span',
+            { class: 'lvl', 'aria-label': `${level.badge}: ${passing}`, 'data-tip': `${levelTip(level)} First reached at ${pp.step}: ${formatContrast(score, level.metric)}. ${TIP.passPoint}` },
+            pp.side === 'start' ? [level.badge, arrow] : [arrow, level.badge],
+          ),
+        );
         marks.set(c, m);
       }
       cells.push(

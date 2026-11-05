@@ -83,17 +83,18 @@ describe('pair checks', () => {
   const pairs = detectPairs(colorTokenIds([model]));
 
   it('holds text to the text level and UI parts to the non-text level', () => {
-    const text = checkPair(pairs.find((p) => p.fg === 'color.text.default')!, model, ['wcag-aa'])!;
+    const text = checkPair(pairs.find((p) => p.fg === 'color.text.default')!, model, ['wcag'])!;
     expect(text.values.wcag).toBeCloseTo(4.54, 2);
     expect(text.results.map((r) => [r.level.id, r.pass])).toEqual([['aa', true]]);
-    const icon = checkPair(pairs.find((p) => p.fg === 'color.icon.default')!, model, ['wcag-aa', 'wcag-aaa'])!;
+    const icon = checkPair(pairs.find((p) => p.fg === 'color.icon.default')!, model, ['wcag'])!;
     expect(icon.results.map((r) => r.level.id)).toEqual(['aa-large']);
     expect(icon.pass).toBe(true);
-    expect(checkPair(pairs.find((p) => p.fg === 'color.text.default')!, model, ['wcag-aaa'])!.pass).toBe(false);
+    // AAA is reported where reached, never required: 4.54 passes WCAG 2.2.
+    expect(text.pass).toBe(true);
   });
 
   it('is undefined when a token is missing in the theme', () => {
-    expect(checkPair({ id: 'x', fg: 'color.text.default', bg: 'color.bg.gone', kind: 'text', source: 'user' }, model, ['wcag-aa'])).toBeUndefined();
+    expect(checkPair({ id: 'x', fg: 'color.text.default', bg: 'color.bg.gone', kind: 'text', source: 'user' }, model, ['wcag'])).toBeUndefined();
   });
 
   it('blends a translucent foreground over its background', () => {
@@ -141,7 +142,7 @@ describe('composite border tokens', () => {
     const pairs = detectPairs(colorTokenIds([model]));
     const input = pairs.find((p) => p.fg === 'border.input')!;
     expect(input).toMatchObject({ bg: 'color.bg.default', kind: 'ui' });
-    expect(checkPair(input, model, ['wcag-aa'])!.values.wcag).toBeLessThan(3);
+    expect(checkPair(input, model, ['wcag'])!.values.wcag).toBeLessThan(3);
   });
 
   it('re-points only the color reference of a border', () => {

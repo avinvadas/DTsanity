@@ -25,7 +25,7 @@ export function analyze(files: SourceFile[], settings: Settings, scope: ThemeSco
   const withTokens = new Set([...model.tokens.values()].map((t) => t.fileId));
   for (const f of files) {
     if (!withTokens.has(f.id) && f.doc.root.kind === 'object' && !(f.format === 'legacy' && !f.converted) && !isStudioMetaFile(f)) {
-      modelIssues.push(makeIssue('info', 'format', 'no-tokens', `${f.name} contains no tokens (no “$value” anywhere).`, { fileId: f.id }));
+      modelIssues.push(makeIssue('info', 'format', 'no-tokens', `${f.name} has no “$value” anywhere.`, { fileId: f.id }));
     }
   }
   model.issues = [...modelIssues, ...rules];

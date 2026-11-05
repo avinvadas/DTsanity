@@ -42,6 +42,8 @@ export function level(l: number): ColorInfo {
 
 export interface EndCandidate {
   id: string;
+  /** The short name it is picked by: its step in a palette (`50`, `lightest`), else its last name segment. */
+  step: string;
   l: number;
   /** The token's own color, for its thumbnail. */
   info: ColorInfo;
@@ -59,7 +61,7 @@ export interface EndGroup {
  * colored palette (blue 50) is not neutral, however little chroma it has.
  */
 export function endCandidates(set: PaletteSet): EndGroup[] {
-  const cand = (s: Swatch): EndCandidate => ({ id: s.token.id, l: s.info.oklch.l, info: s.info });
+  const cand = (s: Swatch): EndCandidate => ({ id: s.token.id, step: s.step || s.token.path.at(-1) || s.token.id, l: s.info.oklch.l, info: s.info });
   const loose = neutralLoose(set).map(cand);
   return [
     ...neutralPalettes(set).map((p) => ({ label: p.name, tokens: p.swatches.map(cand) })),

@@ -47,8 +47,11 @@ const ICONS = {
     '<path d="M15.113 3.21l.094 .083l5.5 5.5a1 1 0 0 1 -1.175 1.59l-3.172 3.171l-1.424 3.797a1 1 0 0 1 -.158 .277l-.07 .08l-1.5 1.5a1 1 0 0 1 -1.32 .082l-.095 -.083l-2.793 -2.792l-3.793 3.792a1 1 0 0 1 -1.497 -1.32l.083 -.094l3.792 -3.793l-2.792 -2.793a1 1 0 0 1 -.083 -1.32l.083 -.094l1.5 -1.5a1 1 0 0 1 .258 -.187l.098 -.042l3.796 -1.425l3.171 -3.17a1 1 0 0 1 1.497 -1.26z"/>',
   curve: '<path d="M6.5 17.5c5 0 5 -11 11 -11"/><circle cx="4.5" cy="17.5" r="2"/><circle cx="19.5" cy="6.5" r="2"/>',
   'chevron-down': '<path d="M6 9l6 6l6 -6"/>',
+  x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
   copy: '<path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/>',
   check: '<path d="M5 12l5 5l10 -10"/>',
+  dots: '<path d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>',
+  refresh: '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>',
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
   download: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/>',
   token:
@@ -59,7 +62,9 @@ const ICONS = {
   'alert-triangle': '<path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/>',
 } as const;
 
-export function icon(name: keyof typeof ICONS): SVGSVGElement {
+export type IconName = keyof typeof ICONS;
+
+export function icon(name: IconName): SVGSVGElement {
   const t = document.createElement('template');
   // Filled variants are drawn as solid shapes, the rest as strokes.
   const paint = name.endsWith('-filled') ? 'fill="currentColor" stroke="none"' : 'fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"';
@@ -105,4 +110,42 @@ export function viewHead(title: Child, opts: { summary?: Child; actions?: Child 
     h('div', { class: 'vh-row' }, h('h1', { class: 'vh-title' }, title), h('div', { class: 'vh-actions' }, opts.actions ?? null)),
     h('div', { class: 'vh-summary' }, opts.summary ?? null),
   );
+}
+
+/**
+ * A labeled one-of-several choice, as in the view headers (color format,
+ * target gamut): a small caps label, then the options as a segmented control.
+ */
+export function segmentedPick<T extends string>(
+  label: string,
+  options: { value: T; label: string; tip?: string }[],
+  current: T,
+  pick: (value: T) => void,
+  tip?: string,
+): HTMLElement {
+  const id = `pick-${label.toLowerCase().replace(/\W+/g, '-')}`;
+  return h(
+    'div',
+    { class: 'seg-pick' },
+    h('span', { class: 'pick-label', id, 'data-tip': tip }, label),
+    h(
+      'div',
+      { class: 'segmented', role: 'radiogroup', 'aria-labelledby': id },
+      options.map((o) =>
+        h(
+          'button',
+          { type: 'button', role: 'radio', 'aria-checked': String(o.value === current), class: o.value === current ? 'on' : undefined, 'data-tip': o.tip, onclick: () => pick(o.value) },
+          o.label,
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * The one X button: remove, close or dismiss. An icon centered in a square
+ * target, muted until hovered; `label` names what it does for screen readers.
+ */
+export function xButton(label: string, onclick: (e: Event) => void, tip?: string, extra = ''): HTMLButtonElement {
+  return h('button', { type: 'button', class: `x-btn${extra ? ` ${extra}` : ''}`, 'aria-label': label, 'data-tip': tip, onclick }, icon('x'));
 }

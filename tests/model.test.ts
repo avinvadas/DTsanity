@@ -71,7 +71,7 @@ describe('broken references', () => {
   });
 
   it('describes the cycle and marks everything downstream broken', () => {
-    expect(issue('circular-reference')[0]!.message).toBe('Circular reference: {color.loop-a} → {color.loop-b} → {color.loop-a}.');
+    expect(issue('circular-reference')[0]!.message).toBe('{color.loop-a} → {color.loop-b} → {color.loop-a}');
     for (const id of ['color.loop-a', 'color.loop-b', 'color.downstream']) {
       expect(m.tokens.get(id)!.resolution).toBe('broken');
       expect(m.tokens.get(id)!.value).toBeUndefined();
@@ -82,7 +82,7 @@ describe('broken references', () => {
     expect(issue('invalid-node')[0]).toMatchObject({ target: 'color.stray' });
     expect(issue('duplicate-key')[0]).toMatchObject({ target: 'color.dup' });
     expect(m.tokens.get('color.dup')!.rawValue).toEqual({ colorSpace: 'srgb', components: [1, 1, 1] });
-    expect(issue('alias-type-mismatch')[0]!.message).toContain('“size.wrong” has type “dimension”');
+    expect(issue('alias-type-mismatch')[0]!.message).toBe('Is “dimension”, but {color.base} is “color”.');
   });
 });
 

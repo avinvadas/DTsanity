@@ -1,4 +1,4 @@
-import { makeIssue, parseAlias, quote } from '../model/build';
+import { makeIssue, parseAlias } from '../model/build';
 import type { Issue, Model } from '../model/types';
 
 /**
@@ -18,7 +18,7 @@ export function referenceRules(model: Model): Issue[] {
           'warning',
           'references',
           'embedded-reference',
-          `${quote(t.id)} has a reference inside a longer text (“${embedded}”). DTCG references must be the whole value, so tools won't resolve it.`,
+          `“${embedded}”: a reference must be the whole value, or tools won't resolve it.`,
           at,
         ),
       );
@@ -28,7 +28,7 @@ export function referenceRules(model: Model): Issue[] {
       const target = model.tokens.get(ref);
       if (!target?.deprecated) continue;
       const why = typeof target.deprecated === 'string' ? ` (${target.deprecated})` : '';
-      issues.push(makeIssue('info', 'references', 'deprecated-reference', `${quote(t.id)} references ${quote(ref)}, which is deprecated${why}.`, at));
+      issues.push(makeIssue('info', 'references', 'deprecated-reference', `{${ref}} is deprecated${why}.`, at));
     }
   }
   return issues;

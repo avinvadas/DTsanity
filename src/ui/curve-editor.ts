@@ -31,7 +31,7 @@ import { clearPreview, clearPreviewColors, preview, setPreview } from '../state/
 import { displayGamut, paintAll, swatchCanvas } from './canvas';
 import { CurveCanvas } from './curve-canvas';
 import { collapsible } from './collapsible';
-import { h, masked, pinButton, plural, type Child } from './dom';
+import { h, masked, pinButton, plural, xButton, type Child } from './dom';
 import { CURVE_TIP } from './tips';
 
 /**
@@ -247,7 +247,7 @@ class CurveEditor {
         (this.title = h('span', { class: 'ce-channel' })),
         h('span', { class: 'meta' }, 'Live on the row'),
         h('span', { class: 'spacer' }),
-        h('button', { type: 'button', class: 'ghost', onclick: close, 'aria-label': 'Revert and close', 'data-tip': CURVE_TIP.revert }, '✕'),
+        xButton('Revert and close', close, CURVE_TIP.revert),
       ),
       h(
         'p',

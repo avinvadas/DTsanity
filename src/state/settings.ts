@@ -24,9 +24,9 @@ export function loadSettings(): Settings {
       acceptLegacy: typeof parsed.acceptLegacy === 'boolean' ? parsed.acceptLegacy : DEFAULT_SETTINGS.acceptLegacy,
       colorFormat: oneOf(parsed.colorFormat, ['oklch', 'hex', 'rgb'] as const, DEFAULT_SETTINGS.colorFormat),
       gamut: oneOf(parsed.gamut, ['srgb', 'p3'] as const, DEFAULT_SETTINGS.gamut),
-      contrast: Array.isArray(parsed.contrast)
-        ? (['wcag-aa', 'wcag-aaa', 'apca'] as const).filter((t) => (parsed.contrast as unknown[]).includes(t))
-        : DEFAULT_SETTINGS.contrast,
+      // One target at a time; preferences saved when several could be on keep the first of them.
+      // WCAG AA and AAA were separate targets once; both are now the one WCAG 2.2 target.
+      contrast: [oneOf(Array.isArray(parsed.contrast) ? String(parsed.contrast[0]).replace(/^wcag-aa?a$/, 'wcag') : undefined, ['wcag', 'apca'] as const, DEFAULT_SETTINGS.contrast[0]!)],
       cvdDistance:
         typeof parsed.cvdDistance === 'number' && parsed.cvdDistance > 0 && parsed.cvdDistance <= 1 ? parsed.cvdDistance : DEFAULT_SETTINGS.cvdDistance,
     };

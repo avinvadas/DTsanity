@@ -1,7 +1,6 @@
 import { ALL_THEMES, setActiveTheme, store, type AppState } from '../state/app';
 import { pairsOf, siblingFails } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
-import { targetToggles } from './contrast';
 import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
 import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
@@ -204,7 +203,7 @@ export class TTNav extends HTMLElement {
 
     this.replaceChildren(
       h('nav', { class: 'nav', 'aria-label': 'Sections' }, items.slice(0, RESULT_VIEWS), h('div', { class: 'nav-sep', role: 'separator' }), items.slice(RESULT_VIEWS)),
-      h('div', { class: 'nav-checks' }, this.themePicker(v), this.contrastPicker(v)),
+      h('div', { class: 'nav-checks' }, this.themePicker(v)),
       has ? this.loopActions(v) : '',
     );
   }
@@ -250,11 +249,6 @@ export class TTNav extends HTMLElement {
     );
     // The prompt is the main way out: it works whether or not anything was fixed here.
     return h('div', { class: 'nav-actions' }, copy, save);
-  }
-
-  /** Contrast targets: a global setting, so it sits in the sidebar rather than moving from view to view. */
-  private contrastPicker(v: View) {
-    return h('div', { class: 'contrast-pick', role: 'group', 'aria-labelledby': 'tt-contrast-label' }, h('span', { class: 'pick-label', id: 'tt-contrast-label' }, 'Contrast'), targetToggles(v.settings));
   }
 
   /** Active theme, shown wherever results depend on it. Theme names come from the files, so the picker is masked. */

@@ -80,7 +80,7 @@ export function legacyToDtcg(doc: JDoc): { doc: JDoc; notes: ConversionNote[] } 
     let dtcgType = typeName !== undefined ? LEGACY_TO_DTCG[typeName] : undefined;
     // Untyped Style Dictionary colors are unambiguous; type them so they convert.
     if (typeName === undefined && looksLikeHex(rawValue)) dtcgType = 'color';
-    const note = (message: string) => notes.push({ keyPath, message: `${keyPath.join('.')}: ${message}` });
+    const note = (message: string) => notes.push({ keyPath, message });
     const extras: Record<string, unknown> = {};
     if (typeName !== undefined && dtcgType !== typeName) extras.type = typeName;
     const hasDescription = !!entry(node, 'description');

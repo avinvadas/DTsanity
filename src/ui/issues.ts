@@ -3,7 +3,8 @@ import { ALL_THEMES, applyFixes, setActiveTheme, store, undo, type AppState } fr
 import { mergeModels } from '../themes/merge';
 import { h, masked, plural, severityIcon, viewHead } from './dom';
 import { findingCards, findings, type FindingKind } from './findings';
-import { reloadControl } from './loader';
+import { issueData, issueDetail, issueHead } from './issue';
+import { viewControls } from './loader';
 import { goTo } from './nav';
 import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
 
@@ -22,7 +23,7 @@ const CATEGORY_LABEL: Record<Category, string> = {
 
 export class TTIssues extends HTMLElement {
   private unsubs: (() => void)[] = [];
-  private reload = reloadControl(TIP.reload);
+  private reload = viewControls();
 
   connectedCallback() {
     this.unsubs.push(
@@ -138,12 +139,13 @@ export class TTIssues extends HTMLElement {
     const fix = i.fix;
     return h(
       'li',
-      { class: `issue ${i.severity}` },
-      h('span', { class: `sev ${i.severity}`, 'data-tip': SEVERITY_TIP[i.severity] }, severityIcon(i.severity), SEVERITY_LABEL[i.severity]),
+      { class: `issue ${i.severity}`, ...issueData(i, where) },
+      h('span', { class: `sev ${i.severity}`, role: 'img', 'aria-label': SEVERITY_LABEL[i.severity], 'data-tip': SEVERITY_TIP[i.severity] }, severityIcon(i.severity)),
       h(
         'div',
         { class: 'body' },
-        h('span', { class: 'msg' }, i.themes ? h('span', { class: 'theme-tag', 'data-tip': TIP.themeTag }, `${i.themes.join(', ')} only`) : null, i.message),
+        issueHead(i, i.themes ? h('span', { class: 'theme-tag', 'data-tip': TIP.themeTag }, `${i.themes.join(', ')} only`) : null),
+        issueDetail(i),
         fix
           ? h(
               'div',

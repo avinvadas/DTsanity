@@ -24,7 +24,7 @@ describe('rules on the violations fixture', () => {
     ['invalid-name color.with.dot', 'error', 'Rename to “with-dot”'],
     ['unknown-property color.typo.$valeu', 'warning', 'Rename to “$value”'],
     ['legacy-property color.half-legacy.value', 'error', 'Rename to “$value”'],
-    ['token-has-children color.legacy-desc.description', 'error', 'Rename to “$description”'],
+    ['legacy-property color.legacy-desc.description', 'error', 'Rename to “$description”'],
     ['empty-group misc.empty', 'info', 'Remove the empty group'],
     ['legacy-value color.hex-string', 'warning', 'Convert to the DTCG form'],
     ['invalid-value color.bytes', 'error', 'Fix the value'],

@@ -14,7 +14,7 @@ describe('fix prompt', () => {
     expect(count).toBeGreaterThan(0);
     expect(text).toMatch(/^# Corrections for design token files/);
     expect(text).toContain('## Errors');
-    expect(text).toContain('dtcg-broken.tokens.json › `');
+    expect(text).toMatch(/dtcg-broken\.tokens\.json:\d+ › `[^`]+`: Broken reference \[unresolved-reference\]\. \{/);
   });
 
   it('lists failing contrast pairs with the levels they miss', () => {

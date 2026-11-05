@@ -14,6 +14,8 @@ export interface SwatchOption {
   label: string;
   /** Secondary text after the label, such as a lightness. */
   meta?: string;
+  /** The full name, as a tooltip, when the label is a short form of it. */
+  title?: string;
   info: ColorInfo;
   disabled?: boolean;
 }
@@ -37,9 +39,9 @@ export function swatchSelect(opts: {
   const shown = chosen ?? opts.fallback;
   const empty = !all.length;
 
-  const face = (o: { label: string; meta?: string; info: ColorInfo }) => [
+  const face = (o: { label: string; meta?: string; title?: string; info: ColorInfo }) => [
     swatchCanvas(o.info, opts.gamut, false),
-    h('span', { class: 'ss-label' }, o.label),
+    h('span', { class: 'ss-label', title: o.title }, o.label),
     o.meta ? h('span', { class: 'ss-meta' }, o.meta) : null,
   ];
 

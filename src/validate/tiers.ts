@@ -1,4 +1,4 @@
-import { makeIssue, quote } from '../model/build';
+import { makeIssue } from '../model/build';
 import { MAY_REFERENCE, TIER_LABEL, tiersOf } from '../model/tiers';
 import type { Issue, Model } from '../model/types';
 
@@ -29,7 +29,7 @@ export function tierRules(model: Model): Issue[] {
           'warning',
           'references',
           'tier-base-reference',
-          `${quote(t.id)} is a base token but points at ${t.refs.map(quote).join(', ')}. Base tokens hold values of their own; semantic and component tokens point at them.`,
+          `Points at ${t.refs.map((r) => `{${r}}`).join(', ')}; base tokens hold their own values.`,
           at,
           fix,
         ),
@@ -44,7 +44,7 @@ export function tierRules(model: Model): Issue[] {
           'warning',
           'references',
           'tier-reference',
-          `${quote(t.id)} is a ${TIER_LABEL[tier].toLowerCase()} token but points at ${quote(ref)}, a ${TIER_LABEL[to].toLowerCase()} token. ${TIER_LABEL[tier]} tokens point at ${MAY_REFERENCE[tier].map((x) => TIER_LABEL[x].toLowerCase()).join(' or ')} tokens.`,
+          `Points at ${TIER_LABEL[to].toLowerCase()} token {${ref}}; ${TIER_LABEL[tier].toLowerCase()} tokens point at ${MAY_REFERENCE[tier].map((x) => TIER_LABEL[x].toLowerCase()).join(' or ')}.`,
           at,
         ),
       );
@@ -55,7 +55,7 @@ export function tierRules(model: Model): Issue[] {
           'info',
           'references',
           'tier-hardcoded',
-          `${quote(t.id)} is a ${TIER_LABEL[tier].toLowerCase()} token with a value of its own. Pointing it at a base token keeps the value in one place.`,
+          `${TIER_LABEL[tier]} token with its own value; point it at a base token.`,
           at,
         ),
       );

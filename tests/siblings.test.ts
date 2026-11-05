@@ -48,6 +48,6 @@ describe('checks with color-vision deficiencies', () => {
   it('checks pair contrast on the simulated colors', () => {
     const pair = detectPairs(['color.bg.danger', 'color.text.danger', 'color.bg.default']).find((p) => p.fg === 'color.text.danger')!;
     // Same color on same color: 1:1 whatever the vision.
-    for (const v of ['normal', 'protan', 'achroma'] as const) expect(checkPair(pair, model, ['wcag-aa'], v)!.values.wcag).toBeCloseTo(1, 3);
+    for (const v of ['normal', 'protan', 'achroma'] as const) expect(checkPair(pair, model, ['wcag'], v)!.values.wcag).toBeCloseTo(1, 3);
   });
 });

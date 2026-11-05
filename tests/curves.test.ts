@@ -2,7 +2,7 @@ import { inGamut } from 'colorjs.io/fn';
 import { describe, expect, it } from 'vitest';
 import { colorInfo } from '../src/color/format';
 import { resolveEnds } from '../src/contrast/ends';
-import { levelsFor } from '../src/contrast/levels';
+import { levelById } from '../src/contrast/levels';
 import { contrast } from '../src/contrast/metrics';
 import {
   contrastTargetedL,
@@ -161,7 +161,7 @@ describe('contrast-targeted lightness', () => {
   const set = detectPalettes(analyze([loadText(JSON.stringify(doc))], DEFAULT_SETTINGS), {}, 'srgb');
   const gray = set.palettes[0]!;
   const ends = resolveEnds({ palettes: [], loose: [] }, {});
-  const aa = levelsFor(['wcag-aa'])[0]!;
+  const aa = levelById('aa')!;
 
   it('puts a target step just past the threshold on the light end', () => {
     const s0 = setAnchorStep(gray, initialState(gray), 0);
@@ -192,7 +192,7 @@ describe('contrast-targeted lightness', () => {
     const s0 = setAnchorStep(gray, initialState(gray), 3);
     expect(contrastTargetedL(gray, s0, [{ index: 3, end: ends.light }], aa, 'srgb').notes.join(' ')).toMatch(/pinned/);
     const lightEnd = { ...ends.light, info: colorInfo({ colorSpace: 'srgb', components: [0.3, 0.3, 0.3] })! };
-    const aaa = levelsFor(['wcag-aaa'])[0]!;
+    const aaa = levelById('aaa')!;
     expect(contrastTargetedL(gray, s0, [{ index: 6, end: lightEnd }], aaa, 'srgb').notes.join(' ')).toMatch(/can't reach/);
   });
 });
