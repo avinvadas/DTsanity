@@ -1,12 +1,19 @@
+import { VISIONS } from '../color/cvd';
+import { formatContrast } from '../contrast/metrics';
 import type { Category, Fix, Issue, Model, Severity } from '../model/types';
 import { ALL_THEMES, applyFixes, setActiveTheme, store, undo, type AppState } from '../state/app';
+import type { PairRow, SiblingRow } from '../state/pairs';
 import { mergeModels } from '../themes/merge';
 import { h, masked, plural, severityIcon, viewHead } from './dom';
-import { findingCards, findings, type FindingKind } from './findings';
+import { findingCards, findings, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
 import { goTo } from './nav';
 import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
+
+const isTier = (i: Issue) => i.code.startsWith('tier-');
+/** Where each pair tier's findings are worked on. */
+const TIER_VIEW = { semantic: { view: 'semantic', label: 'Sys tier' }, component: { view: 'components', label: 'Component tier' } } as const;
 
 const SEVERITIES: Severity[] = ['error', 'warning', 'info'];
 const SEVERITY_LABEL: Record<Severity, string> = { error: 'Error', warning: 'Warning', info: 'Info' };
@@ -67,19 +74,101 @@ export class TTIssues extends HTMLElement {
     );
   }
 
-  /** Format and tier issues are listed here; contrast and color blindness in the first tier view that has them. */
+  /** Every kind of finding is listed on this page: each card scrolls to its section. Info notes follow in their own. */
   private go(kind: FindingKind) {
-    if (kind === 'format' || kind === 'tiers') {
-      const target = this.querySelector(kind === 'tiers' ? '#issues-references' : '.issue-group');
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    const f = findings(store.get());
-    const rows = kind === 'contrast' ? f.contrast : f.vision;
-    const tier = rows[0]?.tier ?? f.groups[0]?.tier ?? 'semantic';
-    const view = tier === 'component' ? 'components' : 'semantic';
-    goTo(view);
-    if (kind === 'vision') requestAnimationFrame(() => document.querySelector(`.view[data-view="${view}"] .vision`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    const target = this.querySelector(kind === 'format' ? '.issue-group, #issues-format' : `#issues-${kind}`);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    (target?.querySelector('h3') as HTMLElement | null)?.focus({ preventScroll: true });
+  }
+
+  /** A section of this page: its heading (with a count, and any actions), then its list, or a line saying it passes. */
+  private group(id: string, title: string, tip: string | undefined, n: number, actions: (Node | null)[], list: HTMLElement | null, clear: string) {
+    return h(
+      'section',
+      { class: 'issue-group', id },
+      h(
+        'div',
+        { class: 'group-head' },
+        h('h3', { tabindex: '-1', 'data-tip': tip }, title, n ? h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(n)) : null),
+        h('div', { class: 'group-actions' }, actions),
+      ),
+      list ?? h('p', { class: 'empty' }, clear),
+    );
+  }
+
+  /** Links to the tier views where these pairs are worked on, one per tier they're in. */
+  private tierLinks(tiers: ('semantic' | 'component')[], vision = false) {
+    return [...new Set(tiers)].map((t) =>
+      h(
+        'a',
+        {
+          class: 'group-link',
+          href: `#${TIER_VIEW[t].view}`,
+          onclick: (e: Event) => {
+            e.preventDefault();
+            goTo(TIER_VIEW[t].view);
+            if (vision) requestAnimationFrame(() => document.querySelector(`.view[data-view="${TIER_VIEW[t].view}"] .vision`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+          },
+        },
+        `Open in ${TIER_VIEW[t].label} →`,
+      ),
+    );
+  }
+
+  /** Contrast and color blindness: the failing pairs, each in one row, with links to the tier views that edit them. */
+  private pairGroups(f: Findings, themes: string[], min: number) {
+    const pairWhere = (r: PairRow) => (r.component ? `${TIER_VIEW[r.tier].label} · ${r.component}` : TIER_VIEW[r.tier].label);
+    const contrastRow = (r: PairRow) => {
+      const misses = r.seen.normal.flatMap((c, i) => (c && !c.pass ? [{ theme: themes[i], miss: c.results.find((x) => !x.pass)! }] : []));
+      const sev: Severity = r.pair.kind === 'text' ? 'error' : 'warning';
+      const detail = misses
+        .map(({ theme, miss }) => `${theme ? `${theme}: ` : ''}${formatContrast(miss.value, miss.level.metric)} of ${miss.level.threshold} (${miss.level.short})`)
+        .join(' · ');
+      return this.pairRow(sev, r.pair.kind === 'text' ? 'Low text contrast' : 'Low UI contrast', r.pair.fg, `On ${r.pair.bg}. ${detail}`, pairWhere(r));
+    };
+    const visionRow = (r: PairRow) => {
+      const names = r.cvdFails.map((v) => VISIONS.find((x) => x.id === v)!.label);
+      const where = themes.length ? ` in ${r.cvdFails.flatMap((v) => r.seen[v].map((c, i) => (c && !c.pass ? themes[i] : null))).filter((x, i, a) => x && a.indexOf(x) === i).join(', ')}` : '';
+      return this.pairRow('warning', 'Fails with color blindness', r.pair.fg, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`, pairWhere(r));
+    };
+    const groupRow = (g: SiblingRow) => {
+      const lines = g.checks.flatMap((c, i) => {
+        const fails = (c?.results ?? []).filter((x) => !x.pass && x.vision !== 'achroma');
+        return fails.length ? [`${themes[i] ? `${themes[i]}: ` : ''}${fails.map((x) => VISIONS.find((v) => v.id === x.vision)!.short).join(', ')}`] : [];
+      });
+      return this.pairRow('warning', 'Status colors too alike', g.group.id, `${g.group.members.join(', ')} need a difference of ${min}. ${lines.join(' · ')}`, g.component ? `${TIER_VIEW[g.tier].label} · ${g.component}` : TIER_VIEW[g.tier].label);
+    };
+    const vision = [...f.vision.map(visionRow), ...f.groups.map(groupRow)];
+    return [
+      this.group(
+        'issues-contrast',
+        'Contrast',
+        undefined,
+        f.contrast.length,
+        this.tierLinks(f.contrast.map((r) => r.tier)),
+        f.contrast.length ? masked(h('ul', { class: 'issue-list' }, f.contrast.map(contrastRow))) : null,
+        'Every pair passes.',
+      ),
+      this.group(
+        'issues-vision',
+        'Color blindness',
+        undefined,
+        vision.length,
+        this.tierLinks([...f.vision.map((r) => r.tier), ...f.groups.map((g) => g.tier)], true),
+        vision.length ? masked(h('ul', { class: 'issue-list' }, vision)) : null,
+        'Pairs and status colors stay apart.',
+      ),
+    ];
+  }
+
+  private pairRow(sev: Severity, title: string, target: string, detail: string, where: string) {
+    return h(
+      'li',
+      { class: `issue ${sev}`, 'data-severity': sev, 'data-target': target },
+      h('span', { class: `sev ${sev}`, role: 'img', 'aria-label': SEVERITY_LABEL[sev], 'data-tip': SEVERITY_TIP[sev] }, severityIcon(sev)),
+      h('div', { class: 'body' }, h('span', { class: 'issue-head' }, h('strong', { class: 'issue-title' }, title), h('code', { class: 'issue-target' }, target)), h('p', { class: 'issue-detail' }, detail)),
+      h('span', { class: 'where' }, where),
+    );
   }
 
   private render(model: Model, v: AppState) {
@@ -92,46 +181,69 @@ export class TTIssues extends HTMLElement {
       return i.pos ? `${name}:${i.pos.line}:${i.pos.col}` : name;
     };
 
+    // Format issues by category; tier issues get their own section, like the Tiers card.
     const groups = CATEGORIES.map((c) => ({
       category: c,
       issues: model.issues
-        .filter((i) => i.category === c)
+        .filter((i) => i.category === c && !isTier(i) && i.severity !== 'info')
         .sort((a, b) => SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity) || (a.pos?.offset ?? 0) - (b.pos?.offset ?? 0)),
     })).filter((g) => g.issues.length > 0);
+    const tierIssues = model.issues.filter((i) => isTier(i) && i.severity !== 'info').sort((a, b) => SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity));
+    // Notes, not problems: kept apart at the end, so each section above counts what its card counts.
+    const infoIssues = model.issues.filter((i) => i.severity === 'info').sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category) || (a.pos?.offset ?? 0) - (b.pos?.offset ?? 0));
+    const f = findings(v);
+    const themes = v.themeModels.map((m) => m.theme.name);
+    const fixAll = (fixes: Fix[], what: string) =>
+      fixes.length > 1
+        ? h('button', { type: 'button', class: 'fix-all', 'data-tip': TIP.fixAll, onclick: () => this.apply(fixes, `Fix ${fixes.length} ${what} issues`) }, `Apply ${fixes.length} fixes`)
+        : null;
+    const fixesOf = (issues: Issue[]) => issues.map((i) => i.fix).filter((x): x is Fix => !!x);
 
     this.replaceChildren(
       viewHead('Issues', {
         summary: SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
         actions: this.reload.el,
       }),
-      findingCards(findings(v), (k) => this.go(k), (k) => (k === 'format' || k === 'tiers' ? '#issues' : '#semantic')),
+      findingCards(f, (k) => this.go(k), () => '#issues'),
       this.otherThemes(v) ?? '',
-      groups.length === 0
-        ? h('p', { class: 'empty' }, model.files.length ? 'No problems found. The files follow the DTCG format.' : '')
-        : h(
-            'div',
-            { class: 'issue-groups' },
-            groups.map(({ category, issues }) => {
-              const fixes = issues.map((i) => i.fix).filter((f): f is Fix => !!f);
-              return h(
-                'section',
-                { class: 'issue-group', id: `issues-${category}` },
-                h(
-                  'div',
-                  { class: 'group-head' },
-                  h('h3', { 'data-tip': CATEGORY_TIP[category] }, CATEGORY_LABEL[category], h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length))),
-                  fixes.length > 1
-                    ? h(
-                        'button',
-                        { type: 'button', class: 'fix-all', 'data-tip': TIP.fixAll, onclick: () => this.apply(fixes, `Fix ${fixes.length} ${CATEGORY_LABEL[category].toLowerCase()} issues`) },
-                        `Apply ${fixes.length} fixes`,
-                      )
-                    : null,
-                ),
+      h(
+        'div',
+        { class: 'issue-groups' },
+        groups.length
+          ? groups.map(({ category, issues }) =>
+              this.group(
+                `issues-${category}`,
+                CATEGORY_LABEL[category],
+                CATEGORY_TIP[category],
+                issues.length,
+                [fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase())],
                 masked(h('ul', { class: 'issue-list' }, issues.map((i) => this.row(i, where(i))))),
-              );
-            }),
-          ),
+                '',
+              ),
+            )
+          : this.group('issues-format', 'Format', undefined, 0, [], null, model.files.length ? 'The files follow the DTCG format.' : ''),
+        this.group(
+          'issues-tiers',
+          'Tiers',
+          undefined,
+          tierIssues.length,
+          [fixAll(fixesOf(tierIssues), 'tier')],
+          tierIssues.length ? masked(h('ul', { class: 'issue-list' }, tierIssues.map((i) => this.row(i, where(i))))) : null,
+          'Each tier points the right way.',
+        ),
+        ...this.pairGroups(f, themes, v.settings.cvdDistance),
+        infoIssues.length
+          ? this.group(
+              'issues-info',
+              'Info',
+              SEVERITY_TIP.info,
+              infoIssues.length,
+              [fixAll(fixesOf(infoIssues), 'info')],
+              masked(h('ul', { class: 'issue-list' }, infoIssues.map((i) => this.row(i, where(i))))),
+              '',
+            )
+          : null,
+      ),
     );
   }
 
