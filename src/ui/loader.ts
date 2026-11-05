@@ -143,8 +143,8 @@ store.select(
  * be read (missing, or damaged): then it says which, as an error.
  * Returns it and an unsubscribe.
  */
-export function fileStatusLine(): { el: HTMLElement; unsub: () => void } {
-  const el = h('p', { class: 'files-status', role: 'status' });
+export function fileStatusLine(tag: 'p' | 'span' = 'p'): { el: HTMLElement; unsub: () => void } {
+  const el = h(tag, { class: 'files-status', role: 'status' });
   const paint = () => {
     const { files, loadErrors } = store.get();
     const { at } = fileStatus.get();

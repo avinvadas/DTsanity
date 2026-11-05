@@ -10,7 +10,7 @@ import { displayGamut, paintAll, pairCanvas } from './canvas';
 import { findingCards, findings, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { targetSelect } from './contrast';
-import { filesBar, ingest, reloadAll } from './loader';
+import { fileStatusLine, ingest } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon, xButton } from './dom';
 import { logo } from './logo';
@@ -18,7 +18,7 @@ import { logo } from './logo';
 /**
  * The phone layout (narrow screens, whatever the input): the core loop on
  * one page. Cards for the four kinds of findings on top, each a link to its
- * section; the files (the list; a + in its heading adds more); then every finding
+ * section, under the files' status, which opens the file list (and Add files); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
  * blindness), each card with a single action. Copy fix prompt (the main action)
  * and Get fixed files stay in a fixed footer. The tools for fine control (curve editor,
@@ -54,11 +54,22 @@ export class TTMobile extends HTMLElement {
       this.picker.value = '';
     },
   });
-  // Between the header and the findings: the files' count and last change, and their actions (no Clear all on phones).
-  private bar = filesBar([
-    { label: 'Add files…', icon: 'plus', act: () => this.picker.click() },
-    { label: 'Reload files', icon: 'refresh', act: () => void reloadAll() },
-  ]);
+  // Between the header and the findings: the files' count and last change, a handle that opens the file list.
+  private status = fileStatusLine('span');
+  private expanded = false;
+  private toggle = h(
+    'button',
+    {
+      type: 'button',
+      class: 'm-files-toggle',
+      'aria-expanded': 'false',
+      'aria-controls': 'm-files-panel',
+      onclick: () => this.setExpanded(!this.expanded),
+    },
+    this.status.el,
+    h('span', { class: 'm-chevron' }, icon('chevron')),
+  );
+  private bar = h('section', { class: 'files-bar m-files' }, this.toggle, h('div', { id: 'm-files-panel', class: 'm-files-panel', hidden: true }, this.fileSlot));
   private issueSlot = h('div', { class: 'm-stack' });
   private toastSlot = h('div', null);
   private footSlot = h('div', null);
@@ -78,7 +89,7 @@ export class TTMobile extends HTMLElement {
   disconnectedCallback() {
     this.media.removeEventListener('change', this.onMedia);
     this.unsub?.();
-    this.bar.unsub();
+    this.status.unsub();
   }
 
   private say(text: string, undoable = false) {
@@ -99,7 +110,7 @@ export class TTMobile extends HTMLElement {
       this.built = true;
       this.replaceChildren(
         h('header', { class: 'm-head' }, logo(), this.picker),
-        h('main', { class: 'm-body' }, this.lede, this.bar.el, this.navSlot, this.fileSlot, this.loadSection, this.issueSlot),
+        h('main', { class: 'm-body' }, this.lede, this.bar, this.navSlot, this.loadSection, this.issueSlot),
         this.toastSlot,
         this.footSlot,
       );
@@ -108,7 +119,7 @@ export class TTMobile extends HTMLElement {
     const has = s.files.length > 0;
     this.lede.hidden = has;
     this.loadSection.hidden = has;
-    this.bar.el.hidden = !has;
+    this.bar.hidden = !has;
     const found = has ? findings(s) : undefined;
     const cards = found ? findingCards(found, (k) => document.getElementById(`m-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), (k) => `#m-${k}`) : null;
     // The target every contrast finding is measured against, on the line that counts them.
@@ -130,25 +141,19 @@ export class TTMobile extends HTMLElement {
     paintAll(this);
   }
 
-  /** The loaded files, each removable; the + in the heading adds more, in the X's column. */
+  private setExpanded(open: boolean) {
+    this.expanded = open;
+    this.toggle.setAttribute('aria-expanded', String(open));
+    (this.toggle.nextElementSibling as HTMLElement).hidden = !open;
+  }
+
+  /** The loaded files, each removable, then a row that adds more. */
   private files(s: AppState) {
     return h(
-      'section',
-      { class: 'm-section' },
-      h(
-        'h2',
-        { class: 'm-section-head m-files-head' },
-        h('span', null, 'Files'),
-        h('span', { class: 'm-n' }, String(s.files.length)),
-        h('button', { type: 'button', class: 'x-btn m-add', 'aria-label': 'Add files', onclick: () => this.picker.click() }, icon('plus')),
-      ),
-      masked(
-        h(
-          'ul',
-          { class: 'm-filelist' },
-          s.files.map((f) => h('li', null, h('span', null, f.name), isUnchanged(f) ? null : h('span', { class: 'badge changed' }, 'Edited'), xButton('Remove file', () => removeFile(f.id)))),
-        ),
-      ),
+      'ul',
+      { class: 'm-filelist' },
+      s.files.map((f) => masked(h('li', null, h('span', null, f.name), isUnchanged(f) ? null : h('span', { class: 'badge changed' }, 'Edited'), xButton('Remove file', () => removeFile(f.id))))),
+      h('li', { class: 'm-add-row' }, h('button', { type: 'button', class: 'm-add-file', onclick: () => this.picker.click() }, icon('plus'), 'Add files')),
     );
   }
 

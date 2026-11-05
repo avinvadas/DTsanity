@@ -1375,12 +1375,29 @@ tt-mobile .finding-cards { grid-template-columns: 1fr 1fr; }
 .m-filelist li span:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 /* On phones the X keeps a finger-sized target; the icon stays the same. */
 .m-filelist .x-btn { width: 40px; height: 40px; min-height: 40px; }
-/* The Files heading ends with a +, in the same column and at the same size as the rows' X. */
-.m-files-head .m-add { margin-left: auto; width: 40px; height: 40px; min-height: 40px; }
-/* Phone files bar: the touch-size menu button. */
-tt-mobile .files-bar .more-btn { width: 40px; height: 40px; min-height: 40px; }
-/* The phone files bar is a 4rem band right under the header (in place of the body's top padding), its separator then the usual gap to the findings. */
-tt-mobile .files-bar { height: var(--header-h); box-sizing: border-box; margin-top: calc(-1 * var(--space-4)); }
+/* Phone files bar: the status is a handle that opens the file list; the chevron turns down when open. */
+.m-files-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  width: 100%; height: var(--header-h); padding: 0; border: 0; border-radius: 0; background: none;
+  color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.m-files-toggle:hover:not(:disabled), .m-files-toggle:focus-visible:not(:disabled) { background: none; }
+.m-files-toggle:hover .m-chevron { color: var(--text); }
+.m-chevron { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; color: var(--muted); }
+.m-chevron .icon { width: 18px; height: 18px; transition: transform 0.15s ease; }
+.m-files-toggle[aria-expanded='true'] .m-chevron .icon { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .m-chevron .icon { transition: none; } }
+.m-files-panel .m-filelist li:first-child { border-top: 1px solid var(--border); }
+.m-files-panel .m-filelist li:last-child { border-bottom: 0; }
+.m-add-row { padding: var(--space-2) 0; }
+/* Add files is a regular secondary button (outline, hover tint), at touch height. */
+.m-add-file { min-height: 40px; font-family: var(--sans); }
+.m-add-file .icon { width: 18px; height: 18px; }
+/* The status is the handle, so it reads as a control; the file names under it are quieter. */
+tt-mobile .m-files-toggle .files-status { color: var(--text); font-size: var(--font-base); font-weight: 600; }
+.m-files-panel .m-filelist li > span:first-child { color: var(--muted); }
+/* The phone files bar starts right under the header (in place of the body's top padding), its separator then the usual gap to the findings. */
+tt-mobile .files-bar { display: block; box-sizing: border-box; margin-top: calc(-1 * var(--space-4)); }
 tt-mobile .files-bar[hidden] { display: none; }
 /* Phone findings: the count on the left, the contrast target it stands against on the right. */
 .m-findings-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
