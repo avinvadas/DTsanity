@@ -7,7 +7,7 @@ import { glyphOf } from '../semantic/pairs';
 import { applyFixes, removeFile, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas } from './canvas';
-import { findingCards, findings, type Findings } from './findings';
+import { allClear, allClearNote, findingCards, findings, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { targetSelect } from './contrast';
 import { fileStatusLine, ingest } from './loader';
@@ -274,16 +274,19 @@ export class TTMobile extends HTMLElement {
         this.say('Copy failed');
       }
     };
+    const save = h(
+      'button',
+      { type: 'button', class: 'm-secondary', disabled: !changed, onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip') },
+      icon('download'),
+      s.files.length === 1 ? 'Get fixed file' : 'Get fixed files',
+    );
+    // Nothing left to fix: the reward in place of the buttons; the fixed set stays if anything was fixed here.
+    if (allClear(s)) return h('footer', { class: `m-foot${changed ? '' : ' clear'}` }, allClearNote(), changed ? save : null);
     return h(
       'footer',
       { class: 'm-foot' },
       h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy fix prompt'),
-      h(
-        'button',
-        { type: 'button', class: 'm-secondary', disabled: !changed, onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip') },
-        icon('download'),
-        s.files.length === 1 ? 'Get fixed file' : 'Get fixed files',
-      ),
+      save,
     );
   }
 }

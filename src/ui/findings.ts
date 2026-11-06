@@ -42,6 +42,14 @@ export function findings(s: AppState): Findings {
 /** Every finding the cards count, as the Issues label and title say it. */
 export const findingTotal = (f: Findings) => f.format.length + f.tiers.length + f.contrast.length + f.vision.length + f.groups.length;
 
+/** Every file was read and nothing is left to fix: the fix prompt has nothing to say. */
+export const allClear = (s: AppState) => s.files.length > 0 && s.loadErrors.length === 0 && findingTotal(findings(s)) === 0;
+
+/** The reward for a clean set: a green check and "No issues found". */
+export function allClearNote(tag: 'p' | 'span' = 'p') {
+  return h(tag, { class: 'all-clear' }, h('span', { class: 'all-clear-icon', 'aria-hidden': 'true' }, icon('check')), 'No issues found');
+}
+
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
 export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string) {
   const vision = f.vision.length + f.groups.length;

@@ -5,7 +5,7 @@ import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
 import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
 import { h, icon, masked, plural, severityIcon } from './dom';
-import { findings, findingTotal } from './findings';
+import { allClear, allClearNote, findings, findingTotal } from './findings';
 import { TIP } from './tips';
 
 /**
@@ -167,7 +167,10 @@ export class TTNav extends HTMLElement {
 
     // Tier views take the names the files use for their layers (`Primitives tier`).
     const tiers = has ? tierNames(v.model) : undefined;
+    const clearAll = has && allClear(store.get());
     const label = (d: ViewDef): HTMLElement => {
+      // A clean set: the Issues line itself is the reward, green with a leading check.
+      if (d.id === 'issues' && clearAll) return allClearNote('span');
       if (d.id === 'issues' && has) return h('span', null, issueCount ? `${plural(issueCount, 'issue')} found` : 'No issues found');
       const tier = { colors: 'base', semantic: 'semantic', components: 'component' } as const;
       const t = tiers && tier[d.id as keyof typeof tier];
@@ -179,7 +182,9 @@ export class TTNav extends HTMLElement {
       const disabled = d.soon || (d.needsFiles && !has) || clean;
       const c = counts[d.id];
       // The issue count is in the label, so the badge shows only its severity, or a check when there are none.
-      const badge = clean
+      const badge = clearAll && d.id === 'issues'
+        ? null
+        : clean
         ? h('span', { class: 'count ok', 'aria-label': 'none' }, icon('check'))
         : d.id === 'issues' && c?.tone
           ? h('span', { class: `count ${c.tone}`, 'aria-label': c.tone }, severityIcon(c.tone))
@@ -189,7 +194,7 @@ export class TTNav extends HTMLElement {
       return h(
         'a',
         {
-          class: `nav-item${d.soon ? ' soon' : ''}`,
+          class: `nav-item${d.soon ? ' soon' : ''}${d.id === 'issues' && clearAll ? ' clear' : ''}`,
           href: disabled ? undefined : `#${d.id}`,
           'data-nav': d.id,
           'aria-disabled': disabled ? 'true' : undefined,
@@ -247,6 +252,8 @@ export class TTNav extends HTMLElement {
       icon('copy'),
       h('span', null, 'Copy fix prompt'),
     );
+    // Nothing left to fix: the reward in place of the prompt; the fixed set stays if anything was fixed here.
+    if (allClear(store.get())) return edited.length ? h('div', { class: 'nav-actions' }, save) : '';
     // The prompt is the main way out: it works whether or not anything was fixed here.
     return h('div', { class: 'nav-actions' }, copy, save);
   }

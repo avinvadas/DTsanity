@@ -33,31 +33,24 @@
 
 :root {
   /* ---- Tier 1: primitives ---- */
-  --ref-gray-0: #ffffff;
-  /* Neutral (untinted) grays of the current design language. */
-  --ref-neutral-25: #fafafa;
-  --ref-neutral-50: #f3f3f3;
-  --ref-neutral-100: #eeeeee;
-  --ref-neutral-150: #e1e1e1;
-  --ref-neutral-200: #c8c8c8;
-  --ref-neutral-500: #858585; /* 3:1 on every light surface: control edges */
-  --ref-neutral-600: #616161; /* 4.5:1 on every light surface, selected rows included: quiet text */
-  --ref-neutral-850: #222222;
-  --ref-neutral-900: #1c1c1c;
-  --ref-gray-25: #fbfbfc;
-  --ref-gray-50: #f5f6f7;
-  --ref-gray-100: #eeeff1;
-  --ref-gray-150: #e6e7ea;
-  --ref-gray-200: #dcdee2;
-  --ref-gray-300: #c9ccd2;
-  --ref-gray-400: #9fa4ad;
-  --ref-gray-500: #7a808a;
-  --ref-gray-600: #5d626b;
-  --ref-gray-700: #42464d;
-  --ref-gray-800: #2b2e33;
-  --ref-gray-850: #222428;
-  --ref-gray-900: #1a1c1f;
-  --ref-gray-950: #131416;
+  /* Mist: cool neutrals (OKLCH hue ~250), tinted just enough to feel cool while
+     staying neutral beside the colors being compared (chroma 0.005–0.03). */
+  --ref-mist-0: #f8fbfe;
+  --ref-mist-50: #eaf0f8;
+  --ref-mist-100: #e3ebf3;
+  --ref-mist-150: #dee6ee;
+  --ref-mist-200: #d6dfea;
+  --ref-mist-250: #c7d7e8;
+  --ref-mist-400: #9ea6ae; /* 4.5:1 on every dark surface: quiet text */
+  --ref-mist-450: #989fa8;
+  --ref-mist-500: #747b83; /* 3:1 on every surface, light or dark: control edges */
+  --ref-mist-600: #585e65; /* 4.5:1 on every light surface, selected rows included: quiet text */
+  --ref-mist-650: #3d4349;
+  --ref-mist-700: #33383e;
+  --ref-mist-750: #2b3137;
+  --ref-mist-800: #22272d;
+  --ref-mist-850: #191c1f;
+  --ref-mist-900: #14171a;
 
   --ref-blue-50: #edf2fe;
   --ref-blue-500: #2f62e8;
@@ -92,30 +85,30 @@
   --ref-size-48: 48px;
 
   /* ---- Tier 2: semantic roles (light) ---- */
-  --bg: var(--ref-neutral-25);        /* workspace */
-  --sidebar: var(--ref-neutral-50);
-  --surface: var(--ref-gray-0);       /* controls, dialogs, cards */
-  --surface-2: var(--ref-neutral-100); /* sunken, opaque: table heads, wells (5% black on the workspace) */
-  --surface-hover: var(--ref-neutral-100);
-  --surface-selected: var(--ref-neutral-150);
-  --text: var(--ref-neutral-900);
-  --text-soft: var(--ref-neutral-850); /* secondary lines set in a lighter weight rather than a lighter color */
-  --muted: var(--ref-gray-600);
-  --subtle: var(--ref-neutral-600);
-  --border: var(--ref-neutral-150);
-  --border-strong: var(--ref-neutral-200);
+  --bg: var(--ref-mist-50);        /* workspace */
+  --sidebar: var(--ref-mist-100);
+  --surface: var(--ref-mist-0);       /* controls, dialogs, cards */
+  --surface-2: var(--ref-mist-150); /* sunken, opaque: table heads, wells */
+  --surface-hover: var(--ref-mist-150);
+  --surface-selected: var(--ref-mist-200);
+  --text: var(--ref-mist-800);
+  --text-soft: var(--ref-mist-700); /* secondary lines set in a lighter weight rather than a lighter color */
+  --muted: var(--ref-mist-600);
+  --subtle: var(--ref-mist-600);
+  --border: var(--ref-mist-200);
+  --border-strong: var(--ref-mist-250);
   /* Edges that identify a control (text fields, selects, a selected segment): 3:1 against what is around them (WCAG 1.4.11). */
-  --control-border: var(--ref-neutral-500);
+  --control-border: var(--ref-mist-500);
   /* Translucent fills and lines over whatever is behind (drop zone, illustrations). */
-  --well: rgb(28 28 28 / 0.035);
-  --well-strong: rgb(28 28 28 / 0.06);
-  --line: rgb(28 28 28 / 0.05);
-  --line-strong: rgb(28 28 28 / 0.15);
-  --shadow-soft: 0 0 48px rgb(28 28 28 / 0.1);
+  --well: rgb(34 39 45 / 0.035);
+  --well-strong: rgb(34 39 45 / 0.06);
+  --line: rgb(34 39 45 / 0.05);
+  --line-strong: rgb(34 39 45 / 0.15);
+  --shadow-soft: 0 0 48px rgb(34 39 45 / 0.1);
   /* Interactive emphasis (links, primary buttons, selected filters, focus) uses the darkest foreground, not a hue. */
-  --accent: var(--ref-neutral-900);
-  --accent-soft: var(--ref-neutral-150);
-  --on-accent: var(--ref-gray-0);
+  --accent: var(--ref-mist-800);
+  --accent-soft: var(--ref-mist-200);
+  --on-accent: var(--ref-mist-0);
   /* Blue is kept for graphics only (curve editor lines and points). */
   --graphic-accent: var(--ref-blue-500);
   --ok: var(--ref-green-600);
@@ -126,11 +119,11 @@
   --error-soft: var(--ref-red-50);
   --info: var(--ref-slate-600);
   --info-soft: var(--ref-slate-50);
-  --tooltip-bg: var(--ref-neutral-900);
-  --tooltip-text: var(--ref-gray-25);
-  --backdrop: rgba(28, 28, 28, 0.45);
-  --swatch-edge: rgba(28, 28, 28, 0.12);
-  --shadow-pop: 0 6px 24px rgba(28, 28, 28, 0.14), 0 1px 3px rgba(28, 28, 28, 0.08);
+  --tooltip-bg: var(--ref-mist-800);
+  --tooltip-text: var(--ref-mist-0);
+  --backdrop: rgba(34, 39, 45, 0.45);
+  --swatch-edge: rgba(34, 39, 45, 0.12);
+  --shadow-pop: 0 6px 24px rgba(34, 39, 45, 0.14), 0 1px 3px rgba(34, 39, 45, 0.08);
 
   --sans: 'Sofia Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -160,7 +153,7 @@
   --radius-pill: 999px;
   --control-h: 28px;
   /* The dropdown chevron for native selects, in --muted (a data URI can't follow the theme by itself). */
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d626b' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E");
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23585e65' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E");
   --sidebar-w: 232px;
   /* The header row, the same height in the sidebar, the workspace and the phone layout. */
   --header-h: 4rem;
@@ -173,28 +166,28 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: var(--ref-gray-900);
-    --sidebar: var(--ref-gray-950);
-    --surface: var(--ref-gray-850);
-    --surface-2: var(--ref-gray-850);
-    --surface-hover: var(--ref-gray-800);
-    --surface-selected: var(--ref-gray-800);
-    --text: var(--ref-gray-100);
-    --text-soft: var(--ref-gray-200);
+    --bg: var(--ref-mist-850);
+    --sidebar: var(--ref-mist-900);
+    --surface: var(--ref-mist-800);
+    --surface-2: var(--ref-mist-800);
+    --surface-hover: var(--ref-mist-750);
+    --surface-selected: var(--ref-mist-750);
+    --text: var(--ref-mist-50);
+    --text-soft: var(--ref-mist-250);
     --well: rgb(255 255 255 / 0.035);
     --well-strong: rgb(255 255 255 / 0.06);
     --line: rgb(255 255 255 / 0.05);
     --line-strong: rgb(255 255 255 / 0.15);
-    --shadow-soft: 0 0 48px rgb(28 28 28 / 0.4);
-    --muted: var(--ref-gray-400);
-    --subtle: #9a9ea6;
-    --control-border: #72767e;
-    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239fa4ad' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E");
-    --border: var(--ref-gray-800);
-    --border-strong: var(--ref-gray-700);
-    --accent: var(--ref-gray-100);
-    --accent-soft: var(--ref-gray-800);
-    --on-accent: var(--ref-gray-900);
+    --shadow-soft: 0 0 48px rgb(8 10 12 / 0.4);
+    --muted: var(--ref-mist-400);
+    --subtle: var(--ref-mist-450);
+    --control-border: var(--ref-mist-500);
+    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ea6ae' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E");
+    --border: var(--ref-mist-750);
+    --border-strong: var(--ref-mist-650);
+    --accent: var(--ref-mist-50);
+    --accent-soft: var(--ref-mist-750);
+    --on-accent: var(--ref-mist-850);
     --graphic-accent: var(--ref-blue-300);
     --ok: var(--ref-green-300);
     --ok-soft: var(--ref-green-900);
@@ -204,11 +197,11 @@
     --error-soft: var(--ref-red-900);
     --info: var(--ref-slate-300);
     --info-soft: var(--ref-slate-900);
-    --tooltip-bg: var(--ref-gray-100);
-    --tooltip-text: var(--ref-neutral-900);
-    --backdrop: rgba(28, 28, 28, 0.6);
+    --tooltip-bg: var(--ref-mist-50);
+    --tooltip-text: var(--ref-mist-800);
+    --backdrop: rgba(8, 10, 12, 0.6);
     --swatch-edge: rgba(255, 255, 255, 0.1);
-    --shadow-pop: 0 6px 24px rgba(28, 28, 28, 0.5);
+    --shadow-pop: 0 6px 24px rgba(8, 10, 12, 0.5);
     color-scheme: dark;
   }
 }
@@ -618,7 +611,7 @@ select {
   position: fixed; inset: auto; margin: 0; padding: var(--space-1); min-width: 180px;
   display: flex; flex-direction: column;
   border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--text);
-  box-shadow: 0 8px 28px rgba(28, 28, 28, 0.2);
+  box-shadow: 0 8px 28px rgba(8, 10, 12, 0.2);
 }
 .actions-menu:not(:popover-open) { display: none; }
 /* Every item: 3rem high, an icon then the label, on desktop and phones alike. */
@@ -630,12 +623,12 @@ dialog.files-dialog {
   --dialog-h: calc(100vh - 64px);
   width: min(560px, calc(100vw - 32px)); max-height: var(--dialog-h); overflow: auto;
   padding: var(--space-5) var(--space-5) 0; border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
-  background: var(--bg); color: var(--text); box-shadow: 0 16px 48px rgba(28, 28, 28, 0.3);
+  background: var(--bg); color: var(--text); box-shadow: 0 16px 48px rgba(8, 10, 12, 0.3);
 }
 /* Everything but the target keeps its size; the target takes what is left, up to half the dialog. */
 dialog.files-dialog[open] { display: flex; flex-direction: column; gap: var(--space-3); }
 dialog.files-dialog[open] > * { flex: none; }
-dialog.files-dialog::backdrop { background: rgba(28, 28, 28, 0.35); }
+dialog.files-dialog::backdrop { background: rgba(8, 10, 12, 0.35); }
 dialog.files-dialog .vh-row { align-items: center; }
 dialog.files-dialog .file-list { margin: 0; }
 dialog.files-dialog .file .file-remove { margin-left: auto; }
@@ -1152,7 +1145,7 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { opacity:
 .realias-pop {
   position: fixed; inset: auto; margin: 0; padding: var(--space-3); width: min(420px, calc(100vw - 16px)); overflow: visible;
   border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--text);
-  box-shadow: 0 8px 28px rgba(28, 28, 28, 0.25); font-family: var(--sans); font-size: var(--font-base); white-space: normal; text-align: left;
+  box-shadow: 0 8px 28px rgba(8, 10, 12, 0.25); font-family: var(--sans); font-size: var(--font-base); white-space: normal; text-align: left;
 }
 .realias-pop .realias-head { font-size: var(--font-sm); margin-bottom: var(--space-2); }
 .realias-pop .realias-head strong { font-family: var(--mono); }
@@ -1327,6 +1320,16 @@ tt-mobile { display: none; }
 /* The four kinds of findings at a glance, under "N issues found:"; each card jumps to its findings. */
 .findings { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-5); }
 .findings-title { margin: 0; font-size: var(--font-md); font-weight: 600; }
+/* A clean set: green, with a leading check in a soft green disc. */
+.all-clear { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--ok); font-weight: 700; }
+.all-clear-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.5em; height: 1.5em; border-radius: 50%; background: var(--ok-soft); }
+.all-clear-icon .icon { width: 0.95em; height: 0.95em; stroke-width: 2.5; }
+/* Desktop: the Issues line in the sidebar carries it; not dimmed like other disabled items. */
+.nav-item.clear, .nav-item.clear:hover { opacity: 1; color: var(--ok); }
+.nav-item.clear .all-clear { font-size: inherit; }
+.m-foot .all-clear { justify-content: center; min-height: 48px; padding: 0 var(--space-3); border-radius: var(--radius); background: var(--ok-soft); font-size: var(--font-md); }
+.m-foot .all-clear .all-clear-icon { background: var(--ok); color: var(--bg); }
+.m-foot.clear { grid-template-columns: 1fr; }
 .finding-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
 .finding-card { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); min-height: 72px; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); text-decoration: none; }
 .finding-card:hover, .finding-card:focus-visible { background: var(--surface-hover); }
@@ -1427,7 +1430,7 @@ tt-mobile .files-bar[hidden] { display: none; }
     outline: 2px dashed var(--accent); outline-offset: -12px;
   }
 }
-.drop-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-6); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); box-shadow: 0 8px 28px rgba(28, 28, 28, 0.2); text-align: center; }
+.drop-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-6); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); box-shadow: 0 8px 28px rgba(8, 10, 12, 0.2); text-align: center; }
 .drop-card .icon { width: 28px; height: 28px; }
 .drop-card strong { font-size: var(--font-md); }
 .drop-card span { color: var(--muted); font-size: var(--font-sm); }
