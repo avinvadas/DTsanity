@@ -489,11 +489,15 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 .dropzone > .icon { width: calc(var(--zone) * 0.381); height: auto; color: var(--text); }
 /* The token-file icon fades in; its color point cycles slowly through the whole spectrum at one lightness. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
-.dropzone > .icon.token-file-icon { opacity: 0.66; animation: tf-in 0.6s ease-out both; filter: drop-shadow(var(--shadow-soft)); }
+.dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; filter: drop-shadow(var(--shadow-soft)); }
+/* The drawing (outline, label, letters) at 0.66; the file's solid body stays opaque. */
+.token-file-icon > :not(.tf-base, defs) { opacity: 0.66; transition: opacity 0.1s ease-out; }
+/* Pointing at the target, or dragging files over the page, brings the drawing to full strength. */
+.dropzone:hover:not(:disabled) > .token-file-icon > :not(.tf-base, defs), body.dragging .dropzone > .token-file-icon > :not(.tf-base, defs) { opacity: 1; }
 .tf-base { fill: var(--bg); }
 /* The JSON letters are cut from the label in the page color. */
 .tf-label { fill: var(--bg); }
-@keyframes tf-in { from { opacity: 0; } to { opacity: 0.66; } }
+@keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
 @media (prefers-reduced-motion: reduce) {
   .dropzone > .icon.token-file-icon { animation: none; }
