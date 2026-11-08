@@ -221,8 +221,9 @@ export class TTLoader extends HTMLElement {
       h(
         'span',
         { class: 'zone-text' },
-        h('strong', { class: 'zone-title' }, phone ? 'Choose token files' : 'Drop JSON tokens files here'),
-        h('span', { class: 'zone-sub' }, phone ? 'From Files, iCloud or Drive. DTCG .json, several at once.' : 'or click to select them'),
+        h('strong', { class: 'zone-title' }, phone ? 'Select design tokens JSON files' : 'Drop design tokens JSON files here'),
+        // On phones the title says it all; desktop adds that a click works too.
+        phone ? null : h('span', { class: 'zone-sub' }, 'or click to select them'),
       ),
     );
 

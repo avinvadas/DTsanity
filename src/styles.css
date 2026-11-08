@@ -1503,16 +1503,16 @@ tt-mobile .files-bar[hidden] { display: none; }
   body:not(.has-files) .workspace {
     --land-gap: clamp(var(--grid-3), 3.2vh, var(--grid-1));
     /* The screen's height; only below what the smallest circle needs does the page itself scroll. */
-    height: max(100vh, 600px); height: max(100dvh, 600px); box-sizing: border-box;
+    min-height: max(100vh, 600px); min-height: max(100dvh, 600px); box-sizing: border-box;
     display: flex; flex-direction: column; padding-block: var(--grid-2);
   }
-  body:not(.has-files) .view[data-empty] { flex: 1 1 auto; min-height: 0; width: 100%; gap: var(--land-gap); }
+  body:not(.has-files) .view[data-empty] { flex: 1 1 auto; width: 100%; gap: var(--land-gap); }
   body:not(.has-files) .view[data-empty] > .vh,
   body:not(.has-files) .view[data-empty] tt-settings,
   body:not(.has-files) .view[data-empty] .url-form { flex: none; }
   body:not(.has-files) .view[data-empty] .load-card,
   body:not(.has-files) .view[data-empty] tt-loader,
-  body:not(.has-files) .view[data-empty] .loader { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--land-gap); }
+  body:not(.has-files) .view[data-empty] .loader { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: var(--land-gap); }
   body:not(.has-files) .view[data-empty] tt-loader { width: 100%; }
   body:not(.has-files) .view[data-empty] .loader { width: 100%; }
   body:not(.has-files) .view[data-empty] .dropzone {
@@ -1529,15 +1529,18 @@ tt-mobile .files-bar[hidden] { display: none; }
 /* The phone's landing does the same: the page is the screen's height, the circle takes what is left. */
 @media (max-width: 640px) {
   /* At least the screen's height; on the smallest phones the circle's text needs more, and the page scrolls. */
-  body:not(.has-files) tt-mobile { min-height: max(100vh, 560px); min-height: max(100dvh, 560px); }
+  body:not(.has-files) tt-mobile { --land-gap: clamp(12px, 2.6vh, var(--grid-1)); min-height: max(100vh, 520px); min-height: max(100dvh, 520px); }
+  body:not(.has-files) .m-load { margin-top: 0; }
+  body:not(.has-files) .m-body > .page-foot { margin-top: 0; } /* the body's gap spaces it here */
+  body:not(.has-files) .m-load .loader { gap: var(--land-gap); }
   body:not(.has-files) .m-body { min-height: 0; padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); gap: var(--land-gap, var(--grid-2)); }
-  body:not(.has-files) .m-load { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+  body:not(.has-files) .m-load { flex: 1 1 0; display: flex; flex-direction: column; }
   body:not(.has-files) .m-load tt-loader,
-  body:not(.has-files) .m-load .loader { flex: 1 1 0; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  body:not(.has-files) .m-load .loader { flex: 1 1 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: safe center; }
   body:not(.has-files) .m-load .url-form { flex: none; align-self: stretch; }
   body:not(.has-files) .m-load .dropzone {
     container-type: size;
-    flex: 1 1 0; min-height: 200px; max-height: calc(100vw - 2 * var(--space-4));
+    flex: 1 1 0; min-height: 180px; max-height: calc(100vw - 2 * var(--space-4));
     height: auto; width: auto; max-width: calc(100vw - 2 * var(--space-4)); aspect-ratio: 1; padding: 0;
   }
   body:not(.has-files) .m-load .dropzone > :not(.zone-ring) { --zone: 100cqh; max-width: 80cqw; }
