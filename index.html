@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <!-- tt:csp -->
+    <script>try{var t=localStorage.getItem('tt-theme')}catch(e){}document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'</script>
     <title>DTsanity – Design tokens validator and accessibility checker (DTCG)</title>
     <meta name="description" content="Validate design token files against the DTCG spec, check contrast (WCAG, APCA) and color blindness, fix issues and download the fixed set. Runs in your browser.">
     <meta name="keywords" content="design tokens, DTCG, design tokens validator, design token linter, design system, color contrast, WCAG, APCA, color blindness, Tokens Studio, Style Dictionary, OKLCH">
@@ -25,9 +26,6 @@
       <aside class="sidebar">
         <div class="brand"><span data-logo>DTsanity</span></div>
         <tt-nav></tt-nav>
-        <footer class="sidebar-foot">
-          <span class="credit">DTsanity is an <a href="https://github.com/avinvadas/DTsanity" target="_blank" rel="noopener">open source project</a> created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span>
-        </footer>
       </aside>
 
       <main class="workspace">
@@ -45,7 +43,6 @@
             <tt-settings></tt-settings>
           </div>
           <tt-files></tt-files>
-          <p class="landing-only landing-foot"><span class="credit">DTsanity is an <a href="https://github.com/avinvadas/DTsanity" target="_blank" rel="noopener">open source project</a> created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span></p>
         </section>
         <section class="view" data-view="themes" hidden><tt-themes></tt-themes></section>
         <section class="view" data-view="issues" hidden><tt-issues></tt-issues></section>
@@ -67,6 +64,7 @@
             <p>Clone the repository and run the strict build (<code>npm run build:strict</code>), which works offline from a local file.</p>
           </div>
         </section>
+        <footer class="page-foot"><span class="credit">DTsanity is an <a href="https://github.com/avinvadas/DTsanity" target="_blank" rel="noopener">open source project</a> created by <a href="https://avinvadas.com" target="_blank" rel="noopener">Avin Vadas</a></span></footer>
       </main>
     </div>
     <!-- Phones: the core loop (check, issues, done) in place of the desktop layout. -->

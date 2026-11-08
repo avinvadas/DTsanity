@@ -7,13 +7,14 @@ import { glyphOf } from '../semantic/pairs';
 import { applyFixes, removeFile, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas } from './canvas';
-import { allClear, allClearNote, findingCards, findings, type Findings } from './findings';
+import { allClear, findingCards, findings, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { targetSelect } from './contrast';
 import { fileStatusLine, ingest } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon, xButton } from './dom';
 import { logo } from './logo';
+import { themeToggle } from './theme';
 
 /**
  * The phone layout (narrow screens, whatever the input): the core loop on
@@ -109,8 +110,8 @@ export class TTMobile extends HTMLElement {
     if (!this.built) {
       this.built = true;
       this.replaceChildren(
-        h('header', { class: 'm-head' }, logo(), this.picker),
-        h('main', { class: 'm-body' }, this.lede, this.bar, this.navSlot, this.loadSection, this.issueSlot),
+        h('header', { class: 'm-head' }, logo(), this.picker, themeToggle()),
+        h('main', { class: 'm-body' }, this.lede, this.bar, this.navSlot, this.loadSection, this.issueSlot, (document.querySelector('.workspace > .page-foot')?.cloneNode(true) as HTMLElement | undefined) ?? ''),
         this.toastSlot,
         this.footSlot,
       );
@@ -280,8 +281,8 @@ export class TTMobile extends HTMLElement {
       icon('download'),
       s.files.length === 1 ? 'Get fixed file' : 'Get fixed files',
     );
-    // Nothing left to fix: the reward in place of the buttons; the fixed set stays if anything was fixed here.
-    if (allClear(s)) return h('footer', { class: `m-foot${changed ? '' : ' clear'}` }, allClearNote(), changed ? save : null);
+    // Nothing left to fix: no prompt; what was fixed here is the one way out, filling the footer.
+    if (allClear(s)) return changed ? h('footer', { class: 'm-foot clear' }, (save.classList.replace('m-secondary', 'm-primary'), save)) : '';
     return h(
       'footer',
       { class: 'm-foot' },

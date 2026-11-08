@@ -16,6 +16,7 @@ import { TTSettings } from './ui/settings';
 import { TTThemes } from './ui/themes';
 import { TTTokens } from './ui/tokens';
 import { installTooltips } from './ui/tooltip';
+import { initTheme, themeToggle } from './ui/theme';
 
 // The logo in the page's static places (sidebar, landing title); their text stays as the fallback.
 document.querySelectorAll('[data-logo]').forEach((el) => el.replaceWith(logo()));
@@ -31,6 +32,9 @@ customElements.define('tt-semantic', TTSemantic);
 customElements.define('tt-nav', TTNav);
 customElements.define('tt-mobile', TTMobile);
 installTooltips();
+initTheme();
+// Top right of the viewport; the phone layout carries its own in its header.
+document.body.append(themeToggle('desk-theme'));
 
 // Under the sidebar's logo, above the tabs, the global settings: the loaded files (count, last change, actions), then the contrast target.
 document.querySelector('.sidebar .brand')?.after(

@@ -61,6 +61,9 @@ export class CurveCanvas {
       this.selected = -1;
       this.draw();
     });
+    // Colors come from the theme: redraw when it changes, and let go once the canvas is gone.
+    const onTheme = () => (this.canvas.isConnected ? this.draw() : window.removeEventListener('tt-theme', onTheme));
+    window.addEventListener('tt-theme', onTheme);
   }
 
   // -------------------------------------------------------------------------
