@@ -500,7 +500,7 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 }
 .zone-title { font-size: max(14px, calc(var(--zone) * 0.0374)); font-weight: 500; line-height: 1.2; color: var(--text); }
 .zone-text { display: contents; }
-.zone-sub { font-size: max(12px, calc(var(--zone) * 0.0255)); font-weight: 300; line-height: 1.3; color: var(--text-soft); }
+.zone-sub { font-size: max(14px, calc(var(--zone) * 0.0255)); font-weight: 400; line-height: 1.4; color: var(--text-soft); } /* 14px regular at the least, in --text-soft (over 7:1 in both themes) */
 /* The lines sit below the circle's middle, where it is narrower: they break at about two-thirds of its width, evenly. */
 .dropzone :is(.zone-title, .zone-sub) { max-width: 82%; text-wrap: balance; overflow-wrap: break-word; }
 .dropzone:hover:not(:disabled) { border-color: var(--line-strong); }
@@ -1528,7 +1528,8 @@ tt-mobile .files-bar[hidden] { display: none; }
 }
 /* The phone's landing does the same: the page is the screen's height, the circle takes what is left. */
 @media (max-width: 640px) {
-  body:not(.has-files) tt-mobile { height: max(100vh, 560px); height: max(100dvh, 560px); min-height: 0; }
+  /* At least the screen's height; on the smallest phones the circle's text needs more, and the page scrolls. */
+  body:not(.has-files) tt-mobile { min-height: max(100vh, 560px); min-height: max(100dvh, 560px); }
   body:not(.has-files) .m-body { min-height: 0; padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); gap: var(--land-gap, var(--grid-2)); }
   body:not(.has-files) .m-load { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
   body:not(.has-files) .m-load tt-loader,
@@ -1536,13 +1537,13 @@ tt-mobile .files-bar[hidden] { display: none; }
   body:not(.has-files) .m-load .url-form { flex: none; align-self: stretch; }
   body:not(.has-files) .m-load .dropzone {
     container-type: size;
-    flex: 1 1 0; min-height: 160px; max-height: calc(100vw - 2 * var(--space-4));
+    flex: 1 1 0; min-height: 200px; max-height: calc(100vw - 2 * var(--space-4));
     height: auto; width: auto; max-width: calc(100vw - 2 * var(--space-4)); aspect-ratio: 1; padding: 0;
   }
   body:not(.has-files) .m-load .dropzone > :not(.zone-ring) { --zone: 100cqh; max-width: 80cqw; }
   body:not(.has-files) .m-load .dropzone :is(.zone-title, .zone-sub) { max-width: 66cqw; }
 }
-/* A small landing circle keeps its icon and title; the subline would run past its edge. */
-@container (max-height: 239px) {
-  .dropzone .zone-sub { display: none; }
+/* A small landing circle keeps all its text at full size; the icon gives up the room instead. */
+@container (max-height: 279px) {
+  .dropzone > .icon { width: calc(var(--zone) * 0.24); }
 }
