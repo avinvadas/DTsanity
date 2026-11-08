@@ -104,6 +104,10 @@
   /* Translucent fills and lines over whatever is behind (drop zone, illustrations). */
   --well: rgb(39 41 43 / 0.035);
   --well-strong: rgb(39 41 43 / 0.06);
+  /* The drop target: a touch deeper than a well, lifted by a soft shadow. */
+  --zone-fill: rgb(39 41 43 / 0.06);
+  --zone-fill-active: rgb(39 41 43 / 0.09);
+  --zone-shadow: inset 0 0 0.5rem rgb(39 41 43 / 0.1); /* light: pressed in; dark (below): lifted */
   --line: rgb(39 41 43 / 0.05);
   --line-strong: rgb(39 41 43 / 0.15);
   --shadow-soft: 0 0 48px rgb(39 41 43 / 0.1);
@@ -187,6 +191,9 @@
     --text-soft: var(--ref-tone-250);
     --well: rgb(255 255 255 / 0.035);
     --well-strong: rgb(255 255 255 / 0.06);
+    --zone-fill: rgb(255 255 255 / 0.06);
+    --zone-fill-active: rgb(255 255 255 / 0.09);
+    --zone-shadow: 0 0 3rem rgb(8 10 12 / 0.2);
     --line: rgb(255 255 255 / 0.05);
     --line-strong: rgb(255 255 255 / 0.15);
     --shadow-soft: 0 0 48px rgb(8 10 12 / 0.4);
@@ -321,16 +328,14 @@ body:not(.has-files) .sidebar { display: none; }
 /*
  * The logo fills the sidebar's part of the header row. Side by side, the wordmark
  * sits on the view heading's baseline: the heading's is --header-baseline down the
- * row, the wordmark's 72% down the 22.4px logo (16.13px).
+ * row, the wordmark's 70.8% down the 28px logo (19.8px).
  */
 .brand { height: var(--header-h); flex: none; }
 @media (min-width: 821px) {
-  .brand { align-items: flex-start; padding-top: calc(var(--header-baseline) - 16.13px); }
+  .brand { align-items: flex-start; padding-top: calc(var(--header-baseline) - 19.8px); }
 }
 /* The logo (mark and wordmark) in the foreground color, so it follows the theme; its height sets its size. */
-svg.logo { display: block; width: auto; height: 22.4px; flex: none; color: var(--text); fill: currentColor; }
-/* Its lines keep the widths set on them (the brackets a touch heavier than the cube). */
-.logo-mark { fill: none; stroke: currentColor; }
+svg.logo { display: block; width: auto; height: 28px; flex: none; color: var(--text); fill: currentColor; }
 
 /* The loaded files under the logo: count and last change on the left, their actions on the right. */
 .files-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); border-bottom: 1px solid var(--border); }
@@ -475,7 +480,8 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
   display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0;
   text-align: center; white-space: normal; padding: calc(var(--zone) * 0.1);
   border: 1px solid var(--line);
-  background: var(--well);
+  background: var(--zone-fill);
+  box-shadow: var(--zone-shadow);
   transition: border-color 0.15s, background 0.2s, transform 0.2s ease-out;
 }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
@@ -484,11 +490,12 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out both; filter: drop-shadow(var(--shadow-soft)); }
 .tf-base { fill: var(--bg); }
-.tf-point { fill: oklch(0.66 0.24 var(--tf-hue)); animation: tf-hue 18s linear infinite; }
+/* The JSON letters are cut from the label in the page color. */
+.tf-label { fill: var(--bg); }
 @keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
 @media (prefers-reduced-motion: reduce) {
-  .dropzone > .icon.token-file-icon, .tf-point { animation: none; }
+  .dropzone > .icon.token-file-icon { animation: none; }
 }
 .zone-title { font-size: max(14px, calc(var(--zone) * 0.0374)); font-weight: 500; line-height: 1.2; color: var(--text); }
 .zone-text { display: contents; }
@@ -496,12 +503,12 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 .dropzone:hover:not(:disabled) { border-color: var(--line-strong); }
 body.dragging .dropzone {
   border-color: var(--line-strong);
-  background: var(--well-strong);
+  background: var(--zone-fill-active);
   transform: scale(var(--grow));
 }
 .dropzone.loading {
   border-color: transparent;
-  background: var(--well-strong);
+  background: var(--zone-fill-active);
   transform: scale(calc(1 + (var(--grow) - 1) / 2));
 }
 .zone-ring {
@@ -1222,7 +1229,7 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 /* Files view: brand and intro while empty, the "Files" title once loaded. */
 .view:not([data-empty]) .landing-only, .view[data-empty] .loaded-only { display: none; }
 .brand-title { display: inline-flex; align-items: center; gap: var(--space-2); }
-.brand-title .logo { height: 41.6px; }
+.brand-title .logo { height: 52px; }
 .view[data-empty] .vh { align-items: center; }
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
@@ -1482,3 +1489,50 @@ tt-mobile .files-bar[hidden] { display: none; }
 /* Desktop: fixed in the viewport's corner, centered on the header row. */
 .desk-theme { position: fixed; top: calc((var(--header-h) - var(--track-h)) / 2); right: var(--space-4); z-index: 5; }
 @media (max-width: 640px) { .desk-theme { display: none; } }
+
+/* ============================================================
+   Landing on screens at least 800px tall: the whole page fits the viewport, no scrolling.
+   Every block keeps its height except the drop circle, which takes what is left (up to
+   --grid-text, the intro's width; any height beyond that is centered), so the page fills the height it has. The circle is a size
+   container, so its icon and text scale with it; gaps grow and shrink with the height.
+   ============================================================ */
+@media (min-width: 641px) and (min-height: 800px) {
+  body:not(.has-files) .workspace {
+    --land-gap: clamp(var(--grid-3), 3.2vh, var(--grid-1));
+    height: 100vh; height: 100dvh; box-sizing: border-box; overflow: hidden;
+    display: flex; flex-direction: column; padding-block: var(--grid-2);
+  }
+  body:not(.has-files) .view[data-empty] { flex: 1 1 auto; min-height: 0; width: 100%; gap: var(--land-gap); }
+  body:not(.has-files) .view[data-empty] > .vh,
+  body:not(.has-files) .view[data-empty] tt-settings,
+  body:not(.has-files) .view[data-empty] .url-form { flex: none; }
+  body:not(.has-files) .view[data-empty] .load-card,
+  body:not(.has-files) .view[data-empty] tt-loader,
+  body:not(.has-files) .view[data-empty] .loader { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--land-gap); }
+  body:not(.has-files) .view[data-empty] tt-loader { width: 100%; }
+  body:not(.has-files) .view[data-empty] .loader { width: 100%; }
+  body:not(.has-files) .view[data-empty] .dropzone {
+    container-type: size;
+    flex: 1 1 0; min-height: 240px; max-height: var(--grid-text);
+    height: auto; width: auto; max-width: 88vw; aspect-ratio: 1;
+    padding: 0;
+  }
+  /* Sized from the circle itself; kept within its middle 80%, as the usual 10% padding would. */
+  body:not(.has-files) .view[data-empty] .dropzone > :not(.zone-ring) { --zone: 100cqh; max-width: 80cqw; }
+  body:not(.has-files) .workspace > .page-foot { flex: none; margin-top: var(--land-gap); }
+}
+/* The phone's landing does the same: the page is the screen's height, the circle takes what is left. */
+@media (max-width: 640px) and (min-height: 800px) {
+  body:not(.has-files) tt-mobile { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+  body:not(.has-files) .m-body { min-height: 0; padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); gap: var(--land-gap, var(--grid-2)); }
+  body:not(.has-files) .m-load { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+  body:not(.has-files) .m-load tt-loader,
+  body:not(.has-files) .m-load .loader { flex: 1 1 0; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  body:not(.has-files) .m-load .url-form { flex: none; align-self: stretch; }
+  body:not(.has-files) .m-load .dropzone {
+    container-type: size;
+    flex: 1 1 0; min-height: 220px; max-height: calc(100vw - 2 * var(--space-4));
+    height: auto; width: auto; max-width: calc(100vw - 2 * var(--space-4)); aspect-ratio: 1; padding: 0;
+  }
+  body:not(.has-files) .m-load .dropzone > :not(.zone-ring) { --zone: 100cqh; max-width: 80cqw; }
+}
