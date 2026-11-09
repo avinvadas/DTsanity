@@ -15,7 +15,7 @@ export type FindingKind = 'format' | 'tiers' | 'contrast' | 'vision';
 const isTier = (i: Issue) => i.code.startsWith('tier-');
 
 /** Issues across every theme, as the fix prompt sees them. */
-const issuesOf = (s: AppState): Issue[] => (s.themeModels.length ? mergeModels(s.themeModels) : s.model).issues;
+export const issuesOf = (s: AppState): Issue[] => (s.themeModels.length ? mergeModels(s.themeModels) : s.model).issues;
 
 export interface Findings {
   format: Issue[];

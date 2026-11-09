@@ -1,11 +1,10 @@
 import { VISIONS } from '../color/cvd';
 import { formatContrast } from '../contrast/metrics';
-import type { Category, Fix, Issue, Model, Severity } from '../model/types';
-import { ALL_THEMES, applyFixes, setActiveTheme, store, undo, type AppState } from '../state/app';
+import type { Category, Fix, Issue, Severity } from '../model/types';
+import { applyFixes, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
-import { mergeModels } from '../themes/merge';
 import { h, masked, plural, severityIcon, viewHead } from './dom';
-import { findingCards, findings, type FindingKind, type Findings } from './findings';
+import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
 import { goTo } from './nav';
@@ -36,7 +35,7 @@ export class TTIssues extends HTMLElement {
     this.unsubs.push(
       store.select(
         (s) => s,
-        (v) => this.render(v.model, v),
+        (v) => this.render(v),
         // The finding cards also count contrast and color blindness, which follow the settings and re-aliased pairs.
         (a, b) => a.model === b.model && a.themeModels === b.themeModels && a.activeTheme === b.activeTheme && a.settings === b.settings && a.pairEdits === b.pairEdits,
       ),
@@ -60,23 +59,9 @@ export class TTIssues extends HTMLElement {
     this.setStatus(fixes.length === 1 ? `Applied: ${fixes[0]!.label}` : `Applied ${fixes.length} fixes`, edits > 0);
   }
 
-  /** In a single-theme view, how many issues exist only in other themes. */
-  private otherThemes(v: Pick<AppState, 'themeModels' | 'activeTheme' | 'themes'>) {
-    if (!v.themeModels.length || v.activeTheme === ALL_THEMES) return null;
-    const name = v.themes.find((t) => t.id === v.activeTheme)?.name;
-    const elsewhere = mergeModels(v.themeModels).issues.filter((i) => i.themes && name && !i.themes.includes(name)).length;
-    return h(
-      'p',
-      { class: 'note' },
-      masked(h('span', null, `Showing theme “${name}”. `)),
-      elsewhere ? `${elsewhere} more ${elsewhere === 1 ? 'issue occurs' : 'issues occur'} only in other themes. ` : 'Other themes have no further issues. ',
-      h('button', { type: 'button', class: 'link', onclick: () => setActiveTheme(ALL_THEMES) }, 'Show all themes'),
-    );
-  }
-
-  /** Every kind of finding is listed on this page: each card scrolls to its section. Info notes follow in their own. */
+  /** The page has one section per card, in the cards' order, named and counted as they are; each card scrolls to its own. Info notes follow, uncounted. */
   private go(kind: FindingKind) {
-    const target = this.querySelector(kind === 'format' ? '.issue-group, #issues-format' : `#issues-${kind}`);
+    const target = this.querySelector(`#issues-${kind}`);
     target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     (target?.querySelector('h3') as HTMLElement | null)?.focus({ preventScroll: true });
   }
@@ -171,26 +156,29 @@ export class TTIssues extends HTMLElement {
     );
   }
 
-  private render(model: Model, v: AppState) {
+  private render(v: AppState) {
+    // Every theme's issues, as the cards, the sidebar and the fix prompt count them; an issue in only some themes is tagged with them.
+    const all = issuesOf(v);
     // All loaded files: a theme's model only knows its own, and the all-themes view merges several.
     const names = new Map(store.get().files.map((f) => [f.id, f.name]));
-    const count = (s: Severity) => model.issues.filter((i) => i.severity === s).length;
+    const count = (s: Severity) => all.filter((i) => i.severity === s).length;
     const where = (i: Issue) => {
       const name = i.fileId ? names.get(i.fileId) : undefined;
       if (!name) return '';
       return i.pos ? `${name}:${i.pos.line}:${i.pos.col}` : name;
     };
 
-    // Format issues by category; tier issues get their own section, like the Tiers card.
+    // Format issues by category, as subsections of Format; tier issues get their own section, like the Tiers card.
     const groups = CATEGORIES.map((c) => ({
       category: c,
-      issues: model.issues
+      issues: all
         .filter((i) => i.category === c && !isTier(i) && i.severity !== 'info')
         .sort((a, b) => SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity) || (a.pos?.offset ?? 0) - (b.pos?.offset ?? 0)),
     })).filter((g) => g.issues.length > 0);
-    const tierIssues = model.issues.filter((i) => isTier(i) && i.severity !== 'info').sort((a, b) => SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity));
+    const formatCount = groups.reduce((n, g) => n + g.issues.length, 0);
+    const tierIssues = all.filter((i) => isTier(i) && i.severity !== 'info').sort((a, b) => SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity));
     // Notes, not problems: kept apart at the end, so each section above counts what its card counts.
-    const infoIssues = model.issues.filter((i) => i.severity === 'info').sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category) || (a.pos?.offset ?? 0) - (b.pos?.offset ?? 0));
+    const infoIssues = all.filter((i) => i.severity === 'info').sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category) || (a.pos?.offset ?? 0) - (b.pos?.offset ?? 0));
     const f = findings(v);
     const themes = v.themeModels.map((m) => m.theme.name);
     const fixAll = (fixes: Fix[], what: string) =>
@@ -205,23 +193,37 @@ export class TTIssues extends HTMLElement {
         actions: this.reload.el,
       }),
       findingCards(f, (k) => this.go(k), () => '#issues'),
-      this.otherThemes(v) ?? '',
       h(
         'div',
         { class: 'issue-groups' },
-        groups.length
-          ? groups.map(({ category, issues }) =>
-              this.group(
-                `issues-${category}`,
-                CATEGORY_LABEL[category],
-                CATEGORY_TIP[category],
-                issues.length,
-                [fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase())],
-                masked(h('ul', { class: 'issue-list' }, issues.map((i) => this.row(i, where(i))))),
-                '',
-              ),
-            )
-          : this.group('issues-format', 'Format', undefined, 0, [], null, model.files.length ? 'The files follow the DTCG format.' : ''),
+        this.group(
+          'issues-format',
+          'Format',
+          undefined,
+          formatCount,
+          [fixAll(fixesOf(groups.flatMap((g) => g.issues)), 'format')],
+          groups.length
+            ? h(
+                'div',
+                { class: 'issue-subgroups' },
+                groups.map(({ category, issues }) =>
+                  h(
+                    'section',
+                    { class: 'issue-subgroup', id: `issues-${category}` },
+                    h(
+                      'div',
+                      { class: 'subgroup-head' },
+                      h('h5', { 'data-tip': CATEGORY_TIP[category] }, CATEGORY_LABEL[category], h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length))),
+                      // With one category, the Format heading's button already applies these.
+                      h('div', { class: 'group-actions' }, groups.length > 1 ? fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase()) : null),
+                    ),
+                    masked(h('ul', { class: 'issue-list' }, issues.map((i) => this.row(i, where(i))))),
+                  ),
+                ),
+              )
+            : null,
+          v.model.files.length ? 'The files follow the DTCG format.' : '',
+        ),
         this.group(
           'issues-tiers',
           'Tiers',
@@ -239,7 +241,12 @@ export class TTIssues extends HTMLElement {
               SEVERITY_TIP.info,
               infoIssues.length,
               [fixAll(fixesOf(infoIssues), 'info')],
-              masked(h('ul', { class: 'issue-list' }, infoIssues.map((i) => this.row(i, where(i))))),
+              h(
+                'div',
+                null,
+                h('p', { class: 'group-note' }, 'Notes, not issues: they are not counted above, and nothing needs to change.'),
+                masked(h('ul', { class: 'issue-list' }, infoIssues.map((i) => this.row(i, where(i))))),
+              ),
               '',
             )
           : null,

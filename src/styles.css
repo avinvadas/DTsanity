@@ -717,7 +717,13 @@ tt-files .file .badge + button { margin-left: auto; }
 .group-link { font-size: var(--font-sm); font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
 .group-link:hover { color: var(--muted); }
 .issue-group { scroll-margin-top: var(--space-4); }
-.group-head .n { font-size: var(--font-xs); font-weight: 600; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 0 7px; }
+.group-head .n, .subgroup-head .n { font-size: var(--font-xs); font-weight: 600; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 0 7px; }
+/* Inside Format: one subsection per category (File format, Structure, References…), a step below the four sections. */
+.issue-subgroups { display: flex; flex-direction: column; gap: var(--space-4); }
+.issue-subgroup { scroll-margin-top: var(--space-4); }
+.subgroup-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
+.subgroup-head h5 { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-sm); font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.group-note { margin: 0 0 var(--space-2); font-size: var(--font-sm); color: var(--muted); }
 .fix-all { color: var(--accent); }
 
 .issue-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); }
