@@ -883,7 +883,7 @@ button.curve-btn { border-color: var(--border-strong); }
 .row-heading.collapsed .meta { color: var(--subtle); }
 
 /* Units are borderless so a row reads as one range; hovering one outlines it and offers a copy. */
-.unit { display: flex; flex-direction: column; border: 1.5px solid transparent; border-radius: var(--radius-lg); overflow: hidden; cursor: copy; }
+.unit { display: flex; flex-direction: column; border: 1.5px solid transparent; border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; }
 .unit:hover, .unit:focus-visible { border-color: var(--border-strong); outline: none; }
 .unit-fill .copy-mark {
   position: absolute; left: 50%; top: calc(6px + 24px); transform: translate(-50%, -50%);
@@ -1091,7 +1091,9 @@ dialog.curve-editor .ok { font-size: var(--font-sm); margin: var(--space-1) 0; }
    Tooltips (see ui/tooltip.ts)
    ============================================================ */
 
-[data-tip]:not(button, select, input, summary, label, a) { cursor: help; }
+/* Anything clickable shows a pointer, tooltips inside it included; the help cursor is only for plain text that explains. */
+:is(a[href], select, [role="button"], [role="switch"], [role="option"], [role="menuitem"], [role="radio"]):not(:disabled, [aria-disabled="true"]) { cursor: pointer; }
+[data-tip]:not(button, select, input, summary, label, a, [role="button"], [role="switch"], [role="option"], [role="menuitem"], [role="radio"], [role="slider"]):not(:is(button, summary, label, a, [role="button"], [role="switch"], [role="option"], [role="menuitem"], [role="radio"], [role="slider"]) *) { cursor: help; }
 .tooltip {
   position: fixed;
   inset: auto;
