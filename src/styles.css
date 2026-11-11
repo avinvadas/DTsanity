@@ -361,7 +361,7 @@ tt-nav { display: flex; flex-direction: column; gap: var(--space-4); }
 .nav-item[aria-current='page'] { background: var(--surface-selected); color: var(--text); }
 .nav-item[aria-disabled='true'] { color: var(--muted); cursor: default; }
 .nav-item[aria-disabled='true']:hover { background: none; color: var(--muted); }
-.nav-item .count { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; font-size: var(--font-sm); color: var(--subtle); font-variant-numeric: tabular-nums; }
+.nav-item .count { margin-left: auto; display: inline-flex; flex-direction: row-reverse; align-items: center; gap: 3px; font-size: var(--font-sm); color: var(--subtle); font-variant-numeric: tabular-nums; }
 .nav-item .count.error { color: var(--error); font-weight: 600; }
 .nav-item .count.warning { color: var(--warn); font-weight: 600; }
 .nav-item .count.info .sev-icon { color: var(--info); }
@@ -405,6 +405,8 @@ body.has-files .workspace { padding-top: 0; }
   .nav { flex-direction: row; order: 3; flex-basis: 100%; overflow-x: auto; scrollbar-width: none; gap: 2px; margin: 0 calc(-1 * var(--space-4)); padding: 0 var(--space-4); }
   .nav-item { flex: none; }
   .nav-item .count, .nav-item .soon-tag { margin-left: 2px; }
+  /* Here the count follows the label, left-aligned: icon first, then the number. */
+  .nav-item .count { flex-direction: row; }
   .nav-sep { display: none; }
   .theme-pick { flex-direction: row; align-items: center; margin-left: auto; padding: 0; }
   .theme-pick select { width: auto; max-width: 160px; }
@@ -487,9 +489,10 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
 .dropzone > .icon { width: calc(var(--zone) * 0.381); height: auto; color: var(--text); }
-/* The token-file icon fades in; its color point cycles slowly through the whole spectrum at one lightness. */
+/* The token-file icon fades in. On the landing, the border light's color lies over its text color at 50%, cycling through the whole spectrum in step with the light. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; filter: drop-shadow(var(--shadow-soft)); }
+.view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { color: color-mix(in oklab, var(--text), oklch(0.68 0.22 var(--tf-hue)) 50%); animation: tf-in 0.6s ease-out backwards, tf-hue 13s linear infinite; }
 /* The drawing (outline, label, letters) at 0.66; the file's solid body stays opaque. */
 .token-file-icon > :not(.tf-base, defs) { opacity: 0.66; transition: opacity 0.1s ease-out; }
 /* Pointing at the target, or dragging files over the page, brings the drawing to full strength. */
@@ -500,7 +503,7 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 @keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
 @media (prefers-reduced-motion: reduce) {
-  .dropzone > .icon.token-file-icon { animation: none; }
+  .dropzone > .icon.token-file-icon, .view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { animation: none; }
 }
 .zone-title { font-size: max(14px, calc(var(--zone) * 0.0374)); font-weight: 500; line-height: 1.2; color: var(--text); }
 .zone-text { display: contents; }
@@ -571,7 +574,7 @@ body.dragging .dropzone {
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
   filter: blur(0.5px);
-  animation: glint 14s linear infinite, tf-hue 18s linear infinite;
+  animation: glint 10s linear infinite, tf-hue 13s linear infinite;
   transition: opacity 0.2s;
 }
 @keyframes glint { to { --glint: 360deg; } }
@@ -1133,7 +1136,8 @@ table.pairs select { font-size: var(--font-sm); }
 .add-pair { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); max-width: 760px; }
 .add-pair .row { display: flex; gap: var(--space-2); align-items: flex-end; flex-wrap: wrap; }
 .add-pair .field { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 180px; font-size: var(--font-sm); color: var(--muted); }
-.add-pair input { font-family: var(--mono); }
+.add-pair .add-pair-field, .add-pair .token-field, .add-pair .swatch-select, .add-pair .ss-button { display: flex; width: 100%; max-width: none; }
+.add-pair .ss-chevron { margin-left: auto; }
 .pair-actions { white-space: nowrap; text-align: right; }
 .pair-actions .ghost.on { color: var(--accent); }
 table.pairs tr.open td { border-bottom: 0; }
@@ -1243,8 +1247,6 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 
 /* Files view: brand and intro while empty, the "Files" title once loaded. */
 .view:not([data-empty]) .landing-only, .view[data-empty] .loaded-only { display: none; }
-.brand-title { display: inline-flex; align-items: center; gap: var(--space-2); }
-.brand-title .logo { height: 52px; }
 .view[data-empty] .vh { align-items: center; }
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
@@ -1504,6 +1506,34 @@ tt-mobile .files-bar[hidden] { display: none; }
 /* Desktop: fixed in the viewport's corner, centered on the header row. */
 .desk-theme { position: fixed; top: calc((var(--header-h) - var(--track-h)) / 2); right: var(--space-4); z-index: 5; }
 @media (max-width: 640px) { .desk-theme { display: none; } }
+/*
+ * Desktop landing: a header like the phone's, with the logo on the left and the
+ * appearance switch (the fixed corner one) on the right. The logo sits exactly
+ * where the sidebar's will once files are loaded: the sidebar's and the brand's
+ * side padding, and the brand's vertical placement (centered, or on the heading
+ * baseline from 821px). The rule under it is a shadow, so it takes no height.
+ */
+.land-head { display: none; }
+@media (min-width: 641px) {
+  body:not(.has-files) .land-head {
+    display: flex; align-items: center; height: var(--header-h); box-sizing: border-box;
+    padding: 0 0 0 calc(var(--space-3) + var(--space-2));
+    box-shadow: inset 0 -1px 0 var(--border); background: var(--bg);
+  }
+}
+@media (min-width: 641px) and (max-width: 820px) {
+  /* Here the sidebar is a top bar with wider side padding. */
+  body:not(.has-files) .land-head { padding-left: calc(var(--space-4) + var(--space-2)); }
+}
+@media (min-width: 821px) {
+  body:not(.has-files) .land-head { align-items: flex-start; padding-top: calc(var(--header-baseline) - 19.8px); }
+}
+@media (min-width: 641px) {
+  /* The page below the header fills the rest of the screen, not a whole screen more. */
+  body:not(.has-files) .app { min-height: calc(100vh - var(--header-h)); }
+  /* The logo is in the header now: the title row only holds the page's name for screen readers. */
+  body:not(.has-files) .view[data-empty] .vh-row { min-height: 0; }
+}
 
 /* ============================================================
    Landing: the whole page, credit included, fits the viewport, with no scrolling.
@@ -1515,7 +1545,7 @@ tt-mobile .files-bar[hidden] { display: none; }
   body:not(.has-files) .workspace {
     --land-gap: clamp(var(--grid-3), 3.2vh, var(--grid-1));
     /* The screen's height; only below what the smallest circle needs does the page itself scroll. */
-    min-height: max(100vh, 600px); min-height: max(100dvh, 600px); box-sizing: border-box;
+    min-height: max(calc(100vh - var(--header-h)), 600px); min-height: max(calc(100dvh - var(--header-h)), 600px); box-sizing: border-box;
     display: flex; flex-direction: column; padding-block: var(--grid-2);
   }
   body:not(.has-files) .view[data-empty] { flex: 1 1 auto; width: 100%; gap: var(--land-gap); }
@@ -1566,3 +1596,63 @@ tt-mobile .files-bar[hidden] { display: none; }
 @media (min-width: 641px) {
   .dropzone > .icon { margin-bottom: 0.5rem; }
 }
+
+/* Typography scale on the semantic and component pages */
+section.type-styles { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-5); }
+.type-head-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.type-head-row h3 { font-size: var(--font-md); margin: 0; }
+.type-head-row .spacer { flex: 1; }
+.type-range { list-style: none; margin: 0; padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-sm); border-radius: var(--radius); background: var(--warn-soft); }
+.type-scale { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+.type-row + .type-row { border-top: 1px solid var(--border); }
+.type-row-main { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); min-width: 0; }
+.type-row-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.type-row-text .token-id { font-family: var(--mono); font-size: var(--font-xs); color: var(--muted); }
+.type-flag { display: inline-flex; }
+.type-flag.error { color: var(--error); }
+.type-flag.warning { color: var(--warn); }
+.type-specimen { margin: 0; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.type-broken { margin: 0; }
+.type-row-actions { display: flex; flex: none; align-items: center; gap: var(--space-1); }
+.type-summary { margin: 0; font-family: var(--mono); font-size: var(--font-xs); color: var(--muted); }
+.type-edit { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-3); background: var(--surface-2); border-top: 1px dashed var(--border); }
+.type-theme { color: var(--muted); font-size: var(--font-xs); font-weight: 400; }
+.type-parts { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--space-2) var(--space-2); font-size: var(--font-sm); }
+.type-parts .label { color: var(--muted); min-height: var(--control-h); display: flex; align-items: center; gap: 4px; }
+.type-pick { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); min-width: 0; }
+/* A message about a field, beneath it. */
+.field-note { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); font-size: var(--font-xs); }
+.field-note .sev-icon { flex: none; }
+.field-note.error .sev-icon { color: var(--error); }
+.field-note.warning .sev-icon { color: var(--warn); }
+.field-note-text { flex: 0 1 auto; min-width: 0; }
+/* A field with its fixes beside it. */
+.field-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); max-width: 100%; }
+.field-row button { white-space: nowrap; }
+/* An issue under a field: icon and message, the message wrapping in its own column. */
+.field-note:has(.field-note-text) { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+.field-note:has(.field-note-text) .sev-icon { margin-top: 0.15em; }
+.type-pick select { min-width: 0; max-width: 100%; font-family: var(--mono); font-size: var(--font-xs); }
+.field-note .tag { margin-left: 0; }
+.type-value { font-family: var(--mono); font-size: var(--font-xs); color: var(--muted); }
+.type-issues { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-sm); }
+.type-issue { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--space-1) var(--space-2); }
+.type-issue.error .sev-icon { color: var(--error); }
+.type-issue.warning .sev-icon { color: var(--warn); }
+.type-issue.info .sev-icon { color: var(--info); }
+.type-issue .sev-icon { margin-top: 0.2em; }
+.type-issue button { grid-column: 2; justify-self: start; }
+
+/* Token pickers lead with the token icon: the field holds a reference to a token, not a typed value. */
+.token-mark { display: inline-flex; flex: none; color: var(--muted); }
+.token-mark .icon { width: 14px; height: 14px; }
+.ss-button .token-mark { margin-left: 4px; margin-right: -2px; }
+.token-field { position: relative; display: inline-flex; min-width: 0; max-width: 100%; }
+.token-field > .token-mark { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.token-field > select { padding-left: 28px; }
+.token-field.own > select, .token-field.empty > select { padding-left: var(--dd-pad); }
+.token-field.empty .ss-label, .token-field.empty > select { color: var(--muted); font-family: inherit; }
+.token-field .swatch-select, .token-field .ss-button { max-width: 100%; }
+/* An alert on the value: the border one pixel thicker, in the alert's color. */
+.token-field.warning > select, .token-field.warning .ss-button { border-color: var(--warn); box-shadow: 0 0 0 1px var(--warn); }
+.token-field.error > select, .token-field.error .ss-button { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }

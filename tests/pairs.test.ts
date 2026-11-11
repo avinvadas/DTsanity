@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { colorInfo } from '../src/color/format';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, NO_PAIR_EDITS, over, pairId, realias } from '../src/semantic/pairs';
+import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, NO_PAIR_EDITS, over, pairId, pointColor, realias } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -111,9 +111,9 @@ describe('pair checks', () => {
     expect(aliasCandidates(model)[0]!.tokens.map((t) => t.id)).toEqual(['color.gray.0', 'color.gray.300', 'color.gray.500']);
   });
 
-  it('offers a semantic token base and other semantic tokens, never itself or a loop', () => {
+  it('offers a semantic token base tokens only, never itself', () => {
     const groups = aliasCandidates(model, 'color.bg.default');
-    expect(groups.map((g) => g.label)).toEqual(['Base · color.gray', 'Semantic · color.text', 'Semantic · color.icon']);
+    expect(groups.map((g) => g.label)).toEqual(['Base · color.gray']);
     const ids = groups.flatMap((g) => g.tokens.map((t) => t.id));
     expect(ids).not.toContain('color.bg.default');
   });
@@ -122,6 +122,10 @@ describe('pair checks', () => {
     const edit = realias(model, 'color.text.default', 'color.gray.300')!;
     expect(edit).toEqual({ fileId: model.files[0]!.id, path: ['color', 'text', 'default', '$value'], value: '{color.gray.300}' });
     expect(realias(model, 'color.gray.500', 'color.gray.0')).toBeUndefined();
+  });
+
+  it('points a color with a value of its own at a token, replacing the value', () => {
+    expect(pointColor(model, 'color.gray.500', 'color.gray.0')).toEqual({ fileId: model.files[0]!.id, path: ['color', 'gray', '500', '$value'], value: '{color.gray.0}' });
   });
 });
 

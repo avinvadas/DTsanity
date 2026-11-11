@@ -1,0 +1,21 @@
+{
+  "font": {
+    "family": { "$type": "fontFamily", "sans": { "$value": ["Inter", "sans-serif"] } },
+    "size": {
+      "$type": "dimension",
+      "body": {
+        "$value": { "value": 1, "unit": "rem" },
+        "$extensions": { "mode": { "desktop": { "value": 1, "unit": "rem" }, "mobile": { "value": 0.9375, "unit": "rem" } } }
+      },
+      "heading": {
+        "$value": { "value": 2, "unit": "rem" },
+        "$extensions": { "mode": { "desktop": { "value": 2, "unit": "rem" }, "mobile": { "value": 1.5, "unit": "rem" } } }
+      }
+    }
+  },
+  "text": {
+    "$type": "typography",
+    "body": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.body}", "fontWeight": 400, "letterSpacing": { "value": 0, "unit": "px" }, "lineHeight": 1.5 } },
+    "heading": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.heading}", "fontWeight": 700, "letterSpacing": "-1%", "lineHeight": 1.2 } }
+  }
+}

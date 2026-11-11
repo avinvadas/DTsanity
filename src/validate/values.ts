@@ -1,9 +1,10 @@
 import { DTCG_SPACES, cssToDtcg, round, toHex } from '../color/dtcg';
-import { DTCG_TYPES, FONT_WEIGHT_NAMES, LEGACY_TO_DTCG } from '../legacy/types';
-import { convertLegacyValue, isAlias, parseCubicBezier, parseDimension, parseDuration, parseFontWeight, parseNumber } from '../legacy/values';
+import { DTCG_TYPES, FONT_WEIGHT_NAMES, LEGACY_EXT, LEGACY_TO_DTCG, VALUE_EXTRAS } from '../legacy/types';
+import { convertLegacyValue, isAlias, parseCubicBezier, parseDimension, parseDuration, parseFontFamily, parseFontWeight, parseNumber, type Dimension } from '../legacy/values';
 import { makeIssue, parseAlias } from '../model/build';
 import { closest } from '../model/suggest';
-import type { Fix, Issue, Model } from '../model/types';
+import { modeValues } from '../model/modes';
+import type { Edit, Fix, Issue, Model, Token } from '../model/types';
 import { findEmbedded } from './references';
 
 /**
@@ -17,12 +18,19 @@ const TYPES = new Set<string>(DTCG_TYPES);
 const STROKE_STYLES = ['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'outset', 'inset'];
 const LINE_CAPS = ['round', 'butt', 'square'];
 const UNIT_SPACES = new Set(['srgb', 'srgb-linear', 'display-p3', 'a98-rgb', 'prophoto-rgb', 'rec2020']);
+const TYPOGRAPHY_FIELDS = { fontFamily: 'fontFamily', fontSize: 'dimension', fontWeight: 'fontWeight', letterSpacing: 'letterSpacing', lineHeight: 'lineHeight' };
+/** Tokens Studio typography properties DTCG has no place for. A fix keeps them in the legacy extension, which converts back on export. */
+export const TYPOGRAPHY_EXTRAS = ['textCase', 'textDecoration', 'paragraphSpacing', 'paragraphIndent'];
+const GENERIC_FAMILIES = new Set(['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui', 'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'math', 'emoji', 'fangsong']);
+const RELATIVE_RE = /^\s*(-?(?:\d+\.?\d*|\.\d+))\s*(%|em)\s*$/;
+/** Root font size for comparing px with rem. */
+const ROOT_PX = 16;
 
 interface Problem {
   message: string;
   /** True when the corrected value fixes it. */
   fixable: boolean;
-  /** Legacy forms and inconsistencies are warnings; everything else is an error. */
+  /** Legacy forms and likely mistakes are warnings; everything else is an error. */
   level: 'legacy' | 'warning' | 'error';
   /** Label for the fix when this is the only fixable problem. */
   fixLabel?: string;
@@ -31,9 +39,30 @@ interface Problem {
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const isRef = (v: unknown) => isAlias(v) || (isObj(v) && Object.keys(v).length === 1 && typeof v.$ref === 'string');
 const show = (v: unknown) => (typeof v === 'string' ? `"${v}"` : JSON.stringify(v));
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+const toPx = (d: Dimension) => (d.unit === 'rem' ? d.value * ROOT_PX : d.value);
+const dim = (d: Dimension) => `${d.value}${d.unit}`;
+const asDimension = (v: unknown): Dimension | undefined =>
+  isObj(v) ? (typeof v.value === 'number' && (v.unit === 'px' || v.unit === 'rem') ? (v as unknown as Dimension) : undefined) : typeof v === 'string' && /(px|rem)\s*$/.test(v) ? parseDimension(v) : undefined;
 
 class Checker {
   problems: Problem[] = [];
+  /** Typography properties moved out of the value, to keep in the legacy extension. */
+  moved?: Record<string, unknown>;
+  /** The font size the typography's relative values are measured against. */
+  private size?: Dimension;
+
+  /** `fontSize` is the resolved font size of a typography token, for when its own value is a reference. */
+  constructor(
+    private fontSize?: Dimension,
+    /** True when that referenced size changes between modes, so no single conversion is right. */
+    private sizeVaries = false,
+  ) {}
+
+  /** Why a relative value can't be converted here. */
+  private get noSize() {
+    return this.sizeVaries ? 'the font size it uses changes between modes, so each mode needs its own value' : "the font size isn't known here to convert it";
+  }
 
   private add(message: string, fixable: boolean, legacy = false, fixLabel?: string) {
     const p: Problem = { message, fixable, level: legacy ? 'legacy' : 'error' };
@@ -43,6 +72,11 @@ class Checker {
 
   private warn(message: string, fixLabel: string) {
     this.problems.push({ message, fixable: true, level: 'warning', fixLabel });
+  }
+
+  /** A likely mistake that may be intended, so it's a warning; fixable when the right value is known. */
+  private suspect(message: string, fixable: boolean) {
+    this.problems.push({ message, fixable, level: 'warning' });
   }
 
   /** Check `v` as `type`; return the value with every mechanical fix applied. */
@@ -68,10 +102,17 @@ class Checker {
         this.add(`${at} must be a number from 1 to 1000 or a keyword like "bold", not ${show(v)}.`, w !== undefined, w !== undefined);
         return w ?? v;
       }
-      case 'fontFamily':
+      case 'fontFamily': {
+        if (typeof v === 'string' && v.includes(',')) {
+          // CSS stack syntax: DTCG reads the whole string as one font name.
+          const list = parseFontFamily(v);
+          this.add(`${at} is a CSS font stack (${show(v)}); DTCG reads a string as one font name, so a stack is a list: ${JSON.stringify(list)}.`, true, true);
+          return list;
+        }
         if (typeof v === 'string' || (Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string'))) return v;
         this.add(`${at} must be a font name or a list of font names.`, false);
         return v;
+      }
       case 'cubicBezier': {
         if (Array.isArray(v) && v.length === 4 && v.every((x) => typeof x === 'number' || isRef(x))) {
           const [x1, , x2] = v as number[];
@@ -116,7 +157,11 @@ class Checker {
           return out;
         });
       case 'typography':
-        return this.composite(v, at, { fontFamily: 'fontFamily', fontSize: 'dimension', fontWeight: 'fontWeight', letterSpacing: 'dimension', lineHeight: 'number' });
+        return this.typography(v, at);
+      case 'letterSpacing':
+        return this.letterSpacing(v, at);
+      case 'lineHeight':
+        return this.lineHeight(v, at);
       case 'boolean':
         if (typeof v !== 'boolean') this.add(`${at} must be true or false.`, false);
         return v;
@@ -132,6 +177,85 @@ class Checker {
       default:
         return v;
     }
+  }
+
+  private typography(v: unknown, at: string): unknown {
+    if (!isObj(v)) {
+      this.add(`${at} must be an object with ${Object.keys(TYPOGRAPHY_FIELDS).join(', ')}.`, false);
+      return v;
+    }
+    const extras = Object.keys(v).filter((k) => TYPOGRAPHY_EXTRAS.includes(k));
+    let rest: Record<string, unknown> = v;
+    if (extras.length) {
+      this.moved = Object.fromEntries(extras.map((k) => [k, v[k]]));
+      rest = Object.fromEntries(Object.entries(v).filter(([k]) => !extras.includes(k)));
+      this.add(`${at} has Tokens Studio properties DTCG typography doesn't define: ${extras.map((k) => `“${k}”`).join(', ')}. The fix keeps them under “$extensions”.`, true, true);
+    }
+    this.size = isRef(rest.fontSize) ? this.fontSize : asDimension(rest.fontSize) ?? (typeof rest.fontSize === 'number' ? parseDimension(rest.fontSize) : undefined);
+    const out = this.composite(rest, at, TYPOGRAPHY_FIELDS) as Record<string, unknown>;
+    const size = asDimension(out.fontSize);
+    if (size && size.value <= 0) this.add(`${at}.fontSize must be greater than 0.`, false);
+    return out;
+  }
+
+  /** DTCG letter spacing is a px or rem dimension; "%" and "em" are relative to the font size. */
+  private letterSpacing(v: unknown, at: string): unknown {
+    const m = typeof v === 'string' ? RELATIVE_RE.exec(v) : null;
+    if (!m) return this.check('dimension', v, at);
+    const share = m[2] === '%' ? Number(m[1]) / 100 : Number(m[1]);
+    if (share === 0) {
+      this.add(`${at} is ${show(v)}; DTCG letter spacing is a dimension like {"value": 0, "unit": "px"}.`, true, true);
+      return { value: 0, unit: 'px' };
+    }
+    if (!this.size) {
+      this.add(`${at} is ${show(v)}, relative to the font size; DTCG letter spacing must be px or rem, and ${this.noSize}.`, false);
+      return v;
+    }
+    const out: Dimension = { value: Math.round(share * this.size.value * 10000) / 10000, unit: this.size.unit };
+    this.add(`${at} is ${show(v)} of the font size; DTCG letter spacing must be px or rem: ${dim(out)} at ${dim(this.size)}.`, true, true);
+    return out;
+  }
+
+  /** DTCG line height is a number that multiplies the font size. */
+  private lineHeight(v: unknown, at: string): unknown {
+    let n: number | undefined;
+    if (typeof v === 'number') n = v;
+    else {
+      const length = asDimension(v);
+      if (length) {
+        if (!this.size) {
+          this.add(`${at} is a length (${dim(length)}); DTCG line height is a number that multiplies the font size, like 1.5, and ${this.noSize}.`, false);
+          return v;
+        }
+        const ratio = round3(toPx(length) / toPx(this.size));
+        this.add(`${at} is a length (${dim(length)}); DTCG line height is a multiplier of the font size: ${dim(length)} ÷ ${dim(this.size)} = ${ratio}.`, true, true);
+        return ratio;
+      }
+      if (typeof v === 'string' && /^\s*(auto|normal)\s*$/i.test(v)) {
+        this.add(`${at} is ${show(v)}; DTCG needs a number. Most fonts' normal spacing is about 1.2.`, false);
+        return v;
+      }
+      n = parseNumber(v);
+      if (n === undefined) {
+        this.add(`${at} must be a number that multiplies the font size, like 1.5, not ${show(v)}.`, false);
+        return v;
+      }
+      this.add(`${at} must be a number, not ${show(v)}.`, true, true);
+    }
+    if (n <= 0) {
+      this.add(`${at} must be greater than 0.`, false);
+      return n;
+    }
+    // A plain number this large reads as a multiplier but was almost certainly meant as pixels.
+    if (n >= 4) {
+      if (this.size) {
+        const ratio = round3(n / toPx(this.size));
+        this.suspect(`${at} is ${n}, so lines would be ${n} times the font size. It looks like pixels: ${n}px ÷ ${dim(this.size)} = ${ratio}.`, true);
+        return ratio;
+      }
+      this.suspect(`${at} is ${n}, so lines would be ${n} times the font size. If it's meant as pixels, divide it by the font size.`, false);
+    }
+    return n;
   }
 
   private unitValue(v: unknown, at: string, what: string, units: string[], parse: (x: unknown) => { value: number; unit: string } | undefined): unknown {
@@ -304,7 +428,8 @@ export function typeAndValueRules(model: Model): Issue[] {
 
     // Embedded references are reported by the reference rules; the value can't be judged until they're resolved.
     if (!TYPES.has(t.type) || parseAlias(t.rawValue) !== undefined || findEmbedded(t.rawValue)) continue;
-    const checker = new Checker();
+    const size = referencedFontSize(model, t);
+    const checker = new Checker(size === 'varies' ? undefined : size, size === 'varies');
     const fixed = checker.check(t.type, t.rawValue, '$value');
     if (checker.problems.length === 0) continue;
     const problems = checker.problems;
@@ -322,11 +447,15 @@ export function typeAndValueRules(model: Model): Issue[] {
             : fixable.every((p) => p.level === 'legacy')
               ? 'Convert to the DTCG form'
               : 'Fix the value';
-      fix = {
-        label,
-        preview: { before: compact(t.rawValue), after: compact(fixed) },
-        edits: [{ fileId: t.fileId, path: [...t.keyPath, ...t.valuePath], value: fixed }],
-      };
+      const edits: Edit[] = [{ fileId: t.fileId, path: [...t.keyPath, ...t.valuePath], value: fixed }];
+      if (checker.moved) {
+        const legacy = isObj(t.extensions?.[LEGACY_EXT]) ? (t.extensions[LEGACY_EXT] as Record<string, unknown>) : {};
+        const kept = isObj(legacy[VALUE_EXTRAS]) ? legacy[VALUE_EXTRAS] : {};
+        edits.push({ fileId: t.fileId, path: [...t.keyPath, '$extensions', LEGACY_EXT], value: { ...legacy, [VALUE_EXTRAS]: { ...kept, ...checker.moved } } });
+      }
+      const preview = changedParts(t.rawValue, fixed);
+      if (checker.moved) preview.after = `${preview.after === '{}' ? '' : `${preview.after} and `}“$extensions” ${compact(checker.moved)}`;
+      fix = { label, preview, edits };
     }
     const lines = problems.map((p) => p.message);
     issues.push(
@@ -340,11 +469,64 @@ export function typeAndValueRules(model: Model): Issue[] {
       ),
     );
   }
+  issues.push(...fontFallbackNotes(model));
+  return issues;
+}
+
+/**
+ * The font size a typography token references, resolved, for converting its relative
+ * values. Undefined when the size changes between modes: a converted value would
+ * only be right in one of them.
+ */
+function referencedFontSize(model: Model, t: Token): Dimension | 'varies' | undefined {
+  if (t.type !== 'typography' || !isObj(t.rawValue) || !isObj(t.value)) return undefined;
+  const seen = new Set<string>();
+  for (let id = parseAlias(t.rawValue.fontSize); id && !seen.has(id); ) {
+    seen.add(id);
+    const target = model.tokens.get(id);
+    if (!target) return undefined;
+    if (modeValues(target.extensions)) return 'varies';
+    id = target.aliasOf;
+  }
+  return asDimension(t.value.fontSize);
+}
+
+/**
+ * A font family written without a generic family (sans-serif, serif…) at the end:
+ * if the named fonts don't load, the browser falls back to its default, often a serif.
+ * Reported where the family is written, not on every token that references it.
+ */
+function fontFallbackNotes(model: Model): Issue[] {
+  const issues: Issue[] = [];
+  for (const t of model.tokens.values()) {
+    if (t.extendedFrom || (t.type !== 'fontFamily' && t.type !== 'typography')) continue;
+    const family = t.type === 'typography' ? (isObj(t.rawValue) ? t.rawValue.fontFamily : undefined) : t.rawValue;
+    const list = Array.isArray(family) ? family : typeof family === 'string' && !family.includes(',') && !isRef(family) ? [family] : undefined;
+    if (!list?.length || !list.every((x) => typeof x === 'string')) continue;
+    if (list.some((x) => GENERIC_FAMILIES.has((x as string).trim().toLowerCase()))) continue;
+    issues.push(
+      makeIssue(
+        'info',
+        'values',
+        'font-fallback',
+        `${list.map((x) => `“${x}”`).join(', ')} ${list.length > 1 ? 'end' : 'ends'} without a generic family like sans-serif, serif or monospace. If the font doesn't load, the browser picks its own default.`,
+        { fileId: t.fileId, target: t.id, keyPath: t.keyPath, pos: t.pos },
+      ),
+    );
+  }
   return issues;
 }
 
 function typeFix(fileId: string, keyPath: string[], from: string, to: string): Fix {
   return { label: `Change type to “${to}”`, preview: { before: `"$type": "${from}"`, after: `"$type": "${to}"` }, edits: [{ fileId, path: [...keyPath, '$type'], value: to }] };
+}
+
+/** Before/after text for a fix: for an object value (typography, border…), only the properties that change. */
+function changedParts(before: unknown, after: unknown): { before: string; after: string } {
+  if (!isObj(before) || !isObj(after)) return { before: compact(before), after: compact(after) };
+  const keys = [...new Set([...Object.keys(before), ...Object.keys(after)])].filter((k) => JSON.stringify(before[k]) !== JSON.stringify(after[k]));
+  const pick = (o: Record<string, unknown>) => Object.fromEntries(keys.filter((k) => k in o).map((k) => [k, o[k]]));
+  return { before: compact(pick(before)), after: compact(pick(after)) };
 }
 
 const compact = (v: unknown) => {

@@ -8,8 +8,8 @@ import type { ContrastView } from '../state/contrast';
 import { displayGamut } from './canvas';
 import { collapsible } from './collapsible';
 import { h, masked } from './dom';
-import { swatchSelect } from './swatch-select';
 import { TIP } from './tips';
+import { tokenField } from './token-field';
 
 /** UI pieces for contrast: target toggles, end pickers, step distance, parity. */
 
@@ -43,15 +43,16 @@ export function contrastControls(settings: Settings, set: PaletteSet, view: Cont
       'span',
       { class: 'end-picker' },
       h('span', { class: 'end-label', 'data-tip': TIP.endPicker }, `${END_LABEL[end]}:`),
-      swatchSelect({
+      tokenField({
         label: END_LABEL[end],
-        value: current.name,
+        // A token picked as the end leads with the token icon; plain white or black is not a token.
+        ...(step !== undefined ? { value: current.name } : {}),
         gamut: displayGamut(settings.gamut),
         groups: groups.map((g) => ({
           label: g.label,
           options: g.tokens.map((t) => ({ value: t.id, label: t.step, title: t.id, meta: pct(t.l), info: t.info, disabled: !ok(t.l) && t.id !== current.name })),
         })),
-        fallback: { label: step ?? `${current.name} (no neutral tokens)`, info: current.info },
+        shown: { label: step ?? `${current.name} (no neutral tokens)`, info: current.info },
         onPick: (id) => setContrastEnd(end, id),
       }),
     );

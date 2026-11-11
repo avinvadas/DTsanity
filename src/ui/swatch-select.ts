@@ -30,8 +30,10 @@ export function swatchSelect(opts: {
   groups: SwatchGroup[];
   value: string;
   gamut: Gamut;
+  /** The value is a token reference: the button leads with the token icon. */
+  token?: boolean;
   /** Shown on the button when no option matches `value`. */
-  fallback?: { label: string; info: ColorInfo };
+  fallback?: { label: string; info?: ColorInfo };
   onPick: (value: string) => void;
 }): HTMLElement {
   const all = opts.groups.flatMap((g) => g.options);
@@ -39,8 +41,8 @@ export function swatchSelect(opts: {
   const shown = chosen ?? opts.fallback;
   const empty = !all.length;
 
-  const face = (o: { label: string; meta?: string; title?: string; info: ColorInfo }) => [
-    swatchCanvas(o.info, opts.gamut, false),
+  const face = (o: { label: string; meta?: string; title?: string; info?: ColorInfo }) => [
+    o.info ? swatchCanvas(o.info, opts.gamut, false) : null,
     h('span', { class: 'ss-label', title: o.title }, o.label),
     o.meta ? h('span', { class: 'ss-meta' }, o.meta) : null,
   ];
@@ -49,6 +51,7 @@ export function swatchSelect(opts: {
   const button = h(
     'button',
     { type: 'button', class: 'ss-button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': opts.label, disabled: empty },
+    opts.token ? h('span', { class: 'token-mark', 'aria-hidden': 'true' }, icon('token')) : null,
     shown ? face(shown) : null,
     empty ? null : h('span', { class: 'ss-chevron', 'aria-hidden': 'true' }, icon('chevron-down')),
   ) as HTMLButtonElement;

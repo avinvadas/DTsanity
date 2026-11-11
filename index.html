@@ -22,6 +22,8 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"DTsanity","applicationCategory":"DesignApplication","operatingSystem":"Any (web browser)","description":"Validate design token files against the DTCG spec, check contrast (WCAG, APCA) and color blindness, fix issues and download the fixed set. Runs in your browser.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0"},"codeRepository":"https://github.com/avinvadas/DTsanity","author":{"@type":"Person","name":"Avin Vadas","url":"https://avinvadas.com"}}</script>
   </head>
   <body>
+    <!-- Desktop landing: the logo where the sidebar shows it once files are loaded (the appearance switch is the fixed one in the corner). -->
+    <header class="land-head"><span data-logo>DTsanity</span></header>
     <div class="app">
       <aside class="sidebar">
         <div class="brand"><span data-logo>DTsanity</span></div>
@@ -32,7 +34,7 @@
         <section class="view" data-view="files" aria-labelledby="files-h">
           <header class="vh">
             <div class="vh-row">
-              <h1 class="vh-title" id="files-h"><span class="landing-only brand-title"><span data-logo>DTsanity</span></span><span class="loaded-only">Files</span></h1>
+              <h1 class="vh-title" id="files-h"><span class="landing-only visually-hidden">DTsanity</span><span class="loaded-only">Files</span></h1>
             </div>
             <div class="vh-summary loaded-only" id="files-summary"></div>
             <p class="landing-only landing-intro">Check your design tokens DTCG format compliance and accessibility issues</p>

@@ -141,7 +141,7 @@ export class TTPalettes extends HTMLElement {
           ? h('p', { class: 'note' }, 'Base colors are shown for the first theme, ', masked(h('b', null, v.themes[0]!.name)), '. Pick a theme in the sidebar to see its own.')
           : null,
         settings.gamut === 'p3' && shown === 'srgb' ? h('p', { class: 'note' }, "This screen can't show Display P3, so colors marked P3 are drawn mapped to sRGB.") : null,
-        total === 0 ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with their own value rather than a reference.') : null,
+        total === 0 ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with a raw value rather than a token reference.') : null,
         this.systems(set.palettes, settings, shown, contrast),
         parityPanel(contrast, included),
         set.loose.length ? this.loose(set, settings, shown) : null,

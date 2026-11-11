@@ -82,6 +82,7 @@ describe('applying fixes', () => {
         'deprecated-reference color.uses-old',
         'embedded-reference color.embedded',
         'extension-naming misc.ext',
+        'font-fallback misc.typography',
         'invalid-value color.not-a-color',
         'invalid-value misc.typography',
         'invalid-value size.em',

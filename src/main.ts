@@ -34,6 +34,7 @@ customElements.define('tt-mobile', TTMobile);
 installTooltips();
 initTheme();
 // Top right of the viewport; the phone layout carries its own in its header.
+// The same switch serves the landing and the loaded views, so it never moves between them.
 document.body.append(themeToggle('desk-theme'));
 
 // Under the sidebar's logo, above the tabs, the global settings: the loaded files (count, last change, actions), then the contrast target.
@@ -95,7 +96,8 @@ document.addEventListener('dragend', endDrag);
 document.addEventListener('keydown', (e) => {
   if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'z') return;
   const el = e.target as HTMLElement | null;
-  if (el?.closest('input, textarea, select, [contenteditable]')) return;
+  // Text fields undo their own typing; a select has none, so the app undoes there.
+  if (el?.closest('input, textarea, [contenteditable]')) return;
   e.preventDefault();
   if (e.shiftKey) redo();
   else undo();

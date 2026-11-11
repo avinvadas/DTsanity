@@ -98,6 +98,18 @@ export function componentOf(t: Token): string {
   return t.path[0] ?? t.id;
 }
 
+/**
+ * Tiers the re-alias pickers offer a token of `tier`: a semantic token is
+ * pointed at base tokens only, a component token at semantic or base ones.
+ * Stricter than what the tier rules accept, which also let semantic tokens
+ * point at each other.
+ */
+export const PICK_FROM: Record<Tier, readonly Tier[]> = {
+  base: [],
+  semantic: ['base'],
+  component: ['semantic', 'base'],
+};
+
 /** Tiers a token of `tier` may reference. */
 export const MAY_REFERENCE: Record<Tier, readonly Tier[]> = {
   base: [],

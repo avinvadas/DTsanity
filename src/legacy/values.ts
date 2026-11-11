@@ -128,7 +128,8 @@ export function convertLegacyValue(type: string | undefined, v: unknown, note: N
     case 'color':
       return parseColor(v) ?? keep('color');
     case 'dimension':
-      return parseDimension(v) ?? keep('dimension (only px and rem units exist)');
+      // "0%" (Tokens Studio's no letter spacing) is zero in any unit.
+      return parseDimension(v) ?? (typeof v === 'string' && PCT_RE.test(v) && parseNumber(v) === 0 ? { value: 0, unit: 'px' } : keep('dimension (only px and rem units exist)'));
     case 'duration':
       return parseDuration(v) ?? keep('duration');
     case 'number':
@@ -142,7 +143,7 @@ export function convertLegacyValue(type: string | undefined, v: unknown, note: N
     case 'shadow':
       return Array.isArray(v) ? v.map((x) => convertShadow(x, note)) : convertShadow(v, note);
     case 'typography':
-      return convertComposite(v, { fontFamily: 'fontFamily', fontSize: 'dimension', fontWeight: 'fontWeight', letterSpacing: 'letterSpacing', lineHeight: 'number' }, note);
+      return convertComposite(relativeToSize(v), { fontFamily: 'fontFamily', fontSize: 'dimension', fontWeight: 'fontWeight', letterSpacing: 'letterSpacing', lineHeight: 'number' }, note);
     case 'border':
       return convertComposite(v, { color: 'color', width: 'dimension', style: 'strokeStyle' }, note);
     case 'transition':
@@ -152,6 +153,23 @@ export function convertLegacyValue(type: string | undefined, v: unknown, note: N
     default:
       return v;
   }
+}
+
+/**
+ * Tokens Studio typography writes line height as a length ("24px") and letter
+ * spacing as a share of the font size ("8%"). DTCG needs a multiplier and a
+ * length, so both are converted against the style's own font size, when it's written as a number.
+ */
+function relativeToSize(v: unknown): unknown {
+  if (!isObj(v)) return v;
+  const size = typeof v.fontSize === 'string' && !v.fontSize.includes('{') ? parseDimension(v.fontSize) : typeof v.fontSize === 'number' ? parseDimension(v.fontSize) : undefined;
+  if (!size || size.value <= 0) return v;
+  const out = { ...v };
+  const lh = typeof v.lineHeight === 'string' && /(px|rem)\s*$/.test(v.lineHeight) ? parseDimension(v.lineHeight) : undefined;
+  if (lh && lh.unit === size.unit) out.lineHeight = Math.round((lh.value / size.value) * 1000) / 1000;
+  const pct = typeof v.letterSpacing === 'string' ? PCT_RE.exec(v.letterSpacing) : null;
+  if (pct && Number(pct[1]) !== 0) out.letterSpacing = `${Math.round((Number(pct[1]) / 100) * size.value * 10000) / 10000}${size.unit}`;
+  return out;
 }
 
 function convertComposite(v: unknown, fields: Record<string, string>, note: Note): unknown {

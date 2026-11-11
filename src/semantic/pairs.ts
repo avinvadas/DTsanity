@@ -3,7 +3,8 @@ import { colorInfo, infoFrom, mapped, type ColorInfo } from '../color/format';
 import { levelById, type ContrastTarget, type Level, type Metric } from '../contrast/levels';
 import { contrast } from '../contrast/metrics';
 import type { JPath } from '../json/cst';
-import { MAY_REFERENCE, TIER_LABEL, tiersOf } from '../model/tiers';
+import { modeValues } from '../model/modes';
+import { PICK_FROM, TIER_LABEL, tiersOf } from '../model/tiers';
 import type { Edit, Model, Token } from '../model/types';
 
 /**
@@ -206,6 +207,42 @@ export function colorRef(t: Token): { target: string; path: JPath } | undefined 
   return undefined;
 }
 
+/**
+ * Where a token's color is written, and the token it references there if
+ * any: the whole value of a color token, or the `color` part of a composite
+ * border. Undefined for a border that is an alias of another border, or a
+ * token copied in by `$extends`.
+ */
+export function colorSlot(t: Token): { target?: string; path: JPath } | undefined {
+  if (t.extendedFrom) return undefined;
+  const ref = colorRef(t);
+  if (ref) return ref;
+  if (t.type === 'color' && !t.aliasOf) return { path: [...t.keyPath, ...t.valuePath] };
+  if (t.type === 'border' && !t.aliasOf && t.rawValue && typeof t.rawValue === 'object' && 'color' in t.rawValue) return { path: [...t.keyPath, ...t.valuePath, 'color'] };
+  return undefined;
+}
+
+/**
+ * The edit that points a token's color at `target`, whether it is a
+ * reference now or a value of its own. With `mode`, the theme reading that
+ * mode should change alone: if it reads the plain `$value`, which other modes
+ * share, the color goes into the token's entry for this mode instead (in the
+ * mode shape the token already uses, or `$extensions.mode`), and the other
+ * modes keep reading `$value`.
+ */
+export function pointColor(model: Model, id: string, target: string, mode?: string): Edit | undefined {
+  const t = model.tokens.get(id);
+  const slot = t && colorSlot(t);
+  if (!slot) return undefined;
+  const ref = `{${target}}`;
+  if (mode === undefined || t.valuePath.length !== 1 || t.valuePath[0] !== '$value') return { fileId: t.fileId, path: slot.path, value: ref };
+  const modePath = modeValues(t.extensions)?.path ?? ['$extensions', 'mode'];
+  // A border's color part: this mode's entry is the whole border, with the color changed.
+  const part = slot.path.slice(t.keyPath.length + 1);
+  const value = part.length && t.rawValue && typeof t.rawValue === 'object' ? { ...(t.rawValue as Record<string, unknown>), [part[0]!]: ref } : ref;
+  return { fileId: t.fileId, path: [...t.keyPath, ...modePath, mode], value };
+}
+
 const colorOf = (model: Model, id: string) => tokenColor(model.tokens.get(id));
 
 /** Check a foreground on a background for a pair of `kind`. */
@@ -241,7 +278,7 @@ export interface AliasCandidate {
  */
 export function aliasCandidates(model: Model, id?: string): { label: string; tokens: AliasCandidate[] }[] {
   const tiers = tiersOf(model);
-  const allowed = id ? MAY_REFERENCE[tiers.get(id) ?? 'semantic'] : (['base'] as const);
+  const allowed = id ? PICK_FROM[tiers.get(id) ?? 'semantic'] : (['base'] as const);
   const loops = id ? leadsTo(model, id) : new Set<string>();
   const groups = new Map<string, AliasCandidate[]>();
   const tokens = [...model.tokens.values()].sort((a, b) => allowed.indexOf(tiers.get(a.id)!) - allowed.indexOf(tiers.get(b.id)!) || a.order - b.order);
@@ -257,7 +294,7 @@ export function aliasCandidates(model: Model, id?: string): { label: string; tok
 }
 
 /** Tokens whose references lead to `id`, directly or through others. */
-function leadsTo(model: Model, id: string): Set<string> {
+export function leadsTo(model: Model, id: string): Set<string> {
   const back = new Map<string, string[]>();
   for (const t of model.tokens.values()) for (const r of t.refs) back.set(r, [...(back.get(r) ?? []), t.id]);
   const found = new Set<string>();

@@ -29,7 +29,7 @@ export function tierRules(model: Model): Issue[] {
           'warning',
           'references',
           'tier-base-reference',
-          `Points at ${t.refs.map((r) => `{${r}}`).join(', ')}; base tokens hold their own values.`,
+          `Points at ${t.refs.map((r) => `{${r}}`).join(', ')}; base tokens hold raw values.`,
           at,
           fix,
         ),
@@ -55,7 +55,7 @@ export function tierRules(model: Model): Issue[] {
           'info',
           'references',
           'tier-hardcoded',
-          `${TIER_LABEL[tier]} token with its own value; point it at a base token.`,
+          `${TIER_LABEL[tier]} token with a raw value; point it at a base token.`,
           at,
         ),
       );

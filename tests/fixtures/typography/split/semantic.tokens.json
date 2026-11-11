@@ -1,0 +1,21 @@
+{
+  "text": {
+    "$type": "typography",
+    "display": {
+      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.700}", "fontWeight": "{font.weight.bold}", "letterSpacing": "{font.tracking.tight}", "lineHeight": "{font.line-height.tight}" }
+    },
+    "heading": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "letterSpacing": "{font.tracking.none}", "lineHeight": "{font.line-height.snug}" }
+    },
+    "body": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.none}", "lineHeight": "{font.line-height.normal}" }
+    },
+    "label": {
+      "$description": "Relative letter spacing and a pixel line height over a referenced size: fixable from the resolved size.",
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.200}", "fontWeight": "{font.weight.medium}", "letterSpacing": "5%", "lineHeight": "20px" }
+    },
+    "code": {
+      "$value": { "fontFamily": "{font.family.mono}", "fontSize": "{font.size.200}", "fontWeight": "{font.weight.regular}", "letterSpacing": "{font.tracking.none}", "lineHeight": "{font.line-height.normal}" }
+    }
+  }
+}

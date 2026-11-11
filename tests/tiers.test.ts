@@ -92,6 +92,8 @@ describe('tier rules', () => {
     expect(ids('color.bg.default')).not.toContain('color.bg.raised');
     expect(ids('color.bg.default')).not.toContain('button.primary.bg');
     expect(ids('color.bg.default')).toContain('color.gray.100');
+    // A semantic token is offered base tokens only.
+    expect(ids('color.text.default').every((x) => !x.startsWith('color.bg.') && !x.startsWith('color.text.'))).toBe(true);
     // A component may point at semantic and base tokens, not at other components.
     expect(ids('button.primary.text')).toContain('color.bg.raised');
     expect(ids('button.primary.text')).not.toContain('button.primary.bg');

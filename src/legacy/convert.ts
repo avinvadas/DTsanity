@@ -1,6 +1,6 @@
 import { entry, isInline, reshape, setChild, toJS, type JDoc, type JEntry, type JNode, type JObject, type JStyle } from '../json/cst';
 import type { ConversionNote, LegacyKind } from '../model/types';
-import { DTCG_TYPES, LEGACY_EXT, LEGACY_EXT_OLD, LEGACY_TO_DTCG, TOKENS_STUDIO_TYPES } from './types';
+import { DTCG_TYPES, LEGACY_EXT, LEGACY_EXT_OLD, LEGACY_TO_DTCG, TOKENS_STUDIO_TYPES, VALUE_EXTRAS } from './types';
 import { addValueSuffix, convertLegacyValue, looksLikeHex, toLegacyValue } from './values';
 
 /**
@@ -160,7 +160,10 @@ export function dtcgToLegacy(doc: JDoc, kind: LegacyKind): { doc: JDoc; notes: s
     const out: JEntry[] = [];
     for (const e of node.entries) {
       if (e.key === '$value') {
-        const legacyValue = toLegacyValue(dtcgType, value);
+        const extras = legacy[VALUE_EXTRAS];
+        const base = toLegacyValue(dtcgType, value);
+        // Typography properties DTCG has no place for (textCase…) go back into the value.
+        const legacyValue = extras && typeof extras === 'object' && base && typeof base === 'object' && !Array.isArray(base) ? { ...base, ...extras } : base;
         const written = kind === 'style-dictionary' ? addValueSuffix(legacyValue) : legacyValue;
         out.push({ ...rename(e, 'value'), value: reshape(e.value, written, depth + 1, style, inline) });
       } else if (e.key === '$type') {
@@ -176,7 +179,7 @@ export function dtcgToLegacy(doc: JDoc, kind: LegacyKind): { doc: JDoc; notes: s
     }
     let obj = withEntries(node, out);
     if (!entry(obj, 'type') && legacyType) obj = setChild(obj, 'type', legacyType, depth, style);
-    for (const [k, v] of Object.entries(legacy)) if (k !== 'type' && !entry(obj, k)) obj = setChild(obj, k, v, depth, style);
+    for (const [k, v] of Object.entries(legacy)) if (k !== 'type' && k !== VALUE_EXTRAS && !entry(obj, k)) obj = setChild(obj, k, v, depth, style);
     if (!DTCG.has(dtcgType ?? '') && dtcgType && !legacy.type) notes.push(`${keyPath.join('.')}: type “${dtcgType}” was written as is.`);
     return obj;
   };

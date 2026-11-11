@@ -3,15 +3,16 @@ import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
 import { TIER_LABEL, tierNames, type Tier } from '../model/tiers';
 import type { Model } from '../model/types';
-import { aliasCandidates, checkColors, colorRef, glyphOf, hasRole, realias, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
+import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, pointColor, tokenColor, hasRole, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
 import { collapsible, disclosure, expand, isOpen, setAll } from './collapsible';
 import { viewControls } from './loader';
-import { swatchSelect } from './swatch-select';
 import { h, icon, masked, plural, severityIcon, viewHead, xButton } from './dom';
 import { TIP } from './tips';
+import { tokenField, type FieldStatus, type TokenOption } from './token-field';
+import { typographySection } from './typography';
 
 const KINDS: { id: PairKind; label: string }[] = [
   { id: 'text', label: 'Text' },
@@ -22,6 +23,24 @@ type View = Pick<AppState, 'model' | 'themeModels' | 'themes' | 'pairEdits' | 's
 
 /** How a failing pair is marked: text that can't be read is an error, a faint UI part a warning. */
 const failTone = (kind: PairKind) => (kind === 'text' ? 'error' : 'warning');
+
+/**
+ * The mode a theme's pick should be written to so it changes that theme
+ * alone: the theme's mode, when the token's value there is the plain
+ * `$value` that another theme reads too. Undefined when the theme's value is
+ * already its own (its own mode entry, or a file only it reads).
+ */
+function ownMode(i: number, id: string): string | undefined {
+  const s = store.get();
+  const mode = s.themeModels[i]?.theme.scope.mode;
+  const t = s.themeModels[i]?.model.tokens.get(id);
+  if (mode === undefined || !t || t.valuePath.join('.') !== '$value') return undefined;
+  const shared = s.themeModels.some((tm, j) => {
+    const o = tm.model.tokens.get(id);
+    return j !== i && o?.fileId === t.fileId && o.valuePath.join('.') === '$value';
+  });
+  return shared ? mode : undefined;
+}
 
 /** A group member's own part of the name, e.g. "danger" for `color.text.danger` in `color.text.*`. */
 const statusOf = (id: string, group: string) => {
@@ -156,6 +175,7 @@ export class TTSemantic extends HTMLElement {
             rows.length ? this.visionTable(rows, themeNames, v) : '',
             siblings.length ? this.siblingsPanel(siblings, themeNames, v) : '',
           ]),
+      typographySection(this.tier, this.onlyFailing, v.model.issues) ?? '',
       colorIds.length ? this.addForm(colorIds) : '',
     );
     requestAnimationFrame(() => paintAll(this));
@@ -228,33 +248,40 @@ export class TTSemantic extends HTMLElement {
    * file and mode `model` reads it from. `meta` describes what each option
    * would give. Tokens with their own value, or missing here, say so instead.
    */
-  private aliasField(model: Model, id: string, label: string, theme: string | null, fallback: ColorInfo, meta: (cand: AliasCandidate) => string | undefined, v: View, before?: () => void) {
+  private aliasField(model: Model, id: string, label: string, theme: string | null, fallback: ColorInfo, meta: (cand: AliasCandidate) => string | undefined, v: View, before?: () => void, status?: FieldStatus, mode?: string) {
     const t = model.tokens.get(id);
     if (!t) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, label), h('span', { class: 'muted' }, 'Not in this theme'));
-    const ref = colorRef(t);
-    if (!ref) {
+    const slot = colorSlot(t);
+    if (!slot) {
       // A border that aliases a whole other border takes its color from there.
-      const why = t.aliasOf ? `Takes its color from ${t.aliasOf}` : 'Has its own value, not a reference';
+      const why = t.aliasOf ? `Takes its color from ${t.aliasOf}` : 'Copied in by $extends';
       return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, label), h('span', { class: 'muted', 'data-tip': t.aliasOf ? TIP.pairBorderAlias : TIP.pairOwnValue }, why));
     }
+    const own = slot.target === undefined;
+    // The worst of: the pair failing here, an issue on the token, a value of its own.
+    const issues = v.model.issues.filter((i) => i.target === id && i.severity !== 'info');
+    const worst: FieldStatus | undefined =
+      status === 'error' || issues.some((i) => i.severity === 'error') ? 'error' : status || issues.length || own ? 'warning' : undefined;
     const file = store.get().files.find((f) => f.id === t.fileId)?.name;
-    const select = swatchSelect({
+    const field = tokenField({
       label: `${theme ?? ''} reference of ${id}`.trim(),
       groups: aliasCandidates(model, id).map((g) => ({
         label: g.label,
         options: g.tokens.map((cand) => ({ value: cand.id, label: cand.id, meta: meta(cand), info: cand.info })),
       })),
-      value: ref.target,
+      ...(own ? {} : { value: slot.target }),
+      shown: { label: slot.target ?? 'Raw value', info: fallback },
+      ...(worst ? { status: worst } : {}),
       gamut: displayGamut(v.settings.gamut),
-      fallback: { label: ref.target, info: fallback },
+      ...(own ? { tip: TIP.pairOwnValue } : {}),
       onPick: (target) => {
-        const edit = realias(model, id, target);
+        const edit = pointColor(model, id, target, mode);
         if (!edit) return;
         before?.();
         applyEdits(`Point ${id} at ${target}${theme ? ` in ${theme}` : ''}`, [edit]);
       },
     });
-    return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, label), select, h('small', { class: 'muted', 'data-tip': TIP.pairRealiasFile }, `in ${file ?? 'its file'}`));
+    return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, label), field, h('small', { class: 'muted', 'data-tip': TIP.pairRealiasFile }, `in ${file ?? 'its file'}`));
   }
 
   /**
@@ -287,7 +314,7 @@ export class TTSemantic extends HTMLElement {
           allModels(store.get()).map((model, i) => {
             const c = r.seen.normal[i];
             if (!c) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, names[i] ?? label), h('span', { class: 'muted' }, 'This pair is not in this theme'));
-            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => (role === 'fg' ? meta(cand.info, c.bg) : meta(c.fg, cand.info)), v, () => (this.keepOpen = key));
+            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => (role === 'fg' ? meta(cand.info, c.bg) : meta(c.fg, cand.info)), v, () => (this.keepOpen = key), c.pass ? undefined : failTone(r.pair.kind), ownMode(i, id));
           }),
         ),
         h('p', { class: 'hint' }, `Each option shows its contrast against the ${role === 'fg' ? 'background' : 'foreground'} and whether it still passes with every color-vision deficiency (CVD). Only the reference changes; ⌘Z undoes it.`),
@@ -338,7 +365,7 @@ export class TTSemantic extends HTMLElement {
         'div',
         { class: 'alias-theme' },
         themeNames[i] ? h('strong', null, themeNames[i]) : null,
-        c.colors.map((m) => this.aliasField(model, m.id, statusOf(m.id, row.group.id), themeNames[i] ?? null, m.info, meta(m.id), v)),
+        c.colors.map((m) => this.aliasField(model, m.id, statusOf(m.id, row.group.id), themeNames[i] ?? null, m.info, meta(m.id), v, undefined, c.results.some((x) => !x.pass && x.vision !== 'achroma' && x.closest.includes(m.id)) ? 'warning' : undefined, ownMode(i, m.id))),
       );
     };
     return h(
@@ -643,7 +670,7 @@ export class TTSemantic extends HTMLElement {
         `), with ${plural(colorIds.length, 'color token')}.`,
       ),
       refs.length === 0
-        ? h('p', null, 'All of them have their own values: these are base colors, with no semantic layer of references to pair. Load your semantic files as well (such as semantic.light.json), then press Reload files if you changed them on disk.')
+        ? h('p', null, 'All of them have raw values: these are base colors, with no semantic layer of references to pair. Load your semantic files as well (such as semantic.light.json), then press Reload files if you changed them on disk.')
         : h(
             'p',
             null,
@@ -675,40 +702,67 @@ export class TTSemantic extends HTMLElement {
     row.querySelector<HTMLElement>('.realias-btn')?.focus({ preventScroll: true });
   }
 
+  /** Add a pair by hand: two color tokens picked from every theme's color tokens, and a kind. */
   private addForm(colorIds: string[]) {
-    const listId = `tt-color-ids-${this.tier}`;
-    const list = masked(h('datalist', { id: listId }, colorIds.map((id) => h('option', { value: id }))));
-    const field = (label: string, id: string) =>
-      h('label', { class: 'field' }, h('span', null, label), masked(h('input', { type: 'text', id, list: listId, autocomplete: 'off', spellcheck: 'false', placeholder: 'color token' })));
-    const fg = field('Foreground', `tt-pair-fg-${this.tier}`);
-    const bg = field('Background', `tt-pair-bg-${this.tier}`);
-    const kind = h('select', { 'aria-label': 'Kind' }, KINDS.map((k) => h('option', { value: k.id }, k.label)));
+    const models = allModels(store.get());
+    const infoOf = (id: string) => models.map((m) => tokenColor(m.tokens.get(id))).find(Boolean);
+    const gamut = displayGamut(store.get().settings.gamut);
+    const groups = (() => {
+      const byGroup = new Map<string, TokenOption[]>();
+      for (const id of colorIds) {
+        const info = infoOf(id);
+        if (!info) continue;
+        const label = id.split('.').slice(0, -1).join('.') || 'top level';
+        byGroup.set(label, [...(byGroup.get(label) ?? []), { value: id, label: id, info }]);
+      }
+      return [...byGroup].map(([label, options]) => ({ label, options }));
+    })();
+    const picked: { fg?: string; bg?: string } = {};
+    const slot = (role: 'fg' | 'bg', label: string) => {
+      const holder = h('span', { class: 'add-pair-field' });
+      const draw = () =>
+        holder.replaceChildren(
+          tokenField({
+            // Unique on the page: the semantic and component views each have this form.
+            label: `${label} of a new ${this.tier} pair`,
+            groups,
+            ...(picked[role] ? { value: picked[role] } : {}),
+            placeholder: 'Pick a color token',
+            gamut,
+            onPick: (id) => {
+              picked[role] = id;
+              message.textContent = '';
+              draw();
+            },
+          }),
+        );
+      draw();
+      return h('div', { class: 'field' }, h('span', null, label), holder);
+    };
     const message = h('small', { class: 'hint', role: 'status' });
-    const known = new Set(colorIds);
+    const fg = slot('fg', 'Foreground');
+    const bg = slot('bg', 'Background');
+    const kind = h('select', { 'aria-label': 'Kind' }, KINDS.map((k) => h('option', { value: k.id }, k.label)));
     return h(
       'form',
       {
         class: 'add-pair',
         onsubmit: (e: Event) => {
           e.preventDefault();
-          const f = fg.querySelector('input')!.value.trim();
-          const b = bg.querySelector('input')!.value.trim();
-          const unknown = [f, b].find((id) => !known.has(id));
-          if (unknown !== undefined) {
-            message.textContent = unknown ? 'Pick color tokens from the list.' : 'Enter both tokens.';
+          if (!picked.fg || !picked.bg) {
+            message.textContent = 'Pick both tokens.';
             return;
           }
-          if (f === b) {
+          if (picked.fg === picked.bg) {
             message.textContent = 'Pick two different tokens.';
             return;
           }
-          addPair(f, b, kind.value as PairKind);
+          addPair(picked.fg, picked.bg, kind.value as PairKind);
         },
       },
       h('strong', null, 'Add a pair'),
       h('div', { class: 'row' }, fg, bg, kind, h('button', { type: 'submit' }, 'Add')),
       message,
-      list,
     );
   }
 }
