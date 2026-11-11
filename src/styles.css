@@ -489,10 +489,10 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
 .dropzone > .icon { width: calc(var(--zone) * 0.381); height: auto; color: var(--text); }
-/* The token-file icon fades in. On the landing, the border light's color lies over its text color at 50%, cycling through the whole spectrum in step with the light. */
+/* The token-file icon fades in. On the landing, a glow behind it (50% opacity, 5rem blur) takes the border light's color, cycling through the whole spectrum in step with the light. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; filter: drop-shadow(var(--shadow-soft)); }
-.view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { color: color-mix(in oklab, var(--text), oklch(0.68 0.22 var(--tf-hue)) 50%); animation: tf-in 0.6s ease-out backwards, tf-hue 13s linear infinite; }
+.view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { filter: drop-shadow(var(--shadow-soft)) drop-shadow(0 0 5rem oklch(0.68 0.22 var(--tf-hue) / 0.5)); animation: tf-in 0.6s ease-out backwards, tf-hue 13s linear infinite; }
 /* The drawing (outline, label, letters) at 0.66; the file's solid body stays opaque. */
 .token-file-icon > :not(.tf-base, defs) { opacity: 0.66; transition: opacity 0.1s ease-out; }
 /* Pointing at the target, or dragging files over the page, brings the drawing to full strength. */
