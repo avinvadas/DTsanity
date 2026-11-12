@@ -58,6 +58,8 @@ const FORMATS: { value: Settings['colorFormat']; label: string }[] = [
 // Column 1 is the indent under the row toggle; rail labels sit at the start of the first step.
 const LABEL_COL = 2;
 const STEP_COL = 2;
+/** The lines of a unit in the grid: swatch, name, value, LCH. */
+const UNIT_LINES = 4;
 /** After the steps: a filler that stretches rows to the container's width, then the row actions. */
 const actionCol = (steps: number) => STEP_COL + steps;
 /** Row ends span the filler and the actions column, so their lines and buttons reach the right edge. */
@@ -246,12 +248,14 @@ export class TTPalettes extends HTMLElement {
     }
 
     // The row's units. Every column is a step some row in the system
-    // has, so a step this row lacks is a gap, wherever it falls.
+    // has, so a step this row lacks is a gap, wherever it falls. Each unit
+    // spans the same UNIT_LINES rows (swatch, name, value, LCH), so the
+    // longest name or value in the row sets that line's height for all.
     columns.forEach((c, i) => {
       const s = byColumn.get(c);
-      cells.push(at(s ? this.unit(s, settings, shown, offScale.get(c), { pinned: pins.includes(s.step), toggle: () => setPins(p.id, pins.includes(s.step) ? [] : [s.step]) }) : h('div', { class: 'unit-gap', 'data-tip': TIP.missingStep }), row, STEP_COL + i));
+      cells.push(at(s ? this.unit(s, settings, shown, offScale.get(c), { pinned: pins.includes(s.step), toggle: () => setPins(p.id, pins.includes(s.step) ? [] : [s.step]) }) : h('div', { class: 'unit-gap', 'data-tip': TIP.missingStep }), row, STEP_COL + i, UNIT_LINES));
     });
-    row++;
+    row += UNIT_LINES;
 
     // Contrast: only where each level is first reached, as a heavy edge facing the failing steps.
     for (const end of endIds) {

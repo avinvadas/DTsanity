@@ -888,7 +888,12 @@ button.curve-btn { border-color: var(--border-strong); }
 .row-heading.collapsed .meta { color: var(--subtle); }
 
 /* Units are borderless so a row reads as one range; hovering one outlines it and offers a copy. */
-.unit { display: flex; flex-direction: column; border: 1.5px solid transparent; border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; }
+/*
+ * A unit's lines (swatch, name, value, LCH) sit on rows it shares with the
+ * other units in its row (subgrid), so a long name or value makes that line
+ * taller for every unit and the lines stay level across the row.
+ */
+.unit { display: grid; grid-template-rows: subgrid; row-gap: 2px; align-content: start; border: 1.5px solid transparent; border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; }
 .unit:hover, .unit:focus-visible { border-color: var(--border-strong); outline: none; }
 .unit-fill .copy-mark {
   position: absolute; left: 50%; top: calc(6px + 24px); transform: translate(-50%, -50%);
@@ -909,8 +914,11 @@ button.pin-btn .icon { width: 13px; height: 13px; }
 .unit-fill .swatch-canvas { height: 48px; }
 .unit-fill .value-chip { position: absolute; top: 10px; right: 10px; }
 .unit-fill .id-chip { position: absolute; top: 10px; left: 10px; }
-.unit-val { display: flex; flex-direction: column; gap: 2px; padding: 6px; font-size: var(--font-2xs); line-height: 1.4; }
-.unit-val .value { display: flex; align-items: flex-start; gap: 4px; min-height: calc(2 * 1.4em); overflow-wrap: anywhere; color: var(--text); }
+.unit-val { display: contents; }
+.unit-val > * { padding: 0 6px; font-size: var(--font-2xs); line-height: 1.4; }
+.unit-val > :first-child { padding-top: 4px; }
+.unit-val > :last-child { padding-bottom: 6px; }
+.unit-val .value { display: flex; align-items: flex-start; gap: 4px; overflow-wrap: anywhere; color: var(--text); }
 .unit-val .value .outl { padding: 0 3px; }
 .unit-val .unit-name { font-family: var(--mono); font-size: var(--font-xs); font-weight: 700; color: var(--text); overflow-wrap: anywhere; }
 .unit-val .lch { display: flex; justify-content: space-between; color: var(--subtle); font-family: var(--mono); }
@@ -942,7 +950,10 @@ button.pin-btn .icon { width: 13px; height: 13px; }
 
 
 .loose { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-4); }
-.unit-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+/* A series of colors: wraps like a row of cards, each line (name, swatch, value, LCH) level across a row. */
+.unit-row { display: grid; grid-template-columns: repeat(auto-fill, var(--unit-w)); column-gap: var(--space-2); row-gap: 0; }
+.unit-row > .unit-named { display: grid; grid-template-rows: subgrid; grid-row: span 4; row-gap: 0; padding-bottom: var(--space-2); }
+.unit-row > .unit-named > .unit { grid-row: span 3; }
 .unit-named { width: var(--unit-w); display: flex; flex-direction: column; }
 .unit-named .col-head { font-family: var(--mono); font-weight: 500; font-size: var(--font-2xs); margin-bottom: var(--space-1); }
 /* Other base colors: series (one collapsible row per group) and singles (one row each), ruled like palette rows. */
