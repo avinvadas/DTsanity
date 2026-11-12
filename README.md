@@ -38,5 +38,6 @@ npm run build:strict   # strict build: no usability recording, runs offline from
 - [Features in detail](docs/features.md)
 - [Development: project layout](docs/development.md)
 - [Plan](PLAN.md)
+- [Sample token sets](samples/README.md) from ten open-source design systems, for testing
 
 Created by [Avin Vadas](https://avinvadas.com).
