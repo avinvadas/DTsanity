@@ -1,9 +1,10 @@
 import { VISIONS } from '../color/cvd';
 import { formatContrast } from '../contrast/metrics';
 import type { Category, Fix, Issue, Severity } from '../model/types';
+import { noFixNote, remedyOf } from '../policy/rules';
 import { applyFixes, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
-import { h, masked, plural, severityIcon, viewHead } from './dom';
+import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
 import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
@@ -131,7 +132,7 @@ export class TTIssues extends HTMLElement {
         undefined,
         f.contrast.length,
         this.tierLinks(f.contrast.map((r) => r.tier)),
-        f.contrast.length ? masked(h('ul', { class: 'issue-list' }, f.contrast.map(contrastRow))) : null,
+        f.contrast.length ? h('div', null, h('p', { class: 'group-note' }, noFixNote('contrast-text')), masked(h('ul', { class: 'issue-list' }, f.contrast.map(contrastRow)))) : null,
         'Every pair passes.',
       ),
       this.group(
@@ -140,7 +141,7 @@ export class TTIssues extends HTMLElement {
         undefined,
         vision.length,
         this.tierLinks([...f.vision.map((r) => r.tier), ...f.groups.map((g) => g.tier)], true),
-        vision.length ? masked(h('ul', { class: 'issue-list' }, vision)) : null,
+        vision.length ? h('div', null, h('p', { class: 'group-note' }, noFixNote(f.vision.length ? 'cvd-pair' : 'cvd-siblings')), masked(h('ul', { class: 'issue-list' }, vision))) : null,
         'Pairs and status colors stay apart.',
       ),
     ];
@@ -201,7 +202,8 @@ export class TTIssues extends HTMLElement {
           'Format',
           undefined,
           formatCount,
-          [fixAll(fixesOf(groups.flatMap((g) => g.issues)), 'format')],
+          // Each category applies its own fixes; one button up here would repeat them.
+          [],
           groups.length
             ? h(
                 'div',
@@ -214,10 +216,9 @@ export class TTIssues extends HTMLElement {
                       'div',
                       { class: 'subgroup-head' },
                       h('h5', { 'data-tip': CATEGORY_TIP[category] }, CATEGORY_LABEL[category], h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length))),
-                      // With one category, the Format heading's button already applies these.
-                      h('div', { class: 'group-actions' }, groups.length > 1 ? fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase()) : null),
+                      h('div', { class: 'group-actions' }, fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase())),
                     ),
-                    masked(h('ul', { class: 'issue-list' }, issues.map((i) => this.row(i, where(i))))),
+                    this.clusters(issues, where),
                   ),
                 ),
               )
@@ -230,7 +231,7 @@ export class TTIssues extends HTMLElement {
           undefined,
           tierIssues.length,
           [fixAll(fixesOf(tierIssues), 'tier')],
-          tierIssues.length ? masked(h('ul', { class: 'issue-list' }, tierIssues.map((i) => this.row(i, where(i))))) : null,
+          tierIssues.length ? this.clusters(tierIssues, where) : null,
           'Each tier points the right way.',
         ),
         ...this.pairGroups(f, themes, v.settings.cvdDistance),
@@ -245,12 +246,41 @@ export class TTIssues extends HTMLElement {
                 'div',
                 null,
                 h('p', { class: 'group-note' }, 'Notes, not issues: they are not counted above, and nothing needs to change.'),
-                masked(h('ul', { class: 'issue-list' }, infoIssues.map((i) => this.row(i, where(i))))),
+                this.clusters(infoIssues, where, true),
               ),
               '',
             )
           : null,
       ),
+    );
+  }
+
+  /**
+   * A list of issues in two clusters: the ones DTsanity fixes in one click,
+   * then the ones that need a change from the user (in the file, with a tool
+   * here, or through the fix prompt). A cluster with nothing in it is left out.
+   */
+  private clusters(issues: Issue[], where: (i: Issue) => string, notes = false) {
+    const fixable = issues.filter((i) => i.fix);
+    const manual = issues.filter((i) => !i.fix);
+    const cluster = (kind: 'fixable' | 'manual', title: string, tip: string, items: Issue[], note?: string) =>
+      items.length
+        ? h(
+            'div',
+            { class: `fix-cluster ${kind}` },
+            h('h6', { class: 'cluster-head', 'data-tip': tip }, kind === 'fixable' ? icon('check') : null, title, h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(items.length))),
+            note ? h('p', { class: 'cluster-note' }, note) : null,
+            masked(h('ul', { class: 'issue-list' }, items.map((i) => this.row(i, where(i))))),
+          )
+        : null;
+    return h(
+      'div',
+      { class: 'fix-clusters' },
+      cluster('fixable', 'Fixable here', TIP.clusterFixable, fixable),
+      // Info notes ask for no change, so their second cluster only says DTsanity won't make one.
+      notes
+        ? cluster('manual', 'No fix here', TIP.clusterManual, manual)
+        : cluster('manual', 'Needs your change', TIP.clusterManual, manual, 'DTsanity can’t make these changes for you: edit the file, or use the fix prompt.'),
     );
   }
 
@@ -274,7 +304,9 @@ export class TTIssues extends HTMLElement {
                 ? h('span', { class: 'preview' }, h('code', { class: 'before', 'data-tip': TIP.fixBefore }, fix.preview.before), h('span', { 'aria-label': 'becomes' }, ' → '), h('code', { class: 'after', 'data-tip': TIP.fixAfter }, fix.preview.after))
                 : null,
             )
-          : null,
+          : remedyOf(i.code) === 'guided'
+            ? h('p', { class: 'no-fix' }, noFixNote(i.code))
+            : null,
       ),
       h('code', { class: 'where', 'data-tip': where ? TIP.where : undefined }, where),
     );

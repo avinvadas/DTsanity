@@ -3,8 +3,8 @@ import { paintAll, swatchCanvas } from './canvas';
 import { h, icon, masked } from './dom';
 
 /**
- * A single-choice list whose options lead with a color thumbnail, which a
- * native <select> cannot show. The button shows the chosen option; the list
+ * A single-choice list whose options lead with a color thumbnail or an icon,
+ * which a native <select> cannot show. The button shows the chosen option; the list
  * opens as a popover under it. Keyboard: Enter, Space or the arrows open it;
  * the arrows, Home and End move; Enter or Space picks; Escape closes.
  */
@@ -16,7 +16,10 @@ export interface SwatchOption {
   meta?: string;
   /** The full name, as a tooltip, when the label is a short form of it. */
   title?: string;
-  info: ColorInfo;
+  /** The color its thumbnail shows. */
+  info?: ColorInfo;
+  /** Or what the option leads with instead, such as an icon. Called once per place it is shown. */
+  lead?: () => Node;
   disabled?: boolean;
 }
 
@@ -34,15 +37,22 @@ export function swatchSelect(opts: {
   token?: boolean;
   /** Shown on the button when no option matches `value`. */
   fallback?: { label: string; info?: ColorInfo };
+  /** The whole control is unavailable (shown, not openable). */
+  disabled?: boolean;
+  /** Mask the labels from usability recordings: true (the default) for token names and values. */
+  mask?: boolean;
+  /** Extra class on the control, for plain-text lists. */
+  class?: string;
   onPick: (value: string) => void;
 }): HTMLElement {
   const all = opts.groups.flatMap((g) => g.options);
   const chosen = all.find((o) => o.value === opts.value);
   const shown = chosen ?? opts.fallback;
   const empty = !all.length;
+  const mask = opts.mask === false ? <T extends HTMLElement>(el: T) => el : masked;
 
-  const face = (o: { label: string; meta?: string; title?: string; info?: ColorInfo }) => [
-    o.info ? swatchCanvas(o.info, opts.gamut, false) : null,
+  const face = (o: { label: string; meta?: string; title?: string; info?: ColorInfo; lead?: () => Node }) => [
+    o.lead ? h('span', { class: 'ss-lead', 'aria-hidden': 'true' }, o.lead()) : o.info ? swatchCanvas(o.info, opts.gamut, false) : null,
     h('span', { class: 'ss-label', title: o.title }, o.label),
     o.meta ? h('span', { class: 'ss-meta' }, o.meta) : null,
   ];
@@ -50,7 +60,7 @@ export function swatchSelect(opts: {
   const id = `ss-${Math.random().toString(36).slice(2, 8)}`;
   const button = h(
     'button',
-    { type: 'button', class: 'ss-button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': opts.label, disabled: empty },
+    { type: 'button', class: 'ss-button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': opts.label, disabled: empty || opts.disabled },
     opts.token ? h('span', { class: 'token-mark', 'aria-hidden': 'true' }, icon('token')) : null,
     shown ? face(shown) : null,
     empty ? null : h('span', { class: 'ss-chevron', 'aria-hidden': 'true' }, icon('chevron-down')),
@@ -64,7 +74,7 @@ export function swatchSelect(opts: {
       h(
         'div',
         { role: 'group', 'aria-label': g.label, class: 'ss-group' },
-        h('div', { class: 'ss-group-label', 'aria-hidden': 'true' }, g.label),
+        g.label ? h('div', { class: 'ss-group-label', 'aria-hidden': 'true' }, g.label) : null,
         g.options.map((o) => {
           const el = h(
             'div',
@@ -98,7 +108,7 @@ export function swatchSelect(opts: {
   }
 
   function open() {
-    if (empty) return;
+    if (empty || opts.disabled) return;
     list.showPopover();
   }
 
@@ -147,5 +157,5 @@ export function swatchSelect(opts: {
     e.preventDefault();
   });
 
-  return h('span', { class: 'swatch-select' }, masked(button), masked(list));
+  return h('span', { class: `swatch-select${opts.class ? ` ${opts.class}` : ''}` }, mask(button), mask(list));
 }

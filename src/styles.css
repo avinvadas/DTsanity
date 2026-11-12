@@ -744,6 +744,11 @@ tt-files .file .badge + button { margin-left: auto; }
 .issue .sev { align-self: start; padding-top: 0.2em; }
 .issue .body { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .issue .fix { margin-top: var(--space-1); }
+.fix-clusters { display: flex; flex-direction: column; gap: var(--space-3); }
+.cluster-head { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); font-size: var(--font-sm); font-weight: 500; color: var(--text-soft); }
+.cluster-head .icon { width: 14px; height: 14px; color: var(--accent); }
+.cluster-note { margin: calc(-1 * var(--space-1)) 0 var(--space-2); font-size: var(--font-sm); color: var(--muted); }
+.issue .no-fix { margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--muted); }
 /* Title · target · detail: the rule in bold, the token in mono, then only the facts the two leave out. */
 .issue-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px var(--space-2); min-width: 0; }
 .issue-title { font-weight: 600; }
@@ -751,9 +756,9 @@ tt-files .file .badge + button { margin-left: auto; }
 .issue-detail { margin: 0; color: var(--muted); overflow-wrap: anywhere; }
 .issue-head .theme-tag { margin-right: 0; }
 .issue .where { color: var(--subtle); font-size: var(--font-sm); white-space: nowrap; }
-.fix { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
-.fix-btn { min-height: 24px; font-size: var(--font-sm); padding: 0 var(--space-2); background: var(--accent-soft); border-color: transparent; color: var(--accent); }
-.fix-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--accent); }
+/* The fix stacks under the issue: the button on its own line (a secondary button), then its before → after. */
+.fix { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+.fix-btn { min-height: 24px; font-size: var(--font-sm); padding: 0 var(--space-2); }
 .preview { font-size: var(--font-sm); color: var(--muted); overflow-wrap: anywhere; min-width: 0; }
 .preview code { padding: 1px var(--space-1); border-radius: var(--radius-sm); }
 .preview .before { background: var(--error-soft); }
@@ -1384,6 +1389,7 @@ tt-mobile { display: none; }
 /* The four kinds of findings at a glance, under "N issues found:"; each card jumps to its findings. */
 .findings { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-5); }
 .findings-title { margin: 0; font-size: var(--font-md); font-weight: 600; }
+.findings-fixable { margin: 0; font-size: var(--font-sm); color: var(--muted); }
 /* A clean set: the issues heading turns green, led by the cards' check. */
 .findings-title.all-clear { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ok); }
 .m-foot.clear { grid-template-columns: 1fr; }
@@ -1406,6 +1412,7 @@ tt-mobile .finding-cards { grid-template-columns: 1fr 1fr; }
 .m-stack { display: flex; flex-direction: column; gap: var(--space-6); }
 .m-section { display: flex; flex-direction: column; gap: var(--space-3); }
 .m-section-head { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-md); padding-bottom: var(--space-2); border-bottom: 1px solid var(--border); }
+.m-cluster { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0; font-size: var(--font-sm); font-weight: 500; color: var(--text-soft); }
 .m-n { min-width: 22px; padding: 0 7px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--text); font-size: var(--font-xs); line-height: 22px; text-align: center; }
 .m-ok { display: inline-flex; color: var(--ok); }
 .m-ok .icon { width: 16px; height: 16px; }
@@ -1685,15 +1692,24 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
 .policy-group h2 { margin: 0 0 var(--space-2); font-size: var(--font-md, 1rem); }
 .policy-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
 .policy-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
-.policy-row input[role='switch'] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
+/* The checkbox sits on the title's line (24px: 16px at 1.5), centered on it, not on the whole row. */
+.policy-row input[role='switch'] { width: 18px; height: 18px; margin: 3px 0 0; align-self: start; cursor: pointer; }
 .policy-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; cursor: pointer; }
 .policy-text strong { font-weight: 500; }
 .policy-text code { font-size: var(--font-xs, 0.75rem); color: var(--muted); font-weight: 400; margin-left: var(--space-1); }
 .policy-text span, .policy-changed { color: var(--muted); font-size: var(--font-sm); }
 .policy-changed:empty { display: none; }
+/* What DTsanity does about the check's findings: an outlined tag, filled for the ones it fixes. */
+.policy-text .remedy { align-self: flex-start; margin-top: 2px; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: 999px; font-size: var(--font-xs, 0.75rem); line-height: 18px; color: var(--muted); }
+.policy-text .remedy.fix, .policy-text .remedy.sometimes { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
 .policy-row.changed .policy-changed { color: var(--text); font-weight: 500; }
 .policy-level { display: flex; align-items: center; gap: var(--space-2); }
-.policy-level select { min-width: 8.5rem; }
+/* The level picker: each level led by its severity icon, in the button and in the list. */
+.level-select .ss-button { min-width: 8.5rem; padding-left: var(--space-2); }
+.level-select .ss-label { font-family: inherit; }
+.level-select .ss-chevron { margin-left: auto; }
+.ss-lead { display: inline-grid; place-items: center; flex: none; }
+.level-select .ss-button:disabled .policy-sev { color: var(--muted); }
 .policy-foot { padding-top: var(--space-2); }
 .m-corner { display: flex; align-items: center; gap: var(--space-2); }
 .m-content { display: contents; }

@@ -1,7 +1,8 @@
 import type { Severity } from '../model/types';
-import { levelOf, RULES, type Level, type RuleDef } from '../policy/rules';
+import { levelOf, REMEDY, RULES, type Level, type RuleDef } from '../policy/rules';
 import { resetPolicy, setRuleLevel, store } from '../state/app';
 import { h, plural, severityIcon, viewHead } from './dom';
+import { swatchSelect } from './swatch-select';
 import { TIP } from './tips';
 
 const LABEL: Record<Severity, string> = { error: 'Error', warning: 'Warning', info: 'Info' };
@@ -10,10 +11,15 @@ interface Row {
   rule: RuleDef;
   el: HTMLElement;
   on: HTMLInputElement;
-  level: HTMLSelectElement;
-  icon: HTMLElement;
+  /** Holds the level picker, rebuilt when the rule's level changes. */
+  level: HTMLElement;
+  /** The level the picker was last built for. */
+  shown?: Level;
   changed: HTMLElement;
 }
+
+/** A level in the picker: its severity icon, in its color, then its name. */
+const levelOption = (l: Severity) => ({ value: l, label: LABEL[l], lead: () => h('span', { class: `policy-sev ${l}` }, severityIcon(l)) });
 
 /**
  * The severity policy: every check, one per line, with a switch to turn it
@@ -31,7 +37,7 @@ export class TTPolicy extends HTMLElement {
     const groups = [...new Set(RULES.map((r) => r.group))];
     this.replaceChildren(
       viewHead('Severity policy', { summary: this.summary }),
-      h('p', { class: 'meta policy-intro' }, 'How each check reports: as an error, a warning or info, or not at all. Changes apply right away to every file and are kept in this browser.'),
+      h('p', { class: 'meta policy-intro' }, 'How each check reports: as an error, a warning or info, or not at all. Changes apply right away to every file and are kept in this browser. Each check also says what DTsanity does about it: Auto-fix (always a one-click fix), Fix when clear (a fix when the right change is clear), Guided (a tool here to work on it) or Report only (the change is yours).'),
       h(
         'div',
         { class: 'policy' },
@@ -49,23 +55,24 @@ export class TTPolicy extends HTMLElement {
   private row(rule: RuleDef): Row {
     const id = `policy-${rule.id}`;
     const on = h('input', { type: 'checkbox', role: 'switch', id, 'aria-label': `Check ${rule.title}` });
-    const level = h(
-      'select',
-      { 'aria-label': `Severity of ${rule.title}` },
-      (['error', 'warning', 'info'] as const).map((l) => h('option', { value: l }, LABEL[l])),
-    );
+    const level = h('div', { class: 'policy-level' });
     on.addEventListener('change', () => setRuleLevel(rule.id, on.checked ? rule.level : 'off'));
-    level.addEventListener('change', () => setRuleLevel(rule.id, level.value as Level));
-    const icon = h('span', { class: 'policy-sev' });
     const changed = h('small', { class: 'policy-changed' });
     const el = h(
       'li',
       { class: 'policy-row' },
       on,
-      h('label', { for: id, class: 'policy-text' }, h('strong', null, rule.title, ' ', h('code', null, rule.id)), h('span', null, rule.about), changed),
-      h('div', { class: 'policy-level' }, icon, level),
+      h(
+        'label',
+        { for: id, class: 'policy-text' },
+        h('strong', null, rule.title, ' ', h('code', null, rule.id)),
+        h('span', null, rule.about),
+        h('span', { class: `remedy ${rule.remedy}`, 'data-tip': REMEDY[rule.remedy].about }, REMEDY[rule.remedy].label),
+        changed,
+      ),
+      level,
     );
-    return { rule, el, on, level, icon, changed };
+    return { rule, el, on, level, changed };
   }
 
   private refresh() {
@@ -75,10 +82,22 @@ export class TTPolicy extends HTMLElement {
       const l = levelOf(policy, x.rule.id);
       const off = l === 'off';
       x.on.checked = !off;
-      x.level.disabled = off;
-      x.level.value = off ? x.rule.level : l;
-      x.icon.replaceChildren(off ? '' : severityIcon(l));
-      x.icon.className = `policy-sev${off ? '' : ` ${l}`}`;
+      if (x.shown !== l) {
+        x.shown = l;
+        // Off: the picker shows the rule's default level, unavailable until the check is on again.
+        x.level.replaceChildren(
+          swatchSelect({
+            label: `Severity of ${x.rule.title}`,
+            groups: [{ label: '', options: (['error', 'warning', 'info'] as const).map(levelOption) }],
+            value: off ? x.rule.level : l,
+            gamut: 'srgb',
+            disabled: off,
+            mask: false,
+            class: 'level-select',
+            onPick: (v) => setRuleLevel(x.rule.id, v as Level),
+          }),
+        );
+      }
       x.el.classList.toggle('off', off);
       const isChanged = l !== x.rule.level;
       if (isChanged) edited++;

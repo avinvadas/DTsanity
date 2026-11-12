@@ -7,7 +7,7 @@ import { glyphOf } from '../semantic/pairs';
 import { applyFixes, removeFile, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas } from './canvas';
-import { allClear, findingCards, findings, type Findings } from './findings';
+import { allClear, findingCards, findings, openLines, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { targetSelect } from './contrast';
 import { fileStatusLine, ingest } from './loader';
@@ -195,7 +195,18 @@ export class TTMobile extends HTMLElement {
   private issues(s: AppState, f: Findings) {
     const gamut = displayGamut(s.settings.gamut);
     const themes = s.themeModels.map((m) => m.theme.name);
-    const section = (id: string, title: string, cards: HTMLElement[], clear: string) =>
+    // Format and tier issues in two clusters: what is fixed here in one tap, then what needs a change from you.
+    const canFix = (i: Issue) => !!i.fix && 'edits' in i.fix;
+    const clustered = (issues: Issue[]) => {
+      const fixable = issues.filter(canFix);
+      const manual = issues.filter((i) => !canFix(i));
+      const head = (title: string, n: number) => h('h3', { class: 'm-cluster' }, title, h('span', { class: 'm-n' }, String(n)));
+      return [
+        ...(fixable.length ? [head('Fixable here', fixable.length), ...fixable.map((i) => this.issueCard(i, s))] : []),
+        ...(manual.length ? [head('Needs your change', manual.length), ...manual.map((i) => this.issueCard(i, s))] : []),
+      ];
+    };
+    const section = (id: string, title: string, cards: HTMLElement[], clear: string, n = cards.length) =>
       h(
         'section',
         { class: 'm-section', id },
@@ -203,14 +214,14 @@ export class TTMobile extends HTMLElement {
           'h2',
           { class: 'm-section-head' },
           h('span', null, title),
-          cards.length ? h('span', { class: 'm-n' }, String(cards.length)) : h('span', { class: 'm-ok', 'aria-label': 'passes' }, icon('check')),
+          n ? h('span', { class: 'm-n' }, String(n)) : h('span', { class: 'm-ok', 'aria-label': 'passes' }, icon('check')),
         ),
         cards.length ? masked(h('div', { class: 'm-list' }, cards)) : h('p', { class: 'm-clear' }, clear),
       );
     return [
       f.fixable.length ? h('button', { type: 'button', class: 'm-fixall', onclick: () => this.fixAll(f.fixable) }, `Fix ${plural(f.fixable.length, 'safe issue')}`) : null,
-      section('m-format', 'Format', f.format.map((i) => this.issueCard(i, s)), 'Follows the DTCG format.'),
-      section('m-tiers', 'Tiers', f.tiers.map((i) => this.issueCard(i, s)), 'Each tier points the right way.'),
+      section('m-format', 'Format', clustered(f.format), 'Follows the DTCG format.', f.format.length),
+      section('m-tiers', 'Tiers', clustered(f.tiers), 'Each tier points the right way.', f.tiers.length),
       section('m-contrast', 'Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.'),
       section(
         'm-vision',
@@ -260,7 +271,7 @@ export class TTMobile extends HTMLElement {
           return h('li', null, theme ? h('b', null, `${theme}: `) : null, `${formatContrast(miss.value, miss.level.metric)} of ${miss.level.threshold} `, h('small', null, `(${miss.level.short})`));
         }),
       ),
-      h('span', { class: 'm-later' }, 'Re-alias on a larger screen · in the fix prompt'),
+      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · in the fix prompt'),
     );
   }
 
@@ -272,7 +283,7 @@ export class TTMobile extends HTMLElement {
       { class: `m-item ${r.cvdTone}` },
       h('div', { class: 'm-item-head' }, severityIcon(r.cvdTone), h('code', null, r.pair.fg)),
       h('p', null, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`),
-      h('span', { class: 'm-later' }, 'In the fix prompt'),
+      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · in the fix prompt'),
     );
   }
 
@@ -287,7 +298,7 @@ export class TTMobile extends HTMLElement {
       h('div', { class: 'm-item-head' }, severityIcon(g.tone ?? 'warning'), h('code', null, g.group.id)),
       h('p', null, `Status colors ${g.group.members.join(', ')} look too alike (need a difference of ${min}).`),
       h('ul', { class: 'm-results' }, lines.map((l) => h('li', null, l))),
-      h('span', { class: 'm-later' }, 'In the fix prompt'),
+      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · in the fix prompt'),
     );
   }
 
@@ -305,7 +316,7 @@ export class TTMobile extends HTMLElement {
     };
     const save = h(
       'button',
-      { type: 'button', class: 'm-secondary', disabled: !changed, onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip') },
+      { type: 'button', class: 'm-secondary', disabled: !changed, onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get(), undefined, openLines(findings(store.get()))), 'application/zip') },
       icon('download'),
       s.files.length === 1 ? 'Get fixed file' : 'Get fixed files',
     );

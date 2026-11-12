@@ -23,6 +23,8 @@ export interface Findings {
   format: Issue[];
   tiers: Issue[];
   fixable: Fix[];
+  /** Counted issues that come with a one-click fix (file edits or a setting). */
+  withFix: number;
   contrast: PairRow[];
   vision: PairRow[];
   groups: SiblingRow[];
@@ -35,6 +37,7 @@ export function findings(s: AppState): Findings {
     format: issues.filter((i) => !isTier(i)),
     tiers: issues.filter(isTier),
     fixable: issues.filter((i) => i.fix && 'edits' in i.fix).map((i) => i.fix!),
+    withFix: issues.filter((i) => i.fix).length,
     // Info-level findings are suggestions: listed where they are, not counted here.
     contrast: pairs.rows.filter((r) => !r.pass && r.tone !== 'info'),
     vision: pairs.rows.filter((r) => r.cvdFails.length && r.cvdTone !== 'info'),
@@ -58,6 +61,28 @@ export const findingTotal = (f: Findings) => f.format.length + f.tiers.length + 
 /** Every file was read and nothing is left to fix: the fix prompt has nothing to say. */
 export const allClear = (s: AppState) => s.files.length > 0 && s.loadErrors.length === 0 && findingTotal(findings(s)) === 0;
 
+
+/** What is left after the fixes applied so far, by kind, for CHANGES.md: "Format: 3 (1 with a one-click fix)". */
+export function openLines(f: Findings): string[] {
+  const fixed = (xs: Issue[]) => {
+    const n = xs.filter((i) => i.fix).length;
+    return n ? ` (${n} with a one-click fix in DTsanity)` : '';
+  };
+  const out: string[] = [];
+  if (f.format.length) out.push(`Format: ${plural(f.format.length, 'issue')}${fixed(f.format)}`);
+  if (f.tiers.length) out.push(`Tiers: ${plural(f.tiers.length, 'issue')}${fixed(f.tiers)}`);
+  if (f.contrast.length) out.push(`Contrast: ${plural(f.contrast.length, 'pair')} below the target`);
+  const vision = f.vision.length + f.groups.length;
+  if (vision) out.push(`Color blindness: ${plural(vision, 'finding')}`);
+  return out;
+}
+
+/** What DTsanity can fix of the issues found, and what is left to the user, in one line. */
+export function fixableLine(withFix: number, total: number): string {
+  if (!withFix) return 'None of them has a one-click fix here: each says where to change it, and the fix prompt lists them all.';
+  if (withFix === total) return total === 1 ? 'It has a one-click fix here.' : `Each has a one-click fix here.`;
+  return `${withFix} can be fixed here in one click; the other ${total - withFix} need a change from you, and the fix prompt lists them all.`;
+}
 
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
 export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string) {
@@ -84,6 +109,7 @@ export function findingCards(f: Findings, go: (kind: FindingKind) => void, href:
     total
       ? h('h2', { class: 'findings-title' }, `${plural(total, 'issue')} found:`)
       : h('h2', { class: 'findings-title all-clear' }, h('span', { class: 'finding-ok', 'aria-hidden': 'true' }, icon('check')), 'No issues found'),
+    total ? h('p', { class: 'findings-fixable' }, fixableLine(f.withFix, total)) : null,
     h('nav', { class: 'finding-cards', 'aria-label': 'Findings' }, kinds.map(card)),
   );
 }

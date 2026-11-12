@@ -69,7 +69,7 @@ const code = (s: string) => `\`${s.replaceAll('`', 'ˋ')}\``;
  * the actions as they were applied. `notes` lists values that couldn't be
  * written back to a legacy format, per file name.
  */
-export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: ReadonlyMap<string, string[]> = new Map(), now = new Date()): string {
+export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: ReadonlyMap<string, string[]> = new Map(), now = new Date(), open: readonly string[] = []): string {
   const perFile = s.files.map((f) => ({ f, changes: fileChanges(f) }));
   const edited = perFile.filter((x) => x.changes.length);
   const total = edited.reduce((n, x) => n + x.changes.length, 0);
@@ -99,5 +99,9 @@ export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: Read
     for (const [name, n] of lost) lines.push(`- ${name}: ${n.join('; ')}`);
     lines.push('');
   }
+  // What these files still have: DTsanity doesn't fix everything, and a clean-looking zip shouldn't suggest it did.
+  lines.push('## Still open', '');
+  if (open.length) lines.push('DTsanity didn’t change these; the fix prompt (Copy fix prompt in DTsanity) lists each one:', '', ...open.map((x) => `- ${x}`), '');
+  else lines.push('Nothing: every check passes.', '');
   return lines.join('\n');
 }

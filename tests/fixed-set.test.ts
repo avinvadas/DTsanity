@@ -39,6 +39,14 @@ describe('fixed set', () => {
     expect(changesMarkdown(store.get())).toContain('0 changes in 0 of 2 files.');
   });
 
+  it('says what is still open, or that nothing is', () => {
+    setup();
+    expect(changesMarkdown(store.get())).toContain('## Still open\n\nNothing: every check passes.');
+    const md = changesMarkdown(store.get(), new Map(), new Date(), ['Contrast: 2 pairs below the target']);
+    expect(md).toContain('## Still open\n\nDTsanity didn’t change these');
+    expect(md).toContain('- Contrast: 2 pairs below the target');
+  });
+
   it('packs every file and CHANGES.md into one folder', () => {
     setup();
     const bytes = fixedSet(store.get());

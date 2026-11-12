@@ -49,9 +49,20 @@
 - The cog beside the appearance switch opens the policy, on desktop and on phones: one line per check (55 in all), with a switch to turn it off and its level. While it's open, a back arrow appears beside the cog; either one returns to where you were. Changes apply right away to every file and view, including the fix prompt, and are kept in this browser with the other preferences. Reset to defaults, at the bottom, brings back the built-in levels.
 - Errors are red with a filled triangle, warnings yellow with an outlined one, info gray with a circled “i”. Each color passes WCAG AA (4.5:1) on every surface it sits on, in light and dark mode.
 
+## What DTsanity fixes, and what it doesn't
+
+Not every finding can be fixed for you, and DTsanity says which ones it fixes. Each check is labelled on the policy page:
+
+- **Auto-fix:** every finding comes with a one-click fix (empty groups, legacy values, non-text descriptions, turning on legacy support).
+- **Fix when clear:** a fix when the right change is clear, such as a broken reference with one close match, a type that can be inferred from the value, or a name that can be cleaned up. Otherwise the change is yours.
+- **Guided:** no automatic fix, but a tool here to work on it: re-alias a pair for contrast and color blindness, reshape a scale in the curve editor, add a file to a theme.
+- **Report only:** found and explained, and listed in the fix prompt, but the change is yours, such as duplicate tokens, circular references, hard-coded values or type sizes.
+
+In the Issues view, each category lists the issues DTsanity can fix in one click (Fixable here) before the ones that need a change from you (Needs your change); guided findings say which tool to use. The Issues summary says how many of the issues found can be fixed in one click, and `CHANGES.md` ends with what is still open. A test checks these labels against every sample set, so a label can't claim a fix the check doesn't offer.
+
 ## Close the loop
 
-- **Get fixed files**: one zip holding the whole set as you loaded it, every file under its own name and in its own format, plus `CHANGES.md` listing each change per file and the actions applied.
+- **Get fixed files**: one zip holding the whole set as you loaded it, every file under its own name and in its own format, plus `CHANGES.md` listing each change per file, the actions applied, and what is still open.
 - **Copy fix prompt**: every remaining correction (errors, warnings, contrast, color blindness, scale checks) as one Markdown prompt for an AI assistant or a ticket.
 - Unchanged files download byte for byte as loaded; edits change only the lines they touch.
 

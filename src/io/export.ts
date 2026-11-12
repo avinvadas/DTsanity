@@ -46,12 +46,12 @@ export const FIXED_FOLDER = 'tokens-fixed';
  * every file under its own name and in its own format (converted legacy
  * files go back to Tokens Studio or Style Dictionary), plus CHANGES.md.
  */
-export function fixedSet(s: Pick<AppState, 'files' | 'past'>, now = new Date()): Uint8Array {
+export function fixedSet(s: Pick<AppState, 'files' | 'past'>, now = new Date(), open: readonly string[] = []): Uint8Array {
   const notes = new Map<string, string[]>();
   const files = s.files.map((f) => {
     const out = exportAs(f, f.converted ? 'original' : 'dtcg');
     notes.set(f.name, out.notes);
     return { path: `${FIXED_FOLDER}/${f.name}`, text: out.text };
   });
-  return zip([...files, { path: `${FIXED_FOLDER}/CHANGES.md`, text: changesMarkdown(s, notes, now) }], now);
+  return zip([...files, { path: `${FIXED_FOLDER}/CHANGES.md`, text: changesMarkdown(s, notes, now, open) }], now);
 }

@@ -90,6 +90,8 @@ export const TIP = {
   where: 'File, line and column where the problem is.',
   themeTag: 'This issue happens only when the file is read in these themes.',
   groupCount: 'Number of issues in this group.',
+  clusterFixable: 'Issues DTsanity fixes in one click. Each fix shows its change first and can be undone.',
+  clusterManual: 'Issues DTsanity can’t fix for you: the right change needs a decision. Edit the file, or copy the fix prompt for an AI assistant or a ticket.',
 
   // Themes
   themeErrors: 'DTCG errors found when the files are read as this theme. Green means none.',

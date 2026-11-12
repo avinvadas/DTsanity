@@ -5,7 +5,7 @@ import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
 import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
 import { h, icon, masked, plural, severityIcon } from './dom';
-import { allClear, findings, findingTones, findingTotal } from './findings';
+import { allClear, findings, findingTones, findingTotal, openLines } from './findings';
 import { TIP } from './tips';
 
 /**
@@ -235,7 +235,7 @@ export class TTNav extends HTMLElement {
         disabled: !edited.length,
         'data-tip': edited.length ? TIP.downloadUpdated : TIP.downloadUpdatedNone,
         // The whole set as received, edited or not, with CHANGES.md: one zip, so the browser doesn't block extra downloads.
-        onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get()), 'application/zip'),
+        onclick: () => download(`${FIXED_FOLDER}.zip`, fixedSet(store.get(), undefined, openLines(findings(store.get()))), 'application/zip'),
       },
       icon('download'),
       h('span', null, v.files.length === 1 ? 'Get fixed file' : 'Get fixed files'),

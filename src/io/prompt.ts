@@ -99,11 +99,18 @@ export function fixPrompt(s: AppState): FixPrompt {
   ]);
 
   if (!count) return { text: '', count: 0 };
+  // Be clear about what DTsanity could have done itself: those lines carry "Fix:", the rest it can't fix.
+  const withFix = model.issues.filter((i) => i.fix).length;
+  const fixNote = withFix
+    ? `${withFix} of these ${withFix === 1 ? 'has' : 'have'} a one-click fix in DTsanity, given after “Fix:”. DTsanity can't make the other changes itself; they need a decision about the design.`
+    : `DTsanity can't make these changes itself; they need a decision about the design.`;
   const targets = TARGETS.filter((t) => s.settings.contrast.includes(t.id)).map((t) => t.label);
   const text = [
     '# Corrections for design token files',
     '',
     'DTsanity checked these design token files (DTCG format) for format, token tiers, contrast and color-vision accessibility. Apply the corrections below to the files.',
+    '',
+    fixNote,
     '',
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
     themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',
