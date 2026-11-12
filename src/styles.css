@@ -270,6 +270,9 @@ button.danger { color: var(--error); }
 button.danger:hover:not(:disabled) { color: var(--error); background: var(--error-soft); }
 button.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); font-weight: 500; }
 button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
+/* Inline text that copies the fix prompt, with a trailing copy icon; it flows in its sentence. */
+button.prompt-link { display: inline-flex; align-items: center; gap: 3px; font: inherit; font-weight: 500; vertical-align: baseline; }
+button.prompt-link .icon { width: 1em; height: 1em; flex: none; }
 button.primary, button[type='submit'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 button.primary:hover:not(:disabled), button[type='submit']:hover:not(:disabled) { background: color-mix(in oklch, var(--accent), var(--bg) 18%); }
 /* A disabled primary looks like a disabled secondary: nothing to act on yet, so no emphasis. */
@@ -310,8 +313,8 @@ details > summary { cursor: pointer; }
 /* The scrollbar's space is always kept, so pages of any length start at the same place. */
 html { scrollbar-gutter: stable; }
 /* Before anything is loaded there is nothing to navigate: only the loader shows. */
-body:not(.has-files) .app { grid-template-columns: minmax(0, 1fr); }
-body:not(.has-files) .sidebar { display: none; }
+body:not(.has-files) .app, body.page-only .app { grid-template-columns: minmax(0, 1fr); }
+body:not(.has-files) .sidebar, body.page-only .sidebar { display: none; }
 
 .sidebar {
   position: sticky;
@@ -336,6 +339,8 @@ body:not(.has-files) .sidebar { display: none; }
   .brand { align-items: flex-start; padding-top: calc(var(--header-baseline) - 19.8px); }
 }
 /* The logo (mark and wordmark) in the foreground color, so it follows the theme; its height sets its size. */
+.home-link { display: flex; align-items: center; color: inherit; border-radius: var(--radius-sm); }
+.home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 svg.logo { display: block; width: auto; height: 28px; flex: none; color: var(--text); fill: currentColor; }
 
 /* The loaded files under the logo: count and last change on the left, their actions on the right. */
@@ -1277,6 +1282,17 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 /* The credit reads as part of the footer: quiet text, the name underlined as a link. */
 .credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .credit a:hover { color: var(--text); }
+.page-foot .foot-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.page-foot .foot-link:hover { color: var(--text); }
+
+/* How DTsanity fixes: each principle a bold title over its text. */
+.principles-page h2 { margin: var(--space-4) 0 0; font-size: var(--font-md); }
+.principles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.principles li { display: flex; flex-direction: column; gap: 2px; }
+.principles li strong { font-weight: 600; display: flex; align-items: center; gap: var(--space-2); }
+.principles .meta { font-size: var(--font-sm); }
+.principles.rules { list-style: disc; padding-left: 1.25em; gap: var(--space-2); }
+.principles.rules li { display: list-item; }
 
 /* Closing the loop: take the edits back, and hand over what is left to fix. */
 .nav-actions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-2) 0; margin-top: var(--space-2); border-top: 1px solid var(--border); }
@@ -1542,7 +1558,7 @@ button.corner-btn .icon { width: 20px; height: 20px; display: block; }
  */
 .land-head { display: none; }
 @media (min-width: 641px) {
-  body:not(.has-files) .land-head {
+  body:not(.has-files) .land-head, body.page-only .land-head {
     display: flex; align-items: center; height: var(--header-h); box-sizing: border-box;
     padding: 0 0 0 calc(var(--space-3) + var(--space-2));
     box-shadow: inset 0 -1px 0 var(--border); background: var(--bg);
@@ -1550,14 +1566,16 @@ button.corner-btn .icon { width: 20px; height: 20px; display: block; }
 }
 @media (min-width: 641px) and (max-width: 820px) {
   /* Here the sidebar is a top bar with wider side padding. */
-  body:not(.has-files) .land-head { padding-left: calc(var(--space-4) + var(--space-2)); }
+  body:not(.has-files) .land-head, body.page-only .land-head { padding-left: calc(var(--space-4) + var(--space-2)); }
 }
 @media (min-width: 821px) {
-  body:not(.has-files) .land-head { align-items: flex-start; padding-top: calc(var(--header-baseline) - 19.8px); }
+  body:not(.has-files) .land-head, body.page-only .land-head { align-items: flex-start; padding-top: calc(var(--header-baseline) - 19.8px); }
 }
 @media (min-width: 641px) {
   /* The page below the header fills the rest of the screen, not a whole screen more. */
-  body:not(.has-files) .app { min-height: calc(100vh - var(--header-h)); }
+  body:not(.has-files) .app, body.page-only .app { min-height: calc(100vh - var(--header-h)); }
+  /* A page on its own starts a step under the header, as the landing does. */
+  body.page-only .workspace { padding-top: var(--grid-2); }
   /* The logo is in the header now: the title row only holds the page's name for screen readers. */
   body:not(.has-files) .view[data-empty] .vh-row { min-height: 0; }
 }
@@ -1700,8 +1718,9 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
 .policy-text span, .policy-changed { color: var(--muted); font-size: var(--font-sm); }
 .policy-changed:empty { display: none; }
 /* What DTsanity does about the check's findings: an outlined tag, filled for the ones it fixes. */
-.policy-text .remedy { align-self: flex-start; margin-top: 2px; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: 999px; font-size: var(--font-xs, 0.75rem); line-height: 18px; color: var(--muted); }
-.policy-text .remedy.fix, .policy-text .remedy.sometimes { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
+.remedy { display: inline-block; font-weight: 400; }
+.policy-text .remedy, .principles .remedy { align-self: flex-start; margin-top: 2px; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: 999px; font-size: var(--font-xs, 0.75rem); line-height: 18px; color: var(--muted); }
+.policy-text .remedy.fix, .policy-text .remedy.sometimes, .principles .remedy.fix, .principles .remedy.sometimes { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
 .policy-row.changed .policy-changed { color: var(--text); font-weight: 500; }
 .policy-level { display: flex; align-items: center; gap: var(--space-2); }
 /* The level picker: each level led by its severity icon, in the button and in the list. */

@@ -5,6 +5,7 @@ import { mergeModels } from '../themes/merge';
 import { severest } from '../policy/rules';
 import type { Severity } from '../model/types';
 import { h, icon, plural, severityIcon } from './dom';
+import { promptLink } from './prompt-link';
 
 /**
  * The four kinds of findings (format, tiers, contrast, color blindness) and
@@ -78,10 +79,12 @@ export function openLines(f: Findings): string[] {
 }
 
 /** What DTsanity can fix of the issues found, and what is left to the user, in one line. */
-export function fixableLine(withFix: number, total: number): string {
-  if (!withFix) return 'None of them has a one-click fix here: each says where to change it, and the fix prompt lists them all.';
-  if (withFix === total) return total === 1 ? 'It has a one-click fix here.' : `Each has a one-click fix here.`;
-  return `${withFix} can be fixed here in one click; the other ${total - withFix} need a change from you, and the fix prompt lists them all.`;
+export function fixableLine(withFix: number, total: number): (string | Node)[] {
+  if (withFix === total) return [total === 1 ? 'It has a one-click fix here.' : `Each has a one-click fix here.`];
+  // The ones counted without a fix: issues with none, and the contrast, color-vision and scale findings (info notes aside).
+  const link = promptLink('use the fix prompt', { issue: (i) => !i.fix && i.severity !== 'info', pair: (r) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g) => g.tone !== 'info', scales: true });
+  if (!withFix) return ['None of them has a one-click fix here: edit the files, or ', link, '.'];
+  return [`${withFix} can be fixed here in one click. For the other ${total - withFix}, edit the files, or `, link, '.'];
 }
 
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */

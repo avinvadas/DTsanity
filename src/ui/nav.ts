@@ -14,7 +14,7 @@ import { TIP } from './tips';
  * the back button and reloads work.
  */
 
-export type ViewId = 'files' | 'themes' | 'issues' | 'colors' | 'semantic' | 'components' | 'tokens' | 'privacy' | 'policy';
+export type ViewId = 'files' | 'themes' | 'issues' | 'colors' | 'semantic' | 'components' | 'tokens' | 'privacy' | 'policy' | 'principles';
 
 interface ViewDef {
   id: ViewId;
@@ -39,8 +39,13 @@ const VIEWS: ViewDef[] = [
 /** How many views come before the separator: the results, then the file management views. */
 const RESULT_VIEWS = 5;
 
-/** Views outside the sidebar: privacy (from the footer) and the severity policy (the cog by the appearance switch). */
-const isView = (v: string): v is ViewId => VIEWS.some((d) => d.id === v) || v === 'privacy' || v === 'policy';
+/** Views outside the sidebar: privacy and how DTsanity fixes (from the footer), and the severity policy (the cog by the appearance switch). */
+const isView = (v: string): v is ViewId => VIEWS.some((d) => d.id === v) || v === 'privacy' || v === 'policy' || v === 'principles';
+
+/** Pages shown on their own: the header and footer stay, the sidebar goes. */
+const PAGES: readonly ViewId[] = ['principles'];
+/** Views that keep where they were opened from, for their back arrow. */
+const ASIDE: readonly ViewId[] = ['policy', 'principles'];
 
 function requested(): ViewId {
   const id = location.hash.slice(1);
@@ -71,18 +76,30 @@ function fadeIn(id: ViewId) {
   el.addEventListener('animationend', () => el.classList.remove('fade-in'), { once: true });
 }
 
-/** Where the policy was opened from: its back arrow and cog return there. */
+/** Where the policy or a page was opened from: the back arrow (and the policy's cog) return there. */
 let previous: ViewId | undefined;
+
+/** The initial state: the loader, or with files loaded the view they open on (Issues), from the top. */
+export function goHome() {
+  previous = undefined;
+  goTo(store.get().files.length ? 'issues' : 'files');
+}
+
+/** Back to the view the policy or page was opened from. */
+export function goBack() {
+  goTo(previous && !ASIDE.includes(previous) ? previous : store.get().files.length ? 'issues' : 'files');
+}
 
 /** Open the severity policy, or, when it is open, go back to the view it was opened from. */
 export function togglePolicy() {
   if (current !== 'policy') return goTo('policy');
-  goTo(previous ?? (store.get().files.length ? 'issues' : 'files'));
+  goBack();
 }
 
 function show(id: ViewId) {
-  if (id !== current && id === 'policy') previous = current;
-  for (const el of document.querySelectorAll<HTMLElement>('[data-only-on]')) el.hidden = el.dataset.onlyOn !== id;
+  if (id !== current && ASIDE.includes(id) && !ASIDE.includes(current)) previous = current;
+  document.body.classList.toggle('page-only', PAGES.includes(id));
+  for (const el of document.querySelectorAll<HTMLElement>('[data-only-on]')) el.hidden = !el.dataset.onlyOn!.split(' ').includes(id);
   for (const el of document.querySelectorAll<HTMLElement>('.view')) el.hidden = el.dataset.view !== id;
   for (const a of document.querySelectorAll<HTMLElement>('[data-nav], [data-nav-to]')) {
     if (a.dataset.navTo) {

@@ -13,7 +13,8 @@ import { targetSelect } from './contrast';
 import { fileStatusLine, ingest } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon, xButton } from './dom';
-import { logo } from './logo';
+import { homeLink } from './logo';
+import { issuesScope, pairScope, promptLink, siblingScope } from './prompt-link';
 import { themeToggle } from './theme';
 
 /**
@@ -75,18 +76,28 @@ export class TTMobile extends HTMLElement {
   private toastSlot = h('div', null);
   private footSlot = h('div', null);
   private built = false;
-  /** The severity policy, opened from the cog in the top bar in place of the page; the arrow or the cog closes it. */
-  private policyOpen = false;
+  /**
+   * A page shown in place of the findings: the severity policy (the cog in the
+   * top bar) or how DTsanity fixes (the footer link). The arrow closes it; the cog toggles the policy.
+   */
+  private page: 'policy' | 'principles' | null = null;
   private scrollBefore = 0;
   private content = h('div', { class: 'm-content' });
   private policySection = h('section', { class: 'm-policy', hidden: true });
-  private back = h('button', { type: 'button', class: 'corner-btn', hidden: true, 'aria-label': 'Back', onclick: () => this.setPolicy(false) }, icon('arrow-left'));
-  private cog = h('button', { type: 'button', class: 'corner-btn', 'aria-label': 'Severity policy', 'aria-pressed': 'false', onclick: () => this.setPolicy(!this.policyOpen) }, icon('settings'));
+  private principlesSection = h('section', { class: 'm-policy', hidden: true });
+  private back = h('button', { type: 'button', class: 'corner-btn', hidden: true, 'aria-label': 'Back', onclick: () => this.setPage(null) }, icon('arrow-left'));
+  private cog = h('button', { type: 'button', class: 'corner-btn', 'aria-label': 'Severity policy', 'aria-pressed': 'false', onclick: () => this.setPage(this.page === 'policy' ? null : 'policy') }, icon('settings'));
+  private onHash = () => {
+    if (!this.media.matches) return;
+    if (location.hash === '#principles') this.setPage('principles');
+    else if (this.page === 'principles') this.setPage(null);
+  };
   private unsub?: () => void;
   private onMedia = () => this.render();
 
   connectedCallback() {
     this.media.addEventListener('change', this.onMedia);
+    window.addEventListener('hashchange', this.onHash);
     this.unsub = store.select(
       (s) => s,
       () => this.render(),
@@ -96,22 +107,35 @@ export class TTMobile extends HTMLElement {
 
   disconnectedCallback() {
     this.media.removeEventListener('change', this.onMedia);
+    window.removeEventListener('hashchange', this.onHash);
     this.unsub?.();
     this.status.unsub();
   }
 
-  private setPolicy(open: boolean) {
-    if (open === this.policyOpen) return;
-    // Come back to the same place on the page.
-    if (open) this.scrollBefore = window.scrollY;
-    this.policyOpen = open;
-    if (open && !this.policySection.firstChild) this.policySection.append(document.createElement('tt-policy'));
-    this.content.hidden = open;
-    this.policySection.hidden = !open;
-    this.footSlot.hidden = open;
-    this.back.hidden = !open;
-    this.cog.setAttribute('aria-pressed', String(open));
-    window.scrollTo(0, open ? 0 : this.scrollBefore);
+  /** The initial state: no page open, the file list closed, at the top. */
+  private home() {
+    this.scrollBefore = 0;
+    this.setPage(null);
+    this.setExpanded(false);
+    window.scrollTo(0, 0);
+  }
+
+  private setPage(page: 'policy' | 'principles' | null) {
+    if (page === this.page) return;
+    // Come back to the same place on the findings.
+    if (!this.page) this.scrollBefore = window.scrollY;
+    this.page = page;
+    if (page === 'policy' && !this.policySection.firstChild) this.policySection.append(document.createElement('tt-policy'));
+    if (page === 'principles' && !this.principlesSection.firstChild) this.principlesSection.append(document.createElement('tt-principles'));
+    // The footer link set the hash; leaving the page clears it, so the link works again.
+    if (page !== 'principles' && location.hash === '#principles') history.replaceState(null, '', location.pathname + location.search);
+    this.content.hidden = !!page;
+    this.policySection.hidden = page !== 'policy';
+    this.principlesSection.hidden = page !== 'principles';
+    this.footSlot.hidden = !!page;
+    this.back.hidden = !page;
+    this.cog.setAttribute('aria-pressed', String(page === 'policy'));
+    window.scrollTo(0, page ? 0 : this.scrollBefore);
   }
 
   private say(text: string, undoable = false) {
@@ -131,18 +155,21 @@ export class TTMobile extends HTMLElement {
     if (!this.built) {
       this.built = true;
       this.replaceChildren(
-        h('header', { class: 'm-head' }, logo(), this.picker, h('div', { class: 'm-corner' }, this.back, this.cog, themeToggle())),
+        h('header', { class: 'm-head' }, homeLink(() => this.home()), this.picker, h('div', { class: 'm-corner' }, this.back, this.cog, themeToggle())),
         h(
           'main',
           { class: 'm-body' },
           this.content,
           this.policySection,
+          this.principlesSection,
           (document.querySelector('.workspace > .page-foot')?.cloneNode(true) as HTMLElement | undefined) ?? '',
         ),
         this.toastSlot,
         this.footSlot,
       );
       this.content.append(this.lede, this.bar, this.navSlot, this.loadSection, this.issueSlot);
+      // Opened straight from a link to the page.
+      queueMicrotask(this.onHash);
     }
     const s = store.get();
     const has = s.files.length > 0;
@@ -238,7 +265,7 @@ export class TTMobile extends HTMLElement {
     const action =
       i.fix && 'edits' in i.fix
         ? h('button', { type: 'button', class: 'm-fix', onclick: () => (applyFixes([i.fix!]), this.say('Fixed', true)) }, i.fix.label)
-        : h('span', { class: 'm-later' }, 'In the fix prompt');
+        : h('span', { class: 'm-later' }, promptLink('Use the fix prompt', issuesScope([i])));
     const where = file && i.pos ? `${file}:${i.pos.line}` : (file ?? '');
     return h(
       'article',
@@ -271,7 +298,7 @@ export class TTMobile extends HTMLElement {
           return h('li', null, theme ? h('b', null, `${theme}: `) : null, `${formatContrast(miss.value, miss.level.metric)} of ${miss.level.threshold} `, h('small', null, `(${miss.level.short})`));
         }),
       ),
-      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · in the fix prompt'),
+      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · ', promptLink('use the fix prompt', pairScope(r))),
     );
   }
 
@@ -283,7 +310,7 @@ export class TTMobile extends HTMLElement {
       { class: `m-item ${r.cvdTone}` },
       h('div', { class: 'm-item-head' }, severityIcon(r.cvdTone), h('code', null, r.pair.fg)),
       h('p', null, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`),
-      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · in the fix prompt'),
+      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · ', promptLink('use the fix prompt', pairScope(r))),
     );
   }
 
@@ -298,7 +325,7 @@ export class TTMobile extends HTMLElement {
       h('div', { class: 'm-item-head' }, severityIcon(g.tone ?? 'warning'), h('code', null, g.group.id)),
       h('p', null, `Status colors ${g.group.members.join(', ')} look too alike (need a difference of ${min}).`),
       h('ul', { class: 'm-results' }, lines.map((l) => h('li', null, l))),
-      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · in the fix prompt'),
+      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · ', promptLink('use the fix prompt', siblingScope(g))),
     );
   }
 

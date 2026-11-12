@@ -13,6 +13,20 @@ const SHAPE =
 /** The artwork's bounds, with 1 unit to spare for antialiasing. */
 const VIEWBOX = '16.31 7.85 524.74 143.16';
 
+/** The logo as a link home: `home` puts the page back in its initial state. */
+export function homeLink(home: () => void): HTMLAnchorElement {
+  const a = document.createElement('a');
+  a.href = '#';
+  a.className = 'home-link';
+  a.setAttribute('aria-label', 'DTsanity, home');
+  a.append(logo());
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    home();
+  });
+  return a;
+}
+
 /** The logo as an image named DTsanity, in the current text color. */
 export function logo(): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg');

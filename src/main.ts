@@ -7,9 +7,10 @@ import { confirmClearAll, contrastControl, filesBar, ingest, reloadAll, TTLoader
 import { openFilesDialog } from './ui/files-dialog';
 import { TIP } from './ui/tips';
 import { h, icon } from './ui/dom';
-import { logo } from './ui/logo';
+import { homeLink } from './ui/logo';
 import { TTMobile } from './ui/mobile';
-import { togglePolicy, TTNav } from './ui/nav';
+import { goBack, goHome, togglePolicy, TTNav } from './ui/nav';
+import { TTPrinciples } from './ui/principles';
 import { TTPolicy } from './ui/policy';
 import { TTPalettes } from './ui/palettes';
 import { TTSemantic } from './ui/semantic';
@@ -20,7 +21,7 @@ import { installTooltips } from './ui/tooltip';
 import { initTheme, themeToggle } from './ui/theme';
 
 // The logo in the page's static places (sidebar, landing title); their text stays as the fallback.
-document.querySelectorAll('[data-logo]').forEach((el) => el.replaceWith(logo()));
+document.querySelectorAll('[data-logo]').forEach((el) => el.replaceWith(homeLink(goHome)));
 
 customElements.define('tt-loader', TTLoader);
 customElements.define('tt-files', TTFiles);
@@ -33,6 +34,7 @@ customElements.define('tt-semantic', TTSemantic);
 customElements.define('tt-nav', TTNav);
 customElements.define('tt-mobile', TTMobile);
 customElements.define('tt-policy', TTPolicy);
+customElements.define('tt-principles', TTPrinciples);
 installTooltips();
 initTheme();
 // Top right of the viewport; the phone layout carries its own in its header.
@@ -43,7 +45,7 @@ document.body.append(
     'div',
     { class: 'desk-corner' },
     // While the policy is open, an arrow back to the view it was opened from (the cog does the same).
-    h('button', { type: 'button', class: 'corner-btn', 'data-only-on': 'policy', hidden: true, 'aria-label': 'Back', 'data-tip': TIP.policyBack, onclick: togglePolicy }, icon('arrow-left')),
+    h('button', { type: 'button', class: 'corner-btn', 'data-only-on': 'policy principles', hidden: true, 'aria-label': 'Back', 'data-tip': TIP.policyBack, onclick: goBack }, icon('arrow-left')),
     h('button', { type: 'button', class: 'corner-btn', 'data-nav-to': 'policy', 'aria-label': 'Severity policy', 'aria-pressed': 'false', 'data-tip': TIP.policy, onclick: togglePolicy }, icon('settings')),
     themeToggle(),
   ),

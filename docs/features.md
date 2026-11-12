@@ -60,6 +60,23 @@ Not every finding can be fixed for you, and DTsanity says which ones it fixes. E
 
 In the Issues view, each category lists the issues DTsanity can fix in one click (Fixable here) before the ones that need a change from you (Needs your change); guided findings say which tool to use. The Issues summary says how many of the issues found can be fixed in one click, and `CHANGES.md` ends with what is still open. A test checks these labels against every sample set, so a label can't claim a fix the check doesn't offer.
 
+## How DTsanity fixes
+
+The principle: **DTsanity changes the format, never the design.** What is mechanical it fixes itself; what needs a design decision is left to you, or to the AI assistant you give the fix prompt to, with guidance. The page **How DTsanity fixes**, linked in the footer, says the same in the app. The text lives in `src/policy/principles.ts`, which the page and the fix prompt both read.
+
+One-click fixes:
+
+- **Only when the answer is clear:** a broken reference only with one close match, a missing type only when the value gives it away, a rename only when the new name is free.
+- **The DTCG spec decides what is right:** fixes bring files to the DTCG format (2025.10); no house style.
+- **Nothing is lost:** properties DTCG has no place for move under `$extensions` and are written back on export to the original format.
+- **The smallest edit:** only the lines a fix is about change; files without fixes download as loaded.
+- **Shown first, and undoable:** every fix previews its change and can be undone.
+- **Design values are yours:** colors, sizes and token meaning are never changed for you; contrast, color blindness, scales and typography come with tools instead.
+
+Two fixes go a step further, and are kept because they are previewed and undoable: **Write the value instead** (a base token that points at another gets the resolved value) and **Remove the empty group** (the one fix that deletes, for a group with nothing in it).
+
+The fix prompt states only the rules that apply to what it lists: keep structure, names and order; change the format, not the design; the tier directions; for contrast, re-point a token to an existing base token before changing a base value; separate status colors by lightness, not only hue; list every change per file.
+
 ## Close the loop
 
 - **Get fixed files**: one zip holding the whole set as you loaded it, every file under its own name and in its own format, plus `CHANGES.md` listing each change per file, the actions applied, and what is still open.

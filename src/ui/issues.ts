@@ -5,6 +5,7 @@ import { noFixNote, remedyOf } from '../policy/rules';
 import { applyFixes, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
+import { issuesScope, promptLink } from './prompt-link';
 import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
@@ -263,7 +264,7 @@ export class TTIssues extends HTMLElement {
   private clusters(issues: Issue[], where: (i: Issue) => string, notes = false) {
     const fixable = issues.filter((i) => i.fix);
     const manual = issues.filter((i) => !i.fix);
-    const cluster = (kind: 'fixable' | 'manual', title: string, tip: string, items: Issue[], note?: string) =>
+    const cluster = (kind: 'fixable' | 'manual', title: string, tip: string, items: Issue[], note?: Node[]) =>
       items.length
         ? h(
             'div',
@@ -280,7 +281,7 @@ export class TTIssues extends HTMLElement {
       // Info notes ask for no change, so their second cluster only says DTsanity won't make one.
       notes
         ? cluster('manual', 'No fix here', TIP.clusterManual, manual)
-        : cluster('manual', 'Needs your change', TIP.clusterManual, manual, 'DTsanity can’t make these changes for you: edit the file, or use the fix prompt.'),
+        : cluster('manual', 'Needs your change', TIP.clusterManual, manual, [document.createTextNode('DTsanity can’t make these changes for you: edit the file, or '), promptLink('use the fix prompt', issuesScope(manual)), document.createTextNode('.')]),
     );
   }
 

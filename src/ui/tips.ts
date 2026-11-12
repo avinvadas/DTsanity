@@ -73,6 +73,7 @@ export const TIP = {
   downloadAll: 'Save every loaded file in the DTCG format.',
   downloadUpdated: 'Save the whole token set with your changes as one folder (zipped): every loaded file under its own name and in its own format, plus CHANGES.md listing each change.',
   downloadUpdatedNone: 'Active once you change the tokens here: apply a fix, re-alias a token or edit a curve.',
+  copyScopedPrompt: 'Copy a prompt with the corrections for these findings only, for an AI assistant or a ticket. It names your tokens and stays on your clipboard.',
   copyFixPrompt: 'Copy a prompt that lists every correction still needed (errors, warnings, contrast, color-vision and scale checks) for an AI assistant or a ticket. It names your tokens and stays on your clipboard.',
   clearAll: 'Remove every loaded file and start over.',
 
