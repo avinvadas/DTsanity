@@ -8,7 +8,7 @@ of DTsanity's license.
 
 | Folder | Design system | Format | License |
 |---|---|---|---|
-| [carbon](carbon/SOURCE.md) | IBM Carbon | DTCG, color objects; 4 themes as folders | Apache-2.0 |
+| [carbon](carbon/SOURCE.md) | IBM Carbon | DTCG, color objects; light (White) and dark (Gray 100) themes | Apache-2.0 |
 | [primer](primer/SOURCE.md) | GitHub Primer | DTCG (converted from JSON5); light/dark base files | MIT |
 | [gitlab](gitlab/SOURCE.md) | GitLab Pajamas | DTCG, sRGB color objects; constant → semantic → contextual | MIT |
 | [designsystemet](designsystemet/SOURCE.md) | Designsystemet (Norway) | Tokens Studio, many files with `$themes` | MIT |
