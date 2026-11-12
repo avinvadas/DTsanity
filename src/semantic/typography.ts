@@ -1,7 +1,7 @@
 import { FONT_WEIGHT_NAMES } from '../legacy/types';
 import { MAY_REFERENCE, PICK_FROM, TIER_LABEL, tiersOf, type Tier } from '../model/tiers';
 import type { Edit, Model, Severity, Token } from '../model/types';
-import { leadsTo } from './pairs';
+import { leadsTo, words } from './pairs';
 
 /**
  * Typography styles of one tier, each with the parts it is made of: the
@@ -264,4 +264,97 @@ export function rangeNotes(styles: readonly { id: string; aliasOf?: string; valu
   }
   for (const x of sized) if (x.px < MIN_PX) notes.push({ severity: 'warning', code: 'small', ids: [x.s.id], message: `${x.s.id} is ${x.px}px; text under ${MIN_PX}px is hard to read.` });
   return notes;
+}
+
+/**
+ * Type roles from the top of the hierarchy down, by the words that name
+ * them. A style takes the highest role named anywhere in its name, so
+ * `heading.display` is a display style. Styles that name no role sit with
+ * body text.
+ */
+const ROLES: readonly (readonly string[])[] = [
+  ['display', 'hero', 'jumbo', 'giant'],
+  ['headline', 'heading', 'header', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+  ['title'],
+  ['subtitle', 'subheading', 'subhead', 'subheader', 'lead', 'lede', 'intro', 'eyebrow'],
+  ['body', 'paragraph', 'copy', 'p'],
+  ['label', 'button', 'action', 'ui', 'input'],
+  ['caption', 'footnote', 'overline', 'helper', 'legal', 'micro', 'fine'],
+  ['code', 'mono', 'monospace', 'pre'],
+];
+const BODY_RANK = 4;
+const roleRank = (ws: readonly string[]) => Math.min(...ws.map((w) => ROLES.findIndex((r) => r.includes(w))).filter((i) => i >= 0), Infinity);
+
+/** Size words, largest first: `2xl` before `xl`, `large` before `medium`. */
+const SIZE_WORDS: readonly (readonly string[])[] = [
+  ['6xl', 'xxxxxxl'],
+  ['5xl', 'xxxxxl'],
+  ['4xl', 'xxxxl'],
+  ['3xl', 'xxxl'],
+  ['2xl', 'xxl'],
+  ['xl', 'xlarge', 'extralarge'],
+  ['lg', 'l', 'large', 'big'],
+  ['md', 'm', 'medium', 'base', 'default', 'regular', 'normal'],
+  ['sm', 's', 'small'],
+  ['xs', 'xsmall', 'extrasmall', 'tiny'],
+  ['2xs', 'xxs'],
+  ['3xs', 'xxxs'],
+];
+const sizeWord = (w: string) => SIZE_WORDS.findIndex((x) => x.includes(w));
+
+/**
+ * Where a style's name puts it within its family, smaller first: a size
+ * word (`xl` before `md`), a heading level (`h1`, `heading.1` before 2), or
+ * a numbered step, larger first (`scale.800` before `100`, `heading-07`
+ * before `01`).
+ */
+function nameStep(ws: readonly string[]): { step?: number; family: string } {
+  let step: number | undefined;
+  const rest: string[] = [];
+  ws.forEach((w, i) => {
+    const size = sizeWord(w);
+    const level = /^h([1-6])$/.exec(w);
+    if (size >= 0) step = size;
+    else if (level) step = Number(level[1]);
+    else if (/^\d+$/.test(w)) {
+      const n = Number(w);
+      // A lone 1–6 right after a heading word is a level; any other number is a step on a scale.
+      const isLevel = !w.startsWith('0') && n >= 1 && n <= 6 && ROLES[1]!.includes(ws[i - 1] ?? '');
+      step = isLevel ? n : -n;
+    } else rest.push(w);
+  });
+  return { step, family: rest.join('.') };
+}
+
+/**
+ * Order typography styles by hierarchy: display first, then headings,
+ * titles, subtitles, body, labels, captions and code. Each family of
+ * styles (`body`, `body.short`) stays together, in the order of the files,
+ * and runs from its largest step to its smallest, by the size or level its
+ * name gives or else by font size (`px`, -1 when unknown).
+ */
+export function orderStyles<T extends { id: string; px: number; order: number }>(items: readonly T[]): T[] {
+  const info = new Map(
+    items.map((x) => {
+      const ws = words(x.id);
+      const rank = roleRank(ws);
+      const named = nameStep(ws);
+      // A name with no step is one of its group's members (`brand.a`, `brand.b`): its family is the group.
+      const family = named.step === undefined ? x.id.split('.').slice(0, -1).join('.') : named.family;
+      return [x, { rank: rank === Infinity ? BODY_RANK + 0.5 : rank, step: named.step, family }] as const;
+    }),
+  );
+  const familyAt = new Map<string, number>();
+  for (const x of [...items].sort((a, b) => a.order - b.order)) {
+    const f = info.get(x)!.family;
+    if (!familyAt.has(f)) familyAt.set(f, x.order);
+  }
+  return [...items].sort((a, b) => {
+    const A = info.get(a)!;
+    const B = info.get(b)!;
+    if (A.rank !== B.rank) return A.rank - B.rank;
+    if (A.family !== B.family) return familyAt.get(A.family)! - familyAt.get(B.family)!;
+    if (A.step !== undefined && B.step !== undefined && A.step !== B.step) return A.step - B.step;
+    return b.px - a.px || a.order - b.order;
+  });
 }

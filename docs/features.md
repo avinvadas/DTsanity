@@ -32,6 +32,7 @@
 - Borders are drawn as a line around the background; text as "Aa"; icons as a mark.
 - **Re-alias** any token to another existing one, theme by theme, without editing values.
 - The component tier is grouped by component, with search and expand/collapse all.
+- Typography styles are listed by hierarchy: display, headings (h1 before h2), titles, subtitles, body, labels, captions, then code. Each family (`body`, `body.short`) stays together and runs from its largest step to its smallest, by its size word (`2xl` … `xs`), heading level or numbered step, or else by font size.
 
 ## Color blindness
 

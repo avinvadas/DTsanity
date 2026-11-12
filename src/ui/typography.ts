@@ -1,6 +1,6 @@
 import type { Tier } from '../model/tiers';
 import type { Issue, Model } from '../model/types';
-import { formatPart, partCandidates, PARTS, pointPart, rangeNotes, sizePx, styleCss, typeStyle, typographyIdsIn, type PartKey, type RangeNote, type StylePart, type TypeStyle } from '../semantic/typography';
+import { formatPart, orderStyles, partCandidates, PARTS, pointPart, rangeNotes, sizePx, styleCss, typeStyle, typographyIdsIn, type PartKey, type RangeNote, type StylePart, type TypeStyle } from '../semantic/typography';
 import { allModels, applyEdits, applyFixes, store } from '../state/app';
 import { withPolicy } from '../policy/rules';
 import { disclosure, isOpen } from './collapsible';
@@ -25,7 +25,8 @@ interface Entry {
 }
 
 /**
- * Every typography style of a tier as one scale, largest first, each line
+ * Every typography style of a tier as one scale, by hierarchy (display,
+ * headings, titles, body, labels, captions; see orderStyles), each line
  * set in its own style. When the styles resolve differently between modes
  * (desktop, mobile…), a switch picks the mode the scale shows. Edit opens a
  * style's parts: the token each one references can be changed to another
@@ -62,10 +63,7 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
     const notesOf = (id: string) => notes.filter((n) => n.ids.includes(id));
     const ownValue = (e: Entry) => tier !== 'base' && e.styles.some((st) => !st?.inherited && st?.parts.some((p) => p.literal !== undefined));
     const flagged = (e: Entry) => e.issues.length > 0 || ownValue(e) || notesOf(e.id).length > 0;
-    const rows = shown
-      .map((x) => ({ ...x, px: x.st.value ? (sizePx(x.st.value.fontSize) ?? -1) : -1 }))
-      .sort((a, b) => b.px - a.px || a.e.styles[at]!.token.order - b.e.styles[at]!.token.order)
-      .filter((x) => !onlyIssues || flagged(x.e));
+    const rows = orderStyles(shown.map((x) => ({ ...x, id: x.e.id, order: x.st.token.order, px: x.st.value ? (sizePx(x.st.value.fontSize) ?? -1) : -1 }))).filter((x) => !onlyIssues || flagged(x.e));
     const counts = { styles: shown.filter(({ e }) => e.issues.length || ownValue(e)).length, range: notes.length };
     host.replaceChildren(
       h(
@@ -103,7 +101,7 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
       h(
         'p',
         { class: 'meta' },
-        `${plural(ids.length, 'typography style')}, largest first, each set in its own style`,
+        `${plural(ids.length, 'typography style')}, by hierarchy from display down to captions, each set in its own style`,
         modes.length ? ` as resolved in ${pick!.name}` : '',
         '. Expand a style for its parts and alerts: point a part at another token; only the reference changes and ⌘Z undoes it.',
       ),
