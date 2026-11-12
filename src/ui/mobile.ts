@@ -75,6 +75,13 @@ export class TTMobile extends HTMLElement {
   private toastSlot = h('div', null);
   private footSlot = h('div', null);
   private built = false;
+  /** The severity policy, opened from the cog in the top bar in place of the page; the arrow or the cog closes it. */
+  private policyOpen = false;
+  private scrollBefore = 0;
+  private content = h('div', { class: 'm-content' });
+  private policySection = h('section', { class: 'm-policy', hidden: true });
+  private back = h('button', { type: 'button', class: 'corner-btn', hidden: true, 'aria-label': 'Back', onclick: () => this.setPolicy(false) }, icon('arrow-left'));
+  private cog = h('button', { type: 'button', class: 'corner-btn', 'aria-label': 'Severity policy', 'aria-pressed': 'false', onclick: () => this.setPolicy(!this.policyOpen) }, icon('settings'));
   private unsub?: () => void;
   private onMedia = () => this.render();
 
@@ -91,6 +98,20 @@ export class TTMobile extends HTMLElement {
     this.media.removeEventListener('change', this.onMedia);
     this.unsub?.();
     this.status.unsub();
+  }
+
+  private setPolicy(open: boolean) {
+    if (open === this.policyOpen) return;
+    // Come back to the same place on the page.
+    if (open) this.scrollBefore = window.scrollY;
+    this.policyOpen = open;
+    if (open && !this.policySection.firstChild) this.policySection.append(document.createElement('tt-policy'));
+    this.content.hidden = open;
+    this.policySection.hidden = !open;
+    this.footSlot.hidden = open;
+    this.back.hidden = !open;
+    this.cog.setAttribute('aria-pressed', String(open));
+    window.scrollTo(0, open ? 0 : this.scrollBefore);
   }
 
   private say(text: string, undoable = false) {
@@ -110,11 +131,18 @@ export class TTMobile extends HTMLElement {
     if (!this.built) {
       this.built = true;
       this.replaceChildren(
-        h('header', { class: 'm-head' }, logo(), this.picker, themeToggle()),
-        h('main', { class: 'm-body' }, this.lede, this.bar, this.navSlot, this.loadSection, this.issueSlot, (document.querySelector('.workspace > .page-foot')?.cloneNode(true) as HTMLElement | undefined) ?? ''),
+        h('header', { class: 'm-head' }, logo(), this.picker, h('div', { class: 'm-corner' }, this.back, this.cog, themeToggle())),
+        h(
+          'main',
+          { class: 'm-body' },
+          this.content,
+          this.policySection,
+          (document.querySelector('.workspace > .page-foot')?.cloneNode(true) as HTMLElement | undefined) ?? '',
+        ),
         this.toastSlot,
         this.footSlot,
       );
+      this.content.append(this.lede, this.bar, this.navSlot, this.loadSection, this.issueSlot);
     }
     const s = store.get();
     const has = s.files.length > 0;
@@ -217,7 +245,7 @@ export class TTMobile extends HTMLElement {
     const first = fails[0]!.c!;
     return h(
       'article',
-      { class: `m-item ${r.pair.kind === 'text' ? 'error' : 'warning'}` },
+      { class: `m-item ${r.tone}` },
       h(
         'div',
         { class: 'm-pair' },
@@ -241,8 +269,8 @@ export class TTMobile extends HTMLElement {
     const where = themes.length ? ` in ${r.cvdFails.flatMap((v) => r.seen[v].map((c, i) => (c && !c.pass ? themes[i] : null))).filter((x, i, a) => x && a.indexOf(x) === i).join(', ')}` : '';
     return h(
       'article',
-      { class: 'm-item warning' },
-      h('div', { class: 'm-item-head' }, severityIcon('warning'), h('code', null, r.pair.fg)),
+      { class: `m-item ${r.cvdTone}` },
+      h('div', { class: 'm-item-head' }, severityIcon(r.cvdTone), h('code', null, r.pair.fg)),
       h('p', null, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`),
       h('span', { class: 'm-later' }, 'In the fix prompt'),
     );
@@ -255,8 +283,8 @@ export class TTMobile extends HTMLElement {
     });
     return h(
       'article',
-      { class: 'm-item warning' },
-      h('div', { class: 'm-item-head' }, severityIcon('warning'), h('code', null, g.group.id)),
+      { class: `m-item ${g.tone ?? 'warning'}` },
+      h('div', { class: 'm-item-head' }, severityIcon(g.tone ?? 'warning'), h('code', null, g.group.id)),
       h('p', null, `Status colors ${g.group.members.join(', ')} look too alike (need a difference of ${min}).`),
       h('ul', { class: 'm-results' }, lines.map((l) => h('li', null, l))),
       h('span', { class: 'm-later' }, 'In the fix prompt'),

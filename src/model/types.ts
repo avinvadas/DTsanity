@@ -1,4 +1,5 @@
 import type { DuplicateKey, JDoc, JPath, Pos } from '../json/cst';
+import type { Level } from '../policy/rules';
 
 export type FileFormat = 'dtcg' | 'legacy' | 'unknown';
 export type LegacyKind = 'tokens-studio' | 'style-dictionary';
@@ -15,6 +16,8 @@ export interface Settings {
   contrast: ('wcag' | 'apca')[];
   /** The smallest OKLab difference at which sibling colors (danger, success…) count as told apart. */
   cvdDistance: number;
+  /** Severity policy: rules whose level the user changed from the default (see policy/rules.ts). */
+  policy: Record<string, Level>;
 }
 
 /** One change to a document. */

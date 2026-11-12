@@ -62,11 +62,11 @@
   --ref-green-600: #006836;
   --ref-green-300: #63c991;
   --ref-green-900: #163c25;
-  --ref-amber-50: #f9e5c3;
-  --ref-amber-700: #94590a;
-  --ref-amber-800: #7f4c08;
-  --ref-amber-300: #e8ad55;
-  --ref-amber-900: #412f0e;
+  /* Yellow for warnings (OKLCH hue 95): 800 is as light as yellow gets at 4.5:1 on every light surface and on 50 (4.66:1 at worst); 300 is 8.3:1 or more on dark ones and on 900. */
+  --ref-yellow-50: #f7ecbe;
+  --ref-yellow-800: #765e00;
+  --ref-yellow-300: #f0cf4c;
+  --ref-yellow-900: #3b3212;
   --ref-red-50: #ffdfdd;
   --ref-red-600: #ae2019;
   --ref-red-300: #f08a80;
@@ -119,8 +119,8 @@
   --graphic-accent: var(--ref-blue-500);
   --ok: var(--ref-green-600);
   --ok-soft: var(--ref-green-50);
-  --warn: var(--ref-amber-800);
-  --warn-soft: var(--ref-amber-50);
+  --warn: var(--ref-yellow-800);
+  --warn-soft: var(--ref-yellow-50);
   --error: var(--ref-red-600);
   --error-soft: var(--ref-red-50);
   --info: var(--ref-slate-600);
@@ -209,8 +209,8 @@
     --graphic-accent: var(--ref-blue-300);
     --ok: var(--ref-green-300);
     --ok-soft: var(--ref-green-900);
-    --warn: var(--ref-amber-300);
-    --warn-soft: var(--ref-amber-900);
+    --warn: var(--ref-yellow-300);
+    --warn-soft: var(--ref-yellow-900);
     --error: var(--ref-red-300);
     --error-soft: var(--ref-red-900);
     --info: var(--ref-slate-300);
@@ -456,6 +456,8 @@ body.has-files .workspace { padding-top: 0; }
 .flags li.warning { font-weight: 500; }
 .flags li.warning::before { background: var(--text); }
 .flags li.info::before { background: var(--border-strong); }
+.flags li.error { font-weight: 500; }
+.flags li.error::before { background: var(--error); }
 
 .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
 table { border-collapse: collapse; }
@@ -1357,7 +1359,7 @@ tt-mobile { display: none; }
 /* Files in: before any file, the same round drop circle as on desktop (tapping it opens the file picker), the link field below. */
 /* The same φ grid as the desktop landing, one step down: a ×φ³ (≈271px) circle, blocks --grid-1 apart. */
 /* Empty slots take no gap; the lede and the circle stand --grid-1 apart. */
-.m-body > div:empty { display: none; }
+.m-body > div:empty, .m-content > div:empty { display: none; }
 .m-load { margin-top: calc(var(--grid-1) - var(--grid-2)); }
 .m-load .loader { gap: var(--grid-1); }
 .m-load .dropzone { --zone: min(calc(var(--header-h) * 4.236), calc(100vw - 2 * var(--space-4))); }
@@ -1503,9 +1505,16 @@ tt-mobile .files-bar[hidden] { display: none; }
 .theme-knob .icon { width: 14px; height: 14px; }
 .theme-toggle:hover { color: var(--text); border-color: var(--control-border); background: var(--well-strong); }
 @media (prefers-reduced-motion: reduce) { .theme-knob { transition: none; } }
-/* Desktop: fixed in the viewport's corner, centered on the header row. */
-.desk-theme { position: fixed; top: calc((var(--header-h) - var(--track-h)) / 2); right: var(--space-4); z-index: 5; }
-@media (max-width: 640px) { .desk-theme { display: none; } }
+/* Desktop: the policy cog and the switch, fixed in the viewport's corner, centered on the header row. */
+.desk-corner { position: fixed; top: calc((var(--header-h) - 32px) / 2); right: var(--space-4); z-index: 5; display: flex; align-items: center; gap: var(--space-2); height: 32px; }
+@media (max-width: 640px) { .desk-corner { display: none; } }
+button.corner-btn {
+  display: grid; place-items: center; width: 32px; height: 32px; min-height: 0; padding: 0;
+  border: 1px solid transparent; border-radius: var(--radius); background: transparent; color: var(--muted); cursor: pointer;
+}
+button.corner-btn:hover, button.corner-btn:focus-visible { background: var(--surface-hover); color: var(--text); }
+button.corner-btn[aria-pressed='true'] { color: var(--text); background: var(--well-strong); }
+button.corner-btn .icon { width: 20px; height: 20px; display: block; }
 /*
  * Desktop landing: a header like the phone's, with the logo on the left and the
  * appearance switch (the fixed corner one) on the right. The logo sits exactly
@@ -1656,3 +1665,36 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
 /* An alert on the value: the border one pixel thicker, in the alert's color. */
 .token-field.warning > select, .token-field.warning .ss-button { border-color: var(--warn); box-shadow: 0 0 0 1px var(--warn); }
 .token-field.error > select, .token-field.error .ss-button { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
+
+/* ============================================================
+   Severity policy: one line per check, a switch to turn it off and its level.
+   ============================================================ */
+.policy-intro { max-width: 70ch; margin: 0 0 var(--space-4); }
+.policy { display: flex; flex-direction: column; gap: var(--space-5); max-width: 56rem; }
+.policy-group h2 { margin: 0 0 var(--space-2); font-size: var(--font-md, 1rem); }
+.policy-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+.policy-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
+.policy-row input[role='switch'] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
+.policy-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; cursor: pointer; }
+.policy-text strong { font-weight: 500; }
+.policy-text code { font-size: var(--font-xs, 0.75rem); color: var(--muted); font-weight: 400; margin-left: var(--space-1); }
+.policy-text span, .policy-changed { color: var(--muted); font-size: var(--font-sm); }
+.policy-changed:empty { display: none; }
+.policy-row.changed .policy-changed { color: var(--text); font-weight: 500; }
+.policy-level { display: flex; align-items: center; gap: var(--space-2); }
+.policy-level select { min-width: 8.5rem; }
+.policy-foot { padding-top: var(--space-2); }
+.m-corner { display: flex; align-items: center; gap: var(--space-2); }
+.m-content { display: contents; }
+.m-content[hidden] { display: none; }
+button.corner-btn[hidden] { display: none; }
+.policy-sev { display: grid; place-items: center; width: 16px; }
+.policy-sev.error { color: var(--error); }
+.policy-sev.warning { color: var(--warn); }
+.policy-sev.info { color: var(--info); }
+.policy-row.off .policy-text strong, .policy-row.off .policy-text span { color: var(--muted); }
+.policy-row.off .policy-text strong { text-decoration: line-through; text-decoration-color: var(--border-strong); }
+@media (max-width: 640px) {
+  .policy-row { grid-template-columns: auto minmax(0, 1fr); }
+  .policy-level { grid-column: 2; }
+}

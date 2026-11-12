@@ -10,6 +10,9 @@ import type { FlagKind, ScaleFlag } from '../palette/checks';
 export const TIP = {
   // Navigation
   navFiles: 'Load token files and download your changes.',
+  policy: 'Severity policy: how each check reports, from error to off.',
+  policyReset: 'Set every rule back to its built-in level.',
+  policyBack: 'Back to where you were.',
   navThemes: 'Which files each theme reads, such as light and dark.',
   navIssues: 'Problems with the DTCG format, with suggested fixes. The icon shows the severest one found.',
   navColors: 'Base color palettes: scale checks, gamut and contrast, and the curve editor.',

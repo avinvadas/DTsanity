@@ -42,6 +42,12 @@
 
 - Light, dark or brand variants detected from file names (`semantic.light.json` + `semantic.dark.json`), Tokens Studio `$themes`, or per-mode values in `$extensions`, and editable in a files × themes matrix. Each theme is checked on its own.
 
+## Severity policy
+
+- Every check reports at a level: **error** (breaks the DTCG format, or text fails contrast), **warning** (valid but likely wrong, or a non-text accessibility failure) or **info** (a suggestion, listed apart and not counted).
+- The cog beside the appearance switch opens the policy, on desktop and on phones: one line per check (55 in all), with a switch to turn it off and its level. While it's open, a back arrow appears beside the cog; either one returns to where you were. Changes apply right away to every file and view, including the fix prompt, and are kept in this browser with the other preferences. Reset to defaults, at the bottom, brings back the built-in levels.
+- Errors are red with a filled triangle, warnings yellow with an outlined one, info gray with a circled “i”. Each color passes WCAG AA (4.5:1) on every surface it sits on, in light and dark mode.
+
 ## Close the loop
 
 - **Get fixed files**: one zip holding the whole set as you loaded it, every file under its own name and in its own format, plus `CHANGES.md` listing each change per file and the actions applied.

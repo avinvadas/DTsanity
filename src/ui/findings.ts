@@ -2,6 +2,8 @@ import type { Fix, Issue } from '../model/types';
 import type { AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { mergeModels } from '../themes/merge';
+import { severest } from '../policy/rules';
+import type { Severity } from '../model/types';
 import { h, icon, plural, severityIcon } from './dom';
 
 /**
@@ -33,9 +35,20 @@ export function findings(s: AppState): Findings {
     format: issues.filter((i) => !isTier(i)),
     tiers: issues.filter(isTier),
     fixable: issues.filter((i) => i.fix && 'edits' in i.fix).map((i) => i.fix!),
-    contrast: pairs.rows.filter((r) => !r.pass),
-    vision: pairs.rows.filter((r) => r.cvdFails.length),
-    groups: pairs.siblings.filter(siblingFails),
+    // Info-level findings are suggestions: listed where they are, not counted here.
+    contrast: pairs.rows.filter((r) => !r.pass && r.tone !== 'info'),
+    vision: pairs.rows.filter((r) => r.cvdFails.length && r.cvdTone !== 'info'),
+    groups: pairs.siblings.filter((g) => siblingFails(g) && g.tone !== 'info'),
+  };
+}
+
+/** The severity each kind of finding shows at: the severest of its findings, by the policy. */
+export function findingTones(f: Findings): Record<FindingKind, Severity | undefined> {
+  return {
+    format: severest(f.format.map((i) => i.severity)),
+    tiers: severest(f.tiers.map((i) => i.severity)),
+    contrast: severest(f.contrast.map((r) => r.tone)),
+    vision: severest([...f.vision.map((r) => r.cvdTone), ...f.groups.map((g) => g.tone)]),
   };
 }
 
@@ -49,11 +62,12 @@ export const allClear = (s: AppState) => s.files.length > 0 && s.loadErrors.leng
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
 export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string) {
   const vision = f.vision.length + f.groups.length;
-  const kinds: [FindingKind, string, number, 'error' | 'warning'][] = [
-    ['format', 'Format', f.format.length, f.format.some((i) => i.severity === 'error') ? 'error' : 'warning'],
-    ['tiers', 'Tiers', f.tiers.length, 'warning'],
-    ['contrast', 'Contrast', f.contrast.length, f.contrast.some((r) => r.pair.kind === 'text') ? 'error' : 'warning'],
-    ['vision', 'Color blindness', vision, 'warning'],
+  const tone = findingTones(f);
+  const kinds: [FindingKind, string, number, Severity][] = [
+    ['format', 'Format', f.format.length, tone.format ?? 'warning'],
+    ['tiers', 'Tiers', f.tiers.length, tone.tiers ?? 'warning'],
+    ['contrast', 'Contrast', f.contrast.length, tone.contrast ?? 'warning'],
+    ['vision', 'Color blindness', vision, tone.vision ?? 'warning'],
   ];
   const total = findingTotal(f);
   const card = ([kind, title, n, tone]: (typeof kinds)[number]) =>

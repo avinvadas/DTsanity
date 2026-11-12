@@ -5,7 +5,7 @@ import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
 import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
 import { h, icon, masked, plural, severityIcon } from './dom';
-import { allClear, findings, findingTotal } from './findings';
+import { allClear, findings, findingTones, findingTotal } from './findings';
 import { TIP } from './tips';
 
 /**
@@ -14,7 +14,7 @@ import { TIP } from './tips';
  * the back button and reloads work.
  */
 
-export type ViewId = 'files' | 'themes' | 'issues' | 'colors' | 'semantic' | 'components' | 'tokens' | 'privacy';
+export type ViewId = 'files' | 'themes' | 'issues' | 'colors' | 'semantic' | 'components' | 'tokens' | 'privacy' | 'policy';
 
 interface ViewDef {
   id: ViewId;
@@ -39,7 +39,8 @@ const VIEWS: ViewDef[] = [
 /** How many views come before the separator: the results, then the file management views. */
 const RESULT_VIEWS = 5;
 
-const isView = (v: string): v is ViewId => VIEWS.some((d) => d.id === v) || v === 'privacy';
+/** Views outside the sidebar: privacy (from the footer) and the severity policy (the cog by the appearance switch). */
+const isView = (v: string): v is ViewId => VIEWS.some((d) => d.id === v) || v === 'privacy' || v === 'policy';
 
 function requested(): ViewId {
   const id = location.hash.slice(1);
@@ -70,9 +71,24 @@ function fadeIn(id: ViewId) {
   el.addEventListener('animationend', () => el.classList.remove('fade-in'), { once: true });
 }
 
+/** Where the policy was opened from: its back arrow and cog return there. */
+let previous: ViewId | undefined;
+
+/** Open the severity policy, or, when it is open, go back to the view it was opened from. */
+export function togglePolicy() {
+  if (current !== 'policy') return goTo('policy');
+  goTo(previous ?? (store.get().files.length ? 'issues' : 'files'));
+}
+
 function show(id: ViewId) {
+  if (id !== current && id === 'policy') previous = current;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-only-on]')) el.hidden = el.dataset.onlyOn !== id;
   for (const el of document.querySelectorAll<HTMLElement>('.view')) el.hidden = el.dataset.view !== id;
-  for (const a of document.querySelectorAll<HTMLElement>('[data-nav]')) {
+  for (const a of document.querySelectorAll<HTMLElement>('[data-nav], [data-nav-to]')) {
+    if (a.dataset.navTo) {
+      a.setAttribute('aria-pressed', String(a.dataset.navTo === id));
+      continue;
+    }
     if (a.dataset.nav === id) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   }
@@ -136,16 +152,18 @@ export class TTNav extends HTMLElement {
     // The Issues label and badge sum up the same findings as the cards on top of that view.
     const found = has ? findings(store.get()) : undefined;
     const issueCount = found ? findingTotal(found) : 0;
-    const issueTone: Tone | undefined = !found || !issueCount ? undefined : found.format.some((i) => i.severity === 'error') || found.contrast.some((r) => r.pair.kind === 'text') ? 'error' : 'warning';
+    const issueTone: Tone | undefined = !found || !issueCount ? undefined : severest(Object.values(findingTones(found)).filter((t): t is Tone => t !== undefined));
     const included = has ? palettesOf(store.get()).palettes.filter((p) => p.included) : [];
     const pairs = has ? pairsOf(store.get()) : undefined;
-    /** The count and tone for one tier's pairs view: red for failing text, amber for UI or CVD failures. */
+    /** The count and tone for one tier's pairs view: the severest of its contrast, CVD and status-color failures, by the policy. */
     const tierCount = (tier: 'semantic' | 'component') => {
       const rows = pairs?.rows.filter((r) => r.tier === tier) ?? [];
       if (!rows.length) return undefined;
-      const failing = rows.filter((r) => !r.pass);
-      const cvd = rows.some((r) => r.cvdFails.length) || (pairs?.siblings.some((g) => g.tier === tier && siblingFails(g)) ?? false);
-      const tone: Tone | undefined = failing.some((r) => r.pair.kind === 'text') ? 'error' : failing.length || cvd ? 'warning' : undefined;
+      const tone = severest([
+        ...rows.filter((r) => !r.pass).map((r) => r.tone),
+        ...rows.filter((r) => r.cvdFails.length).map((r) => r.cvdTone),
+        ...(pairs?.siblings.filter((g) => g.tier === tier && siblingFails(g)).map((g) => g.tone!) ?? []),
+      ]);
       return { n: rows.length, tone };
     };
     // Each count is led by the severest indication active in that view.

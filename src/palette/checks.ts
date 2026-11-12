@@ -1,4 +1,5 @@
 import { distance, lch, type Gamut } from '../color/format';
+import type { Severity } from '../model/types';
 import type { Direction, Palette, Swatch } from './detect';
 
 /**
@@ -12,7 +13,7 @@ export type FlagKind = 'inversion' | 'near-duplicate' | 'hue-drift' | 'uneven-li
 
 export interface ScaleFlag {
   kind: FlagKind;
-  severity: 'warning' | 'info';
+  severity: Severity;
   message: string;
   /** Steps the flag is about, for highlighting. */
   steps: string[];

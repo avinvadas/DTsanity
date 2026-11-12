@@ -2,7 +2,7 @@ import { formatContrast } from '../contrast/metrics';
 import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
 import { TIER_LABEL, tierNames, type Tier } from '../model/tiers';
-import type { Model } from '../model/types';
+import type { Model, Severity } from '../model/types';
 import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, pointColor, tokenColor, hasRole, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
@@ -22,7 +22,10 @@ const KINDS: { id: PairKind; label: string }[] = [
 type View = Pick<AppState, 'model' | 'themeModels' | 'themes' | 'pairEdits' | 'settings'>;
 
 /** How a failing pair is marked: text that can't be read is an error, a faint UI part a warning. */
-const failTone = (kind: PairKind) => (kind === 'text' ? 'error' : 'warning');
+/** The severity a group of failures shows at: the policy's, the same for every row of a kind. */
+const toneOf = (tones: readonly Severity[]): Severity => tones[0] ?? 'warning';
+/** A count of failures in the view's summary, marked with their severity. */
+const chip = (tone: Severity, tip: string | undefined, text: string) => h('span', { class: `chip ${tone}`, 'data-tip': tip }, severityIcon(tone), text);
 
 /**
  * The mode a theme's pick should be written to so it changes that theme
@@ -116,10 +119,10 @@ export class TTSemantic extends HTMLElement {
       viewHead(masked(h('span', null, `${tierNames(v.model)[component ? 'component' : 'semantic']} tier`)), {
         summary: [
           h('span', { class: 'n' }, plural(rows.length, 'pair')),
-          failText ? h('span', { class: 'chip error', 'data-tip': TIP.pairFailText }, severityIcon('error'), `${failText} text failing`) : null,
-          failUi ? h('span', { class: 'chip warning', 'data-tip': TIP.pairFailUi }, severityIcon('warning'), `${failUi} UI failing`) : null,
-          failCvd ? h('span', { class: 'chip warning', 'data-tip': TIP.pairFailCvd }, severityIcon('warning'), `${failCvd} failing with CVD`) : null,
-          failSiblings ? h('span', { class: 'chip warning', 'data-tip': TIP.siblingsFail }, severityIcon('warning'), `${plural(failSiblings, 'status group')} too close`) : null,
+          failText ? chip(toneOf(failing.filter((r) => r.pair.kind === 'text').map((r) => r.tone)), TIP.pairFailText, `${failText} text failing`) : null,
+          failUi ? chip(toneOf(failing.filter((r) => r.pair.kind === 'ui').map((r) => r.tone)), TIP.pairFailUi, `${failUi} UI failing`) : null,
+          failCvd ? chip(toneOf(rows.map((r) => r.cvdTone)), TIP.pairFailCvd, `${failCvd} failing with CVD`) : null,
+          failSiblings ? chip(toneOf(siblings.flatMap((g) => g.tone ?? [])), TIP.siblingsFail, `${plural(failSiblings, 'status group')} too close`) : null,
           rows.length && !anyFail.length && !failSiblings && targets.length ? h('span', { class: 'badge ok' }, icon('check'), ' All pass') : null,
         ],
         actions: this.reload.el,
@@ -213,7 +216,7 @@ export class TTSemantic extends HTMLElement {
             rows.map((r) => {
               const row = h(
                 'tr',
-                { class: r.pass ? '' : `fail ${failTone(r.pair.kind)}` },
+                { class: r.pass ? '' : `fail ${r.tone}` },
                 h(
                   'td',
                   { class: 'token-id' },
@@ -314,7 +317,7 @@ export class TTSemantic extends HTMLElement {
           allModels(store.get()).map((model, i) => {
             const c = r.seen.normal[i];
             if (!c) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, names[i] ?? label), h('span', { class: 'muted' }, 'This pair is not in this theme'));
-            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => (role === 'fg' ? meta(cand.info, c.bg) : meta(c.fg, cand.info)), v, () => (this.keepOpen = key), c.pass ? undefined : failTone(r.pair.kind), ownMode(i, id));
+            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => (role === 'fg' ? meta(cand.info, c.bg) : meta(c.fg, cand.info)), v, () => (this.keepOpen = key), c.pass || r.tone === 'info' ? undefined : r.tone, ownMode(i, id));
           }),
         ),
         h('p', { class: 'hint' }, `Each option shows its contrast against the ${role === 'fg' ? 'background' : 'foreground'} and whether it still passes with every color-vision deficiency (CVD). Only the reference changes; ⌘Z undoes it.`),
@@ -365,7 +368,7 @@ export class TTSemantic extends HTMLElement {
         'div',
         { class: 'alias-theme' },
         themeNames[i] ? h('strong', null, themeNames[i]) : null,
-        c.colors.map((m) => this.aliasField(model, m.id, statusOf(m.id, row.group.id), themeNames[i] ?? null, m.info, meta(m.id), v, undefined, c.results.some((x) => !x.pass && x.vision !== 'achroma' && x.closest.includes(m.id)) ? 'warning' : undefined, ownMode(i, m.id))),
+        c.colors.map((m) => this.aliasField(model, m.id, statusOf(m.id, row.group.id), themeNames[i] ?? null, m.info, meta(m.id), v, undefined, row.tone && row.tone !== 'info' && c.results.some((x) => !x.pass && x.vision !== 'achroma' && x.closest.includes(m.id)) ? row.tone : undefined, ownMode(i, m.id))),
       );
     };
     return h(
@@ -404,8 +407,8 @@ export class TTSemantic extends HTMLElement {
         c.results.map((x) =>
           h(
             'span',
-            { class: x.pass ? 'pass' : `miss ${failTone(r.pair.kind)}`, 'data-tip': `${x.level.label}: ${x.pass ? 'passes' : 'fails'}` },
-            x.pass ? icon('check') : severityIcon(failTone(r.pair.kind)),
+            { class: x.pass ? 'pass' : `miss ${r.tone}`, 'data-tip': `${x.level.label}: ${x.pass ? 'passes' : 'fails'}` },
+            x.pass ? icon('check') : severityIcon(r.tone),
             ` ${formatContrast(x.value, x.level.metric)} `,
             h('small', null, x.level.short),
           ),
@@ -431,13 +434,13 @@ export class TTSemantic extends HTMLElement {
         'button',
         {
           type: 'button',
-          class: `vision-tile${c.pass ? '' : ` miss ${failTone(r.pair.kind)}`}`,
+          class: `vision-tile${c.pass ? '' : ` miss ${r.tone}`}`,
           title: `${r.pair.fg} on ${r.pair.bg}${value}`,
           'aria-label': `Change aliases of ${r.pair.fg} on ${r.pair.bg}`,
           onclick: () => this.openPair(r),
         },
         pairCanvas(c.shown, c.bg, glyphOf(r.pair), gamut),
-        c.pass ? null : severityIcon(failTone(r.pair.kind)),
+        c.pass ? null : severityIcon(r.tone),
       );
     };
     return h(
@@ -491,7 +494,7 @@ export class TTSemantic extends HTMLElement {
           'div',
           { class: 'sibling-rows' },
           c.results.map((x) => {
-            const tone = x.vision === 'achroma' ? 'info' : 'warning';
+            const tone = x.vision === 'achroma' || !row.tone ? 'info' : row.tone;
             const name = VISIONS.find((d) => d.id === x.vision)!;
             return h(
               'div',
@@ -539,7 +542,7 @@ export class TTSemantic extends HTMLElement {
                 const open = isOpen(key, false);
                 const row = h(
                   'tr',
-                  { class: [siblingFails(g) ? 'fail warning' : '', open ? 'open' : ''].join(' ').trim() },
+                  { class: [siblingFails(g) ? `fail ${g.tone}` : '', open ? 'open' : ''].join(' ').trim() },
                   h('td', { class: 'token-id' }, g.group.id.replace(/\.\*$/, ''), h('small', { class: 'added' }, ` ${g.group.members.length} statuses`)),
                   themeNames.map((_, i) => cell(g, i)),
                   h(
@@ -620,9 +623,9 @@ export class TTSemantic extends HTMLElement {
         summary: [
           h('h3', { class: 'component-name' }, name),
           h('span', { class: 'meta' }, plural(own.length, 'pair')),
-          failText ? h('span', { class: 'chip error' }, severityIcon('error'), `${failText} text`) : null,
-          failUi ? h('span', { class: 'chip warning' }, severityIcon('warning'), `${failUi} UI`) : null,
-          failCvd ? h('span', { class: 'chip warning' }, severityIcon('warning'), `${failCvd} CVD`) : null,
+          failText ? chip(toneOf(own.filter((r) => !r.pass && r.pair.kind === 'text').map((r) => r.tone)), undefined, `${failText} text`) : null,
+          failUi ? chip(toneOf(own.filter((r) => !r.pass && r.pair.kind === 'ui').map((r) => r.tone)), undefined, `${failUi} UI`) : null,
+          failCvd ? chip(toneOf(own.map((r) => r.cvdTone)), undefined, `${failCvd} CVD`) : null,
           groupFails ? h('span', { class: 'chip warning' }, severityIcon('warning'), `${plural(groupFails, 'status group')} too close`) : null,
           !failing.length && !groupFails ? h('span', { class: 'badge ok' }, icon('check'), ' Pass') : null,
         ],

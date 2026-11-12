@@ -1,4 +1,5 @@
 import { buildModel, makeIssue } from '../model/build';
+import { issuesWithPolicy } from '../policy/rules';
 import { isStudioMetaFile } from '../model/format';
 import type { Issue, Model, Settings, SourceFile, ThemeScope } from '../model/types';
 import { metadataRules } from './metadata';
@@ -28,6 +29,6 @@ export function analyze(files: SourceFile[], settings: Settings, scope: ThemeSco
       modelIssues.push(makeIssue('info', 'format', 'no-tokens', `${f.name} has no “$value” anywhere.`, { fileId: f.id }));
     }
   }
-  model.issues = [...modelIssues, ...rules];
+  model.issues = issuesWithPolicy([...modelIssues, ...rules], settings.policy);
   return model;
 }

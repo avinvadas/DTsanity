@@ -56,17 +56,19 @@ export function fixPrompt(s: AppState): FixPrompt {
   section(required, 'Warnings', byFile(model.issues.filter((i) => i.severity === 'warning')).map(issueLine));
 
   // Contrast with typical vision: every theme a pair fails in, with its value and the levels it misses.
-  const contrast = pairs.rows.flatMap((r) =>
+  // Findings the policy sets to info go under Suggestions with the other info-level ones.
+  const counted = (tone: string | undefined) => tone !== undefined && tone !== 'info';
+  const contrastOf = (rows: typeof pairs.rows) => rows.flatMap((r) =>
     r.seen.normal.flatMap((c, i) => {
       if (!c || c.pass) return [];
       const misses = c.results.filter((x) => !x.pass).map((x) => `${x.level.label}, has ${formatContrast(x.value, x.level.metric)}`);
       return [`${code(r.pair.fg)} on ${code(r.pair.bg)} (${r.pair.kind === 'text' ? 'text' : 'UI part'})${inTheme(i)}: below ${misses.join('; ')}.`];
     }),
   );
-  section(required, 'Contrast', contrast);
+  section(required, 'Contrast', contrastOf(pairs.rows.filter((r) => counted(r.tone))));
 
   // Color-vision: pairs that pass with typical vision but not with a deficiency, and status colors that look alike.
-  const cvd = pairs.rows.flatMap((r) =>
+  const cvdOf = (rows: typeof pairs.rows) => rows.flatMap((r) =>
     r.cvdFails.flatMap((v) => {
       const label = VISIONS.find((x) => x.id === v)!.label;
       return r.seen[v].flatMap((c, i) => (c && !c.pass ? [`${code(r.pair.fg)} on ${code(r.pair.bg)}${inTheme(i)} drops below its contrast level with ${label}.`] : []));
@@ -74,7 +76,7 @@ export function fixPrompt(s: AppState): FixPrompt {
   );
   // One line per status group and theme, naming every vision type it fails with.
   const seenWith = (v: string) => (v === 'normal' ? 'typical vision' : VISIONS.find((x) => x.id === v)!.label);
-  const siblings = pairs.siblings.flatMap((g) =>
+  const siblingsOf = (groups: typeof pairs.siblings) => groups.flatMap((g) =>
     g.checks.flatMap((c, i) => {
       const fails = (c?.results ?? []).filter((x) => !x.pass && x.vision !== 'achroma');
       if (!fails.length) return [];
@@ -82,13 +84,19 @@ export function fixPrompt(s: AppState): FixPrompt {
       return [`Status colors ${list(members)} (${code(g.group.id)})${inTheme(i)} are too close to tell apart with ${fails.map((x) => `${seenWith(x.vision)} (${x.distance.toFixed(3)})`).join(', ')}; they need a difference of at least ${s.settings.cvdDistance} (ΔE OKLab). Separate them by lightness, not only hue.`];
     }),
   );
-  section(required, 'Color-vision', [...cvd, ...siblings]);
+  section(required, 'Color-vision', [...cvdOf(pairs.rows.filter((r) => counted(r.cvdTone))), ...siblingsOf(pairs.siblings.filter((g) => counted(g.tone)))]);
 
   // Base color scales.
-  const scale = (sev: 'warning' | 'info') => palettes.flatMap((p) => p.flags.filter((f) => f.severity === sev).map((f) => `${code(p.id)}: ${f.message}`));
-  section(required, 'Base color scales', scale('warning'));
+  const scale = (...sevs: string[]) => palettes.flatMap((p) => p.flags.filter((f) => sevs.includes(f.severity)).map((f) => `${code(p.id)}: ${f.message}`));
+  section(required, 'Base color scales', scale('error', 'warning'));
 
-  section(optional, 'Suggestions', [...byFile(model.issues.filter((i) => i.severity === 'info')).map(issueLine), ...scale('info')]);
+  section(optional, 'Suggestions', [
+    ...byFile(model.issues.filter((i) => i.severity === 'info')).map(issueLine),
+    ...scale('info'),
+    ...contrastOf(pairs.rows.filter((r) => r.tone === 'info')),
+    ...cvdOf(pairs.rows.filter((r) => r.cvdTone === 'info')),
+    ...siblingsOf(pairs.siblings.filter((g) => g.tone === 'info')),
+  ]);
 
   if (!count) return { text: '', count: 0 };
   const targets = TARGETS.filter((t) => s.settings.contrast.includes(t.id)).map((t) => t.label);

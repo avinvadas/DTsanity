@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS } from '../model/defaults';
 import type { Settings } from '../model/types';
+import { cleanPolicy } from '../policy/rules';
 
 export { DEFAULT_SETTINGS };
 
@@ -29,6 +30,7 @@ export function loadSettings(): Settings {
       contrast: [oneOf(Array.isArray(parsed.contrast) ? String(parsed.contrast[0]).replace(/^wcag-aa?a$/, 'wcag') : undefined, ['wcag', 'apca'] as const, DEFAULT_SETTINGS.contrast[0]!)],
       cvdDistance:
         typeof parsed.cvdDistance === 'number' && parsed.cvdDistance > 0 && parsed.cvdDistance <= 1 ? parsed.cvdDistance : DEFAULT_SETTINGS.cvdDistance,
+      policy: cleanPolicy(parsed.policy),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

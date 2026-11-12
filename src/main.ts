@@ -9,7 +9,8 @@ import { TIP } from './ui/tips';
 import { h, icon } from './ui/dom';
 import { logo } from './ui/logo';
 import { TTMobile } from './ui/mobile';
-import { TTNav } from './ui/nav';
+import { togglePolicy, TTNav } from './ui/nav';
+import { TTPolicy } from './ui/policy';
 import { TTPalettes } from './ui/palettes';
 import { TTSemantic } from './ui/semantic';
 import { TTSettings } from './ui/settings';
@@ -31,11 +32,22 @@ customElements.define('tt-themes', TTThemes);
 customElements.define('tt-semantic', TTSemantic);
 customElements.define('tt-nav', TTNav);
 customElements.define('tt-mobile', TTMobile);
+customElements.define('tt-policy', TTPolicy);
 installTooltips();
 initTheme();
 // Top right of the viewport; the phone layout carries its own in its header.
 // The same switch serves the landing and the loaded views, so it never moves between them.
-document.body.append(themeToggle('desk-theme'));
+// Beside it, the cog that opens the severity policy: global, so it's there with or without files.
+document.body.append(
+  h(
+    'div',
+    { class: 'desk-corner' },
+    // While the policy is open, an arrow back to the view it was opened from (the cog does the same).
+    h('button', { type: 'button', class: 'corner-btn', 'data-only-on': 'policy', hidden: true, 'aria-label': 'Back', 'data-tip': TIP.policyBack, onclick: togglePolicy }, icon('arrow-left')),
+    h('button', { type: 'button', class: 'corner-btn', 'data-nav-to': 'policy', 'aria-label': 'Severity policy', 'aria-pressed': 'false', 'data-tip': TIP.policy, onclick: togglePolicy }, icon('settings')),
+    themeToggle(),
+  ),
+);
 
 // Under the sidebar's logo, above the tabs, the global settings: the loaded files (count, last change, actions), then the contrast target.
 document.querySelector('.sidebar .brand')?.after(

@@ -1,6 +1,6 @@
 import { FONT_WEIGHT_NAMES } from '../legacy/types';
 import { MAY_REFERENCE, PICK_FROM, TIER_LABEL, tiersOf, type Tier } from '../model/tiers';
-import type { Edit, Model, Token } from '../model/types';
+import type { Edit, Model, Severity, Token } from '../model/types';
 import { leadsTo } from './pairs';
 
 /**
@@ -217,7 +217,7 @@ export function sizePx(v: unknown): number | undefined {
 }
 
 export interface RangeNote {
-  severity: 'warning' | 'info';
+  severity: Severity;
   code: 'same' | 'close' | 'small';
   /** The styles the note is about. */
   ids: string[];

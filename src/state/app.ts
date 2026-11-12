@@ -7,6 +7,7 @@ import type { Edit, Fix, Model, Settings, SourceFile } from '../model/types';
 import { detectThemes, type Theme } from '../themes/detect';
 import { NO_PAIR_EDITS, type PairEdits, type PairKind, pairId } from '../semantic/pairs';
 import { mergeModels, orphanIssues, type ThemeModel } from '../themes/merge';
+import { cleanPolicy, issuesWithPolicy, type Level } from '../policy/rules';
 import { analyze } from '../validate';
 import { loadSettings, saveSettings } from './settings';
 import { createStore } from './store';
@@ -112,7 +113,7 @@ function derive(s: AppState, files: SourceFile[], settings: Settings, edited?: T
   const orphans = files.filter((f) => !isStudioMetaFile(f) && !themes.some((t) => t.fileIds.includes(f.id)));
   const themeModels = themes.map((theme) => {
     const model = analyze(files.filter((f) => theme.fileIds.includes(f.id)), settings, theme.scope);
-    model.issues.push(...orphanIssues(orphans));
+    model.issues.push(...issuesWithPolicy(orphanIssues(orphans), settings.policy));
     return { theme, model };
   });
   const activeTheme = themes.some((t) => t.id === s.activeTheme) ? s.activeTheme : ALL_THEMES;
@@ -293,6 +294,16 @@ export function updateSettings(patch: Partial<Settings>) {
     const files = s.files.map((f) => fresh.get(f.id) ?? f);
     return { settings, ...derive(s, files, settings), ...dropHistory(s, new Set(fresh.keys())) };
   });
+}
+
+/** Set the level one rule reports at; a rule set back to its default is dropped from the stored policy. */
+export function setRuleLevel(id: string, level: Level) {
+  updateSettings({ policy: cleanPolicy({ ...store.get().settings.policy, [id]: level }) });
+}
+
+/** Back to the built-in severity policy. */
+export function resetPolicy() {
+  updateSettings({ policy: {} });
 }
 
 /** Apply edits as one undoable command. */

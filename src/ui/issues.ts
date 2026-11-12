@@ -105,7 +105,7 @@ export class TTIssues extends HTMLElement {
     const pairWhere = (r: PairRow) => (r.component ? `${TIER_VIEW[r.tier].label} · ${r.component}` : TIER_VIEW[r.tier].label);
     const contrastRow = (r: PairRow) => {
       const misses = r.seen.normal.flatMap((c, i) => (c && !c.pass ? [{ theme: themes[i], miss: c.results.find((x) => !x.pass)! }] : []));
-      const sev: Severity = r.pair.kind === 'text' ? 'error' : 'warning';
+      const sev: Severity = r.tone;
       const detail = misses
         .map(({ theme, miss }) => `${theme ? `${theme}: ` : ''}${formatContrast(miss.value, miss.level.metric)} of ${miss.level.threshold} (${miss.level.short})`)
         .join(' · ');
@@ -114,14 +114,14 @@ export class TTIssues extends HTMLElement {
     const visionRow = (r: PairRow) => {
       const names = r.cvdFails.map((v) => VISIONS.find((x) => x.id === v)!.label);
       const where = themes.length ? ` in ${r.cvdFails.flatMap((v) => r.seen[v].map((c, i) => (c && !c.pass ? themes[i] : null))).filter((x, i, a) => x && a.indexOf(x) === i).join(', ')}` : '';
-      return this.pairRow('warning', 'Fails with color blindness', r.pair.fg, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`, pairWhere(r));
+      return this.pairRow(r.cvdTone, 'Fails with color blindness', r.pair.fg, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`, pairWhere(r));
     };
     const groupRow = (g: SiblingRow) => {
       const lines = g.checks.flatMap((c, i) => {
         const fails = (c?.results ?? []).filter((x) => !x.pass && x.vision !== 'achroma');
         return fails.length ? [`${themes[i] ? `${themes[i]}: ` : ''}${fails.map((x) => VISIONS.find((v) => v.id === x.vision)!.short).join(', ')}`] : [];
       });
-      return this.pairRow('warning', 'Status colors too alike', g.group.id, `${g.group.members.join(', ')} need a difference of ${min}. ${lines.join(' · ')}`, g.component ? `${TIER_VIEW[g.tier].label} · ${g.component}` : TIER_VIEW[g.tier].label);
+      return this.pairRow(g.tone ?? 'warning', 'Status colors too alike', g.group.id, `${g.group.members.join(', ')} need a difference of ${min}. ${lines.join(' · ')}`, g.component ? `${TIER_VIEW[g.tier].label} · ${g.component}` : TIER_VIEW[g.tier].label);
     };
     const vision = [...f.vision.map(visionRow), ...f.groups.map(groupRow)];
     return [

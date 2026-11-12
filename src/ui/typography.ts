@@ -2,6 +2,7 @@ import type { Tier } from '../model/tiers';
 import type { Issue, Model } from '../model/types';
 import { formatPart, partCandidates, PARTS, pointPart, rangeNotes, sizePx, styleCss, typeStyle, typographyIdsIn, type PartKey, type RangeNote, type StylePart, type TypeStyle } from '../semantic/typography';
 import { allModels, applyEdits, applyFixes, store } from '../state/app';
+import { withPolicy } from '../policy/rules';
 import { disclosure, isOpen } from './collapsible';
 import { h, masked, plural, severityIcon } from './dom';
 import { TIP } from './tips';
@@ -57,7 +58,7 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
     const pick = modes.find((m) => m.name === shownMode.get(tier)) ?? modes[0];
     const at = pick?.i ?? 0;
     const shown = entries.flatMap((e) => (e.styles[at] ? [{ e, st: e.styles[at]! }] : []));
-    const notes = rangeNotes(shown.map(({ st }) => st));
+    const notes = withPolicy(rangeNotes(shown.map(({ st }) => st)), store.get().settings.policy, (n) => `type-${n.code}`);
     const notesOf = (id: string) => notes.filter((n) => n.ids.includes(id));
     const ownValue = (e: Entry) => tier !== 'base' && e.styles.some((st) => !st?.inherited && st?.parts.some((p) => p.literal !== undefined));
     const flagged = (e: Entry) => e.issues.length > 0 || ownValue(e) || notesOf(e.id).length > 0;

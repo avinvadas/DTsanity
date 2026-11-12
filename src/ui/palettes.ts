@@ -9,6 +9,7 @@ import type { Settings } from '../model/types';
 import { ALL_THEMES, setPaletteIncluded, setPins, store, updateSettings, type AppState } from '../state/app';
 import { contrastOf, type ContrastView } from '../state/contrast';
 import { palettesOf } from '../state/palettes';
+import { severest } from '../policy/rules';
 import { preview } from '../state/preview';
 import { displayGamut, paintAll, swatchCanvas } from './canvas';
 import { collapsible, disclosure, isOpen } from './collapsible';
@@ -389,8 +390,8 @@ export class TTPalettes extends HTMLElement {
 
   /** On a collapsed row, how many scale flags it has, so problems stay visible. */
   private flagSummary(p: Palette) {
-    const n = p.flags.filter((f) => f.severity !== 'info').length;
-    return n ? h('span', { class: 'chip warning' }, `${plural(n, 'flag')}`) : null;
+    const counted = p.flags.filter((f) => f.severity !== 'info');
+    return counted.length ? h('span', { class: `chip ${severest(counted.map((f) => f.severity))}` }, `${plural(counted.length, 'flag')}`) : null;
   }
 
   /** One token as a fixed-size unit: its color, and the checks about its value alone. */
