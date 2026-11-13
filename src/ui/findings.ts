@@ -5,7 +5,7 @@ import { mergeModels } from '../themes/merge';
 import { severest } from '../policy/rules';
 import type { Severity } from '../model/types';
 import { h, icon, plural, severityIcon } from './dom';
-import { promptLink } from './prompt-link';
+import { promptRow } from './prompt-link';
 
 /**
  * The four kinds of findings (format, tiers, contrast, color blindness) and
@@ -78,13 +78,13 @@ export function openLines(f: Findings): string[] {
   return out;
 }
 
-/** What DTsanity can fix of the issues found, and what is left to the user, in one line. */
-export function fixableLine(withFix: number, total: number): (string | Node)[] {
-  if (withFix === total) return [total === 1 ? 'It has a one-click fix here.' : `Each has a one-click fix here.`];
+/** What DTsanity can fix of the issues found, and what is left to the user, with the fix prompt for the rest. */
+export function fixableLine(withFix: number, total: number): HTMLElement {
+  if (withFix === total) return h('p', { class: 'findings-fixable' }, total === 1 ? 'It has a one-click fix here.' : 'Each has a one-click fix here.');
   // The ones counted without a fix: issues with none, and the contrast, color-vision and scale findings (info notes aside).
-  const link = promptLink('use the fix prompt', { issue: (i) => !i.fix && i.severity !== 'info', pair: (r) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g) => g.tone !== 'info', scales: true });
-  if (!withFix) return ['None of them has a one-click fix here: edit the files, or ', link, '.'];
-  return [`${withFix} can be fixed here in one click. For the other ${total - withFix}, edit the files, or `, link, '.'];
+  const scope = { issue: (i: Issue) => !i.fix && i.severity !== 'info', pair: (r: PairRow) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g: SiblingRow) => g.tone !== 'info', scales: true };
+  const text = withFix ? `${withFix} can be fixed here in one click. For the other ${total - withFix}, a file update is needed.` : 'None has a one-click fix here: a file update is needed.';
+  return promptRow(text, scope, 'findings-fixable');
 }
 
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
@@ -112,7 +112,7 @@ export function findingCards(f: Findings, go: (kind: FindingKind) => void, href:
     total
       ? h('h2', { class: 'findings-title' }, `${plural(total, 'issue')} found:`)
       : h('h2', { class: 'findings-title all-clear' }, h('span', { class: 'finding-ok', 'aria-hidden': 'true' }, icon('check')), 'No issues found'),
-    total ? h('p', { class: 'findings-fixable' }, fixableLine(f.withFix, total)) : null,
+    total ? fixableLine(f.withFix, total) : null,
     h('nav', { class: 'finding-cards', 'aria-label': 'Findings' }, kinds.map(card)),
   );
 }

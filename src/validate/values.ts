@@ -394,13 +394,16 @@ export function typeAndValueRules(model: Model): Issue[] {
     const at = { fileId: t.fileId, target: t.id, keyPath: t.keyPath, pos: t.pos };
 
     if (t.declaredType !== undefined && !TYPES.has(t.declaredType)) {
-      const suggestion = LEGACY_TO_DTCG[t.declaredType] ?? closest(t.declaredType, DTCG_TYPES);
+      const named = LEGACY_TO_DTCG[t.declaredType] ?? closest(t.declaredType, DTCG_TYPES);
+      // The name alone isn't enough: suggest the type only if the value can be one (Open Props types linear() easings "cubic-bezier").
+      const suggestion = named && fitsType(named, t.value) ? named : undefined;
+      const unfit = named && !suggestion ? ` It reads like “${named}”, but the value isn't one.` : '';
       issues.push(
         makeIssue(
           'error',
           'types',
           'unknown-type',
-          `“${t.declaredType}” isn't a DTCG type.${suggestion ? ` Did you mean “${suggestion}”?` : ' The value goes unchecked.'}`,
+          `“${t.declaredType}” isn't a DTCG type.${suggestion ? ` Did you mean “${suggestion}”?` : `${unfit} The value goes unchecked.`}`,
           at,
           suggestion ? typeFix(t.fileId, t.keyPath, t.declaredType, suggestion) : undefined,
         ),
@@ -430,7 +433,11 @@ export function typeAndValueRules(model: Model): Issue[] {
     if (!TYPES.has(t.type) || parseAlias(t.rawValue) !== undefined || findEmbedded(t.rawValue)) continue;
     const size = referencedFontSize(model, t);
     const checker = new Checker(size === 'varies' ? undefined : size, size === 'varies');
-    const fixed = checker.check(t.type, t.rawValue, '$value');
+    // Parts given by "$ref" pointers (Carbon writes a palette color at 12% opacity this way) are checked
+    // as they resolve; a broken pointer is the reference rules' to report. No fix: it would overwrite the pointers.
+    const pointer = hasPointer(t.rawValue);
+    if (pointer && (t.resolution !== 'ok' || t.value === undefined)) continue;
+    const fixed = checker.check(t.type, pointer ? t.value : t.rawValue, '$value');
     if (checker.problems.length === 0) continue;
     const problems = checker.problems;
     const hasError = problems.some((p) => p.level === 'error');
@@ -438,7 +445,7 @@ export function typeAndValueRules(model: Model): Issue[] {
     const fixable = problems.filter((p) => p.fixable);
     const changed = JSON.stringify(fixed) !== JSON.stringify(t.rawValue);
     let fix: Fix | undefined;
-    if (fixable.length && changed) {
+    if (fixable.length && changed && !pointer) {
       const label =
         fixable.length < problems.length
           ? `Fix ${fixable.length} of ${problems.length} problems`
@@ -519,6 +526,22 @@ function fontFallbackNotes(model: Model): Issue[] {
 
 function typeFix(fileId: string, keyPath: string[], from: string, to: string): Fix {
   return { label: `Change type to “${to}”`, preview: { before: `"$type": "${from}"`, after: `"$type": "${to}"` }, edits: [{ fileId, path: [...keyPath, '$type'], value: to }] };
+}
+
+/** Whether a value has a `{"$ref": …}` pointer anywhere in it. */
+function hasPointer(v: unknown): boolean {
+  if (Array.isArray(v)) return v.some(hasPointer);
+  if (!v || typeof v !== 'object') return false;
+  const o = v as Record<string, unknown>;
+  return (Object.keys(o).length === 1 && typeof o.$ref === 'string') || Object.values(o).some(hasPointer);
+}
+
+/** Whether a resolved value can be of `type`, possibly after a mechanical fix; an unresolved value is given the benefit of the doubt. */
+function fitsType(type: string, value: unknown): boolean {
+  if (value === undefined) return true;
+  const checker = new Checker();
+  checker.check(type, value, '$value');
+  return checker.problems.every((p) => p.fixable || p.level !== 'error');
 }
 
 /** Before/after text for a fix: for an object value (typography, border…), only the properties that change. */

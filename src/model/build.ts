@@ -1,7 +1,7 @@
 import { entry, toJS, type JNode, type JObject, type Pos } from '../json/cst';
 import { DEFAULT_SETTINGS } from './defaults';
 import { closest } from './suggest';
-import { isStudioMetaFile } from './format';
+import { isMetaFile } from './format';
 import { modeValues } from './modes';
 import type { Category, Fix, Group, Issue, Model, Settings, Severity, SourceFile, ThemeScope, Token } from './types';
 
@@ -81,7 +81,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
   const ctx: Ctx = { model, scope, order: 0, byKeyPath: new Map(), groupIds: new Set() };
 
   for (const f of files) {
-    if (isStudioMetaFile(f)) continue;
+    if (isMetaFile(f)) continue;
     for (const d of f.duplicates) {
       const where = d.path.length ? quote(d.path.join('.')) : 'the root object';
       model.issues.push(
@@ -100,6 +100,11 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
         }),
       );
       continue;
+    }
+    if (f.syntax === 'json5' && !/\.(json5|jsonc)$/i.test(f.name)) {
+      model.issues.push(
+        makeIssue('warning', 'format', 'json5-syntax', `${f.name} uses JSON5 syntax (comments, unquoted keys or trailing commas), which most JSON tools can't read. Rename it .json5 or .jsonc, or write strict JSON.`, { fileId: f.id }),
+      );
     }
     if (f.format === 'legacy' && !f.converted) {
       const kind = f.legacyKind === 'tokens-studio' ? 'Tokens Studio' : f.legacyKind === 'style-dictionary' ? 'Style Dictionary' : 'legacy';
@@ -407,9 +412,8 @@ function resolveAll(ctx: Ctx) {
     const hash = ref.indexOf('#');
     if (hash === -1) return fail('invalid-ref', `Must be a JSON Pointer like "#/color/blue/$value".`);
     const fileName = ref.slice(0, hash);
-    const file = fileName
-      ? model.files.find((f) => f.name === fileName || f.name.endsWith(`/${fileName}`))
-      : model.files.find((f) => f.id === owner.fileId);
+    const own = model.files.find((f) => f.id === owner.fileId)!;
+    const file = fileName ? findFile(model.files, fileName, own.name) : own;
     if (!file) return fail('unresolved-ref', `“${fileName}” isn't loaded.`);
     const frag = ref.slice(hash + 1);
     if (frag !== '' && !frag.startsWith('/')) return fail('invalid-ref', `Must start with "#/".`);
@@ -421,8 +425,13 @@ function resolveAll(ctx: Ctx) {
     }
     const missing = () => fail('unresolved-ref', `"${ref}" doesn't exist.`);
 
+    // "#/…" points into the document the set resolves to: every file of the theme
+    // merged in order (DTCG resolver), as references do. Carbon's theme files point
+    // at its palette file this way. A token defined in more than one file is the one
+    // that wins in the merge; a pointer to another file reads that file.
+    const tokenAt = (k: number) => (fileName ? ctx.byKeyPath.get(keyOf(file.id, segs.slice(0, k))) : (model.tokens.get(segs.slice(0, k).join('.')) ?? ctx.byKeyPath.get(keyOf(file.id, segs.slice(0, k)))));
     for (let k = segs.length; k >= 1; k--) {
-      const tok = ctx.byKeyPath.get(keyOf(file.id, segs.slice(0, k)));
+      const tok = tokenAt(k);
       if (!tok) continue;
       const rest = segs.slice(k);
       if (rest.length > 0 && rest[0] !== '$value') break;
@@ -436,7 +445,7 @@ function resolveAll(ctx: Ctx) {
       const v = indexValue(r.value, rest.slice(1));
       return v === undefined ? missing() : v;
     }
-    const node = pointerGet(file.doc.root, segs);
+    const node = pointerGet(file.doc.root, segs) ?? (fileName ? undefined : [...model.files].reverse().map((f) => pointerGet(f.doc.root, segs)).find(Boolean));
     if (!node) return missing();
     return resolveValue(owner, toJS(node), st, false);
   };
@@ -459,6 +468,35 @@ function resolveAll(ctx: Ctx) {
   };
 
   for (const id of model.tokens.keys()) resolveToken(id);
+}
+
+/**
+ * The loaded file a reference names: by its path relative to the referring
+ * file ("../colors/colors.tokens.json"); else, when files were loaded in
+ * another layout, by the longest end of that path (down to the file name)
+ * that only one loaded file ends with.
+ */
+export function findFile<F extends { name: string }>(files: readonly F[], ref: string, from: string): F | undefined {
+  const exact = files.find((f) => f.name === resolvePath(from, ref));
+  if (exact) return exact;
+  const parts = ref.split('/').filter((p) => p !== '..' && p !== '.' && p !== '');
+  for (let i = 0; i < parts.length; i++) {
+    const tail = parts.slice(i).join('/');
+    const ends = files.filter((f) => f.name === tail || f.name.endsWith(`/${tail}`));
+    if (ends.length === 1) return ends[0];
+    if (ends.length > 1) return undefined;
+  }
+  return undefined;
+}
+
+/** `rel` resolved against the folder of `from`, both slash-separated paths. */
+export function resolvePath(from: string, rel: string): string {
+  const parts = from.split('/').slice(0, -1);
+  for (const seg of rel.split('/')) {
+    if (seg === '..') parts.pop();
+    else if (seg !== '.' && seg !== '') parts.push(seg);
+  }
+  return parts.join('/');
 }
 
 function pointerGet(root: JNode, segs: string[]): JNode | undefined {

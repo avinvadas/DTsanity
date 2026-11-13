@@ -144,7 +144,18 @@ export class TTPalettes extends HTMLElement {
           ? h('p', { class: 'note' }, 'Base colors are shown for the first theme, ', masked(h('b', null, v.themes[0]!.name)), '. Pick a theme in the sidebar to see its own.')
           : null,
         settings.gamut === 'p3' && shown === 'srgb' ? h('p', { class: 'note' }, "This screen can't show Display P3, so colors marked P3 are drawn mapped to sRGB.") : null,
-        total === 0 ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with a raw value rather than a token reference.') : null,
+        // Colors written as CSS strings are a legacy form: read only with legacy formats on, as legacy files are.
+        set.legacySkipped
+          ? h(
+              'p',
+              { class: total ? 'note' : 'empty' },
+              `${plural(set.legacySkipped, 'base color')} ${set.legacySkipped === 1 ? 'is' : 'are'} written as CSS strings (such as "#0c1927"), an older form DTCG 2025.10 replaced with color objects, so ${set.legacySkipped === 1 ? 'it is' : 'they are'} left out of these checks. `,
+              h('button', { type: 'button', class: 'link', onclick: () => updateSettings({ acceptLegacy: true }) }, 'Accept legacy formats'),
+              ' to check them; the Issues view lists each with a fix that converts it.',
+            )
+          : total === 0
+            ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with a raw value rather than a token reference.')
+            : null,
         this.systems(set.palettes, settings, shown, contrast),
         parityPanel(contrast, included),
         set.loose.length ? this.loose(set, settings, shown) : null,

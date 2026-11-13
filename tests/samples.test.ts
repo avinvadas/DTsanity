@@ -22,7 +22,7 @@ function jsonFiles(dir: string): string[] {
     .flatMap((name) => {
       const p = join(dir, name);
       if (statSync(p).isDirectory()) return jsonFiles(p);
-      return name.endsWith('.json') ? [p] : [];
+      return name.match(/\.json[5c]?$/) ? [p] : [];
     });
 }
 

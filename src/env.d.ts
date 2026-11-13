@@ -14,4 +14,8 @@ interface OpenFilePickerOptions {
 }
 interface Window {
   showOpenFilePicker?(options?: OpenFilePickerOptions): Promise<FileSystemFileHandle[]>;
+  showDirectoryPicker?(options?: { mode?: 'read' }): Promise<FileSystemDirectoryHandle>;
+}
+interface FileSystemDirectoryHandle {
+  values(): AsyncIterableIterator<FileSystemHandle>;
 }

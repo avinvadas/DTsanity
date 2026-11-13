@@ -1,5 +1,5 @@
 import { download, exportAs, isUnchanged, type ExportFormat } from '../io/export';
-import { isStudioMetaFile } from '../model/format';
+import { isResolverFile, isStudioMetaFile } from '../model/format';
 import type { SourceFile } from '../model/types';
 import { allModels, clearAll, redo, removeFile, store, undo, type AppState } from '../state/app';
 import { h, masked, plural, xButton } from './dom';
@@ -9,6 +9,7 @@ import { TIP } from './tips';
 const LEGACY_LABEL = { 'tokens-studio': 'Tokens Studio', 'style-dictionary': 'Style Dictionary' } as const;
 
 function formatLabel(f: SourceFile): string {
+  if (isResolverFile(f)) return 'DTCG resolver: the files of each theme';
   if (isStudioMetaFile(f)) return 'Tokens Studio project metadata';
   if (f.format === 'dtcg') return 'DTCG';
   if (f.format === 'unknown') return 'No tokens found';

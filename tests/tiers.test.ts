@@ -36,7 +36,8 @@ describe('tier detection', () => {
       ],
       DEFAULT_SETTINGS,
     );
-    expect(tierNames(model)).toEqual({ base: 'Primitives', semantic: 'Sys', component: 'Component' });
+    // As the files write them; the generic name only where they name none.
+    expect(tierNames(model)).toEqual({ base: 'primitives', semantic: 'sys', component: 'Component' });
   });
 
   it('lets a layer group win over a component word', () => {

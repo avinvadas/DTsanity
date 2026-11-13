@@ -47,6 +47,8 @@ export interface SourceFile {
   duplicates: DuplicateKey[];
   /** Format of the file as loaded. */
   format: FileFormat;
+  /** Read as JSON5 (which covers JSONC): a .json5 or .jsonc file, or a .json file that isn't strict JSON. Saved in its own syntax. */
+  syntax?: 'json5';
   /** Set for legacy files; `converted` tells whether `doc` holds the DTCG conversion. */
   legacyKind?: LegacyKind;
   converted?: boolean;

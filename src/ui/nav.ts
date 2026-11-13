@@ -26,11 +26,13 @@ interface ViewDef {
 }
 
 // Results first; the views that manage the loaded files come last.
+// The tiers run from the top down: component, semantic, then base last. Fixing a pair
+// by pointing a token at another one comes before changing a core value every tier relies on.
 const VIEWS: ViewDef[] = [
   { id: 'issues', label: 'Issues', needsFiles: true, tip: TIP.navIssues },
-  { id: 'colors', label: 'Base tier', needsFiles: true, tip: TIP.navColors },
-  { id: 'semantic', label: 'Semantic tier', needsFiles: true, tip: TIP.navSemantic },
   { id: 'components', label: 'Component tier', needsFiles: true, tip: TIP.navComponents },
+  { id: 'semantic', label: 'Semantic tier', needsFiles: true, tip: TIP.navSemantic },
+  { id: 'colors', label: 'Base tier', needsFiles: true, tip: TIP.navColors },
   { id: 'tokens', label: 'Tokens list', needsFiles: true, tip: TIP.navTokens },
   { id: 'themes', label: 'Themes', needsFiles: true, tip: TIP.navThemes },
   { id: 'files', label: 'Files', needsFiles: false, tip: TIP.navFiles },
@@ -116,6 +118,16 @@ function show(id: ViewId) {
 
 let current: ViewId = 'files';
 
+/** The themes as options, named as the files name them; Tokens Studio groups (“Color scheme”) as option groups. */
+function themeOptions(v: Pick<AppState, 'themes' | 'activeTheme'>): HTMLElement[] {
+  // A combined Tokens Studio theme says on hover every theme it is made of.
+  const option = (t: AppState['themes'][number]) =>
+    h('option', { value: t.id, selected: t.id === v.activeTheme, title: t.combo ? t.combo.map((c) => (c.group ? `${c.group}: ${c.name}` : c.name)).join(' · ') : undefined }, t.name);
+  if (!v.themes.some((t) => t.group)) return v.themes.map(option);
+  const groups = [...new Set(v.themes.map((t) => t.group ?? ''))];
+  return groups.map((g) => (g ? h('optgroup', { label: g }, v.themes.filter((t) => (t.group ?? '') === g).map(option)) : v.themes.filter((t) => !t.group).map(option))).flat();
+}
+
 type View = Pick<AppState, 'files' | 'model' | 'themes' | 'activeTheme' | 'themeModels' | 'loadErrors' | 'paletteOverrides' | 'settings' | 'pairEdits'>;
 type Tone = 'error' | 'warning' | 'info';
 
@@ -196,7 +208,7 @@ export class TTNav extends HTMLElement {
         }
       : {};
 
-    // Tier views take the names the files use for their layers (`Primitives tier`).
+    // Tier views take the names the files use for their layers, as they spell them (`primitives tier`).
     const tiers = has ? tierNames(v.model) : undefined;
     const label = (d: ViewDef): HTMLElement => {
       if (d.id === 'issues' && has) return h('span', null, issueCount ? `${plural(issueCount, 'issue')} found` : 'No issues found');
@@ -292,7 +304,7 @@ export class TTNav extends HTMLElement {
       'select',
       { id: 'tt-theme-pick', 'data-tip': TIP.themePick },
       h('option', { value: ALL_THEMES, selected: v.activeTheme === ALL_THEMES }, 'All themes'),
-      v.themes.map((t) => h('option', { value: t.id, selected: t.id === v.activeTheme }, t.name)),
+      themeOptions(v),
     );
     select.addEventListener('change', () => setActiveTheme(select.value));
     return h('div', { class: 'theme-pick' }, h('label', { for: 'tt-theme-pick' }, 'Theme'), masked(select));

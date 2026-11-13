@@ -15,7 +15,7 @@ import { loadText } from './helpers';
  */
 
 const json = (dir: string): string[] =>
-  readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? json(join(dir, n)) : n.endsWith('.json') ? [join(dir, n)] : []));
+  readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? json(join(dir, n)) : n.match(/\.json[5c]?$/) ? [join(dir, n)] : []));
 
 function seen() {
   const sets: string[][] = [];

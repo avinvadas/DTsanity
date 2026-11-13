@@ -20,7 +20,24 @@ export interface RawSource {
   blob?: File;
 }
 
-export const ACCEPT = '.json,.tokens,application/json,application/design-tokens+json';
+export const ACCEPT = '.json,.json5,.jsonc,.tokens,application/json,application/json5,application/design-tokens+json';
+
+/** Files named as JSON5 or JSONC are read as such; others as JSON, then as JSON5 if they aren't strict JSON. */
+export const isJson5Name = (name: string) => /\.(json5|jsonc)$/i.test(name);
+
+function parseText(name: string, text: string): ReturnType<typeof parseJson> & { json5: boolean } {
+  if (isJson5Name(name)) return { ...parseJson(text, { json5: true }), json5: true };
+  try {
+    return { ...parseJson(text), json5: false };
+  } catch (strict) {
+    // A .json file with comments or trailing commas: read it, and report it (most JSON tools won't), rather than refuse it.
+    try {
+      return { ...parseJson(text, { json5: true }), json5: true };
+    } catch {
+      throw strict;
+    }
+  }
+}
 const MAX_BYTES = 50 * 1024 * 1024;
 
 let nextId = 0;
@@ -31,7 +48,7 @@ let nextId = 0;
  */
 export function parseSource(raw: RawSource, settings: Settings = DEFAULT_SETTINGS): SourceFile | LoadError {
   try {
-    const { doc: parsed, duplicates } = parseJson(raw.text);
+    const { doc: parsed, duplicates, json5 } = parseText(raw.name, raw.text);
     const format = detectFormat(parsed.root);
     let doc = parsed;
     const file: SourceFile = {
@@ -44,6 +61,7 @@ export function parseSource(raw: RawSource, settings: Settings = DEFAULT_SETTING
       duplicates,
       format,
     };
+    if (json5) file.syntax = 'json5';
     if (format === 'legacy') {
       file.legacyKind = detectLegacyKind(parsed.root);
       if (settings.acceptLegacy) {
@@ -91,19 +109,121 @@ const truncate = (s: string) => (s.length > 160 ? `${s.slice(0, 160)}…` : s);
 const reason = (err: unknown) =>
   err instanceof Error && (err.name !== 'Error' || err.message) ? ` The browser said: ${err.name}${err.message ? `: ${err.message}` : ''}` : '';
 
-async function readFile(file: File, handle?: FileSystemFileHandle): Promise<RawSource | LoadError> {
-  if (file.size > MAX_BYTES) return { name: file.name, message: `The file is ${(file.size / 1024 / 1024).toFixed(0)} MB; the limit is 50 MB.` };
+/** `path` names the file inside a folder that was dropped or chosen ("carbon/themes/white/theme.tokens.json"). */
+async function readFile(file: File, handle?: FileSystemFileHandle, path = file.name): Promise<RawSource | LoadError> {
+  if (file.size > MAX_BYTES) return { name: path, message: `The file is ${(file.size / 1024 / 1024).toFixed(0)} MB; the limit is 50 MB.` };
   try {
-    const raw: RawSource = { name: file.name, text: await file.text(), origin: 'file', blob: file };
+    const raw: RawSource = { name: path, text: await file.text(), origin: 'file', blob: file };
     if (handle) raw.handle = handle;
     return raw;
   } catch (err) {
-    return { name: file.name, message: `The file could not be read.${reason(err)}` };
+    return { name: path, message: `The file could not be read.${reason(err)}` };
   }
 }
 
+/** Files chosen one by one, or a folder chosen with the standard input (which gives each file its path in it). */
 export function readFiles(files: Iterable<File>): Promise<(RawSource | LoadError)[]> {
-  return Promise.all([...files].map((f) => readFile(f)));
+  const list = [...files];
+  const inFolder = (f: File) => !!f.webkitRelativePath;
+  if (list.some(inFolder)) {
+    const top = list.find(inFolder)!.webkitRelativePath.split('/')[0]!;
+    const kept = list.filter((f) => isTokenPath(f.webkitRelativePath || f.name));
+    if (!kept.length) return Promise.resolve([noTokenFiles(top)]);
+    return Promise.all(kept.map((f) => readFile(f, undefined, f.webkitRelativePath || f.name)));
+  }
+  return Promise.all(list.map((f) => readFile(f)));
+}
+
+// ---------------------------------------------------------------------------
+// Folders
+
+/** Files a folder may hold tokens in. */
+const TOKEN_FILE = /\.(json|json5|jsonc|tokens)$/i;
+/** JSON files that are never tokens: package manifests and tool configs. */
+const NOT_TOKENS = /^(package(-lock)?\.json|tsconfig(\..*)?\.json|jsconfig\.json|composer\.json|\..*)$/i;
+/** Folders never read: dependencies and hidden folders. */
+const SKIP_DIR = /^(node_modules|\..*)$/;
+/** Enough for any token set; a folder past this is probably not one. */
+const MAX_FILES = 2000;
+
+const isTokenPath = (path: string) => {
+  const parts = path.split('/');
+  return TOKEN_FILE.test(parts.at(-1)!) && !NOT_TOKENS.test(parts.at(-1)!) && !parts.slice(0, -1).some((d) => SKIP_DIR.test(d));
+};
+
+const noTokenFiles = (folder: string): LoadError => ({ name: folder, message: 'This folder has no token files (.json, .json5, .jsonc or .tokens).' });
+const tooMany = (folder: string): LoadError => ({ name: folder, message: `This folder has more than ${MAX_FILES} token files; only the first ${MAX_FILES} were read. Choose the folder that holds the tokens.` });
+
+/** Every token file in a folder handle, with its path from the folder (its name included), keeping handles for Reload. */
+async function readDirHandle(dir: FileSystemDirectoryHandle): Promise<(RawSource | LoadError)[]> {
+  const found: { handle: FileSystemFileHandle; path: string }[] = [];
+  const walk = async (d: FileSystemDirectoryHandle, prefix: string) => {
+    const entries: FileSystemHandle[] = [];
+    for await (const e of d.values()) entries.push(e);
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+    for (const e of entries) {
+      if (found.length > MAX_FILES) return;
+      const path = `${prefix}/${e.name}`;
+      if (e.kind === 'directory') {
+        if (!SKIP_DIR.test(e.name)) await walk(e as FileSystemDirectoryHandle, path);
+      } else if (isTokenPath(path)) found.push({ handle: e as FileSystemFileHandle, path });
+    }
+  };
+  await walk(dir, dir.name);
+  if (!found.length) return [noTokenFiles(dir.name)];
+  const read = await Promise.all(found.slice(0, MAX_FILES).map(async ({ handle, path }) => readFile(await handle.getFile(), handle, path)));
+  return found.length > MAX_FILES ? [...read, tooMany(dir.name)] : read;
+}
+
+/** The same for a dropped folder entry, where the browser gives no handles (Reload re-reads the File). */
+async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource | LoadError)[]> {
+  const found: { entry: FileSystemFileEntry; path: string }[] = [];
+  const list = (d: FileSystemDirectoryEntry) =>
+    new Promise<FileSystemEntry[]>((done, fail) => {
+      const reader = d.createReader();
+      const all: FileSystemEntry[] = [];
+      // readEntries returns the entries in batches, then an empty one.
+      const next = () => reader.readEntries((batch) => (batch.length ? (all.push(...batch), next()) : done(all)), fail);
+      next();
+    });
+  const walk = async (d: FileSystemDirectoryEntry, prefix: string) => {
+    const entries = (await list(d)).sort((a, b) => a.name.localeCompare(b.name));
+    for (const e of entries) {
+      if (found.length > MAX_FILES) return;
+      const path = `${prefix}/${e.name}`;
+      if (e.isDirectory) {
+        if (!SKIP_DIR.test(e.name)) await walk(e as FileSystemDirectoryEntry, path);
+      } else if (isTokenPath(path)) found.push({ entry: e as FileSystemFileEntry, path });
+    }
+  };
+  try {
+    await walk(dir, dir.name);
+  } catch (err) {
+    return [{ name: dir.name, message: `The folder could not be read.${reason(err)}` }];
+  }
+  if (!found.length) return [noTokenFiles(dir.name)];
+  const read = await Promise.all(
+    found.slice(0, MAX_FILES).map(
+      ({ entry, path }) => new Promise<File>((done, fail) => entry.file(done, fail)).then((f) => readFile(f, undefined, path), (err) => ({ name: path, message: `The file could not be read.${reason(err)}` })),
+    ),
+  );
+  return found.length > MAX_FILES ? [...read, tooMany(dir.name)] : read;
+}
+
+/** Choose a folder: with a handle where the browser offers one (for Reload), else with the standard folder input. */
+export async function pickFolder(fallback: HTMLInputElement): Promise<(RawSource | LoadError)[] | null> {
+  if (typeof window.showDirectoryPicker !== 'function' || pickerBroken) {
+    fallback.click();
+    return null;
+  }
+  try {
+    return await readDirHandle(await window.showDirectoryPicker({ mode: 'read' }));
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return null;
+    pickerBroken = true;
+    fallback.click();
+    return null;
+  }
 }
 
 /**
@@ -113,7 +233,7 @@ export function readFiles(files: Iterable<File>): Promise<(RawSource | LoadError
  */
 async function readHandle(h: FileSystemHandle | null, fallback: File | null | undefined): Promise<RawSource | LoadError> {
   if (!h) return fallback ? readFile(fallback) : { name: 'Unknown item', message: 'This item is not a file.' };
-  if (h.kind !== 'file') return { name: h.name, message: 'Folders are not supported. Choose or drop the token files themselves.' };
+  if (h.kind !== 'file') return { name: h.name, message: 'This item is not a file.' };
   const fh = h as FileSystemFileHandle;
   let result: RawSource | LoadError;
   try {
@@ -144,7 +264,7 @@ export async function pickFiles(fallback: HTMLInputElement): Promise<(RawSource 
   try {
     handles = await window.showOpenFilePicker!({
       multiple: true,
-      types: [{ description: 'Design tokens', accept: { 'application/json': ['.json', '.tokens'] } }],
+      types: [{ description: 'Design tokens', accept: { 'application/json': ['.json', '.json5', '.jsonc', '.tokens'] } }],
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') return null;
@@ -170,18 +290,35 @@ const HANDLE_MS = 1000;
 /** Read dropped files, keeping handles where the browser offers them. Must be called during the drop event. */
 export function readDropped(dt: DataTransfer): Promise<(RawSource | LoadError)[]> {
   const items = [...dt.items].filter((i) => i.kind === 'file');
+  // Captured synchronously: the DataTransfer is emptied after the drop event.
+  const entries = items.map((i) => (typeof i.webkitGetAsEntry === 'function' ? i.webkitGetAsEntry() : null));
+  const files = items.map((i) => i.getAsFile());
+  const flat = (xs: (RawSource | LoadError)[][]) => xs.flat();
+  // Without handles: folders through their entries, files as they are.
+  const byEntries = () =>
+    Promise.all(
+      items.map((_, i) => {
+        const e = entries[i];
+        if (e?.isDirectory) return readDirEntry(e as FileSystemDirectoryEntry);
+        const f = files[i];
+        return f ? readFile(f).then((r) => [r]) : Promise.resolve(unreadable(1));
+      }),
+    ).then(flat);
   if (items.length && items.every((i) => typeof i.getAsFileSystemHandle === 'function')) {
-    // Both must be captured synchronously: the DataTransfer is emptied after the drop event.
-    const files = items.map((i) => i.getAsFile());
     const pending = items.map((i) => i.getAsFileSystemHandle!());
-    const plain = () => readFiles(files.filter((f): f is File => f !== null)).then((read) => [...read, ...unreadable(files.filter((f) => f === null).length)]);
-    // Some embedded browsers never settle the handles; read the plain files then.
+    // Some embedded browsers never settle the handles; read without them then.
     const stalled = new Promise<never>((_, fail) => setTimeout(() => fail(new Error('timeout')), HANDLE_MS));
     return Promise.race([Promise.all(pending), stalled]).then(
-      (handles) => Promise.race([Promise.all(handles.map((h, i) => readHandle(h, files[i]))), stalled]).catch(plain),
-      plain,
+      (handles) =>
+        Promise.race([
+          Promise.all(handles.map((h, i) => (h?.kind === 'directory' ? readDirHandle(h as FileSystemDirectoryHandle) : readHandle(h, files[i]).then((r) => [r])))).then(flat),
+          // A folder may take longer to read than files; only the handles themselves are timed.
+          ...(handles.some((h) => h?.kind === 'directory') ? [] : [stalled]),
+        ]).catch(byEntries),
+      byEntries,
     );
   }
+  if (entries.some((e) => e?.isDirectory)) return byEntries();
   // Counted now: the DataTransfer is emptied after the drop event.
   const missing = items.length - dt.files.length;
   return readFiles(dt.files).then((read) => [...read, ...unreadable(missing)]);
@@ -199,7 +336,7 @@ export async function reloadSource(f: SourceFile): Promise<RawSource | LoadError
   }
   if (f.handle) {
     try {
-      return await readFile(await f.handle.getFile(), f.handle);
+      return await readFile(await f.handle.getFile(), f.handle, f.name);
     } catch (err) {
       return { name: f.name, message: `Couldn't read “${f.name}” again. It may have been moved, renamed or deleted.${reason(err)}` };
     }

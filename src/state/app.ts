@@ -2,8 +2,9 @@ import type { EndId } from '../contrast/analyze';
 import type { EndChoice } from '../contrast/ends';
 import { isLoadError, parseSource } from '../io/load';
 import { deleteIn, renameIn, setIn, type JDoc } from '../json/cst';
-import { isStudioMetaFile } from '../model/format';
-import type { Edit, Fix, Model, Settings, SourceFile } from '../model/types';
+import { makeIssue } from '../model/build';
+import { isMetaFile, isResolverFile } from '../model/format';
+import type { Edit, Fix, Issue, Model, Settings, SourceFile } from '../model/types';
 import { detectThemes, type Theme } from '../themes/detect';
 import { NO_PAIR_EDITS, type PairEdits, type PairKind, pairId } from '../semantic/pairs';
 import { mergeModels, orphanIssues, type ThemeModel } from '../themes/merge';
@@ -110,14 +111,24 @@ function derive(s: AppState, files: SourceFile[], settings: Settings, edited?: T
   if (themes.length === 0) {
     return { files, themes, themesCustomized: customized, activeTheme: ALL_THEMES, themeModels: [], model: analyze(files, settings) };
   }
-  const orphans = files.filter((f) => !isStudioMetaFile(f) && !themes.some((t) => t.fileIds.includes(f.id)));
+  const orphans = files.filter((f) => !isMetaFile(f) && !themes.some((t) => t.fileIds.includes(f.id)));
+  const resolver = files.find((f) => isResolverFile(f));
   const themeModels = themes.map((theme) => {
-    const model = analyze(files.filter((f) => theme.fileIds.includes(f.id)), settings, theme.scope);
-    model.issues.push(...issuesWithPolicy(orphanIssues(orphans), settings.policy));
+    // In the theme's own order: a resolver lists files so later ones override earlier ones.
+    const read = theme.fileIds.map((id) => files.find((f) => f.id === id)).filter((f): f is SourceFile => !!f);
+    const model = analyze(read, settings, theme.scope);
+    model.issues.push(...issuesWithPolicy([...orphanIssues(orphans), ...missingIssues(theme, resolver)], settings.policy));
     return { theme, model };
   });
   const activeTheme = themes.some((t) => t.id === s.activeTheme) ? s.activeTheme : ALL_THEMES;
   return { files, themes, themesCustomized: customized, activeTheme, themeModels, model: activeModel(themeModels, activeTheme) };
+}
+
+/** What a theme's source names but isn't loaded: reported on the resolver file. */
+function missingIssues(theme: Theme, resolver: SourceFile | undefined): Issue[] {
+  return (theme.missing ?? []).map((m) =>
+    makeIssue('warning', 'format', 'resolver-missing', m.startsWith('a source') ? `Names ${m}, which DTsanity doesn't read yet; its tokens aren't checked.` : `Names “${m}”, which isn't loaded; load it (or the folder that holds it) to check the theme fully.`, { fileId: resolver?.id }),
+  );
 }
 
 function activeModel(themeModels: ThemeModel[], active: string): Model {
@@ -243,7 +254,7 @@ const manualTheme = (name: string, fileIds: string[]): Theme => ({ id: `manual:$
 /** Add a theme that reads every file; with no themes yet, start with two to compare. */
 export function addTheme() {
   editThemes((themes, s) => {
-    const all = s.files.filter((f) => !isStudioMetaFile(f)).map((f) => f.id);
+    const all = s.files.filter((f) => !isMetaFile(f)).map((f) => f.id);
     if (themes.length === 0) return [manualTheme('Theme 1', all), manualTheme('Theme 2', all)];
     return [...themes, manualTheme(`Theme ${themes.length + 1}`, all)];
   });
@@ -331,12 +342,26 @@ export function applyEdits(label: string, edits: Edit[]) {
  * exposes a legacy hex string). When several fixes are applied together,
  * those follow-ups are applied too, in the same command, until none remain.
  */
-export function applyFixes(fixes: Fix[], label = fixes.length === 1 ? fixes[0]!.label : `Apply ${fixes.length} fixes`) {
+/** Returns how many of `fixes` were applied (one per token; the rest are offered again afterwards). */
+export function applyFixes(fixes: Fix[], label = fixes.length === 1 ? fixes[0]!.label : `Apply ${fixes.length} fixes`): number {
   const settingPatch: Partial<Settings> = {};
   const edits: Edit[] = [];
+  // One fix per token in a batch: two fixes worked out on their own can clash on the same token
+  // (removing a "$type" so the reference gives it, and writing the value in place of that reference).
+  // The others wait; checked again after this batch, each is offered again if it still applies.
+  const claimed = new Set<string>();
+  let applied = 0;
   for (const f of fixes) {
-    if ('setting' in f) Object.assign(settingPatch, f.setting);
-    else edits.push(...f.edits);
+    if ('setting' in f) {
+      Object.assign(settingPatch, f.setting);
+      applied++;
+      continue;
+    }
+    const tokens = [...new Set(f.edits.map(editToken))];
+    if (tokens.some((t) => claimed.has(t))) continue;
+    tokens.forEach((t) => claimed.add(t));
+    edits.push(...f.edits);
+    applied++;
   }
   if (edits.length) {
     const depth = store.get().past.length;
@@ -355,6 +380,13 @@ export function applyFixes(fixes: Fix[], label = fixes.length === 1 ? fixes[0]!.
     }
   }
   if (Object.keys(settingPatch).length) updateSettings(settingPatch);
+  return applied;
+}
+
+/** The token (or group) an edit is about: its file and the path up to the first "$" property. */
+function editToken(e: Edit): string {
+  const end = e.path.findIndex((k) => typeof k === 'string' && k.startsWith('$'));
+  return [e.fileId, ...(end === -1 ? e.path : e.path.slice(0, end))].join('\u0000');
 }
 
 const issueKey = (i: { code: string; fileId?: string; keyPath?: string[]; target?: string }) =>

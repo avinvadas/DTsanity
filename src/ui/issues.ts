@@ -5,7 +5,7 @@ import { noFixNote, remedyOf } from '../policy/rules';
 import { applyFixes, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
-import { issuesScope, promptLink } from './prompt-link';
+import { issuesScope, promptButton } from './prompt-link';
 import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
@@ -57,8 +57,12 @@ export class TTIssues extends HTMLElement {
 
   private apply(fixes: Fix[], label?: string) {
     const edits = fixes.filter((f) => 'edits' in f).length;
-    applyFixes(fixes, label);
-    this.setStatus(fixes.length === 1 ? `Applied: ${fixes[0]!.label}` : `Applied ${fixes.length} fixes`, edits > 0);
+    const applied = applyFixes(fixes, label);
+    const waiting = fixes.length - applied;
+    this.setStatus(
+      fixes.length === 1 ? `Applied: ${fixes[0]!.label}` : `Applied ${applied} fixes${waiting ? `; ${waiting} more on the same tokens are offered again` : ''}`,
+      edits > 0,
+    );
   }
 
   /** The page has one section per card, in the cards' order, named and counted as they are; each card scrolls to its own. Info notes follow, uncounted. */
@@ -185,7 +189,7 @@ export class TTIssues extends HTMLElement {
     const themes = v.themeModels.map((m) => m.theme.name);
     const fixAll = (fixes: Fix[], what: string) =>
       fixes.length > 1
-        ? h('button', { type: 'button', class: 'fix-all', 'data-tip': TIP.fixAll, onclick: () => this.apply(fixes, `Fix ${fixes.length} ${what} issues`) }, `Apply ${fixes.length} fixes`)
+        ? h('button', { type: 'button', class: 'small fix-all', 'data-tip': TIP.fixAll, onclick: () => this.apply(fixes, `Fix ${fixes.length} ${what} issues`) }, `Apply ${fixes.length} fixes`, icon('tool'))
         : null;
     const fixesOf = (issues: Issue[]) => issues.map((i) => i.fix).filter((x): x is Fix => !!x);
 
@@ -264,26 +268,32 @@ export class TTIssues extends HTMLElement {
   private clusters(issues: Issue[], where: (i: Issue) => string, notes = false) {
     const fixable = issues.filter((i) => i.fix);
     const manual = issues.filter((i) => !i.fix);
-    const cluster = (kind: 'fixable' | 'manual', title: string, tip: string, items: Issue[], note?: Node[]) =>
+    // Counted by what they are about: tokens, or issues when some are about a whole file.
+    const counted = (items: Issue[], one: string, many: string) => {
+      const tokens = items.every((i) => i.target);
+      const n = tokens ? new Set(items.map((i) => i.target)).size : items.length;
+      return `${plural(n, tokens ? 'token' : 'issue')} ${n === 1 ? one : many}`;
+    };
+    const cluster = (kind: 'fixable' | 'manual', title: string, tip: string, items: Issue[], action?: Node) =>
       items.length
         ? h(
             'div',
             { class: `fix-cluster ${kind}` },
-            h('h6', { class: 'cluster-head', 'data-tip': tip }, kind === 'fixable' ? icon('check') : null, title, h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(items.length))),
-            note ? h('p', { class: 'cluster-note' }, note) : null,
+            h('h6', { class: 'cluster-head', 'data-tip': tip }, kind === 'fixable' ? icon('check') : null, h('span', { class: 'cluster-title' }, title), action ?? null),
             masked(h('ul', { class: 'issue-list' }, items.map((i) => this.row(i, where(i))))),
           )
         : null;
     return h(
       'div',
       { class: 'fix-clusters' },
-      cluster('fixable', 'Fixable here', TIP.clusterFixable, fixable),
+      cluster('fixable', counted(fixable, 'can be fixed here', 'can be fixed here'), TIP.clusterFixable, fixable),
       // Info notes ask for no change, so their second cluster only says DTsanity won't make one.
       notes
-        ? cluster('manual', 'No fix here', TIP.clusterManual, manual)
-        : cluster('manual', 'Needs your change', TIP.clusterManual, manual, [document.createTextNode('DTsanity can’t make these changes for you: edit the file, or '), promptLink('use the fix prompt', issuesScope(manual)), document.createTextNode('.')]),
+        ? cluster('manual', counted(manual, 'has no fix here', 'have no fix here'), TIP.clusterManual, manual)
+        : cluster('manual', counted(manual, 'needs your change', 'need your change'), TIP.clusterManual, manual, promptButton(issuesScope(manual))),
     );
   }
+
 
   private row(i: Issue, where: string) {
     const fix = i.fix;
@@ -300,7 +310,7 @@ export class TTIssues extends HTMLElement {
           ? h(
               'div',
               { class: 'fix' },
-              h('button', { type: 'button', class: 'fix-btn', 'data-tip': TIP.fix, onclick: () => this.apply([fix]) }, fix.label),
+              h('button', { type: 'button', class: 'fix-btn', 'data-tip': TIP.fix, onclick: () => this.apply([fix]) }, icon('tool'), fix.label),
               fix.preview
                 ? h('span', { class: 'preview' }, h('code', { class: 'before', 'data-tip': TIP.fixBefore }, fix.preview.before), h('span', { 'aria-label': 'becomes' }, ' → '), h('code', { class: 'after', 'data-tip': TIP.fixAfter }, fix.preview.after))
                 : null,

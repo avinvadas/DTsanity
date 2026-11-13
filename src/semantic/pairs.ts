@@ -181,11 +181,14 @@ export function over(fg: ColorInfo, bg: ColorInfo): ColorInfo {
   return infoFrom({ space: mapped(bg, 'srgb').space, coords, alpha: 1 });
 }
 
-/** The color a token shows: the value of a color token, or the color part of a composite border. */
-export function tokenColor(t: Token | undefined): ColorInfo | undefined {
+/**
+ * The color a token shows: the value of a color token, or the color part of a
+ * composite border. `css` reads colors written as CSS strings, when legacy formats are on.
+ */
+export function tokenColor(t: Token | undefined, css = false): ColorInfo | undefined {
   if (!t || t.resolution !== 'ok') return undefined;
-  if (t.type === 'color') return colorInfo(t.value);
-  if (t.type === 'border' && t.value && typeof t.value === 'object') return colorInfo((t.value as { color?: unknown }).color);
+  if (t.type === 'color') return colorInfo(t.value, css);
+  if (t.type === 'border' && t.value && typeof t.value === 'object') return colorInfo((t.value as { color?: unknown }).color, css);
   return undefined;
 }
 
@@ -243,7 +246,7 @@ export function pointColor(model: Model, id: string, target: string, mode?: stri
   return { fileId: t.fileId, path: [...t.keyPath, ...modePath, mode], value };
 }
 
-const colorOf = (model: Model, id: string) => tokenColor(model.tokens.get(id));
+const colorOf = (model: Model, id: string) => tokenColor(model.tokens.get(id), model.settings.acceptLegacy);
 
 /** Check a foreground on a background for a pair of `kind`. */
 export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, targets: readonly ContrastTarget[]): PairCheck {
@@ -285,7 +288,7 @@ export function aliasCandidates(model: Model, id?: string): { label: string; tok
   for (const t of tokens) {
     const tier = tiers.get(t.id)!;
     if (t.type !== 'color' || !allowed.includes(tier) || t.id === id || loops.has(t.id)) continue;
-    const info = tokenColor(t);
+    const info = tokenColor(t, model.settings.acceptLegacy);
     if (!info) continue;
     const label = `${TIER_LABEL[tier]} · ${t.path.slice(0, -1).join('.') || 'top level'}`;
     groups.set(label, [...(groups.get(label) ?? []), { id: t.id, info }]);
@@ -317,6 +320,6 @@ export function realias(model: Model, id: string, target: string): Edit | undefi
 /** Tokens with a color across `models` (every theme): color tokens and composite borders, in source order. */
 export function colorTokenIds(models: readonly Model[]): string[] {
   const seen = new Map<string, number>();
-  for (const m of models) for (const t of m.tokens.values()) if ((t.type === 'color' || t.type === 'border') && !seen.has(t.id) && tokenColor(t)) seen.set(t.id, t.order);
+  for (const m of models) for (const t of m.tokens.values()) if ((t.type === 'color' || t.type === 'border') && !seen.has(t.id) && tokenColor(t, m.settings.acceptLegacy)) seen.set(t.id, t.order);
   return [...seen].sort((a, b) => a[1] - b[1]).map(([id]) => id);
 }

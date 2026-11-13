@@ -26,8 +26,8 @@ describe('detection', () => {
     const files = lightDark();
     const themes = detectThemes(files, S);
     expect(themes.map((t) => [t.name, t.source, t.fileIds.length])).toEqual([
-      ['Light', 'file-names', 2],
-      ['Dark', 'file-names', 2],
+      ['light', 'file-names', 2],
+      ['dark', 'file-names', 2],
     ]);
     expect(themes[0]!.fileIds).toEqual([files[0]!.id, files[1]!.id]);
   });
@@ -39,9 +39,10 @@ describe('detection', () => {
   it('reads Tokens Studio $themes with their sets', () => {
     const f = loadFixture('themes/tokens-studio-themes.json');
     const themes = detectThemes([f], S);
-    expect(themes.map((t) => [t.name, t.source])).toEqual([
-      ['Mode / Light', 'tokens-studio'],
-      ['Mode / Dark', 'tokens-studio'],
+    // Named as written, the group kept apart: Tokens Studio shows “Light” under the group “Mode”.
+    expect(themes.map((t) => [t.name, t.group, t.source])).toEqual([
+      ['Light', 'Mode', 'tokens-studio'],
+      ['Dark', 'Mode', 'tokens-studio'],
     ]);
     expect(themes[0]!.scope.sets).toEqual({ [f.id]: ['global', 'light'] });
   });
@@ -64,11 +65,36 @@ describe('detection', () => {
     ]);
   });
 
+  it('combines Tokens Studio theme groups: each theme with the first of every other group', () => {
+    const themesFile = loadText(
+      JSON.stringify([
+        { name: 'medium', group: 'Size', selectedTokenSets: { 'size/medium': 'enabled' } },
+        { name: 'large', group: 'Size', selectedTokenSets: { 'size/large': 'enabled' } },
+        { name: 'Dark', group: 'Color scheme', selectedTokenSets: { 'scheme/dark': 'enabled' } },
+        { name: 'Light', group: 'Color scheme', selectedTokenSets: { 'scheme/light': 'enabled' } },
+      ]),
+      'ds/$themes.json',
+    );
+    const file = (path: string) => loadText('{"x": {"$type": "number", "$value": 1}}', `ds/${path}.json`);
+    const [medium, large, dark, light] = [file('size/medium'), file('size/large'), file('scheme/dark'), file('scheme/light')];
+    const themes = detectThemes([themesFile, medium!, large!, dark!, light!], S);
+    expect(themes.map((t) => [t.name, t.group, t.combo?.map((c) => c.name)])).toEqual([
+      ['medium · Dark', undefined, ['medium', 'Dark']],
+      ['large', 'Size', ['large', 'Dark']],
+      ['Light', 'Color scheme', ['Light', 'medium']],
+    ]);
+    expect(themes.map((t) => t.fileIds)).toEqual([
+      [medium!.id, dark!.id],
+      [large!.id, dark!.id],
+      [medium!.id, light!.id],
+    ]);
+  });
+
   it('reads per-mode values from $extensions', () => {
     const themes = detectThemes([loadFixture('themes/modes.tokens.json')], S);
     expect(themes.map((t) => [t.name, t.scope.mode])).toEqual([
-      ['Light', 'light'],
-      ['Dark', 'dark'],
+      ['light', 'light'],
+      ['dark', 'dark'],
     ]);
   });
 });
@@ -81,7 +107,7 @@ describe('per-theme models', () => {
     const s = store.get();
     expect(s.themes).toHaveLength(2);
     expect(s.activeTheme).toBe(ALL_THEMES);
-    expect(codes()).toEqual(['unresolved-reference color.accent [Dark]']);
+    expect(codes()).toEqual(['unresolved-reference color.accent [dark]']);
     const light = s.themeModels[0]!.model;
     const dark = s.themeModels[1]!.model;
     expect(light.tokens.get('color.bg.default')!.aliasOf).toBe('color.gray.0');
@@ -119,7 +145,7 @@ describe('per-theme models', () => {
     expect(light!.model.tokens.get('color.fg')!.aliasOf).toBe('color.black');
     expect(dark!.model.tokens.get('color.fg')).toMatchObject({ valuePath: ['$extensions', 'mode', 'dark'], rawValue: '#ffffff' });
     const issue = store.get().model.issues.find((i) => i.code === 'legacy-value')!;
-    expect(issue.themes).toEqual(['Dark']);
+    expect(issue.themes).toEqual(['dark']);
     applyFixes([issue.fix!]);
     expect(JSON.parse(exportText(store.get().files[0]!)).color.fg.$extensions.mode.dark).toEqual({ colorSpace: 'srgb', components: [1, 1, 1], hex: '#ffffff' });
     expect(codes().sort()).toEqual(['extension-naming color.bg', 'extension-naming color.fg']);
@@ -143,7 +169,7 @@ describe('editing themes', () => {
     expect(store.get().themes[1]!.fileIds).toEqual(store.get().files.filter((f) => f.id !== store.get().files[1]!.id).map((f) => f.id));
 
     addTheme();
-    expect(store.get().themes.map((t) => t.name)).toEqual(['Day', 'Dark', 'Theme 3']);
+    expect(store.get().themes.map((t) => t.name)).toEqual(['Day', 'dark', 'Theme 3']);
     expect(store.get().themes[2]!.fileIds).toHaveLength(3);
   });
 
@@ -163,7 +189,7 @@ describe('editing themes', () => {
     addFiles(lightDark());
     renameTheme(store.get().themes[0]!.id, 'Day');
     resetThemes();
-    expect(store.get().themes.map((t) => t.name)).toEqual(['Light', 'Dark']);
+    expect(store.get().themes.map((t) => t.name)).toEqual(['light', 'dark']);
     expect(store.get().themesCustomized).toBe(false);
   });
 

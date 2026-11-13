@@ -1,4 +1,4 @@
-import { isStudioMetaFile } from '../model/format';
+import { isMetaFile } from '../model/format';
 import type { ThemeSource } from '../themes/detect';
 import {
   addTheme,
@@ -14,6 +14,7 @@ import { viewControls } from './loader';
 import { TIP } from './tips';
 
 const SOURCE: Record<ThemeSource, string> = {
+  resolver: 'Read from the DTCG resolver file: each theme reads its files in the resolver’s order, later files overriding earlier ones.',
   'tokens-studio': 'Read from the Tokens Studio themes in your files.',
   'file-names': 'Detected from file names. Files without a theme word are shared by every theme.',
   modes: 'Read from per-mode values in “$extensions”.',
@@ -41,7 +42,7 @@ export class TTThemes extends HTMLElement {
   }
 
   private render(v: View) {
-    const files = v.files.filter((f) => !isStudioMetaFile(f));
+    const files = v.files.filter((f) => !isMetaFile(f));
     if (v.themes.length === 0) {
       // Say why there's no switcher, rather than hiding the panel.
       this.replaceChildren(
@@ -92,7 +93,8 @@ export class TTThemes extends HTMLElement {
                 null,
                 h('th', null, 'File'),
                 v.themes.map((t) => {
-                  const name = h('input', { type: 'text', value: t.name, 'aria-label': 'Theme name', size: Math.max(6, t.name.length) });
+                  // Long names (a combination of Tokens Studio themes) stay narrow; the full name is on hover.
+                  const name = h('input', { type: 'text', value: t.name, title: t.name, 'aria-label': 'Theme name', size: Math.min(18, Math.max(6, t.name.length)) });
                   name.addEventListener('change', () => renameTheme(t.id, name.value));
                   return h(
                     'th',
@@ -103,6 +105,9 @@ export class TTThemes extends HTMLElement {
                       name,
                       xButton('Remove theme', () => removeTheme(t.id), TIP.removeTheme),
                     ),
+                    t.group ? h('small', { class: 'theme-group' }, t.group) : null,
+                    // The other themes it is checked with, one per group (the all-first one names them all already).
+                    t.combo && t.group ? h('small', { class: 'theme-combo', 'data-tip': TIP.themeCombo }, `with ${t.combo.filter((c) => c.group !== t.group).map((c) => c.name).join(' · ')}`) : null,
                     t.scope.mode !== undefined ? h('small', { 'data-tip': TIP.themeMode }, `mode “${t.scope.mode}”`) : null,
                   );
                 }),

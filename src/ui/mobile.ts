@@ -14,7 +14,7 @@ import { fileStatusLine, ingest } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon, xButton } from './dom';
 import { homeLink } from './logo';
-import { issuesScope, pairScope, promptLink, siblingScope } from './prompt-link';
+import { issuesScope, pairsScope, promptButton } from './prompt-link';
 import { themeToggle } from './theme';
 
 /**
@@ -22,10 +22,11 @@ import { themeToggle } from './theme';
  * one page. Cards for the four kinds of findings on top, each a link to its
  * section, under the files' status, which opens the file list (and Add files); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
- * blindness), each card with a single action. Copy fix prompt (the main action)
- * and Get fixed files stay in a fixed footer. The tools for fine control (curve editor,
- * palette grid, re-aliasing, themes matrix) stay on larger screens; where one
- * would be expected, the card says so and the item goes into the fix prompt.
+ * blindness); a card with a fix has its button, and each group needing a
+ * change has a button that copies its fix prompt. Copy fix prompt (the main
+ * action) and Get fixed files stay in a fixed footer. The tools for fine
+ * control (curve editor, palette grid, re-aliasing, themes matrix) stay on
+ * larger screens, as the note under the list says.
  *
  * It reads the same store as the desktop views and reuses their checks,
  * fixes and exports; only the presentation differs.
@@ -214,8 +215,8 @@ export class TTMobile extends HTMLElement {
   }
 
   private fixAll(fixes: Fix[]) {
-    applyFixes(fixes);
-    this.say(`${plural(fixes.length, 'fix', 'fixes')} applied`, true);
+    const applied = applyFixes(fixes);
+    this.say(`${plural(applied, 'fix', 'fixes')} applied`, true);
   }
 
   /** Every finding in one list, grouped by kind; a kind with nothing to fix says so in one line. */
@@ -227,13 +228,19 @@ export class TTMobile extends HTMLElement {
     const clustered = (issues: Issue[]) => {
       const fixable = issues.filter(canFix);
       const manual = issues.filter((i) => !canFix(i));
-      const head = (title: string, n: number) => h('h3', { class: 'm-cluster' }, title, h('span', { class: 'm-n' }, String(n)));
+      // As on desktop: the count first, by token; the fix prompt for the group that needs a change.
+      const counted = (items: Issue[], one: string, many: string) => {
+        const tokens = items.every((i) => i.target);
+        const n = tokens ? new Set(items.map((i) => i.target)).size : items.length;
+        return `${plural(n, tokens ? 'token' : 'issue')} ${n === 1 ? one : many}`;
+      };
+      const head = (title: string, action?: Node) => h('h3', { class: 'm-cluster' }, h('span', { class: 'cluster-title' }, title), action ?? null);
       return [
-        ...(fixable.length ? [head('Fixable here', fixable.length), ...fixable.map((i) => this.issueCard(i, s))] : []),
-        ...(manual.length ? [head('Needs your change', manual.length), ...manual.map((i) => this.issueCard(i, s))] : []),
+        ...(fixable.length ? [head(counted(fixable, 'can be fixed here', 'can be fixed here')), ...fixable.map((i) => this.issueCard(i, s))] : []),
+        ...(manual.length ? [head(counted(manual, 'needs your change', 'need your change'), promptButton(issuesScope(manual))), ...manual.map((i) => this.issueCard(i, s))] : []),
       ];
     };
-    const section = (id: string, title: string, cards: HTMLElement[], clear: string, n = cards.length) =>
+    const section = (id: string, title: string, cards: HTMLElement[], clear: string, n = cards.length, action?: Node) =>
       h(
         'section',
         { class: 'm-section', id },
@@ -242,19 +249,22 @@ export class TTMobile extends HTMLElement {
           { class: 'm-section-head' },
           h('span', null, title),
           n ? h('span', { class: 'm-n' }, String(n)) : h('span', { class: 'm-ok', 'aria-label': 'passes' }, icon('check')),
+          n && action ? action : null,
         ),
         cards.length ? masked(h('div', { class: 'm-list' }, cards)) : h('p', { class: 'm-clear' }, clear),
       );
     return [
-      f.fixable.length ? h('button', { type: 'button', class: 'm-fixall', onclick: () => this.fixAll(f.fixable) }, `Fix ${plural(f.fixable.length, 'safe issue')}`) : null,
+      f.fixable.length ? h('button', { type: 'button', class: 'm-fixall', onclick: () => this.fixAll(f.fixable) }, icon('tool'), `Fix ${plural(f.fixable.length, 'safe issue')}`) : null,
       section('m-format', 'Format', clustered(f.format), 'Follows the DTCG format.', f.format.length),
       section('m-tiers', 'Tiers', clustered(f.tiers), 'Each tier points the right way.', f.tiers.length),
-      section('m-contrast', 'Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.'),
+      section('m-contrast', 'Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.', f.contrast.length, promptButton(pairsScope(f.contrast))),
       section(
         'm-vision',
         'Color blindness',
         [...f.vision.map((r) => this.visionCard(r, themes)), ...f.groups.map((g) => this.groupCard(g, themes, s.settings.cvdDistance))],
         'Pairs and status colors stay apart.',
+        f.vision.length + f.groups.length,
+        promptButton(pairsScope(f.vision, f.groups)),
       ),
       h('p', { class: 'm-note' }, 'Palette curves, re-aliasing and themes are available on a larger screen.'),
     ];
@@ -264,8 +274,8 @@ export class TTMobile extends HTMLElement {
     const file = s.files.find((f) => f.id === i.fileId)?.name;
     const action =
       i.fix && 'edits' in i.fix
-        ? h('button', { type: 'button', class: 'm-fix', onclick: () => (applyFixes([i.fix!]), this.say('Fixed', true)) }, i.fix.label)
-        : h('span', { class: 'm-later' }, promptLink('Use the fix prompt', issuesScope([i])));
+        ? h('button', { type: 'button', class: 'm-fix', onclick: () => (applyFixes([i.fix!]), this.say('Fixed', true)) }, icon('tool'), i.fix.label)
+        : null;
     const where = file && i.pos ? `${file}:${i.pos.line}` : (file ?? '');
     return h(
       'article',
@@ -298,7 +308,6 @@ export class TTMobile extends HTMLElement {
           return h('li', null, theme ? h('b', null, `${theme}: `) : null, `${formatContrast(miss.value, miss.level.metric)} of ${miss.level.threshold} `, h('small', null, `(${miss.level.short})`));
         }),
       ),
-      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · ', promptLink('use the fix prompt', pairScope(r))),
     );
   }
 
@@ -310,7 +319,6 @@ export class TTMobile extends HTMLElement {
       { class: `m-item ${r.cvdTone}` },
       h('div', { class: 'm-item-head' }, severityIcon(r.cvdTone), h('code', null, r.pair.fg)),
       h('p', null, `On ${r.pair.bg}, drops below its level with ${names.join(', ')}${where}.`),
-      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · ', promptLink('use the fix prompt', pairScope(r))),
     );
   }
 
@@ -325,7 +333,6 @@ export class TTMobile extends HTMLElement {
       h('div', { class: 'm-item-head' }, severityIcon(g.tone ?? 'warning'), h('code', null, g.group.id)),
       h('p', null, `Status colors ${g.group.members.join(', ')} look too alike (need a difference of ${min}).`),
       h('ul', { class: 'm-results' }, lines.map((l) => h('li', null, l))),
-      h('span', { class: 'm-later' }, 'No automatic fix · re-alias on a larger screen · ', promptLink('use the fix prompt', siblingScope(g))),
     );
   }
 

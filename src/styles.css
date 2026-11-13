@@ -270,9 +270,11 @@ button.danger { color: var(--error); }
 button.danger:hover:not(:disabled) { color: var(--error); background: var(--error-soft); }
 button.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); font-weight: 500; }
 button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
-/* Inline text that copies the fix prompt, with a trailing copy icon; it flows in its sentence. */
-button.prompt-link { display: inline-flex; align-items: center; gap: 3px; font: inherit; font-weight: 500; vertical-align: baseline; }
-button.prompt-link .icon { width: 1em; height: 1em; flex: none; }
+/* A line that says what is left to do, with the fix prompt button aligned right. */
+.prompt-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.prompt-row-text { flex: 1 1 auto; min-width: 0; }
+button.prompt-btn { display: inline-flex; align-items: center; gap: var(--space-1); margin-left: auto; flex: none; }
+button.prompt-btn .icon { width: 14px; height: 14px; flex: none; }
 button.primary, button[type='submit'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 button.primary:hover:not(:disabled), button[type='submit']:hover:not(:disabled) { background: color-mix(in oklch, var(--accent), var(--bg) 18%); }
 /* A disabled primary looks like a disabled secondary: nothing to act on yet, so no emphasis. */
@@ -489,13 +491,32 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
   width: var(--zone); height: var(--zone); flex: none; border-radius: 50%;
   display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0;
   text-align: center; white-space: normal; padding: calc(var(--zone) * 0.1);
-  border: 1px solid var(--line);
+  border: 0;
   background: var(--zone-fill);
   box-shadow: var(--zone-shadow);
-  transition: border-color 0.15s, background 0.2s, transform 0.2s ease-out;
+  transition: background 0.2s, transform 0.2s ease-out;
 }
+/*
+ * The border echoes the file icon inside: the same line weight (the icon's
+ * 8/500 outline at its width, --icon-k of the zone) and the same ink, the text
+ * color at the drawing's 66%, full strength on hover or while dragging.
+ * Drawn by ::after so the zone's size container sets its width, as it sets the icon's.
+ */
+.dropzone::before, .dropzone::after, .dropzone > .zone-ring { --zb: max(1.5px, calc(var(--zone) * var(--icon-k) * 0.016)); }
+.dropzone { --icon-k: 0.381; }
+.dropzone::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  border: var(--zb) solid color-mix(in oklch, var(--text) 66%, transparent);
+  transition: border-color 0.15s;
+}
+.dropzone:hover:not(:disabled)::after, body.dragging .dropzone::after { border-color: var(--text); }
+.dropzone.loading::after { border-color: transparent; }
+/* The full-width areas (Files view, Add files dialog) keep the thin line: only the circle echoes the icon. */
+dialog.files-dialog .dropzone::after, .view[data-view='files']:not([data-empty]) .dropzone::after { border: 1px solid var(--line); }
+dialog.files-dialog .dropzone:hover:not(:disabled)::after, .view[data-view='files']:not([data-empty]) .dropzone:hover:not(:disabled)::after,
+body.dragging dialog.files-dialog .dropzone::after, body.dragging .view[data-view='files']:not([data-empty]) .dropzone::after { border-color: var(--line-strong); }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
-.dropzone > .icon { width: calc(var(--zone) * 0.381); height: auto; color: var(--text); }
+.dropzone > .icon { width: calc(var(--zone) * var(--icon-k)); height: auto; color: var(--text); }
 /* The token-file icon fades in. On the landing, a glow behind it (50% opacity, 5rem blur) takes the border light's color, cycling through the whole spectrum in step with the light. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; filter: drop-shadow(var(--shadow-soft)); }
@@ -517,27 +538,24 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
 .zone-sub { font-size: max(14px, calc(var(--zone) * 0.0255)); font-weight: 400; line-height: 1.4; color: var(--text-soft); } /* 14px regular at the least, in --text-soft (over 7:1 in both themes) */
 /* The lines sit below the circle's middle, where it is narrower: they break at about two-thirds of its width, evenly. */
 .dropzone :is(.zone-title, .zone-sub) { max-width: 82%; text-wrap: balance; overflow-wrap: break-word; }
-.dropzone:hover:not(:disabled) { border-color: var(--line-strong); }
 body.dragging .dropzone {
-  border-color: var(--line-strong);
   background: var(--zone-fill-active);
   transform: scale(var(--grow));
 }
 .dropzone.loading {
-  border-color: transparent;
   background: var(--zone-fill-active);
   transform: scale(calc(1 + (var(--grow) - 1) / 2));
 }
 .zone-ring {
-  position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
+  position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
   /* A rainbow at one lightness, revealed clockwise from the top as --fill goes from 0 to 1. */
   background: conic-gradient(
     oklch(0.68 0.22 355), oklch(0.68 0.22 55), oklch(0.68 0.22 115), oklch(0.68 0.22 175),
     oklch(0.68 0.22 235), oklch(0.68 0.22 295), oklch(0.68 0.22 355)
   );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--zb)), #000 calc(100% - var(--zb) + 0.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
   -webkit-mask-composite: source-in;
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--zb)), #000 calc(100% - var(--zb) + 0.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
   mask-composite: intersect;
   opacity: 0;
 }
@@ -574,12 +592,12 @@ body.dragging .dropzone {
 /* Idle: a soft light travels slowly around the circle's border, in the same slowly cycling hue as the icon's point. */
 @property --glint { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 .view[data-empty] .dropzone::before, .m-load .dropzone::before {
-  content: ''; position: absolute; inset: -1px; border-radius: 50%; pointer-events: none;
+  content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 1;
   background: conic-gradient(from var(--glint),
     transparent 0deg, oklch(0.68 0.22 var(--tf-hue) / 0.55) 39deg, oklch(0.68 0.22 var(--tf-hue) / 0.9) 58.5deg,
     oklch(0.68 0.22 var(--tf-hue) / 0.55) 78deg, transparent 117deg, transparent 360deg);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--zb) - 0.5px), #000 calc(100% - var(--zb)));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--zb) - 0.5px), #000 calc(100% - var(--zb)));
   filter: blur(0.5px);
   animation: glint 10s linear infinite, tf-hue 13s linear infinite;
   transition: opacity 0.2s;
@@ -592,6 +610,8 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
 .view[data-empty] .url-form { align-items: center; }
 .view[data-empty] .setting { text-align: left; }
 
+/* Under the drop zone: choosing a whole folder instead of files. */
+button.folder-pick { font-size: var(--font-sm); font-weight: 500; }
 .url-form { display: flex; flex-direction: column; gap: var(--space-2); justify-content: center; width: min(440px, 100%); }
 .url-form label { font-weight: 600; }
 .url-form .row { display: flex; gap: var(--space-2); align-self: stretch; }
@@ -734,7 +754,10 @@ tt-files .file .badge + button { margin-left: auto; }
 .subgroup-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
 .subgroup-head h5 { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-sm); font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
 .group-note { margin: 0 0 var(--space-2); font-size: var(--font-sm); color: var(--muted); }
-.fix-all { color: var(--accent); }
+/* Group actions, applying fixes or copying the fix prompt: secondary buttons of one size, aligned right with the icon trailing. */
+button.fix-all, button.prompt-btn { display: inline-flex; align-items: center; gap: var(--space-1); }
+button.fix-all .icon, button.prompt-btn .icon, button.fix-btn .icon, .m-fix .icon, .m-fixall .icon { width: 14px; height: 14px; flex: none; }
+.fix-btn, .m-fix, .m-fixall { display: inline-flex; align-items: center; gap: var(--space-1); }
 
 .issue-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); }
 .issue { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-2) var(--space-3); align-items: baseline; padding: var(--space-2) var(--space-3); }
@@ -751,8 +774,9 @@ tt-files .file .badge + button { margin-left: auto; }
 .issue .fix { margin-top: var(--space-1); }
 .fix-clusters { display: flex; flex-direction: column; gap: var(--space-3); }
 .cluster-head { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); font-size: var(--font-sm); font-weight: 500; color: var(--text-soft); }
+/* The title takes the line; the fix prompt button sits at its right end. */
+.cluster-title { flex: 1 1 auto; min-width: 0; }
 .cluster-head .icon { width: 14px; height: 14px; color: var(--accent); }
-.cluster-note { margin: calc(-1 * var(--space-1)) 0 var(--space-2); font-size: var(--font-sm); color: var(--muted); }
 .issue .no-fix { margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--muted); }
 /* Title · target · detail: the rule in bold, the token in mono, then only the facts the two leave out. */
 .issue-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px var(--space-2); min-width: 0; }
@@ -1433,7 +1457,9 @@ tt-mobile .finding-cards { grid-template-columns: 1fr 1fr; }
 .m-ok { display: inline-flex; color: var(--ok); }
 .m-ok .icon { width: 16px; height: 16px; }
 .m-clear { margin: 0; color: var(--muted); }
-.m-fixall { width: 100%; min-height: 48px; font-size: var(--font-md); font-weight: 600; }
+/* Group actions on phones, applying fixes or copying the fix prompt: secondary, one size, big enough to tap. */
+.m-fixall, tt-mobile button.prompt-btn { min-height: 40px; padding: 0 var(--space-3); font-size: var(--font-sm); font-weight: 500; }
+.m-fixall { align-self: flex-start; }
 .m-list { display: flex; flex-direction: column; gap: var(--space-3); }
 .m-item { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); }
 .m-item p { margin: 0; overflow-wrap: anywhere; }
@@ -1610,6 +1636,7 @@ button.corner-btn .icon { width: 20px; height: 20px; display: block; }
   }
   /* Sized from the circle itself; kept within its middle 80%, as the usual 10% padding would. */
   body:not(.has-files) .view[data-empty] .dropzone > :not(.zone-ring) { --zone: 100cqh; max-width: 80cqw; }
+  body:not(.has-files) .view[data-empty] .dropzone::before, body:not(.has-files) .view[data-empty] .dropzone::after, body:not(.has-files) .view[data-empty] .dropzone > .zone-ring { --zone: 100cqh; }
   body:not(.has-files) .view[data-empty] .dropzone :is(.zone-title, .zone-sub) { max-width: 66cqw; }
   body:not(.has-files) .workspace > .page-foot { flex: none; margin-top: var(--land-gap); }
 }
@@ -1631,11 +1658,12 @@ button.corner-btn .icon { width: 20px; height: 20px; display: block; }
     height: auto; width: auto; max-width: calc(100vw - 2 * var(--space-4)); aspect-ratio: 1; padding: 0;
   }
   body:not(.has-files) .m-load .dropzone > :not(.zone-ring) { --zone: 100cqh; max-width: 80cqw; }
+  body:not(.has-files) .m-load .dropzone::before, body:not(.has-files) .m-load .dropzone::after { --zone: 100cqh; }
   body:not(.has-files) .m-load .dropzone :is(.zone-title, .zone-sub) { max-width: 66cqw; }
 }
 /* A small landing circle keeps all its text at full size; the icon gives up the room instead. */
 @container (max-height: 279px) {
-  .dropzone > .icon { width: calc(var(--zone) * 0.24); }
+  .dropzone > .icon, .dropzone::after, .dropzone::before { --icon-k: 0.24; }
 }
 /* Desktop: a little more air between the file icon and the text under it. */
 @media (min-width: 641px) {
@@ -1744,3 +1772,7 @@ button.corner-btn[hidden] { display: none; }
   .policy-row { grid-template-columns: auto minmax(0, 1fr); }
   .policy-level { grid-column: 2; }
 }
+
+/* A Tokens Studio theme's group (“Color scheme”), under the theme's own name in the matrix. */
+.theme-group, .theme-combo { display: block; color: var(--muted); font-size: var(--font-xs); }
+.theme-combo { font-weight: 400; white-space: normal; }

@@ -58,7 +58,7 @@ export interface SiblingCheck {
 /** Check a group in one model (theme). Undefined when fewer than two members are colors there. */
 export function checkSiblings(group: SiblingGroup, model: Model, minDistance: number): SiblingCheck | undefined {
   const colors = group.members.flatMap((id) => {
-    const info = tokenColor(model.tokens.get(id));
+    const info = tokenColor(model.tokens.get(id), model.settings.acceptLegacy);
     return info ? [{ id, info }] : [];
   });
   if (colors.length < 2) return undefined;

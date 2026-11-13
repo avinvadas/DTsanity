@@ -12,18 +12,59 @@ export function displayGamut(target: Gamut): Gamut {
   return target === 'p3' && typeof matchMedia === 'function' && matchMedia('(color-gamut: p3)').matches ? 'p3' : 'srgb';
 }
 
+/** A canvas's size on screen, in CSS pixels. */
+interface Size {
+  w: number;
+  h: number;
+}
+/** A swatch canvas: it repaints itself, at a size measured beforehand or measured now. */
+type Painted = HTMLCanvasElement & { paint?: (size?: Size) => void };
+
+const measure = (c: HTMLCanvasElement): Size => ({ w: c.clientWidth, h: c.clientHeight });
+
 /** `mark`: draw the corner triangle on colors outside the gamut (off where a badge says so instead). */
 export function swatchCanvas(info: ColorInfo, gamut: Gamut, mark = true): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement('canvas') as Painted;
   canvas.className = 'swatch-canvas';
   canvas.setAttribute('aria-hidden', 'true');
-  (canvas as HTMLCanvasElement & { paint?: () => void }).paint = () => paint(canvas, info, gamut, mark);
+  canvas.paint = (size = measure(canvas)) => paint(canvas, info, gamut, mark, size);
   return canvas;
 }
 
-/** Repaint every swatch canvas inside `root` at its current size. */
+/**
+ * Repaint every swatch canvas inside `root` at its current size. Every size is
+ * read first, then every canvas painted: sizing a canvas invalidates layout,
+ * so reading the next one's size in between would lay out the page again for
+ * each canvas (thousands, for a set with many themes and pairs).
+ */
 export function paintAll(root: ParentNode) {
-  for (const c of root.querySelectorAll<HTMLCanvasElement & { paint?: () => void }>('canvas.swatch-canvas')) c.paint?.();
+  const canvases = [...root.querySelectorAll<Painted>('canvas.swatch-canvas')];
+  // A large view (a set with many themes and pairs holds thousands) paints what is on screen, and the rest as it scrolls in.
+  // Each view's observer starts over on every repaint, so canvases a re-render removed aren't kept.
+  observers.get(root)?.disconnect();
+  if (canvases.length > LAZY_FROM && typeof IntersectionObserver === 'function') {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const near = entries.filter((e) => e.isIntersecting).map((e) => e.target as Painted);
+        near.forEach((c) => io.unobserve(c));
+        paintNow(near);
+      },
+      { rootMargin: '600px 0px' },
+    );
+    observers.set(root, io);
+    canvases.forEach((c) => io.observe(c));
+    return;
+  }
+  paintNow(canvases);
+}
+
+const LAZY_FROM = 300;
+/** The lazy painter of each view that has one. */
+const observers = new WeakMap<ParentNode, IntersectionObserver>();
+
+function paintNow(canvases: Painted[]) {
+  const sizes = canvases.map(measure);
+  canvases.forEach((c, i) => c.paint?.(sizes[i]));
 }
 
 /**
@@ -32,13 +73,13 @@ export function paintAll(root: ParentNode) {
  * Painted like swatches, so the colors stay out of recordings.
  */
 export function pairCanvas(fg: ColorInfo, bg: ColorInfo, glyph: PairGlyph, gamut: Gamut): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement('canvas') as Painted;
   canvas.className = `swatch-canvas pair-canvas ${glyph}`;
   canvas.setAttribute('aria-hidden', 'true');
-  (canvas as HTMLCanvasElement & { paint?: () => void }).paint = () => {
+  canvas.paint = (size = measure(canvas)) => {
     const dpr = window.devicePixelRatio || 1;
-    const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
-    const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    const w = Math.max(1, Math.round(size.w * dpr));
+    const h = Math.max(1, Math.round(size.h * dpr));
     if (canvas.width !== w) canvas.width = w;
     if (canvas.height !== h) canvas.height = h;
     const ctx = canvas.getContext('2d', { colorSpace: gamut === 'p3' ? 'display-p3' : 'srgb' });
@@ -70,10 +111,10 @@ export function pairCanvas(fg: ColorInfo, bg: ColorInfo, glyph: PairGlyph, gamut
   return canvas;
 }
 
-function paint(canvas: HTMLCanvasElement, info: ColorInfo, gamut: Gamut, mark: boolean) {
+function paint(canvas: HTMLCanvasElement, info: ColorInfo, gamut: Gamut, mark: boolean, size: Size) {
   const dpr = window.devicePixelRatio || 1;
-  const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
-  const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+  const w = Math.max(1, Math.round(size.w * dpr));
+  const h = Math.max(1, Math.round(size.h * dpr));
   if (canvas.width !== w) canvas.width = w;
   if (canvas.height !== h) canvas.height = h;
   const ctx = canvas.getContext('2d', { colorSpace: gamut === 'p3' ? 'display-p3' : 'srgb' });

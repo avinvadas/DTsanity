@@ -1,4 +1,4 @@
-import type { JNode } from '../json/cst';
+import type { JDoc, JNode } from '../json/cst';
 import type { FileFormat } from './types';
 
 /**
@@ -30,3 +30,10 @@ export function detectFormat(root: JNode): FileFormat {
 
 /** Tokens Studio project files (`$themes.json`, `$metadata.json`) that hold metadata rather than tokens. */
 export const isStudioMetaFile = (f: { name: string }) => /(^|\/)\$(themes|metadata)\.json$/.test(f.name);
+
+/** A DTCG resolver document: which token files make up each theme. Named `*.resolver.json`, or recognised by its `resolutionOrder`. */
+export const isResolverFile = (f: { name: string; doc?: JDoc }) =>
+  /\.resolver\.json5?$/i.test(f.name) || (f.doc?.root.kind === 'object' && f.doc.root.entries.some((e) => e.key === 'resolutionOrder'));
+
+/** Files that describe the set rather than hold tokens: Tokens Studio metadata and DTCG resolver documents. */
+export const isMetaFile = (f: { name: string; doc?: JDoc }) => isStudioMetaFile(f) || isResolverFile(f);

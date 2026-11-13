@@ -5,34 +5,44 @@ import type { PairRow, SiblingRow } from '../state/pairs';
 import { h, icon, plural } from './dom';
 import { TIP } from './tips';
 
+/** The label on every fix prompt button. */
+export const COPY_PROMPT = 'Copy the fix prompt';
+
 /**
- * Inline text that copies the fix prompt, for the findings it is next to
- * (`scope`) or for all of them, with a trailing copy icon. While the copy
- * is confirmed, the text says how many corrections went to the clipboard.
+ * A secondary button that copies the fix prompt, for the group of findings it
+ * heads (`scope`) or for all of them, with a copy icon after its label. Only groups get one,
+ * never a single finding. While the copy
+ * is confirmed, it says how many corrections went to the clipboard.
  */
-export function promptLink(text: string, scope?: PromptScope): HTMLButtonElement {
-  const label = h('span', null, text);
-  const link: HTMLButtonElement = h(
+export function promptButton(scope?: PromptScope): HTMLButtonElement {
+  const label = h('span', null, COPY_PROMPT);
+  const button: HTMLButtonElement = h(
     'button',
     {
       type: 'button',
-      class: 'link prompt-link',
+      class: 'small prompt-btn',
       'data-tip': scope ? TIP.copyScopedPrompt : TIP.copyFixPrompt,
       onclick: async () => {
         const { text: prompt, count } = fixPrompt(store.get(), scope);
         try {
           await navigator.clipboard.writeText(prompt || 'No corrections needed: every check passes.');
-          label.textContent = count ? `copied ${plural(count, 'correction')}` : 'nothing to copy';
+          label.textContent = count ? `Copied ${plural(count, 'correction')}` : 'Nothing to copy';
         } catch {
-          label.textContent = 'copy failed';
+          label.textContent = 'Copy failed';
         }
-        setTimeout(() => (label.textContent = text), 1800);
+        setTimeout(() => (label.textContent = COPY_PROMPT), 1800);
       },
     },
+    // Always at the right end of its line: the icon trails, at the edge.
     label,
     icon('copy'),
   );
-  return link;
+  return button;
+}
+
+/** A line of text with the fix prompt button aligned right. */
+export function promptRow(text: (string | Node)[] | string, scope: PromptScope | undefined, cls = ''): HTMLElement {
+  return h('div', { class: `prompt-row ${cls}`.trim() }, h('span', { class: 'prompt-row-text' }, text), promptButton(scope));
 }
 
 /** A stable key for an issue, the same in every merge of the theme models. */
@@ -44,8 +54,9 @@ export const issuesScope = (issues: readonly Issue[]): PromptScope => {
   return { issue: (i) => keys.has(issueKey(i)) };
 };
 
-/** Scope: one pair, with contrast or color-vision findings. */
-export const pairScope = (r: PairRow): PromptScope => ({ pair: (x) => x.pair.fg === r.pair.fg && x.pair.bg === r.pair.bg });
-
-/** Scope: one group of status colors. */
-export const siblingScope = (g: SiblingRow): PromptScope => ({ sibling: (x) => x.group.id === g.group.id });
+/** Scope: these pairs and status groups (a contrast or color-blindness section). */
+export const pairsScope = (rows: readonly PairRow[], groups: readonly SiblingRow[] = []): PromptScope => {
+  const pairs = new Set(rows.map((r) => `${r.pair.fg}\u0000${r.pair.bg}`));
+  const ids = new Set(groups.map((g) => g.group.id));
+  return { pair: (x) => pairs.has(`${x.pair.fg}\u0000${x.pair.bg}`), sibling: (x) => ids.has(x.group.id) };
+};

@@ -35,9 +35,18 @@ const fileWords = (name: string) =>
   name
     .split('/')
     .at(-1)!
-    .replace(/\.(tokens\.)?json$|\.tokens$/i, '')
+    .replace(/\.(tokens\.)?json[5c]?$|\.tokens$/i, '')
     .split(/[.\-_\s]+/)
     .map((w) => w.toLowerCase());
+
+/** `word` as `source` spells it (“Primitives” in `Primitives.json`), for names shown to the user. */
+const asWritten = (word: string, ...sources: string[]) => {
+  for (const s of sources) {
+    const m = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').exec(s);
+    if (m) return m[0];
+  }
+  return word;
+};
 
 /**
  * The layer a token's file names explicitly, and the word it uses for it:
@@ -49,7 +58,7 @@ function layerOf(t: Token, fileName: string): { tier: Tier; word: string } | und
   for (const layer of [top, fileWords(fileName)]) {
     for (const [tier, set] of [['component', COMPONENT_GROUP], ['base', BASE], ['semantic', SEMANTIC]] as const) {
       const word = layer.find((w) => set.has(w));
-      if (word) return { tier, word };
+      if (word) return { tier, word: asWritten(word, ...t.keyPath.slice(0, 2), fileName.split('/').at(-1)!) };
     }
   }
   return undefined;
@@ -121,7 +130,8 @@ const names = new WeakMap<Model, Record<Tier, string>>();
 
 /**
  * What the files call each tier: the layer word used most for it in group
- * or file names (`Primitives`, `Sys`), or the generic name when none is used.
+ * or file names, spelled as they spell it (`primitives`, `Sys`), or the
+ * generic name when none is used.
  * Comes from the files, so callers mask it.
  */
 export function tierNames(model: Model): Record<Tier, string> {
@@ -135,7 +145,8 @@ export function tierNames(model: Model): Record<Tier, string> {
   }
   const pick = (tier: Tier) => {
     const top = [...seen[tier]].sort((a, b) => b[1] - a[1])[0]?.[0];
-    return top ? top[0]!.toUpperCase() + top.slice(1) : TIER_LABEL[tier];
+    // As the files write it: “primitives” stays “primitives”.
+    return top ?? TIER_LABEL[tier];
   };
   const out = { base: pick('base'), semantic: pick('semantic'), component: pick('component') };
   names.set(model, out);

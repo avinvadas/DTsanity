@@ -1,5 +1,5 @@
 import { isUnchanged } from '../io/export';
-import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
+import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles, pickFolder, readFiles, reloadSource, type RawSource } from '../io/load';
 import type { SourceFile } from '../model/types';
 import { addFiles, clearAll, replaceFiles, setBusy, store, type LoadError } from '../state/app';
 import { createStore } from '../state/store';
@@ -221,11 +221,39 @@ export class TTLoader extends HTMLElement {
       h(
         'span',
         { class: 'zone-text' },
-        h('strong', { class: 'zone-title' }, phone ? 'Select design tokens JSON files' : 'Drop design tokens JSON files here'),
+        h('strong', { class: 'zone-title' }, phone ? 'Select design tokens JSON files' : 'Drop design tokens JSON files or folders here'),
         // On phones the title says it all; desktop adds that a click works too.
         phone ? null : h('span', { class: 'zone-sub' }, 'or click to select them'),
       ),
     );
+
+    // A whole folder, read with every file's path in it, so same-named files in different folders (one per theme) stay apart.
+    const folderInput = h('input', {
+      type: 'file',
+      class: 'visually-hidden',
+      tabindex: '-1',
+      'aria-hidden': 'true',
+      onchange: () => {
+        if (folderInput.files?.length) void ingest(readFiles(folderInput.files));
+        folderInput.value = '';
+      },
+    });
+    folderInput.setAttribute('webkitdirectory', '');
+    const folder = phone
+      ? null
+      : h(
+          'button',
+          {
+            type: 'button',
+            class: 'link folder-pick',
+            'data-tip': TIP.chooseFolder,
+            onclick: async () => {
+              const picked = await pickFolder(folderInput);
+              if (picked) void ingest(Promise.resolve(picked));
+            },
+          },
+          'Or choose a folder',
+        );
 
     const url = masked(h('input', { type: 'url', id: 'tt-url', placeholder: 'https://…/tokens.json', autocomplete: 'off', spellcheck: 'false', required: true }));
     const hint = h('small', { class: 'hint' }, 'Fetched without cookies or referrer.');
@@ -257,7 +285,7 @@ export class TTLoader extends HTMLElement {
 
     const errors = masked(h('div', { class: 'load-errors', role: 'alert' }));
 
-    this.replaceChildren(h('div', { class: 'loader' }, input, zone, form), errors);
+    this.replaceChildren(h('div', { class: 'loader' }, input, folderInput, zone, folder, form), errors);
 
     this.unsubs.push(
       // Before any file is loaded, the Files view is a centered landing.

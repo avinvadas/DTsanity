@@ -60,6 +60,9 @@ const rule = (group: RuleGroup, id: string, level: Severity, remedy: Remedy, abo
 export const RULES: readonly RuleDef[] = [
   rule('Format', 'legacy-format', 'error', 'fix', 'A Tokens Studio or Style Dictionary file loaded while legacy formats are off.'),
   rule('Format', 'legacy-conversion', 'warning', 'none', 'Something in a legacy file that has no exact DTCG equivalent.'),
+  rule('Format', 'json5-syntax', 'warning', 'none', 'A .json file that uses JSON5 syntax (comments, trailing commas…), which most JSON tools can’t read.'),
+  rule('Format', 'resolver-missing', 'warning', 'none', 'A file the DTCG resolver names for a theme that isn’t loaded, so that theme is checked without it.'),
+  rule('Format', 'unsupported-format', 'warning', 'none', 'A file DTsanity can’t read: neither DTCG nor a Tokens Studio or Style Dictionary file, so most of its tokens (or all) go unread.'),
   rule('Format', 'no-tokens', 'info', 'none', 'A file with no “$value” anywhere.'),
   rule('Format', 'file-not-in-theme', 'info', 'guided', 'A file that no theme reads, so it goes unchecked.'),
 
@@ -136,7 +139,8 @@ export const remedyOf = (id: string): Remedy => BY_ID.get(id)?.remedy ?? 'none';
  */
 export function noFixNote(id: string): string {
   const remedy = remedyOf(id);
-  if (remedy === 'guided') return `No automatic fix. ${GUIDE[id] ?? (id.startsWith('scale-') ? 'Reshape the scale in the curve editor.' : 'Use the tools in its view.')}`;
+  // Where to work on it; that there is no one-click fix shows already (no fix button, “need your change”).
+  if (remedy === 'guided') return GUIDE[id] ?? (id.startsWith('scale-') ? 'Reshape the scale in the curve editor.' : 'Use the tools in its view.');
   if (remedy === 'sometimes') return 'No automatic fix here: the right change isn’t clear. Edit the file, or use the fix prompt.';
   return 'DTsanity doesn’t fix this one: edit the file, or use the fix prompt.';
 }

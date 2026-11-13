@@ -65,8 +65,20 @@ export const round = (n: number, digits = 4) => {
   return Object.is(r, -0) ? 0 : r;
 };
 
-/** Convert a DTCG color value to a Color.js color, or undefined if it isn't a valid one. */
-export function toColorJs(v: unknown): PlainColorObject | undefined {
+/**
+ * Convert a color value to a Color.js color, or undefined if it isn't one.
+ * Reads DTCG color objects; with `css`, also colors written as CSS strings
+ * ("#0c1927", "rgba(0, 0, 0, 0.09)"), the older form of earlier DTCG drafts,
+ * Tokens Studio and Style Dictionary. Callers pass the "Accept legacy
+ * formats" setting, so a legacy color is read exactly when legacy files are.
+ * The format checks report such colors either way.
+ */
+export function toColorJs(v: unknown, css = false): PlainColorObject | undefined {
+  if (typeof v === 'string') {
+    if (!css) return undefined;
+    const d = cssToDtcg(v);
+    return d ? toColorJs(d) : undefined;
+  }
   if (!v || typeof v !== 'object') return undefined;
   const c = v as Partial<DtcgColor>;
   const space = typeof c.colorSpace === 'string' ? DTCG_SPACES[c.colorSpace] : undefined;

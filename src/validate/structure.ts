@@ -1,4 +1,4 @@
-import { entry, toJS } from '../json/cst';
+import { entry, toJS, type JNode } from '../json/cst';
 import { makeIssue } from '../model/build';
 import { closest } from '../model/suggest';
 import type { Issue, Model } from '../model/types';
@@ -19,6 +19,13 @@ const STUDIO_ROOT = ['$themes', '$metadata'];
 const LEGACY_PROPS: Record<string, string> = { value: '$value', type: '$type', description: '$description', comment: '$description' };
 
 const BAD_NAME = /[{}.]/;
+
+/** Whether a node has a token anywhere inside it. */
+function holdsTokens(n: JNode): boolean {
+  if (n.kind === 'object') return n.entries.some((e) => e.key === '$value' || holdsTokens(e.value));
+  if (n.kind === 'array') return n.items.some((i) => holdsTokens(i.value));
+  return false;
+}
 
 export function structureRules(model: Model): Issue[] {
   const issues: Issue[] = [];
@@ -76,7 +83,8 @@ export function structureRules(model: Model): Issue[] {
       }
 
       // Group children.
-      if (e.value.kind !== 'object' && LEGACY_PROPS[e.key]) {
+      // An object is a legacy value too (DTCG colors and dimensions are objects), unless tokens are inside it: then it is a group named “value”.
+      if (LEGACY_PROPS[e.key] && (e.value.kind !== 'object' || (e.key === 'value' && !holdsTokens(e.value)))) {
         const target = LEGACY_PROPS[e.key]!;
         issues.push(
           makeIssue(

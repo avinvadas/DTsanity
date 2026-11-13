@@ -41,6 +41,8 @@ export interface PaletteSet {
   palettes: Palette[];
   /** Base colors that don't form a scale (e.g. `color.white`, `brand.primary`). */
   loose: Swatch[];
+  /** Base colors written as CSS strings, left out because legacy formats are off. */
+  legacySkipped?: number;
 }
 
 const SEMANTIC_NAMES = /^(semantics?|alias(es)?|themes?|components?|bg|backgrounds?|fg|foregrounds?|text|surfaces?|borders?|status|feedback|intents?|states?)$/i;
@@ -51,13 +53,17 @@ export function isBaseColor(t: Token): boolean {
 }
 
 export function detectPalettes(model: Model, overrides: Readonly<Record<string, boolean>>, gamut: Gamut): PaletteSet {
+  let legacySkipped = 0;
   const groups = new Map<string, Swatch[]>();
   // Only the base tier: a component or semantic color with a value of its own stays in its tier (and is flagged there).
   const tiers = tiersOf(model);
   for (const t of [...model.tokens.values()].sort((a, b) => a.order - b.order)) {
     if (!isBaseColor(t) || tiers.get(t.id) !== 'base') continue;
-    const info = colorInfo(t.value);
-    if (!info) continue;
+    const info = colorInfo(t.value, model.settings.acceptLegacy);
+    if (!info) {
+      if (!model.settings.acceptLegacy && colorInfo(t.value, true)) legacySkipped++;
+      continue;
+    }
     const parent = t.path.slice(0, -1).join('.');
     const list = groups.get(parent) ?? [];
     list.push({ token: t, step: t.path.at(-1)!, info });
@@ -91,7 +97,7 @@ export function detectPalettes(model: Model, overrides: Readonly<Record<string, 
   }
 
   checkPalettes(palettes.filter((p) => p.included), gamut);
-  return { palettes, loose };
+  return { palettes, loose, legacySkipped };
 }
 
 /** Widest hue spread (degrees) among the chromatic colors of a ramp. */

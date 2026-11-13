@@ -9,6 +9,9 @@ export const RULE_TITLE: Record<string, string> = {
   'legacy-format': 'Legacy format',
   'legacy-conversion': 'Converted from legacy',
   'no-tokens': 'No tokens',
+  'unsupported-format': 'Unsupported format',
+  'json5-syntax': 'JSON5 in a .json file',
+  'resolver-missing': 'Resolver file not loaded',
   'file-not-in-theme': 'Not in any theme',
   // Structure
   'root-not-object': 'Top level not an object',

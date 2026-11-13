@@ -53,7 +53,7 @@ describe('rule list', () => {
   it('matches what the rules report by default, on every sample set', () => {
     const root = fileURLToPath(new URL('../samples/', import.meta.url));
     const json = (dir: string): string[] =>
-      readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? json(join(dir, n)) : n.endsWith('.json') ? [join(dir, n)] : []));
+      readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? json(join(dir, n)) : n.match(/\.json[5c]?$/) ? [join(dir, n)] : []));
     const settings = { ...S, acceptLegacy: true };
     const seen = new Map<string, Set<string>>();
     for (const set of readdirSync(root).filter((d) => statSync(join(root, d)).isDirectory())) {

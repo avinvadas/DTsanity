@@ -33,9 +33,9 @@ export interface ColorInfo {
 /** Below this chroma a color is a true grey and has no hue. Tinted near-whites (C ≈ 0.01) keep theirs. */
 export const ACHROMATIC = 0.001;
 
-/** Analyze a DTCG color value, or undefined if it isn't a valid one. */
-export function colorInfo(v: unknown): ColorInfo | undefined {
-  const c = toColorJs(v);
+/** Analyze a DTCG color value, or undefined if it isn't a valid one. With `css`, a CSS color string too (legacy formats on). */
+export function colorInfo(v: unknown, css = false): ColorInfo | undefined {
+  const c = toColorJs(v, css);
   return c ? infoFrom(c) : undefined;
 }
 
@@ -63,8 +63,18 @@ export function mapped(info: ColorInfo, gamut: Gamut): PlainColorObject {
   return toGamut(to(src, gamut === 'p3' ? 'p3' : 'srgb'), { method: 'css' });
 }
 
-/** CSS color string for painting on a canvas in `gamut`. */
+const styles = new WeakMap<ColorInfo, Partial<Record<Gamut, string>>>();
+
+/** CSS color string for painting on a canvas in `gamut`. Remembered per color: gamut mapping is the costly part of a repaint. */
 export function paintStyle(info: ColorInfo, gamut: Gamut): string {
+  const known = styles.get(info)?.[gamut];
+  if (known) return known;
+  const style = computeStyle(info, gamut);
+  styles.set(info, { ...styles.get(info), [gamut]: style });
+  return style;
+}
+
+function computeStyle(info: ColorInfo, gamut: Gamut): string {
   const m = mapped(info, gamut);
   const [r, g, b] = m.coords.map((x) => round(Number.isNaN(x) ? 0 : x, 5));
   const a = Number(m.alpha ?? 1);

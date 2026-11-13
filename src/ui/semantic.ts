@@ -708,7 +708,7 @@ export class TTSemantic extends HTMLElement {
   /** Add a pair by hand: two color tokens picked from every theme's color tokens, and a kind. */
   private addForm(colorIds: string[]) {
     const models = allModels(store.get());
-    const infoOf = (id: string) => models.map((m) => tokenColor(m.tokens.get(id))).find(Boolean);
+    const infoOf = (id: string) => models.map((m) => tokenColor(m.tokens.get(id), m.settings.acceptLegacy)).find(Boolean);
     const gamut = displayGamut(store.get().settings.gamut);
     const groups = (() => {
       const byGroup = new Map<string, TokenOption[]>();

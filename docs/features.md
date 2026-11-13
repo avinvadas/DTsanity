@@ -3,6 +3,8 @@
 ## Load
 
 - Choose files, drop them anywhere on the page, or enter a URL (GitHub page links load the raw file).
+- Drop or choose a whole folder: every token file in it and its subfolders loads under its path (`themes/white/theme.tokens.json`), so files with the same name in different folders stay apart. Package manifests, tool configs and `node_modules` are skipped.
+- Files are read as they are: JSON, and JSON5 or JSONC (comments, unquoted keys, single quotes, trailing commas) for `.json5` and `.jsonc` files. Fixes are saved in the file's own syntax, keeping its comments. A `.json` file that isn't strict JSON is still read, with a warning that most JSON tools can't.
 - Load several files together, such as primitives, semantic and components; references resolve across them.
 - The file button in every view shows how many files are loaded. **Reload files** reads them again after you edit them elsewhere; **Add more files** opens a dialog to add or remove files without leaving the view (Cancel puts everything back).
 
@@ -10,6 +12,8 @@
 
 - Rules from the DTCG spec (2025.10): structure, names, types, values, references (aliases and `$ref` pointers, cycles, typos) and metadata.
 - Most issues come with a suggested fix and a before/after preview. Apply fixes one at a time or a whole category at once; every change can be undone.
+- **Unsupported formats**: a file that is neither DTCG nor a supported legacy format is flagged once, for the file, saying what stops it, when most of its tokens can't be read (values per mode inside `$value`, types or properties of its own, names that break references) or when it holds values but no tokens. Its tokens' own findings are still listed.
+- Colors written as CSS strings (`"#0c1927"`), an older form, are reported as legacy values. With legacy formats on they are read as colors (palettes, contrast, color blindness), as legacy files are; with them off they are left out, and the base tier says how many and why.
 - **Legacy formats** (optional): Tokens Studio and Style Dictionary v3 files are converted to DTCG on load.
 
 ## Tiers
@@ -41,7 +45,10 @@
 
 ## Themes
 
-- Light, dark or brand variants detected from file names (`semantic.light.json` + `semantic.dark.json`), Tokens Studio `$themes`, or per-mode values in `$extensions`, and editable in a files × themes matrix. Each theme is checked on its own.
+- Light, dark or brand variants read from a DTCG resolver file (`*.resolver.json`: one theme per combination of its modifiers' contexts, reading its sets and contexts in `resolutionOrder`), Tokens Studio `$themes`, file names (`semantic.light.json` + `semantic.dark.json`), or per-mode values in `$extensions`, and editable in a files × themes matrix. Each theme is checked on its own.
+- Tokens Studio theme groups (Size, Color scheme…) combine: each theme is checked with the first theme of every other group, so it has a whole set to resolve against. The first theme is every group's first, named by all of them (`medium · Primary · Dark`); the table shows what each other theme is combined with.
+- Theme, group and tier names show exactly as the files write them.
+- `$ref` pointers (`#/gray/50/$value/components`) resolve against all of a theme's files together, as a resolver merges them; a value built from pointers is checked as it resolves. A file the resolver names that isn't loaded is reported.
 
 ## Severity policy
 
