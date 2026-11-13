@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fixPrompt } from '../src/io/prompt';
-import { addFiles, clearAll, store } from '../src/state/app';
+import { addFiles, clearAll, setLoadErrors, store } from '../src/state/app';
 import { loadFixture, loadText } from './helpers';
 
 beforeEach(() => clearAll());
@@ -49,6 +49,19 @@ describe('fix prompt', () => {
     expect(one.count).toBe(1);
     expect(all.count).toBeGreaterThan(1);
     expect(fixPrompt(store.get(), {}).count).toBe(0);
+  });
+
+  it('lists typography alerts and files that couldn’t be read, each in their own scope', () => {
+    const style = { fontFamily: ['Inter'], fontSize: { value: 16, unit: 'px' }, fontWeight: 400, lineHeight: 1.5, letterSpacing: { value: 0, unit: 'px' } };
+    addFiles([loadText(JSON.stringify({ semantic: { type: { $type: 'typography', body: { $value: style }, copy: { $value: style } } } }), 'semantic.tokens.json')]);
+    setLoadErrors([{ name: 'broken.json', message: 'Unexpected end of file.', line: 3, col: 1 }]);
+    const all = fixPrompt(store.get()).text;
+    expect(all).toContain("## Files that couldn't be read (1)\n\n- `broken.json` (line 3, column 1): Unexpected end of file.");
+    expect(all).toContain('## Typography (1)');
+    expect(all).toMatch(/semantic\.type\.body, semantic\.type\.copy look the same/);
+    expect(all).toContain('First make the files that couldn’t be read valid');
+    expect(fixPrompt(store.get(), { typography: true }).count).toBe(1);
+    expect(fixPrompt(store.get(), { files: true }).count).toBe(1);
   });
 
   it('is empty when every check passes', () => {

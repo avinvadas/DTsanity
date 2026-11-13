@@ -1,10 +1,12 @@
 import { isMetaFile } from '../model/format';
-import type { ThemeSource } from '../themes/detect';
+import type { ContrastLevel } from '../semantic/pairs';
+import type { Theme, ThemeSource } from '../themes/detect';
 import {
   addTheme,
   removeTheme,
   renameTheme,
   resetThemes,
+  setThemeContrast,
   setThemeFile,
   store,
   type AppState,
@@ -109,6 +111,7 @@ export class TTThemes extends HTMLElement {
                     // The other themes it is checked with, one per group (the all-first one names them all already).
                     t.combo && t.group ? h('small', { class: 'theme-combo', 'data-tip': TIP.themeCombo }, `with ${t.combo.filter((c) => c.group !== t.group).map((c) => c.name).join(' · ')}`) : null,
                     t.scope.mode !== undefined ? h('small', { 'data-tip': TIP.themeMode }, `mode “${t.scope.mode}”`) : null,
+                    contrastPick(t),
                   );
                 }),
               ),
@@ -146,4 +149,16 @@ export class TTThemes extends HTMLElement {
       h('button', { type: 'button', class: 'add-theme', onclick: addTheme }, 'Add theme'),
     );
   }
+}
+
+/** How much contrast a theme's pairs must have: standard, or enhanced (AAA text) for a high-contrast theme. */
+function contrastPick(t: Theme): HTMLElement {
+  const select = h(
+    'select',
+    { class: 'theme-contrast', 'aria-label': `Contrast required in ${t.name}`, 'data-tip': TIP.themeContrast },
+    h('option', { value: 'standard', selected: t.contrast !== 'enhanced' }, 'Standard contrast'),
+    h('option', { value: 'enhanced', selected: t.contrast === 'enhanced' }, 'Enhanced contrast'),
+  );
+  select.addEventListener('change', () => setThemeContrast(t.id, select.value as ContrastLevel));
+  return select;
 }

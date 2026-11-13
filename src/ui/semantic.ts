@@ -3,7 +3,7 @@ import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
 import { TIER_LABEL, tierNames, type Tier } from '../model/tiers';
 import type { Model, Severity } from '../model/types';
-import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, pointColor, tokenColor, hasRole, words, type AliasCandidate, type PairCheck, type PairKind } from '../semantic/pairs';
+import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
@@ -300,11 +300,12 @@ export class TTSemantic extends HTMLElement {
     const button = h('button', { type: 'button', class: 'ghost small realias-btn', 'aria-haspopup': 'dialog', 'aria-label': `Re-alias ${id}`, 'data-tip': TIP.realias }, icon('token'));
     const pop = h('div', { class: 'realias-pop', popover: 'auto', role: 'dialog', 'aria-label': `Re-alias ${id}` });
     const targets = v.settings.contrast;
-    const meta = (fg: ColorInfo, bg: ColorInfo) => {
-      const check = checkColors(fg, bg, r.pair.kind, targets);
+    // At the level of the theme the option is for: enhanced in a high-contrast theme.
+    const meta = (fg: ColorInfo, bg: ColorInfo, level?: ContrastLevel) => {
+      const check = checkColors(fg, bg, r.pair.kind, targets, level);
       const first = check.results[0];
       if (!first) return undefined;
-      const cvd = VISIONS.filter((x) => x.id !== 'normal' && !checkColors(simulate(fg, x.id), simulate(bg, x.id), r.pair.kind, targets).pass);
+      const cvd = VISIONS.filter((x) => x.id !== 'normal' && !checkColors(simulate(fg, x.id), simulate(bg, x.id), r.pair.kind, targets, level).pass);
       return `${formatContrast(first.value, first.level.metric)} ${check.pass ? '✓' : '✗'} · CVD ${cvd.length ? '✗' : '✓'}`;
     };
     const fill = () => {
@@ -317,7 +318,10 @@ export class TTSemantic extends HTMLElement {
           allModels(store.get()).map((model, i) => {
             const c = r.seen.normal[i];
             if (!c) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, names[i] ?? label), h('span', { class: 'muted' }, 'This pair is not in this theme'));
-            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => (role === 'fg' ? meta(cand.info, c.bg) : meta(c.fg, cand.info)), v, () => (this.keepOpen = key), c.pass || r.tone === 'info' ? undefined : r.tone, ownMode(i, id));
+            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => {
+              const level = store.get().themeModels[i]?.theme.contrast;
+              return role === 'fg' ? meta(cand.info, c.bg, level) : meta(c.fg, cand.info, level);
+            }, v, () => (this.keepOpen = key), c.pass || r.tone === 'info' ? undefined : r.tone, ownMode(i, id));
           }),
         ),
         h('p', { class: 'hint' }, `Each option shows its contrast against the ${role === 'fg' ? 'background' : 'foreground'} and whether it still passes with every color-vision deficiency (CVD). Only the reference changes; ⌘Z undoes it.`),

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
+import { pairsOf } from '../src/state/pairs';
 import {
   addFiles,
   addTheme,
@@ -10,6 +11,7 @@ import {
   renameTheme,
   resetThemes,
   setActiveTheme,
+  setThemeContrast,
   setThemeFile,
   store,
 } from '../src/state/app';
@@ -200,5 +202,38 @@ describe('editing themes', () => {
       ['Theme 1', 'manual', 2],
       ['Theme 2', 'manual', 2],
     ]);
+  });
+});
+
+describe('contrast level per theme', () => {
+  const c = (hex: string) => ({ colorSpace: 'srgb', components: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255), hex });
+  // Gray #595959 on white is about 7.0:1; #6b6b6b about 5.3:1: AA, not AAA.
+  const files = () => [
+    loadText(JSON.stringify({ base: { $type: 'color', white: { $value: c('#ffffff') }, mid: { $value: c('#6b6b6b') } } }), 'primitives.tokens.json'),
+    loadText(JSON.stringify({ color: { $type: 'color', bg: { default: { $value: '{base.white}' } }, text: { default: { $value: '{base.mid}' } } } }), 'semantic.light.tokens.json'),
+    loadText(JSON.stringify({ color: { $type: 'color', bg: { default: { $value: '{base.white}' } }, text: { default: { $value: '{base.mid}' } } } }), 'semantic.high-contrast.tokens.json'),
+  ];
+
+  it('checks a high-contrast theme at the enhanced level, named so', () => {
+    clearAll();
+    addFiles(files());
+    const s = store.get();
+    expect(s.themes.map((t) => [t.name, t.contrast])).toEqual([
+      ['light', undefined],
+      ['high-contrast', 'enhanced'],
+    ]);
+    const row = pairsOf(s).rows.find((r) => r.pair.fg === 'color.text.default')!;
+    expect(row.seen.normal.map((x) => [x!.pass, x!.results[0]!.level.short])).toEqual([
+      [true, 'AA'],
+      [false, 'AAA'],
+    ]);
+  });
+
+  it('can be set per theme', () => {
+    clearAll();
+    addFiles(files());
+    setThemeContrast(store.get().themes[1]!.id, 'standard');
+    const row = pairsOf(store.get()).rows.find((r) => r.pair.fg === 'color.text.default')!;
+    expect(row.seen.normal.every((x) => x!.pass)).toBe(true);
   });
 });

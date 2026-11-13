@@ -5,7 +5,7 @@ import { noFixNote, remedyOf } from '../policy/rules';
 import { applyFixes, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
-import { issuesScope, promptButton } from './prompt-link';
+import { issuesScope, pairsScope, promptButton } from './prompt-link';
 import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
@@ -14,7 +14,7 @@ import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
 
 const isTier = (i: Issue) => i.code.startsWith('tier-');
 /** Where each pair tier's findings are worked on. */
-const TIER_VIEW = { semantic: { view: 'semantic', label: 'Sys tier' }, component: { view: 'components', label: 'Component tier' } } as const;
+const TIER_VIEW = { semantic: { view: 'semantic', label: 'Semantic tier' }, component: { view: 'components', label: 'Component tier' } } as const;
 
 const SEVERITIES: Severity[] = ['error', 'warning', 'info'];
 const SEVERITY_LABEL: Record<Severity, string> = { error: 'Error', warning: 'Warning', info: 'Info' };
@@ -136,7 +136,7 @@ export class TTIssues extends HTMLElement {
         'Contrast',
         undefined,
         f.contrast.length,
-        this.tierLinks(f.contrast.map((r) => r.tier)),
+        [...this.tierLinks(f.contrast.map((r) => r.tier)), f.contrast.length ? promptButton(pairsScope(f.contrast)) : null],
         f.contrast.length ? h('div', null, h('p', { class: 'group-note' }, noFixNote('contrast-text')), masked(h('ul', { class: 'issue-list' }, f.contrast.map(contrastRow)))) : null,
         'Every pair passes.',
       ),
@@ -145,7 +145,7 @@ export class TTIssues extends HTMLElement {
         'Color blindness',
         undefined,
         vision.length,
-        this.tierLinks([...f.vision.map((r) => r.tier), ...f.groups.map((g) => g.tier)], true),
+        [...this.tierLinks([...f.vision.map((r) => r.tier), ...f.groups.map((g) => g.tier)], true), f.vision.length + f.groups.length ? promptButton(pairsScope(f.vision, f.groups)) : null],
         vision.length ? h('div', null, h('p', { class: 'group-note' }, noFixNote(f.vision.length ? 'cvd-pair' : 'cvd-siblings')), masked(h('ul', { class: 'issue-list' }, vision))) : null,
         'Pairs and status colors stay apart.',
       ),
@@ -289,7 +289,7 @@ export class TTIssues extends HTMLElement {
       cluster('fixable', counted(fixable, 'can be fixed here', 'can be fixed here'), TIP.clusterFixable, fixable),
       // Info notes ask for no change, so their second cluster only says DTsanity won't make one.
       notes
-        ? cluster('manual', counted(manual, 'has no fix here', 'have no fix here'), TIP.clusterManual, manual)
+        ? cluster('manual', counted(manual, 'has no fix here', 'have no fix here'), TIP.clusterManual, manual, promptButton(issuesScope(manual)))
         : cluster('manual', counted(manual, 'needs your change', 'need your change'), TIP.clusterManual, manual, promptButton(issuesScope(manual))),
     );
   }

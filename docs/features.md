@@ -46,6 +46,7 @@
 ## Themes
 
 - Light, dark or brand variants read from a DTCG resolver file (`*.resolver.json`: one theme per combination of its modifiers' contexts, reading its sets and contexts in `resolutionOrder`), Tokens Studio `$themes`, file names (`semantic.light.json` + `semantic.dark.json`), or per-mode values in `$extensions`, and editable in a files × themes matrix. Each theme is checked on its own.
+- Each theme has a contrast level: **standard** (AA: 4.5:1 text, 3:1 UI; APCA Lc 60 / Lc 45) or **enhanced** (AAA: 7:1 text, UI stays 3:1 as WCAG has no stricter level; APCA Lc 75 / Lc 60). Themes named high or increased contrast (`hc`, SAP's `hcb` and `hcw` too) are enhanced; pick either in the themes table. Results name the level they were measured against (“5.33 of 7 (AAA)”).
 - Tokens Studio theme groups (Size, Color scheme…) combine: each theme is checked with the first theme of every other group, so it has a whole set to resolve against. The first theme is every group's first, named by all of them (`medium · Primary · Dark`); the table shows what each other theme is combined with.
 - Theme, group and tier names show exactly as the files write them.
 - `$ref` pointers (`#/gray/50/$value/components`) resolve against all of a theme's files together, as a resolver merges them; a value built from pointers is checked as it resolves. A file the resolver names that isn't loaded is reported.
@@ -87,7 +88,7 @@ The fix prompt states only the rules that apply to what it lists: keep structure
 ## Close the loop
 
 - **Get fixed files**: one zip holding the whole set as you loaded it, every file under its own name and in its own format, plus `CHANGES.md` listing each change per file, the actions applied, and what is still open.
-- **Copy fix prompt**: every remaining correction (errors, warnings, contrast, color blindness, scale checks) as one Markdown prompt for an AI assistant or a ticket.
+- **Copy fix prompt**: every remaining correction as one Markdown prompt for an AI assistant or a ticket: files that couldn't be read, errors, warnings, contrast, color blindness, scale checks and typography alerts, with optional suggestions. Every group of findings without a one-click fix has its own button for just that group (each “need your change” group, contrast, color blindness, scale findings, typography alerts, unread files); single findings don't. Fixes apply to one token or a whole group.
 - Unchanged files download byte for byte as loaded; edits change only the lines they touch.
 
 ## Privacy

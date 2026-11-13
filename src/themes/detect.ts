@@ -1,6 +1,7 @@
 import { entry, toJS, type JNode } from '../json/cst';
 import { buildModel, tokenSets } from '../model/build';
 import { findFile } from '../model/build';
+import type { ContrastLevel } from '../semantic/pairs';
 import { isMetaFile, isResolverFile } from '../model/format';
 import { modeValues } from '../model/modes';
 import type { Settings, SourceFile, ThemeScope } from '../model/types';
@@ -27,6 +28,8 @@ export interface Theme {
   /** Files the theme reads, in load order. */
   fileIds: string[];
   scope: ThemeScope;
+  /** How much contrast its pairs must have: enhanced for a high-contrast theme (from its name), editable. */
+  contrast?: ContrastLevel;
   /** Tokens Studio: the theme's group (“Color scheme”), as written; the name is the theme's own (“Dark”). */
   group?: string;
   /** Tokens Studio: every theme this one is made of, one per group, as written (its own first). */
@@ -41,8 +44,16 @@ const THEME_WORD = /(?:^|[^a-z0-9])(light|dark|dim|night|day|high-?contrast|hc)(
 const baseName = (name: string) => name.split('/').at(-1)!.replace(/\.(tokens\.)?json[5c]?$|\.tokens$/i, '');
 
 export function detectThemes(files: SourceFile[], settings: Settings): Theme[] {
-  return fromResolver(files) ?? fromTokensStudio(files) ?? fromFileNames(files) ?? fromModes(files, settings) ?? [];
+  const themes = fromResolver(files) ?? fromTokensStudio(files) ?? fromFileNames(files) ?? fromModes(files, settings) ?? [];
+  return themes.map((t) => (isHighContrast(t) ? { ...t, contrast: 'enhanced' as const } : t));
 }
+
+/** Names that mean a theme for low vision: high contrast, increased contrast, hc (SAP's hcb and hcw too). */
+const HIGH_CONTRAST = /high[\s_-]?contrast|increased[\s_-]?contrast|(^|[^a-z])hc[bw]?($|[^a-z])/i;
+
+/** A theme meant for high contrast, by its name, its group or what it is combined from. */
+export const isHighContrast = (t: Pick<Theme, 'name' | 'group' | 'combo'>) =>
+  [t.name, t.group ?? '', ...(t.combo ?? []).map((c) => c.name)].some((n) => HIGH_CONTRAST.test(n));
 
 // ---------------------------------------------------------------------------
 // DTCG resolver (2025.10)

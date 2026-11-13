@@ -1776,3 +1776,6 @@ button.corner-btn[hidden] { display: none; }
 /* A Tokens Studio theme's group (“Color scheme”), under the theme's own name in the matrix. */
 .theme-group, .theme-combo { display: block; color: var(--muted); font-size: var(--font-xs); }
 .theme-combo { font-weight: 400; white-space: normal; }
+
+/* Under a theme's name: the contrast its pairs must have. */
+.theme-contrast { display: block; margin-top: var(--space-1); font-size: var(--font-xs); max-width: 100%; }

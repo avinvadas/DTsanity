@@ -19,6 +19,7 @@ import { openCurveEditor } from './curve-editor';
 import { tierNames } from '../model/tiers';
 import { viewControls } from './loader';
 import { h, icon, masked, pinButton, plural, segmentedPick, viewHead } from './dom';
+import { promptButton } from './prompt-link';
 import { FLAG_TIP, flagTip, levelTip, TIP } from './tips';
 
 /**
@@ -156,6 +157,8 @@ export class TTPalettes extends HTMLElement {
           : total === 0
             ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with a raw value rather than a token reference.')
             : null,
+        // The scale findings have no one-click fix: one fix prompt for all of them.
+        scaleFindings(included) ? h('div', { class: 'prompt-row scale-findings' }, h('span', { class: 'prompt-row-text' }, `${plural(scaleFindings(included), 'scale finding')} ${scaleFindings(included) === 1 ? 'needs' : 'need'} your change`), promptButton({ scales: true })) : null,
         this.systems(set.palettes, settings, shown, contrast),
         parityPanel(contrast, included),
         set.loose.length ? this.loose(set, settings, shown) : null,
@@ -550,3 +553,6 @@ function delta(ch: Channel, a: ColorInfo, b: ColorInfo): string {
   if (grey(a) || grey(b)) return '–';
   return `${sign(((((b.oklch.h - a.oklch.h) % 360) + 540) % 360) - 180, 0)}°`;
 }
+
+/** Scale findings that need a change (errors and warnings, as the policy sets them) across the checked palettes. */
+const scaleFindings = (palettes: readonly { flags: readonly { severity: string }[] }[]) => palettes.reduce((n, p) => n + p.flags.filter((f) => f.severity !== 'info').length, 0);

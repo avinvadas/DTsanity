@@ -6,7 +6,7 @@ import { makeIssue } from '../model/build';
 import { isMetaFile, isResolverFile } from '../model/format';
 import type { Edit, Fix, Issue, Model, Settings, SourceFile } from '../model/types';
 import { detectThemes, type Theme } from '../themes/detect';
-import { NO_PAIR_EDITS, type PairEdits, type PairKind, pairId } from '../semantic/pairs';
+import { NO_PAIR_EDITS, type ContrastLevel, type PairEdits, type PairKind, pairId } from '../semantic/pairs';
 import { mergeModels, orphanIssues, type ThemeModel } from '../themes/merge';
 import { cleanPolicy, issuesWithPolicy, type Level } from '../policy/rules';
 import { analyze } from '../validate';
@@ -258,6 +258,11 @@ export function addTheme() {
     if (themes.length === 0) return [manualTheme('Theme 1', all), manualTheme('Theme 2', all)];
     return [...themes, manualTheme(`Theme ${themes.length + 1}`, all)];
   });
+}
+
+/** Set how much contrast a theme's pairs must have. Like any theme edit, it keeps the themes as they are from now on. */
+export function setThemeContrast(id: string, contrast: ContrastLevel) {
+  editThemes((themes) => themes.map((t) => (t.id === id ? { ...t, contrast } : t)));
 }
 
 export function renameTheme(id: string, name: string) {

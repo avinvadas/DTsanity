@@ -81,6 +81,7 @@ export const TIP = {
   reload: 'Read the files again from disk or their URL and re-run the checks.',
   chooseFolder: 'Read every token file in a folder and its subfolders, each named by its path in it, so files with the same name in different folders (one per theme) stay apart. Package manifests and node_modules are skipped.',
   themeCombo: 'Tokens Studio theme groups combine: each theme is checked with the first theme of every other group, so it has a whole set to resolve against.',
+  themeContrast: 'How much contrast this theme’s pairs must have. Standard: AA (4.5:1 text, 3:1 UI) or APCA Lc 60 / Lc 45. Enhanced, for high-contrast themes: AAA text (7:1; UI stays 3:1, WCAG has no stricter level) or APCA Lc 75 / Lc 60. Set to enhanced for themes named high or increased contrast.',
   dropzone: 'DTCG .json, .json5, .jsonc or .tokens files, several at once (such as primitives and semantic), or whole folders. Tokens Studio and Style Dictionary files too, with legacy formats on.',
   addMoreFiles: 'Open the loaded files in a dialog: remove any of them, or drop, pick or link more.',
   closeDialog: 'Cancel and close (Esc): the files go back to how they were.',

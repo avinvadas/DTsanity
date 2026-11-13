@@ -8,6 +8,9 @@ import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/p
 import { palettesOf } from '../state/palettes';
 import { mergeModels } from '../themes/merge';
 import { PRINCIPLE, PROMPT_RULES, type PromptRule } from '../policy/principles';
+import { withPolicy } from '../policy/rules';
+import { rangeNotes, typeStyle, typographyIds } from '../semantic/typography';
+import { allModels } from '../state/app';
 
 /**
  * A prompt that lists every correction the checks found, for pasting into an
@@ -32,6 +35,10 @@ export interface PromptScope {
   pair?: (r: PairRow) => boolean;
   sibling?: (g: SiblingRow) => boolean;
   scales?: boolean;
+  /** The typography range checks (styles alike, sizes too close, text too small). */
+  typography?: boolean;
+  /** Files that couldn't be read. */
+  files?: boolean;
 }
 
 const code = (s: string) => `\`${s}\``;
@@ -108,6 +115,29 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   );
   section(required, 'Color-vision', [...cvdOf(rows.filter((r) => counted(r.cvdTone))), ...siblingsOf(sibs.filter((g) => counted(g.tone)))]);
 
+  // Files that couldn't be read: they come first, since nothing in them was checked.
+  const unread = !scope || scope.files ? s.loadErrors : [];
+  if (unread.length) listed.add('files');
+  section(required, "Files that couldn't be read", unread.map((e) => `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`));
+
+  // Typography: the range checks the tier views show, in each theme; a finding in only some themes says which.
+  const typeNotes = new Map<string, { severity: string; themes: string[] }>();
+  if (!scope || scope.typography) {
+    allModels(s).forEach((m, i) => {
+      for (const tier of ['semantic', 'component'] as const) {
+        const styles = typographyIds(m, tier).map((id) => typeStyle(m.tokens.get(id)!, m));
+        for (const n of withPolicy(rangeNotes(styles), s.settings.policy, (x) => `type-${x.code}`)) {
+          const e = typeNotes.get(n.message) ?? { severity: n.severity, themes: [] };
+          if (themeNames[i]) e.themes.push(themeNames[i]!);
+          typeNotes.set(n.message, e);
+        }
+      }
+    });
+  }
+  const typeLines = (sevs: string[]) =>
+    [...typeNotes].filter(([, e]) => sevs.includes(e.severity)).map(([message, e]) => `${message}${e.themes.length && e.themes.length < themeNames.length ? ` (${e.themes.join(', ')} only)` : ''}`);
+  section(required, 'Typography', typeLines(['error', 'warning']));
+
   // Base color scales.
   const scale = (...sevs: string[]) => pals.flatMap((p) => p.flags.filter((f) => sevs.includes(f.severity)).map((f) => `${code(p.id)}: ${f.message}`));
   section(required, 'Base color scales', scale('error', 'warning'));
@@ -118,6 +148,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     ...contrastOf(rows.filter((r) => r.tone === 'info')),
     ...cvdOf(rows.filter((r) => r.cvdTone === 'info')),
     ...siblingsOf(sibs.filter((g) => g.tone === 'info')),
+    ...typeLines(['info']),
   ]);
   if (rows.some((r) => !r.pass || r.cvdFails.length)) listed.add('contrast');
   if (sibs.some(siblingFails)) listed.add('status');
@@ -129,6 +160,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     ? `${withFix} of these ${withFix === 1 ? 'has' : 'have'} a one-click fix in DTsanity, given after “Fix:”. DTsanity can't make the other changes itself; they need a decision about the design.`
     : `DTsanity can't make these changes itself; they need a decision about the design.`;
   const targets = TARGETS.filter((t) => s.settings.contrast.includes(t.id)).map((t) => t.label);
+  const enhanced = s.themes.filter((t) => t.contrast === 'enhanced').map((t) => t.name);
   const text = [
     '# Corrections for design token files',
     '',
@@ -139,6 +171,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
     themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',
     targets.length ? `Contrast targets: ${targets.join(', ')}` : '',
+    enhanced.length ? `Enhanced contrast (AAA text, or APCA Lc 75 text and Lc 60 UI) in: ${enhanced.join(', ')}` : '',
     '',
     `Rules (${PRINCIPLE.replace(/\.$/, '')}):`,
     ...PROMPT_RULES.filter((r) => listed.has(r.when)).map((r) => `- ${r.text}`),

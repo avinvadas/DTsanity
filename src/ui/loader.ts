@@ -6,6 +6,7 @@ import { createStore } from '../state/store';
 import { targetSelect } from './contrast';
 import { h, masked, plural } from './dom';
 import { moreMenu, type MenuItem } from './menu';
+import { promptButton } from './prompt-link';
 import { TIP } from './tips';
 
 /** Length of each step on the first load: the ring fill, the landing fading out, the results fading in. */
@@ -305,6 +306,8 @@ export class TTLoader extends HTMLElement {
         (s) => s.loadErrors,
         (list) =>
           errors.replaceChildren(
+            // The unread files are a group too: their fix prompt asks to make them valid first.
+            list.length ? h('div', { class: 'prompt-row' }, h('span', { class: 'prompt-row-text' }, `${plural(list.length, 'file')} couldn't be read`), promptButton({ files: true })) : '',
             ...list.map((e) =>
               h(
                 'div',

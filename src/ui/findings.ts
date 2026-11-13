@@ -82,7 +82,7 @@ export function openLines(f: Findings): string[] {
 export function fixableLine(withFix: number, total: number): HTMLElement {
   if (withFix === total) return h('p', { class: 'findings-fixable' }, total === 1 ? 'It has a one-click fix here.' : 'Each has a one-click fix here.');
   // The ones counted without a fix: issues with none, and the contrast, color-vision and scale findings (info notes aside).
-  const scope = { issue: (i: Issue) => !i.fix && i.severity !== 'info', pair: (r: PairRow) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g: SiblingRow) => g.tone !== 'info', scales: true };
+  const scope = { issue: (i: Issue) => !i.fix && i.severity !== 'info', pair: (r: PairRow) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g: SiblingRow) => g.tone !== 'info', scales: true, typography: true, files: true };
   const text = withFix ? `${withFix} can be fixed here in one click. For the other ${total - withFix}, a file update is needed.` : 'None has a one-click fix here: a file update is needed.';
   return promptRow(text, scope, 'findings-fixable');
 }

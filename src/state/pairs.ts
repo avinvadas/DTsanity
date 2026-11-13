@@ -71,7 +71,8 @@ export function pairsOf(s: AppState): PairsResult {
     return t ? componentOf(t) : id;
   };
   const rows = pairs.map((pair) => {
-    const seen = Object.fromEntries(VISIONS.map(({ id }) => [id, models.map((m) => checkPair(pair, m, s.settings.contrast, id))])) as PairRow['seen'];
+    // Each theme at its own level: enhanced for a high-contrast theme.
+    const seen = Object.fromEntries(VISIONS.map(({ id }) => [id, models.map((m, i) => checkPair(pair, m, s.settings.contrast, id, s.themeModels[i]?.theme.contrast))])) as PairRow['seen'];
     const level = severityOf(policy, pair.kind === 'text' ? 'contrast-text' : 'contrast-ui');
     const measured = passes(seen.normal);
     // A check the policy turns off doesn't fail.

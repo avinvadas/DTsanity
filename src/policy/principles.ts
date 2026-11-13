@@ -61,11 +61,12 @@ export const FIX_EXCEPTIONS: readonly Principle[] = [
 export interface PromptRule {
   text: string;
   /** When the rule applies: always, or only when the prompt lists findings of that kind. */
-  when: 'always' | 'tiers' | 'contrast' | 'status';
+  when: 'always' | 'files' | 'tiers' | 'contrast' | 'status';
 }
 
 /** The guidance the fix prompt gives with its corrections. */
 export const PROMPT_RULES: readonly PromptRule[] = [
+  { when: 'files', text: 'First make the files that couldn’t be read valid (JSON, or JSON5 in .json5 and .jsonc files), changing nothing else in them; then they can be checked.' },
   { when: 'always', text: 'Keep each file’s structure, token names and order unless a correction says otherwise.' },
   { when: 'always', text: 'Change the format, not the design: don’t change colors, sizes or what a token means unless a correction asks for it.' },
   { when: 'tiers', text: 'Tiers: base tokens hold values only; semantic tokens point at base or semantic tokens; component tokens point at semantic or base tokens.' },

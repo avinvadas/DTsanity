@@ -148,15 +148,22 @@ export function applyPairEdits(detected: readonly Pair[], edits: PairEdits): Pai
     .map((p) => (edits.kinds[p.id] ? { ...p, kind: edits.kinds[p.id]! } : p));
 }
 
+/**
+ * How much contrast a theme must have: standard, or enhanced for a theme
+ * meant for low vision (high contrast, increased contrast).
+ */
+export type ContrastLevel = 'standard' | 'enhanced';
+
 /** The level each target requires of a pair: the text level, or the non-text one for UI parts. */
-const REQUIRED: Record<PairKind, Record<ContrastTarget, string>> = {
+const REQUIRED: Record<ContrastLevel, Record<PairKind, Record<ContrastTarget, string>>> = {
   // WCAG passes at AA; AAA is shown as a level reached, not required.
-  text: { wcag: 'aa', apca: 'lc60' },
-  ui: { wcag: 'aa-large', apca: 'lc45' },
+  standard: { text: { wcag: 'aa', apca: 'lc60' }, ui: { wcag: 'aa-large', apca: 'lc45' } },
+  // AAA for text (WCAG 1.4.6); WCAG has no stricter level for non-text, so UI parts stay at 3:1. APCA: body text and content text levels.
+  enhanced: { text: { wcag: 'aaa', apca: 'lc75' }, ui: { wcag: 'aa-large', apca: 'lc60' } },
 };
 
-export function requiredLevels(kind: PairKind, targets: readonly ContrastTarget[]): Level[] {
-  const ids = [...new Set(targets.map((t) => REQUIRED[kind][t]))];
+export function requiredLevels(kind: PairKind, targets: readonly ContrastTarget[], level: ContrastLevel = 'standard'): Level[] {
+  const ids = [...new Set(targets.map((t) => REQUIRED[level][kind][t]))];
   return ids.map((id) => levelById(id)!);
 }
 
@@ -249,9 +256,9 @@ export function pointColor(model: Model, id: string, target: string, mode?: stri
 const colorOf = (model: Model, id: string) => tokenColor(model.tokens.get(id), model.settings.acceptLegacy);
 
 /** Check a foreground on a background for a pair of `kind`. */
-export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, targets: readonly ContrastTarget[]): PairCheck {
+export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, targets: readonly ContrastTarget[], level: ContrastLevel = 'standard'): PairCheck {
   const shown = over(fg, bg);
-  const levels = requiredLevels(kind, targets);
+  const levels = requiredLevels(kind, targets, level);
   const values: Partial<Record<Metric, number>> = {};
   for (const m of new Set(levels.map((l) => l.metric))) values[m] = contrast(shown, bg, m);
   const results = levels.map((level) => ({ level, value: values[level.metric]!, pass: values[level.metric]! >= level.threshold }));
@@ -262,10 +269,10 @@ export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, target
  * Check a pair in one model (theme), as seen with `vision`. Undefined when
  * either token is missing or not a color there.
  */
-export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTarget[], vision: Vision = 'normal'): PairCheck | undefined {
+export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTarget[], vision: Vision = 'normal', level: ContrastLevel = 'standard'): PairCheck | undefined {
   const fg = colorOf(model, pair.fg);
   const bg = colorOf(model, pair.bg);
-  return fg && bg ? checkColors(simulate(fg, vision), simulate(bg, vision), pair.kind, targets) : undefined;
+  return fg && bg ? checkColors(simulate(fg, vision), simulate(bg, vision), pair.kind, targets, level) : undefined;
 }
 
 export interface AliasCandidate {
