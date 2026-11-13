@@ -5,4 +5,6 @@
 - License: MIT (see `LICENSE` in this folder)
 - Downloaded: 2026-11-12
 
-Converted from JSON5 to JSON (comments dropped, values unchanged). Left out: `removed.json` (a list of removed names) and `fallback/` (a CSS variable map, not tokens).
+Files are unmodified JSON5, in the package's own layout (`base/`,
+`component/`, `functional/`). Left out: `removed.json` (a list of removed
+names) and `fallback/` (a CSS variable map, not tokens).
