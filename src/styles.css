@@ -1769,6 +1769,7 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
 .policy-changed:empty { display: none; }
 /* What DTsanity does about the check's findings: an outlined tag, filled for the ones it fixes. */
 .remedy { display: inline-block; font-weight: 400; }
+.policy-basis { color: var(--muted); }
 .policy-text .remedy, .principles .remedy { align-self: flex-start; margin-top: 2px; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: 999px; font-size: var(--font-xs, 0.75rem); line-height: 18px; color: var(--muted); }
 .policy-text .remedy.fix, .policy-text .remedy.sometimes, .principles .remedy.fix, .principles .remedy.sometimes { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
 .policy-row.changed .policy-changed { color: var(--text); font-weight: 500; }

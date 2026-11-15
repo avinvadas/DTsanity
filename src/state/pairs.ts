@@ -1,5 +1,5 @@
 import { VISIONS, type Vision } from '../color/cvd';
-import { applyPairEdits, checkPair, colorTokenIds, detectPairs, isInactive, type Pair, type PairCheck } from '../semantic/pairs';
+import { applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, isInactive, type Pair, type PairCheck } from '../semantic/pairs';
 import { checkSiblings, detectSiblings, type SiblingCheck, type SiblingGroup } from '../semantic/siblings';
 import { componentOf, tiersOf, type Tier } from '../model/tiers';
 import { severityOf } from '../policy/rules';
@@ -49,6 +49,17 @@ export interface PairsResult {
   edited: boolean;
 }
 
+/**
+ * The rule a pair's contrast is held to: text, other UI parts, a border
+ * (required only where it is what shows the component, which the files can't
+ * tell), or an inactive state (which WCAG doesn't ask for contrast).
+ */
+export function contrastRule(pair: Pair): 'contrast-text' | 'contrast-ui' | 'contrast-border' | 'contrast-inactive' {
+  if (isInactive(pair)) return 'contrast-inactive';
+  if (pair.kind === 'text') return 'contrast-text';
+  return glyphOf(pair) === 'border' ? 'contrast-border' : 'contrast-ui';
+}
+
 let cache: { key: unknown[]; result: PairsResult } | undefined;
 
 const passes = (checks: (PairCheck | undefined)[]) => checks.every((c) => !c || c.pass);
@@ -73,7 +84,7 @@ export function pairsOf(s: AppState): PairsResult {
   const rows = pairs.map((pair) => {
     // Each theme at its own level: enhanced for a high-contrast theme.
     const seen = Object.fromEntries(VISIONS.map(({ id }) => [id, models.map((m, i) => checkPair(pair, m, s.settings.contrast, id, s.themeModels[i]?.theme.contrast))])) as PairRow['seen'];
-    const level = severityOf(policy, isInactive(pair) ? 'contrast-inactive' : pair.kind === 'text' ? 'contrast-text' : 'contrast-ui');
+    const level = severityOf(policy, contrastRule(pair));
     const measured = passes(seen.normal);
     // A check the policy turns off doesn't fail.
     const pass = measured || !level;

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
 import { RULE_TITLE } from '../src/model/rules';
 import { cleanPolicy, levelOf, RULES, withPolicy } from '../src/policy/rules';
+import { BASIS, basisLabel } from '../src/policy/basis';
 import { addFiles, clearAll, resetPolicy, setRuleLevel, store, updateSettings } from '../src/state/app';
 import { pairsOf, siblingFails } from '../src/state/pairs';
 import { palettesOf } from '../src/state/palettes';
@@ -134,5 +135,22 @@ describe('policy', () => {
     resetPolicy();
     updateSettings({ gamut: 'srgb' });
     expect(store.get().settings.policy).toEqual({});
+  });
+});
+
+describe('what each rule stands on', () => {
+  it('names a source for every rule, and no source for a rule that doesn’t exist', () => {
+    expect(RULES.filter((r) => !BASIS[r.id]).map((r) => r.id), 'rules without a source').toEqual([]);
+    expect(Object.keys(BASIS).filter((id) => !RULES.some((r) => r.id === id)), 'sources without a rule').toEqual([]);
+  });
+
+  it('cites a standard by section or criterion, and calls everything else advice', () => {
+    for (const [id, b] of Object.entries(BASIS)) {
+      if (b.source === 'DTCG') expect(b.ref, id).toMatch(/^(Format|Color) \d+(\.\d+)* [A-Z]/);
+      if (b.source === 'WCAG') expect(b.ref, id).toMatch(/^\d\.\d\.\d+ /);
+      if (b.source === 'DTsanity') expect(b.standing, `${id}: a DTsanity convention is advice`).toBe('advice');
+    }
+    expect(basisLabel('missing-type')).toBe('Required · DTCG Format 5.2.2 Type');
+    expect(basisLabel('tier-reference')).toMatch(/^Advice · DTsanity convention: token tiers/);
   });
 });

@@ -1,3 +1,4 @@
+import { basisLabel } from '../policy/basis';
 import type { Severity } from '../model/types';
 import { levelOf, REMEDY, RULES, type Level, type RuleDef } from '../policy/rules';
 import { resetPolicy, setRuleLevel, store } from '../state/app';
@@ -37,7 +38,7 @@ export class TTPolicy extends HTMLElement {
     const groups = [...new Set(RULES.map((r) => r.group))];
     this.replaceChildren(
       viewHead('Severity policy', { summary: this.summary }),
-      h('p', { class: 'meta policy-intro' }, 'How each check reports: as an error, a warning or info, or not at all. Changes apply right away to every file and are kept in this browser. Each check also says what DTsanity does about it: Auto-fix (always a one-click fix), Fix when clear (a fix when the right change is clear), Guided (a tool here to work on it) or Report only (the change is yours).'),
+      h('p', { class: 'meta policy-intro' }, 'How each check reports: as an error, a warning or info, or not at all. Changes apply right away to every file and are kept in this browser. Each check also says what it stands on: Required when a standard (DTCG, WCAG) asks for it, Advice when it is a DTsanity convention or a standard only recommends it. And what DTsanity does about it: Auto-fix (always a one-click fix), Fix when clear (a fix when the right change is clear), Guided (a tool here to work on it) or Report only (the change is yours).'),
       h(
         'div',
         { class: 'policy' },
@@ -67,6 +68,7 @@ export class TTPolicy extends HTMLElement {
         { for: id, class: 'policy-text' },
         h('strong', null, rule.title, ' ', h('code', null, rule.id)),
         h('span', null, rule.about),
+        basisLine(rule.id),
         h('span', { class: `remedy ${rule.remedy}`, 'data-tip': REMEDY[rule.remedy].about }, REMEDY[rule.remedy].label),
         changed,
       ),
@@ -107,4 +109,10 @@ export class TTPolicy extends HTMLElement {
     this.summary.textContent = `${plural(RULES.length, 'rule')}${edited ? ` · ${edited} changed` : ' · built-in defaults'}`;
     this.reset.disabled = edited === 0;
   }
+}
+
+/** What a rule stands on: a standard's section, or a DTsanity convention, and whether its findings are required or advice. */
+function basisLine(id: string) {
+  const label = basisLabel(id);
+  return label ? h('small', { class: 'policy-basis' }, label) : null;
 }

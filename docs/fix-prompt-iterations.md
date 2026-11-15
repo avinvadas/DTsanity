@@ -190,6 +190,43 @@ they go.
 
 **Validation:** a test fails if any rule lacks a source.
 
+### Done (2026-11-15)
+
+`src/policy/basis.ts` gives every rule a source and a standing. The Policy
+page shows both, and `tests/policy.test.ts` fails if a rule has none.
+- **DTCG rules** cite Format or Color Module 2025.10 by section number and
+  title, taken from the published table of contents.
+- **WCAG rules** cite the success criterion.
+- **DTsanity conventions** are always Advice: tiers, scales, typography,
+  color-blindness simulation, and one token defined in several files.
+
+What the spec settled:
+- **DTCG doesn't address the same token defined in two files**, so
+  `duplicate-path` is a DTsanity convention, not a requirement.
+- **DTCG reserves unknown `$` properties but doesn't forbid them** (5.1.1), so
+  `unknown-property` is Advice. This covers Spectrum's `$schema`.
+- **Borders now have their own rule, `contrast-border`**, which is Advice.
+  WCAG 1.4.11 applies only where a border is what shows the component or its
+  state, and the files can't say which. Inactive pairs are Advice too.
+- **DTCG 5.2.2 says tools must not guess a token's type from its value.** The
+  missing-type one-click fix does exactly that, as an offer the user reviews.
+  The prompt must not present such a guess as the answer.
+
+Counted findings per sample, now split by standing:
+
+| Set | Counted | Required | Advice |
+|---|---|---|---|
+| Atlassian | 2,001 | 1,941 | 60 |
+| Backpack | 155 | 152 | 3 |
+| Carbon | 40 | 7 | 33 |
+| Cloudscape | 5,141 | 5,141 | 0 |
+| Designsystemet | 596 | 396 | 200 |
+| GitLab | 396 | 147 | 249 |
+| Open Props | 718 | 718 | 0 |
+| Primer | 531 | 298 | 233 |
+| SAP Horizon | 28,595 | 25,459 | 3,136 |
+| Spectrum | 2,878 | 732 | 2,146 |
+
 ## Step 3. Make each item self-contained
 
 For every rule, write the item fields: where, problem, evidence, done when,

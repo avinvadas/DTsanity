@@ -7,7 +7,8 @@ import { DEFAULT_SETTINGS } from '../src/model/defaults';
 import type { Issue, SourceFile } from '../src/model/types';
 import { addFiles, clearAll, store, updateSettings } from '../src/state/app';
 import { findings, findingTotal } from '../src/ui/findings';
-import type { PairRow } from '../src/state/pairs';
+import { contrastRule, type PairRow } from '../src/state/pairs';
+import { BASIS } from '../src/policy/basis';
 
 /**
  * The counted findings of every sample set, by rule, with examples: the
@@ -40,7 +41,7 @@ interface RuleCount {
   it('counts every sample by rule', () => {
     updateSettings({ ...DEFAULT_SETTINGS, acceptLegacy: true });
     const sets = readdirSync(ROOT).filter((d) => statSync(join(ROOT, d)).isDirectory()).sort();
-    const out: Record<string, { total: number; themes: string[]; rules: Record<string, RuleCount> }> = {};
+    const out: Record<string, { total: number; themes: string[]; required: number; advice: number; rules: Record<string, RuleCount> }> = {};
     for (const set of sets) {
       const dir = join(ROOT, set);
       const files = walk(dir).map((p) => {
@@ -67,13 +68,14 @@ interface RuleCount {
           .map((c, k) => (c && !c.pass ? `${theme(k)} ${c.results.filter((x) => !x.pass).map((x) => `${x.level.id ?? x.level}: ${x.value.toFixed(2)}`).join('/')}` : ''))
           .filter(Boolean)
           .join('; ');
-      for (const r of f.contrast) add(`contrast (${r.pair.kind}, ${r.pair.source})`, `${r.pair.fg} on ${r.pair.bg}: ${checks(r)}`);
-      for (const r of f.vision) add(`vision (${r.pair.kind}, ${r.pair.source})`, `${r.pair.fg} on ${r.pair.bg}: ${r.cvdFails.join(',')}`);
-      for (const g of f.groups) add('status-group', `${g.group.id}: ${g.group.members.join(', ')}`);
-      out[set] = { total: findingTotal(f), themes: s.themes.map((t) => t.name), rules };
+      for (const r of f.contrast) add(contrastRule(r.pair), `${r.pair.fg} on ${r.pair.bg}: ${checks(r)}`);
+      for (const r of f.vision) add('cvd-pair', `${r.pair.fg} on ${r.pair.bg}: ${r.cvdFails.join(',')}`);
+      for (const g of f.groups) add('cvd-siblings', `${g.group.id}: ${g.group.members.join(', ')}`);
+      const share = (standing: string) => Object.entries(rules).filter(([id]) => (BASIS[id]?.standing ?? 'required') === standing).reduce((n, [, r]) => n + r.n, 0);
+      out[set] = { total: findingTotal(f), themes: s.themes.map((t) => t.name), required: share('required'), advice: share('advice'), rules };
     }
     writeFileSync(OUT!, JSON.stringify(out, null, 2));
     for (const [set, o] of Object.entries(out))
-      console.log(`${set}: ${o.total} [${o.themes.join(', ')}] ${Object.entries(o.rules).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `${k}×${v.n}`).join(', ')}`);
+      console.log(`${set}: ${o.total} (required ${o.required}, advice ${o.advice}) [${o.themes.join(', ')}] ${Object.entries(o.rules).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `${k}×${v.n}`).join(', ')}`);
   }, 600_000);
 });

@@ -51,6 +51,7 @@ const GUIDE: Record<string, string> = {
   'file-not-in-theme': 'Add the file to a theme in the themes matrix.',
   'contrast-text': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
   'contrast-ui': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
+  'contrast-border': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
   'contrast-inactive': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
   'cvd-pair': 'Re-alias the pair in its tier view, or reshape the scale in the curve editor.',
   'cvd-siblings': 'Re-alias the status tokens in their tier view so they differ in lightness.',
@@ -110,7 +111,8 @@ export const RULES: readonly RuleDef[] = [
   rule('Metadata', 'extension-naming', 'warning', 'none', 'An “$extensions” key that isn’t a reverse domain name.'),
 
   rule('Contrast', 'contrast-text', 'error', 'guided', 'A text pair below the selected contrast level.', 'Low text contrast'),
-  rule('Contrast', 'contrast-ui', 'warning', 'guided', 'An icon, border or other UI pair below the non-text level.', 'Low UI contrast'),
+  rule('Contrast', 'contrast-ui', 'warning', 'guided', 'An icon or other UI part below the non-text level.', 'Low UI contrast'),
+  rule('Contrast', 'contrast-border', 'warning', 'guided', 'A border or outline below the non-text level on the background around it. WCAG 1.4.11 asks for it where the border is what shows the component or its state; a decorative one is exempt.', 'Low border contrast'),
   rule('Contrast', 'contrast-inactive', 'info', 'guided', 'A disabled or inactive pair below its level. WCAG (1.4.3, 1.4.11) doesn’t require contrast of components nobody can use, so it is listed, not counted.', 'Low contrast, inactive'),
 
   rule('Color blindness', 'cvd-pair', 'warning', 'guided', 'A pair that passes with typical vision but not with a color-vision deficiency.', 'Fails with color blindness'),
