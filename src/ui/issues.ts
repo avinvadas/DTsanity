@@ -4,7 +4,8 @@ import type { Category, Fix, Issue, Severity } from '../model/types';
 import { noFixNote, remedyOf } from '../policy/rules';
 import { applyFixes, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
-import { h, icon, masked, plural, severityIcon, viewHead } from './dom';
+import { collapsible, expand, setAll } from './collapsible';
+import { h, icon, masked, plural, severityIcon, viewHead, type Child } from './dom';
 import { issuesScope, pairsScope, promptButton } from './prompt-link';
 import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
@@ -65,26 +66,38 @@ export class TTIssues extends HTMLElement {
     );
   }
 
-  /** The page has one section per card, in the cards' order, named and counted as they are; each card scrolls to its own. Info notes follow, uncounted. */
+  /** The page has one section per card, in the cards' order, named and counted as they are; each card opens its own and scrolls to it. Info notes follow, uncounted. */
   private go(kind: FindingKind) {
-    const target = this.querySelector(`#issues-${kind}`);
-    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    (target?.querySelector('h3') as HTMLElement | null)?.focus({ preventScroll: true });
+    const target = this.querySelector<HTMLDetailsElement>(`#issues-${kind}`);
+    if (!target) return;
+    expand(target);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    (target.querySelector('h3') as HTMLElement | null)?.focus({ preventScroll: true });
   }
 
-  /** A section of this page: its heading (with a count, and any actions), then its list, or a line saying it passes. */
+  /**
+   * A section of this page, collapsible like the tier views' sections: its
+   * heading (with a count, and any actions), then its list, or a line saying
+   * it passes. Open unless the user closed it.
+   */
   private group(id: string, title: string, tip: string | undefined, n: number, actions: (Node | null)[], list: HTMLElement | null, clear: string) {
-    return h(
-      'section',
-      { class: 'issue-group', id },
-      h(
-        'div',
-        { class: 'group-head' },
+    return collapsible({
+      key: `issues:${id}`,
+      open: true,
+      variant: 'row',
+      class: 'issue-group',
+      attrs: { id },
+      summary: [
         h('h3', { tabindex: '-1', 'data-tip': tip }, title, n ? h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(n)) : null),
-        h('div', { class: 'group-actions' }, actions),
-      ),
-      list ?? h('p', { class: 'empty' }, clear),
-    );
+        h('span', { class: 'group-actions' }, actions),
+      ],
+      content: list ?? h('p', { class: 'empty' }, clear),
+    });
+  }
+
+  /** A category inside Format, collapsible the same way. */
+  private subgroup(id: string, title: Child, actions: Node | null, list: HTMLElement) {
+    return collapsible({ key: `issues:${id}`, open: true, class: 'issue-subgroup', attrs: { id }, summary: [title, h('span', { class: 'group-actions' }, actions)], content: list });
   }
 
   /** Links to the tier views where these pairs are worked on, one per tier they're in. */
@@ -201,6 +214,12 @@ export class TTIssues extends HTMLElement {
       findingCards(f, (k) => this.go(k), () => '#issues'),
       h(
         'div',
+        { class: 'toolbar issue-tools' },
+        h('button', { type: 'button', class: 'ghost small', onclick: () => setAll(this, true) }, 'Expand all'),
+        h('button', { type: 'button', class: 'ghost small', onclick: () => setAll(this, false) }, 'Collapse all'),
+      ),
+      h(
+        'div',
         { class: 'issue-groups' },
         this.group(
           'issues-format',
@@ -214,15 +233,10 @@ export class TTIssues extends HTMLElement {
                 'div',
                 { class: 'issue-subgroups' },
                 groups.map(({ category, issues }) =>
-                  h(
-                    'section',
-                    { class: 'issue-subgroup', id: `issues-${category}` },
-                    h(
-                      'div',
-                      { class: 'subgroup-head' },
-                      h('h5', { 'data-tip': CATEGORY_TIP[category] }, CATEGORY_LABEL[category], h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length))),
-                      h('div', { class: 'group-actions' }, fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase())),
-                    ),
+                  this.subgroup(
+                    `issues-${category}`,
+                    h('h5', { 'data-tip': CATEGORY_TIP[category] }, CATEGORY_LABEL[category], h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length))),
+                    fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase()),
                     this.clusters(issues, where),
                   ),
                 ),

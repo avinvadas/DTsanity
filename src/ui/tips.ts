@@ -195,9 +195,8 @@ export const CURVE_TIP = {
   contrast: 'Solve lightness so chosen steps just pass a contrast level on the light and dark ends.',
   solve: 'Set those steps’ lightness so they just pass, then smooth the curve through them.',
   revert: 'Close the panel and drop this edit. The rows go back to the values in your files; pins stay as set.',
-  match: 'Every palette gets this palette’s lightness at each step, so the same step has the same contrast everywhere.',
-  relative: 'Each palette keeps its own anchor lightness and follows the curve’s shape from there.',
   reset: 'Go back to the palette’s current values.',
+  applyAll: 'Give every other palette the same curves: the same lightness at each step (so a step has the same contrast everywhere), with chroma and hue following each palette’s own anchor.',
   apply: 'Write the previewed rows to your files as one undoable step.',
 } as const;
 

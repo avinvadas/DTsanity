@@ -22,6 +22,7 @@ import {
   type CurveState,
   type GenStep,
 } from '../curves/model';
+import { componentOf, tiersOf } from '../model/tiers';
 import type { Model } from '../model/types';
 import type { Palette } from '../palette/detect';
 import { allModels, applyEdits, setPins, store } from '../state/app';
@@ -122,6 +123,7 @@ class CurveEditor {
       this.dialog.remove();
       window.removeEventListener('scroll', this.place, true);
       window.removeEventListener('resize', this.place);
+      document.removeEventListener('pointerdown', this.outside, true);
       this.unsubPreview?.();
       this.unsubPins?.();
       if (current === this) {
@@ -135,6 +137,7 @@ class CurveEditor {
     this.resize.observe(this.dialog);
     window.addEventListener('scroll', this.place, true);
     window.addEventListener('resize', this.place);
+    document.addEventListener('pointerdown', this.outside, true);
     // The grid redraws its buttons on every preview change; follow ours once it has.
     this.unsubPreview = preview.subscribe(() => requestAnimationFrame(() => requestAnimationFrame(this.place)));
     // Pins toggled on the grid while the panel is open reach the curves too.
@@ -154,6 +157,19 @@ class CurveEditor {
   }
 
   private unsubPins?: () => void;
+
+  /**
+   * A press outside the panel closes it, as Escape does (reverting what isn't
+   * applied). Not the grid's pins, which edit these curves too, nor the curve
+   * buttons, which bring a curve forward or open another row's; not the page's
+   * scrollbar or a popover such as a tooltip. Captured, as pins stop the event.
+   */
+  private outside = (e: PointerEvent) => {
+    const t = e.target;
+    if (!(t instanceof Element) || this.dialog.contains(t) || t === document.documentElement) return;
+    if (t.closest('.pin-btn, .curve-btn, [popover]')) return;
+    this.dialog.close();
+  };
 
   // -------------------------------------------------------------------------
   // State
@@ -243,12 +259,13 @@ class CurveEditor {
       h(
         'header',
         { class: 'ce-head' },
-        h('h2', null, 'Curves: ', h('code', null, this.p.name)),
-        (this.title = h('span', { class: 'ce-channel' })),
+        // What is being edited first: "Hue | color.gray".
+        h('h2', null, (this.title = h('span', { class: 'ce-channel' })), h('span', { class: 'ce-sep', 'aria-hidden': 'true' }, ' | '), h('code', null, this.p.name)),
         h('span', { class: 'meta' }, 'Live on the row'),
         h('span', { class: 'spacer' }),
         xButton('Revert and close', close, CURVE_TIP.revert),
       ),
+      this.impact,
       h(
         'p',
         { class: 'meta' },
@@ -273,8 +290,7 @@ class CurveEditor {
       ),
       this.notes,
       this.mappedNote,
-      this.others.length ? collapsible({ class: 'ce-more', summary: 'Apply to more palettes', content: this.batchBox }) : '',
-      collapsible({ class: 'ce-more', summary: 'Semantic tokens affected', content: this.impact }),
+      this.others.length ? this.batchBox : '',
       h(
         'footer',
         { class: 'ce-foot' },
@@ -597,38 +613,20 @@ class CurveEditor {
     paintAll(this.dialog);
   }
 
+  /** One checkbox: the same curves on every other included palette, each from its own anchor. Off by default. */
   private batchControls() {
-    const mode = (value: CurveState['lightness'], label: string, tip: string) => {
-      const r = h('input', { type: 'radio', name: 'ce-lightness', value, checked: this.s.lightness === value });
-      r.addEventListener('change', () => this.set({ ...this.s, lightness: value }, true));
-      return h('label', { 'data-tip': tip }, r, ` ${label}`);
-    };
-    return h(
-      'div',
-      null,
-      h(
-        'div',
-        { class: 'ce-inline' },
-        h('span', { class: 'meta' }, 'Lightness: '),
-        mode('match', 'same as this palette at each step (equal contrast across palettes)', CURVE_TIP.match),
-        mode('relative', 'shifted with each palette’s own anchor', CURVE_TIP.relative),
-      ),
-      h('p', { class: 'meta' }, 'Chroma scales and hue turns with each palette’s own anchor color.'),
-      h(
-        'ul',
-        { class: 'ce-batch-list' },
-        this.others.map((o) => {
-          const box = h('input', { type: 'checkbox', checked: this.s.batch.includes(o.id) });
-          box.addEventListener('change', () =>
-            this.set({ ...this.s, batch: box.checked ? [...this.s.batch, o.id] : this.s.batch.filter((id) => id !== o.id) }, true),
-          );
-          return h('li', null, h('label', null, box, ' ', h('code', null, o.name)));
-        }),
-      ),
-    );
+    const all = this.others.length > 0 && this.others.every((o) => this.s.batch.includes(o.id));
+    const box = h('input', { type: 'checkbox', checked: all });
+    box.addEventListener('change', () => this.set({ ...this.s, batch: box.checked ? this.others.map((o) => o.id) : [] }, true));
+    return h('label', { class: 'ce-all', 'data-tip': CURVE_TIP.applyAll }, box, ' Apply to all palettes');
   }
 
-  /** Semantic (alias) tokens, in every theme, whose base color this edit changes. */
+  /**
+   * Who this edit reaches, counted under the headline: the semantic tokens
+   * built on the base colors that change (in any theme), and the component
+   * tokens that point at those base colors directly, past the semantic tier.
+   * Each count opens to the tokens it counts.
+   */
   private semanticImpact(g: ReturnType<CurveEditor['generated']>) {
     const changed = new Map<string, { before: ColorInfo; after: ColorInfo }>();
     const record = (p: Palette, gen: GenStep[]) =>
@@ -638,45 +636,68 @@ class CurveEditor {
       });
     record(this.p, g.source);
     for (const b of g.batch) record(b.palette, b.gen);
-    if (!changed.size) return h('p', { class: 'meta' }, 'No base colors change yet.');
+    if (!changed.size) return h('p', { class: 'meta ce-impact-none' }, 'No base colors change yet, so no tokens are affected.');
 
     const state = store.get();
     const models = state.themeModels.length ? state.themeModels.map((m) => ({ name: m.theme.name, model: m.model })) : allModels(state).map((model) => ({ name: '', model }));
-    const hits = new Map<string, { base: string; themes: string[] }>();
+    type Hit = { base: string; themes: string[]; component?: string };
+    const semantic = new Map<string, Hit>();
+    const component = new Map<string, Hit>();
     for (const { name, model } of models) {
+      const tiers = tiersOf(model);
       for (const t of model.tokens.values()) {
         if (!t.aliasOf || t.extendedFrom) continue;
-        const base = rootOf(model, t.id);
+        const tier = tiers.get(t.id);
+        // Semantic tokens at any depth; component tokens only where they skip the semantic tier.
+        const base = tier === 'semantic' ? rootOf(model, t.id) : tier === 'component' && changed.has(t.aliasOf) ? t.aliasOf : undefined;
         if (!base || !changed.has(base)) continue;
-        const hit = hits.get(t.id) ?? { base, themes: [] };
+        const into = tier === 'semantic' ? semantic : component;
+        const hit = into.get(t.id) ?? { base, themes: [], component: tier === 'component' ? componentOf(t) : undefined };
         if (name) hit.themes.push(name);
-        hits.set(t.id, hit);
+        into.set(t.id, hit);
       }
     }
-    const list = [...hits].slice(0, 40);
+    const item = ([id, hit]: [string, Hit]) => {
+      const c = changed.get(hit.base)!;
+      return h(
+        'li',
+        null,
+        h('span', { class: 'mini' }, swatchCanvas(c.before, this.shown)),
+        '→',
+        h('span', { class: 'mini' }, swatchCanvas(c.after, this.shown)),
+        h('code', null, id),
+        h('span', { class: 'meta' }, ` via ${hit.base}${hit.themes.length && hit.themes.length < models.length ? ` (${hit.themes.join(', ')})` : ''}`),
+      );
+    };
+    const list = (hits: [string, Hit][]) => {
+      const shown = hits.slice(0, 40);
+      return [h('ul', { class: 'ce-impact-list' }, shown.map(item)), hits.length > shown.length ? h('p', { class: 'meta' }, `…and ${hits.length - shown.length} more.`) : null];
+    };
+    const row = (key: string, summary: Child, content: () => Child) =>
+      collapsible({ key: `curve-impact:${key}`, class: 'ce-impact-row', summary, content, onToggle: (open) => open && requestAnimationFrame(() => paintAll(this.impact)) });
+
+    const byComponent = new Map<string, [string, Hit][]>();
+    for (const e of component) byComponent.set(e[1].component!, [...(byComponent.get(e[1].component!) ?? []), e]);
+    const names = [...byComponent.keys()].sort((a, b) => a.localeCompare(b));
     return h(
       'div',
       null,
-      h('p', { class: 'meta' }, `${plural(changed.size, 'base color')} change, affecting ${plural(hits.size, 'semantic token')}.`),
-      list.length
-        ? h(
-            'ul',
-            { class: 'ce-impact-list' },
-            list.map(([id, hit]) => {
-              const c = changed.get(hit.base)!;
-              return h(
-                'li',
-                null,
-                h('span', { class: 'mini' }, swatchCanvas(c.before, this.shown)),
-                '→',
-                h('span', { class: 'mini' }, swatchCanvas(c.after, this.shown)),
-                h('code', null, id),
-                h('span', { class: 'meta' }, ` via ${hit.base}${hit.themes.length && hit.themes.length < models.length ? ` (${hit.themes.join(', ')})` : ''}`),
-              );
-            }),
+      h('p', { class: 'meta' }, `${plural(changed.size, 'base color')} change.`),
+      semantic.size
+        ? row('semantic', h('span', null, h('strong', null, plural(semantic.size, 'semantic token')), ' affected'), () => list([...semantic]))
+        : h('p', { class: 'ce-impact-zero' }, 'No semantic tokens affected.'),
+      component.size
+        ? row(
+            'component',
+            h('span', null, h('strong', null, plural(component.size, 'component token')), ` in ${plural(names.length, 'component')} use these base colors directly`),
+            () =>
+              h(
+                'ul',
+                { class: 'ce-impact-components' },
+                names.map((n) => h('li', null, h('span', { class: 'ce-component' }, h('code', null, n), h('span', { class: 'meta' }, ` ${plural(byComponent.get(n)!.length, 'token')}`)), list(byComponent.get(n)!))),
+              ),
           )
         : null,
-      hits.size > list.length ? h('p', { class: 'meta' }, `…and ${hits.size - list.length} more.`) : null,
     );
   }
 }

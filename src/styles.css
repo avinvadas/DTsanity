@@ -115,6 +115,8 @@
   --accent: var(--ref-tone-800);
   --accent-soft: var(--ref-tone-200);
   --on-accent: var(--ref-tone-0);
+  /* The checkbox tick, in --on-accent (a data URI can't read a variable). */
+  --check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23edebe4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   /* Blue is kept for graphics only (curve editor lines and points). */
   --graphic-accent: var(--ref-blue-500);
   --ok: var(--ref-green-600);
@@ -206,6 +208,7 @@
     --accent: var(--ref-tone-0);
     --accent-soft: var(--ref-tone-750);
     --on-accent: var(--ref-tone-850);
+    --check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%231f2122' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     --graphic-accent: var(--ref-blue-300);
     --ok: var(--ref-green-300);
     --ok-soft: var(--ref-green-900);
@@ -294,6 +297,11 @@ input, select {
 }
 /* 18px with room around it: a 24px target by WCAG 2.5.8's spacing rule. */
 input[type='checkbox'], input[type='radio'] { width: 18px; height: 18px; margin: 3px; accent-color: var(--accent); }
+/* Drawn here rather than by the browser, so an empty box shows what is behind it. */
+input[type='checkbox'] { appearance: none; flex: none; padding: 0; border: 1.5px solid var(--border-strong); border-radius: 4px; background: transparent center / 14px no-repeat; cursor: pointer; vertical-align: middle; }
+input[type='checkbox']:hover:not(:disabled) { border-color: var(--text-soft); }
+input[type='checkbox']:checked { background-color: var(--accent); background-image: var(--check-mark); border-color: var(--accent); }
+input[type='checkbox']:disabled { opacity: 0.45; cursor: default; }
 input::placeholder { color: var(--subtle); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
@@ -738,21 +746,23 @@ dialog.files-dialog .url-form { width: 100%; }
 /* Downloads and the remove ✕ sit together at the end of each file's row. */
 tt-files .file .badge + button { margin-left: auto; }
 
-.issue-groups { display: flex; flex-direction: column; gap: var(--space-5); }
-.group-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
-.group-head h3 { display: flex; align-items: center; gap: var(--space-2); }
-.group-head h3:focus { outline: none; }
-.group-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+/* The sections stack like the tier views' collapsible rows: a heading line, a separator below. */
+.issue-groups { display: flex; flex-direction: column; }
+.issue-tools { margin-bottom: var(--space-1); }
+.issue-group > .cl-summary .cl-label, .issue-subgroup > .cl-summary .cl-label { flex: 1; justify-content: space-between; }
+.issue-group h3 { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
+.issue-group h3:focus { outline: none; }
+.group-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; cursor: auto; }
 /* The way to the view where a section's findings are worked on. */
 .group-link { font-size: var(--font-sm); font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
 .group-link:hover { color: var(--muted); }
-.issue-group { scroll-margin-top: var(--space-4); }
-.group-head .n, .subgroup-head .n { font-size: var(--font-xs); font-weight: 600; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 0 7px; }
-/* Inside Format: one subsection per category (File format, Structure, References…), a step below the four sections. */
-.issue-subgroups { display: flex; flex-direction: column; gap: var(--space-4); }
-.issue-subgroup { scroll-margin-top: var(--space-4); }
-.subgroup-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
-.subgroup-head h5 { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-sm); font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.issue-group, .issue-subgroup { scroll-margin-top: var(--space-4); }
+.issue-group .n { font-size: var(--font-xs); font-weight: 600; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 0 7px; }
+/* Inside Format: one subsection per category (File format, Structure, References…), a step below the sections. */
+.issue-subgroups { display: flex; flex-direction: column; gap: var(--space-3); }
+.cl.issue-subgroup > .cl-summary { min-height: 28px; width: auto; }
+.issue-subgroup[open] > .cl-summary { margin-bottom: var(--space-2); }
+.issue-subgroup h5 { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-sm); font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
 .group-note { margin: 0 0 var(--space-2); font-size: var(--font-sm); color: var(--muted); }
 /* Group actions, applying fixes or copying the fix prompt: secondary buttons of one size, aligned right with the icon trailing. */
 button.fix-all, button.prompt-btn { display: inline-flex; align-items: center; gap: var(--space-1); }
@@ -1082,6 +1092,16 @@ dialog.curve-editor[data-side='above']::before { bottom: -7px; border-left: 0; b
 .ce-curves .ce-curve { margin-top: var(--space-2); }
 .ce-channel { font-weight: 600; font-size: var(--font-md); }
 .ce-more { margin-top: var(--space-3); font-size: var(--font-sm); }
+.ce-sep { color: var(--muted); font-weight: 400; }
+/* Who the edit reaches, under the headline: one count per row, opening to the tokens. */
+.ce-impact { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); margin-bottom: var(--space-2); font-size: var(--font-sm); }
+.ce-impact > div { display: flex; flex-direction: column; gap: 2px; }
+.ce-impact p { margin: 0; }
+.cl.ce-impact-row > .cl-summary { color: var(--text); font-size: var(--font-sm); }
+.ce-impact-zero { color: var(--muted); padding-left: calc(14px + var(--space-2)); }
+.ce-impact-components { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.ce-impact-components .ce-impact-list { margin-top: 2px; }
+.ce-all { display: inline-flex; align-items: center; gap: var(--space-1); margin-top: var(--space-3); font-size: var(--font-sm); }
 .ce-mapped:empty { display: none; }
 dialog.curve-editor section { margin-top: var(--space-4); }
 dialog.curve-editor h3 { margin: 0 0 6px; }
@@ -1128,8 +1148,6 @@ dialog.curve-editor .meta { font-size: var(--font-sm); margin-top: 6px; margin-b
 .curve-readout { position: absolute; top: 6px; right: 10px; font-family: var(--mono); font-size: var(--font-xs); color: var(--muted); }
 .ce-notes:empty { display: none; }
 dialog.curve-editor .ok { font-size: var(--font-sm); margin: var(--space-1) 0; }
-.ce-batch-list { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
-.ce-batch-list > li > label { font-weight: 600; }
 .ce-impact-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-sm); }
 .ce-impact-list li { display: flex; align-items: center; gap: 6px; }
 .mini { display: inline-block; width: 22px; }
