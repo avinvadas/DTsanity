@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { fixPrompt } from '../src/io/prompt';
 import { addFiles, clearAll, setLoadErrors, store } from '../src/state/app';
 import { loadFixture, loadText } from './helpers';
+import { findings, findingTotal } from '../src/ui/findings';
+import { copiedLabel } from '../src/ui/prompt-link';
 
 beforeEach(() => clearAll());
 
@@ -25,6 +27,29 @@ describe('fix prompt', () => {
     const { text } = fixPrompt(store.get());
     expect(text).toContain('## Contrast (1)');
     expect(text).toMatch(/`color\.text\.default` on `color\.bg\.default` \(text\): below AA text \(4\.5\), has \d/);
+  });
+
+  it('lists a pair that fails in several themes once, naming each theme, as the page counts it', () => {
+    const base = (hi: number, lo: number) => JSON.stringify({ color: { $type: 'color', gray: { 100: ok(hi), 300: ok(lo) } } });
+    addFiles([
+      loadText(base(0.95, 0.85), 'light.tokens.json'),
+      loadText(base(0.2, 0.3), 'dark.tokens.json'),
+      loadText(JSON.stringify({ color: { $type: 'color', bg: { default: { $value: '{color.gray.100}' } }, text: { default: { $value: '{color.gray.300}' } } } }), 'semantic.tokens.json'),
+    ]);
+    expect(store.get().themes.length).toBe(2);
+    const p = fixPrompt(store.get());
+    expect(p.text).toContain('## Contrast (1)');
+    const lines = p.text.split('\n').filter((l) => l.startsWith('- `color.text.default` on `color.bg.default`'));
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/: below AA text \(4\.5\) in (light|dark) \(has [^)]+\) and (dark|light) \(has [^)]+\)\.$/);
+    expect(p.count).toBe(findingTotal(findings(store.get())));
+  });
+
+  it('says what it copied in the page’s units, with the rest apart', () => {
+    expect(copiedLabel({ text: 'x', count: 591, more: 78 })).toBe('Copied 591 corrections, plus 78 other findings');
+    expect(copiedLabel({ text: 'x', count: 1, more: 0 })).toBe('Copied 1 correction');
+    expect(copiedLabel({ text: 'x', count: 0, more: 2 })).toBe('Copied 2 other findings');
+    expect(copiedLabel({ text: '', count: 0, more: 0 }, 'Nothing to fix')).toBe('Nothing to fix');
   });
 
   it('states only the rules that apply to what it lists', () => {
@@ -98,14 +123,15 @@ describe('fix prompt', () => {
     // Nothing in them was checked, so they come before every other correction.
     expect(all.indexOf("## Files that couldn't be read")).toBeLessThan(all.indexOf('## Typography'));
     expect(all.indexOf("## Files that couldn't be read")).toBeLessThan(all.indexOf('## Warnings') === -1 ? Infinity : all.indexOf('## Warnings'));
-    expect(fixPrompt(store.get(), { typography: true }).count).toBe(1);
-    expect(fixPrompt(store.get(), { files: true }).count).toBe(1);
+    // Not counted on the Issues page, so counted apart.
+    expect(fixPrompt(store.get(), { typography: true })).toMatchObject({ count: 0, more: 1 });
+    expect(fixPrompt(store.get(), { files: true })).toMatchObject({ count: 0, more: 1 });
   });
 
   it('is empty when every check passes', () => {
     addFiles([loadText(JSON.stringify({ color: { $type: 'color', $description: 'Base', white: { ...ok(1, 0, 0), $description: 'White' } } }), 'primitives.tokens.json')]);
     const p = fixPrompt(store.get());
-    if (p.count) console.log(p.text);
-    expect(p).toEqual({ text: '', count: 0 });
+    if (p.count + p.more) console.log(p.text);
+    expect(p).toEqual({ text: '', count: 0, more: 0 });
   });
 });

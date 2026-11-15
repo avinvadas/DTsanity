@@ -21,8 +21,14 @@ import { allModels } from '../state/app';
 
 export interface FixPrompt {
   text: string;
-  /** Corrections listed (required and optional), 0 when there is nothing to fix. */
+  /**
+   * Corrections listed, counted as the Issues page counts them (an issue, a
+   * pair, a status group: once, however many themes it is in); 0 when there
+   * is nothing to fix.
+   */
   count: number;
+  /** What else it lists, which the Issues count leaves out: files that couldn't be read, typography and color-scale checks, suggestions. */
+  more: number;
 }
 
 /**
@@ -51,7 +57,6 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   // Issues from every theme, not just the one on screen.
   const model = s.themeModels.length ? mergeModels(s.themeModels) : s.model;
   const themeNames = s.themeModels.map((m) => m.theme.name);
-  const inTheme = (i: number) => (themeNames[i] ? ` in ${themeNames[i]}` : '');
   const fileName = new Map(s.files.map((f) => [f.id, f.name]));
   const pairs = pairsOf(s);
   const palettes = palettesOf(s).palettes.filter((p) => p.included);
@@ -67,19 +72,22 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const listed = new Set<PromptRule['when']>(['always']);
   const optional: string[] = [];
   let count = 0;
+  let more = 0;
   // An item is one line; a line that stands for several findings of one rule says how many.
   type Item = string | { line: string; n: number };
-  const section = (into: string[], title: string, items: Item[]) => {
+  /** A section of the prompt; `counted` when the Issues page counts its findings too. */
+  const section = (into: string[], title: string, items: Item[], counted = true) => {
     if (!items.length) return;
     const n = items.reduce((sum, x) => sum + (typeof x === 'string' ? 1 : x.n), 0);
-    count += n;
+    if (counted) count += n;
+    else more += n;
     into.push(`## ${title} (${n})`, '', ...items.map((x) => `- ${typeof x === 'string' ? x : x.line}`), '');
   };
 
   // Files that couldn't be read: they come first, since nothing in them was checked.
   const unread = !scope || scope.files ? s.loadErrors : [];
   if (unread.length) listed.add('files');
-  section(required, "Files that couldn't be read", unread.map((e) => `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`));
+  section(required, "Files that couldn't be read", unread.map((e) => `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`), false);
 
   // Format, structure, references and tier rules, by file.
   // In the order the page shows them: place, title [rule], detail, fix; one line per correction to make.
@@ -148,35 +156,49 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   section(required, 'Errors', issueItems(byFile(issues.filter((i) => i.severity === 'error'))));
   section(required, 'Warnings', issueItems(byFile(issues.filter((i) => i.severity === 'warning'))));
 
-  // Contrast with typical vision: every theme a pair fails in, with its value and the levels it misses.
+  // Contrast with typical vision: one line per pair, as the page counts it, naming each level it misses
+  // and, with themes, the themes it misses it in with the value in each.
   // Findings the policy sets to info go under Suggestions with the other info-level ones.
   const counted = (tone: string | undefined) => tone !== undefined && tone !== 'info';
-  const contrastOf = (rows: typeof pairs.rows) => rows.flatMap((r) =>
-    r.seen.normal.flatMap((c, i) => {
-      if (!c || c.pass) return [];
-      const misses = c.results.filter((x) => !x.pass).map((x) => `${x.level.label}, has ${formatContrast(x.value, x.level.metric)}`);
-      return [`${code(r.pair.fg)} on ${code(r.pair.bg)} (${r.pair.kind === 'text' ? 'text' : 'UI part'})${inTheme(i)}: below ${misses.join('; ')}.`];
-    }),
-  );
+  const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+  const contrastOf = (rows: typeof pairs.rows) => rows.flatMap((r) => {
+    const byLevel = new Map<string, string[]>();
+    r.seen.normal.forEach((c, i) => {
+      if (!c || c.pass) return;
+      for (const x of c.results.filter((y) => !y.pass)) {
+        const has = formatContrast(x.value, x.level.metric);
+        byLevel.set(x.level.label, [...(byLevel.get(x.level.label) ?? []), themeNames[i] ? `${themeNames[i]} (has ${has})` : `has ${has}`]);
+      }
+    });
+    if (!byLevel.size) return [];
+    const misses = [...byLevel].map(([level, where]) => (themeNames.length ? `below ${level} in ${andList(where)}` : `below ${level}, ${where.join(', ')}`));
+    return [`${code(r.pair.fg)} on ${code(r.pair.bg)} (${r.pair.kind === 'text' ? 'text' : 'UI part'}): ${misses.join('; ')}.`];
+  });
   section(required, 'Contrast', contrastOf(rows.filter((r) => counted(r.tone))));
 
-  // Color-vision: pairs that pass with typical vision but not with a deficiency, and status colors that look alike.
-  const cvdOf = (rows: typeof pairs.rows) => rows.flatMap((r) =>
-    r.cvdFails.flatMap((v) => {
-      const label = VISIONS.find((x) => x.id === v)!.label;
-      return r.seen[v].flatMap((c, i) => (c && !c.pass ? [`${code(r.pair.fg)} on ${code(r.pair.bg)}${inTheme(i)} drops below its contrast level with ${label}.`] : []));
-    }),
-  );
-  // One line per status group and theme, naming every vision type it fails with.
-  const seenWith = (v: string) => (v === 'normal' ? 'typical vision' : VISIONS.find((x) => x.id === v)!.label);
-  const siblingsOf = (groups: typeof pairs.siblings) => groups.flatMap((g) =>
-    g.checks.flatMap((c, i) => {
+  // Color-vision: one line per pair that passes with typical vision but not with a deficiency, naming each
+  // deficiency and the themes it fails in; one per status group whose colors look alike, by theme.
+  const visionLabel = (v: string) => VISIONS.find((x) => x.id === v)!.label;
+  const cvdOf = (rows: typeof pairs.rows) => rows.flatMap((r) => {
+    const withs = r.cvdFails.flatMap((v) => {
+      const themes = r.seen[v].flatMap((c, i) => (c && !c.pass ? [themeNames[i] ?? ''] : []));
+      if (!themes.length) return [];
+      return [`${visionLabel(v)}${themes.some(Boolean) ? ` (${andList(themes.filter(Boolean))})` : ''}`];
+    });
+    return withs.length ? [`${code(r.pair.fg)} on ${code(r.pair.bg)} drops below its contrast level with ${andList(withs)}.`] : [];
+  });
+  const seenWith = (v: string) => (v === 'normal' ? 'typical vision' : visionLabel(v));
+  const siblingsOf = (groups: typeof pairs.siblings) => groups.flatMap((g) => {
+    const members = new Set<string>();
+    const parts = g.checks.flatMap((c, i) => {
       const fails = (c?.results ?? []).filter((x) => !x.pass && x.vision !== 'achroma');
       if (!fails.length) return [];
-      const members = [...new Set(fails.flatMap((x) => x.closest))];
-      return [`Status colors ${list(members)} (${code(g.group.id)})${inTheme(i)} are too close to tell apart with ${fails.map((x) => `${seenWith(x.vision)} (${x.distance.toFixed(3)})`).join(', ')}; they need a difference of at least ${s.settings.cvdDistance} (ΔE OKLab). Separate them by lightness, not only hue.`];
-    }),
-  );
+      for (const x of fails) for (const m of x.closest) members.add(m);
+      return [`${themeNames[i] ? `in ${themeNames[i]} ` : ''}with ${fails.map((x) => `${seenWith(x.vision)} (${x.distance.toFixed(3)})`).join(', ')}`];
+    });
+    if (!parts.length) return [];
+    return [`Status colors ${list([...members])} (${code(g.group.id)}) are too close to tell apart ${parts.join('; ')}; they need a difference of at least ${s.settings.cvdDistance} (ΔE OKLab). Separate them by lightness, not only hue.`];
+  });
   section(required, 'Color-vision', [...cvdOf(rows.filter((r) => counted(r.cvdTone))), ...siblingsOf(sibs.filter((g) => counted(g.tone)))]);
 
   // Typography: the range checks the tier views show, in each theme; a finding in only some themes says which.
@@ -195,11 +217,11 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   }
   const typeLines = (sevs: string[]) =>
     [...typeNotes].filter(([, e]) => sevs.includes(e.severity)).map(([message, e]) => `${message}${e.themes.length && e.themes.length < themeNames.length ? ` (${e.themes.join(', ')} only)` : ''}`);
-  section(required, 'Typography', typeLines(['error', 'warning']));
+  section(required, 'Typography', typeLines(['error', 'warning']), false);
 
   // Base color scales.
   const scale = (...sevs: string[]) => pals.flatMap((p) => p.flags.filter((f) => sevs.includes(f.severity)).map((f) => `${code(p.id)}: ${f.message}`));
-  section(required, 'Base color scales', scale('error', 'warning'));
+  section(required, 'Base color scales', scale('error', 'warning'), false);
 
   section(optional, 'Suggestions', [
     ...issueItems(byFile(issues.filter((i) => i.severity === 'info'))),
@@ -208,11 +230,11 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     ...cvdOf(rows.filter((r) => r.cvdTone === 'info')),
     ...siblingsOf(sibs.filter((g) => g.tone === 'info')),
     ...typeLines(['info']),
-  ]);
+  ], false);
   if (rows.some((r) => !r.pass || r.cvdFails.length)) listed.add('contrast');
   if (sibs.some(siblingFails)) listed.add('status');
 
-  if (!count) return { text: '', count: 0 };
+  if (!count && !more) return { text: '', count: 0, more: 0 };
   // Be clear about what DTsanity could have done itself: those lines carry "Fix:", the rest it can't fix.
   const withFix = issues.filter((i) => i.fix).length;
   const fixNote = withFix
@@ -241,7 +263,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     .filter((line, i, all) => line !== '' || all[i - 1] !== '')
     .join('\n')
     .trim();
-  return { text: `${text}\n`, count };
+  return { text: `${text}\n`, count, more };
 }
 
 /** A stable key for an issue, the same in every merge of the theme models. */

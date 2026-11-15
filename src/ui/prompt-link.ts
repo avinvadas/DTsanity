@@ -1,10 +1,21 @@
-import { fixPrompt, type PromptScope } from '../io/prompt';
+import { fixPrompt, type FixPrompt, type PromptScope } from '../io/prompt';
 import { store } from '../state/app';
 import { h, icon, plural } from './dom';
 import { TIP } from './tips';
 
 /** The label on every fix prompt button. */
 export const COPY_PROMPT = 'Copy the fix prompt';
+
+/**
+ * What a copy put on the clipboard, in the units the Issues page counts
+ * ("591 corrections"), with what else the prompt lists named apart, so the
+ * two numbers can always be checked against each other.
+ */
+export function copiedLabel({ count, more }: FixPrompt, empty = 'Nothing to copy'): string {
+  if (!count && !more) return empty;
+  const others = more ? plural(more, 'other finding') : '';
+  return count ? `Copied ${plural(count, 'correction')}${others ? `, plus ${others}` : ''}` : `Copied ${others}`;
+}
 
 /**
  * A secondary button that copies the fix prompt, for the group of findings it
@@ -21,10 +32,10 @@ export function promptButton(scope?: PromptScope): HTMLButtonElement {
       class: 'small prompt-btn',
       'data-tip': scope ? TIP.copyScopedPrompt : TIP.copyFixPrompt,
       onclick: async () => {
-        const { text: prompt, count } = fixPrompt(store.get(), scope);
+        const p = fixPrompt(store.get(), scope);
         try {
-          await navigator.clipboard.writeText(prompt || 'No corrections needed: every check passes.');
-          label.textContent = count ? `Copied ${plural(count, 'correction')}` : 'Nothing to copy';
+          await navigator.clipboard.writeText(p.text || 'No corrections needed: every check passes.');
+          label.textContent = copiedLabel(p);
         } catch {
           label.textContent = 'Copy failed';
         }

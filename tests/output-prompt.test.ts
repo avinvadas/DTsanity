@@ -3,7 +3,7 @@ import { getIn, parseJson } from '../src/json/cst';
 import { fixPrompt, issuesScope, pairsScope, type PromptScope } from '../src/io/prompt';
 import type { Issue } from '../src/model/types';
 import { addFiles, allModels, clearAll, store, updateSettings } from '../src/state/app';
-import { findings } from '../src/ui/findings';
+import { findings, findingTotal } from '../src/ui/findings';
 import { issuesOf, parse, SETS, SETTINGS, setTexts } from './oracle/samples';
 
 /**
@@ -53,8 +53,9 @@ function groups(): { name: string; scope: PromptScope; size: number }[] {
     clusters.set(key, [...(clusters.get(key) ?? []), i]);
   }
   for (const [name, issues] of clusters) out.push({ name, scope: issuesScope(issues), size: issues.length });
-  if (f.contrast.length) out.push({ name: 'Contrast', scope: pairsScope(f.contrast), size: -1 });
-  if (f.vision.length + f.groups.length) out.push({ name: 'Color blindness', scope: pairsScope(f.vision, f.groups), size: -1 });
+  // A pair or status group counts once, however many themes it fails in, as on the page.
+  if (f.contrast.length) out.push({ name: 'Contrast', scope: pairsScope(f.contrast), size: f.contrast.length });
+  if (f.vision.length + f.groups.length) out.push({ name: 'Color blindness', scope: pairsScope(f.vision, f.groups), size: f.vision.length + f.groups.length });
   out.push({ name: 'Typography', scope: { typography: true }, size: -1 }, { name: 'Scales', scope: { scales: true }, size: -1 }, { name: 'Files', scope: { files: true }, size: -1 });
   return out;
 }
@@ -71,7 +72,9 @@ describe.each(SETS)('fix prompt: %s', (set) => {
       const full = fixPrompt(s);
       const listed = items(full.text);
       const inFull = new Set(listed);
-      expect(findingsIn(listed), 'the count is the number of findings listed').toBe(full.count);
+      expect(findingsIn(listed), 'the counts add up to the findings listed').toBe(full.count + full.more);
+      // The button says what the page says: "Copied 591 corrections" under "591 issues found".
+      expect(full.count, 'counted as the Issues page counts').toBe(findingTotal(findings(s)));
 
       // B1: every issue once, by its rule.
       const all = issuesOf(s);
@@ -92,18 +95,18 @@ describe.each(SETS)('fix prompt: %s', (set) => {
       for (const g of groups()) {
         const p = fixPrompt(s, g.scope);
         const mine = items(p.text);
-        expect(findingsIn(mine), `${g.name}: count`).toBe(p.count);
-        if (g.size >= 0) expect(p.count, `${g.name}: one line per issue`).toBe(g.size);
+        expect(findingsIn(mine), `${g.name}: count`).toBe(p.count + p.more);
+        if (g.size >= 0) expect(p.count + p.more, `${g.name}: one per finding, as the page counts`).toBe(g.size);
         for (const line of mine) {
           if (owner.has(line)) overlaps.push(`${line.slice(0, 100)} (in ${owner.get(line)} and ${g.name})`);
           owner.set(line, g.name);
           if (!inFull.has(line)) expect.fail(`${g.name}: ${line.slice(0, 80)} is not in the full prompt`);
         }
-        total += p.count;
+        total += p.count + p.more;
       }
       expect(overlaps.slice(0, 5), 'no correction is in two groups').toEqual([]);
       const fixable = all.filter((i) => i.fix).length;
-      expect(total, 'the groups add up to the full prompt, less one-click fixes').toBe(full.count - fixable);
+      expect(total, 'the groups add up to the full prompt, less one-click fixes').toBe(full.count + full.more - fixable);
 
       // B2: each issue's place: a loaded file, a line that holds the key, a token or group that exists.
       const files = new Map(s.files.map((f) => [f.id, f]));
@@ -144,7 +147,7 @@ describe.each(SETS)('fix prompt: %s', (set) => {
 
       if (process.env.SAMPLES_REPORT) {
         const chars = full.text.length;
-        console.log(`\n${set}: fix prompt ${full.count} findings on ${listed.length} lines, ${chars} characters (~${Math.round(chars / 4)} tokens)`);
+        console.log(`\n${set}: fix prompt ${full.count} corrections + ${full.more} others on ${listed.length} lines, ${chars} characters (~${Math.round(chars / 4)} tokens)`);
       }
     },
     T,
