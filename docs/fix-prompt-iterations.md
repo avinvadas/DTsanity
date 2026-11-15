@@ -134,9 +134,53 @@ which the system fixes once in its generator:
 The prompt should name the cause once per pattern, with its places, so the
 system can fix it at the source rather than token by token.
 
-**Next, after review:**
-- Fix the five misreadings, each with a fixture.
-- Re-run the audit, so no sample's count rises without a reason.
+### Misreadings fixed (2026-11-15)
+
+Each fix has a fixture test:
+- **Files that define the same tokens are themes.** SAP's four files become
+  four themes, and its 18,511 false duplicates go. Each file's own findings
+  now count once per file: they were hidden behind the file that won.
+- **Values by mode written in the token are read as themes** (legacy formats
+  accepted). This covers `"$value": {"light", "dark"}` and Spectrum's
+  `"sets"`. Only maps whose keys all name a mode count, so states
+  (`default`/`disabled`) and densities (`comfortable`/`compact`) don't.
+  - One finding per file says this isn't DTCG (`value-per-mode`).
+  - Spectrum loses 329 false references to groups and 777 false "neither
+    token nor group" findings. GitLab loses 321 per-mode maps that had been
+    read as broken colors.
+  - Contrast is now checked in GitLab's themes.
+- **A name's role is its last role word** (`button.outline.bgColor` is a
+  background). Only that word leaves the pairing key, so the outline button's
+  text pairs with the outline button's background.
+- **Borders are checked on the default backgrounds**, never on the fill they
+  surround.
+- **Disabled and inactive pairs are listed, not counted.** The new policy
+  rule `contrast-inactive` defaults to info, and the user can raise it. The
+  prompt leaves info-level pairs out, as the Issues page does.
+
+Two related fixes came out of the tests:
+- A number named as a weight gets the type `fontWeight`, not `number`.
+- Export to a Style Dictionary file writes `{a.b.value}` only if the file did.
+
+| Set | Before | After | Themes |
+|---|---|---|---|
+| Atlassian | 2,078 | 2,001 | 4 |
+| Backpack | 157 | 155 | 0 |
+| Carbon | 49 | 40 | 4 |
+| Cloudscape | 5,140 | 5,141 | 0 → 2 |
+| Designsystemet | 596 | 596 | 12 |
+| GitLab | 495 | 396 | 0 → 2 |
+| Open Props | 718 | 718 | 0 |
+| Primer | 613 | 531 | 5 |
+| SAP Horizon | 30,633 | 28,595 | 0 → 4 |
+| Spectrum | 4,443 | 2,878 | 0 → 3 |
+
+**Still open:**
+- Atlassian's borders go unchecked. Its names carry the theme
+  (`tokens.Dark/color.…`), so no background reads as the default.
+- Cloudscape's contrast is still unchecked: none of its tokens has a type, so
+  none is read as a color.
+- Borders on the page background are conditional (step 2: Advice).
 
 ## Step 2. Sort every rule: requirement or advice
 

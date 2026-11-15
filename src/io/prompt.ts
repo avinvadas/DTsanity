@@ -158,7 +158,6 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
 
   // Contrast with typical vision: one line per pair, as the page counts it, naming each level it misses
   // and, with themes, the themes it misses it in with the value in each.
-  // Findings the policy sets to info go under Suggestions with the other info-level ones.
   const counted = (tone: string | undefined) => tone !== undefined && tone !== 'info';
   const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
   const contrastOf = (rows: typeof pairs.rows) => rows.flatMap((r) => {
@@ -226,9 +225,8 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   section(optional, 'Suggestions', [
     ...issueItems(byFile(issues.filter((i) => i.severity === 'info'))),
     ...scale('info'),
-    ...contrastOf(rows.filter((r) => r.tone === 'info')),
-    ...cvdOf(rows.filter((r) => r.cvdTone === 'info')),
-    ...siblingsOf(sibs.filter((g) => g.tone === 'info')),
+    // Pairs the policy sets to info (a disabled pair, which WCAG asks for no contrast) aren't on the Issues page,
+    // only in the tier views; the prompt lists what the page lists.
     ...typeLines(['info']),
   ], false);
   if (rows.some((r) => !r.pass || r.cvdFails.length)) listed.add('contrast');

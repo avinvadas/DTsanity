@@ -21,7 +21,8 @@ import { lineDiff, readDoc, strayLines, unzip, valueChanges } from './oracle/tex
  * Set SAMPLES_REPORT=1 to print, per set, the changed files, values and lines.
  */
 
-const T = 120_000;
+// Cloudscape, read per mode, has thousands of fixes; diffing its one large file takes minutes.
+const T = 400_000;
 const json5 = (f: SourceFile) => f.syntax === 'json5';
 const editFixes = (s = store.get()): Fix[] => issuesOf(s).flatMap((i) => (i.fix && 'edits' in i.fix ? [i.fix] : []));
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { colorInfo } from '../src/color/format';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, NO_PAIR_EDITS, over, pairId, pointColor, realias } from '../src/semantic/pairs';
+import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, isInactive, NO_PAIR_EDITS, over, pairId, pointColor, realias } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -28,6 +28,23 @@ describe('pair detection', () => {
       'color.fg.default on color.bg.default',
       'color.fg on color.bg',
     ]);
+  });
+
+  it('reads a name by its last role word: what comes before names what it belongs to', () => {
+    const pairs = detectPairs(['bgColor.default', 'button.default.bgColor.rest', 'button.outline.bgColor.rest', 'button.outline.fgColor.rest']);
+    // The outline button's background is a background, and its text sits on it, not on the default button.
+    expect(ids(pairs)).toEqual(['button.outline.fgColor.rest on button.outline.bgColor.rest']);
+    expect(pairs[0]!.kind).toBe('text');
+  });
+
+  it('checks a border on what surrounds its shape, never on the fill it surrounds (WCAG 1.4.11)', () => {
+    expect(ids(detectPairs(['bg.default', 'card.bg', 'card.border', 'card.text']))).toEqual(['card.border on bg.default', 'card.text on card.bg']);
+  });
+
+  it('tells disabled and inactive pairs apart: WCAG asks them for no contrast', () => {
+    expect(isInactive({ fg: 'button.fgColor.disabled', bg: 'button.bgColor.disabled' })).toBe(true);
+    expect(isInactive({ fg: 'tab.text.inactive', bg: 'bg.default' })).toBe(true);
+    expect(isInactive({ fg: 'button.fgColor.rest', bg: 'button.bgColor.rest' })).toBe(false);
   });
 
   it('reads hyphenated and camelCase names', () => {

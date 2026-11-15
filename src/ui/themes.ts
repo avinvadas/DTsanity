@@ -19,6 +19,7 @@ const SOURCE: Record<ThemeSource, string> = {
   resolver: 'Read from the DTCG resolver file: each theme reads its files in the resolver’s order, later files overriding earlier ones.',
   'tokens-studio': 'Read from the Tokens Studio themes in your files.',
   'file-names': 'Detected from file names. Files without a theme word are shared by every theme.',
+  'same-tokens': 'Detected from files that define the same tokens: each is one version of the set. Other files are shared by every theme.',
   modes: 'Read from per-mode values in “$extensions”.',
   manual: 'Set up by you.',
 };

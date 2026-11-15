@@ -1,5 +1,5 @@
 import { VISIONS, type Vision } from '../color/cvd';
-import { applyPairEdits, checkPair, colorTokenIds, detectPairs, type Pair, type PairCheck } from '../semantic/pairs';
+import { applyPairEdits, checkPair, colorTokenIds, detectPairs, isInactive, type Pair, type PairCheck } from '../semantic/pairs';
 import { checkSiblings, detectSiblings, type SiblingCheck, type SiblingGroup } from '../semantic/siblings';
 import { componentOf, tiersOf, type Tier } from '../model/tiers';
 import { severityOf } from '../policy/rules';
@@ -73,7 +73,7 @@ export function pairsOf(s: AppState): PairsResult {
   const rows = pairs.map((pair) => {
     // Each theme at its own level: enhanced for a high-contrast theme.
     const seen = Object.fromEntries(VISIONS.map(({ id }) => [id, models.map((m, i) => checkPair(pair, m, s.settings.contrast, id, s.themeModels[i]?.theme.contrast))])) as PairRow['seen'];
-    const level = severityOf(policy, pair.kind === 'text' ? 'contrast-text' : 'contrast-ui');
+    const level = severityOf(policy, isInactive(pair) ? 'contrast-inactive' : pair.kind === 'text' ? 'contrast-text' : 'contrast-ui');
     const measured = passes(seen.normal);
     // A check the policy turns off doesn't fail.
     const pass = measured || !level;

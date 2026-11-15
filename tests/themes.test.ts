@@ -17,6 +17,7 @@ import {
 } from '../src/state/app';
 import { exportText } from '../src/io/export';
 import { detectThemes } from '../src/themes/detect';
+import { isLoadError, parseSource } from '../src/io/load';
 import { loadFixture, loadText } from './helpers';
 
 const S = DEFAULT_SETTINGS;
@@ -333,4 +334,91 @@ describe('theme variants and per-theme overrides (Primer)', () => {
     expect(applyFixes(fixes)).toBe(2);
     expect(store.get().themeModels.flatMap((m) => m.model.issues).filter((i) => i.code === 'legacy-value')).toEqual([]);
   });
+});
+
+describe('files that define the same tokens', () => {
+  const set = (hue: number, extra: Record<string, unknown> = {}) => {
+    const scale: Record<string, unknown> = {};
+    for (let i = 0; i < 12; i++) scale[i] = { $value: { colorSpace: 'oklch', components: [i / 12, 0.1, hue] } };
+    return JSON.stringify({ color: { $type: 'color', scale, ...extra } });
+  };
+  const semantic = JSON.stringify({ text: { $type: 'color', default: { $value: '{color.scale.11}' } } });
+
+  it('reads each as a theme, named by what its name adds, with the other files shared', () => {
+    clearAll();
+    addFiles([loadText(set(250), 'brand.json'), loadText(set(30), 'brand_dark.json'), loadText(set(90, { extra: { $value: { colorSpace: 'srgb', components: [0, 0, 0] } } }), 'brand_hcb.json'), loadText(semantic, 'semantic.json')]);
+    const s = store.get();
+    const names = new Map(s.files.map((f) => [f.id, f.name]));
+    expect(s.themes.map((t) => [t.name, t.source, t.contrast, t.fileIds.map((id) => names.get(id))])).toEqual([
+      ['brand', 'same-tokens', undefined, ['semantic.json', 'brand.json']],
+      ['dark', 'same-tokens', undefined, ['semantic.json', 'brand_dark.json']],
+      ['hcb', 'same-tokens', 'enhanced', ['semantic.json', 'brand_hcb.json']],
+    ]);
+    // Each version is read on its own: none of its tokens is "defined twice".
+    expect(codes().filter((c) => c.startsWith('duplicate-path'))).toEqual([]);
+  });
+
+  it('leaves files that split one set (different tokens) as one set', () => {
+    const half = (from: number) => {
+      const scale: Record<string, unknown> = {};
+      for (let i = from; i < from + 12; i++) scale[i] = { $value: { colorSpace: 'oklch', components: [0.5, 0.1, i] } };
+      return JSON.stringify({ color: { $type: 'color', scale } });
+    };
+    expect(detectThemes([loadText(half(0), 'a.json'), loadText(half(12), 'b.json')], S)).toEqual([]);
+  });
+
+  it('leaves a file that overrides a few tokens of another one to load over it', () => {
+    const few = JSON.stringify({ color: { $type: 'color', scale: { 0: { $value: { colorSpace: 'srgb', components: [1, 0, 0] } } } } });
+    expect(detectThemes([loadText(set(250), 'brand.json'), loadText(few, 'brand_tweaks.json')], S)).toEqual([]);
+  });
+});
+
+describe('values by mode written in the token', () => {
+  const legacy = { ...S, acceptLegacy: true };
+  const hex = (h: string) => ({ colorSpace: 'srgb', components: [0, 0, 0], hex: h });
+
+  it('reads `"$value": { "light", "dark" }` as themes, with one finding for the file', () => {
+    const text = JSON.stringify({
+      color: {
+        $type: 'color',
+        a: { $value: { light: hex('#ffffff'), dark: hex('#000000') } },
+        b: { $value: { light: hex('#eeeeee'), dark: hex('#111111') } },
+        // A map of states isn't a map of modes.
+        c: { $value: { default: hex('#ffffff'), disabled: hex('#cccccc') } },
+      },
+    });
+    clearAll();
+    store.set({ ...store.get(), settings: legacy });
+    addFiles([loadText(text, 'set.tokens.json')]);
+    const s = store.get();
+    expect(s.themes.map((t) => [t.name, t.source])).toEqual([['light', 'modes'], ['dark', 'modes']]);
+    expect(value('dark', 'color.a').hex).toBe('#000000');
+    const found = s.model.issues.filter((i) => i.code === 'value-per-mode');
+    expect(found).toHaveLength(1);
+    expect(found[0]!.message).toMatch(/^2 tokens hold one value per mode inside “\$value” \(“light”, “dark”; first: `color\.a`, `color\.b`\)\. DTCG gives a token one value/);
+  });
+
+  it('reads Spectrum’s `"sets": { "light": { "value" } }` as one token per name, with its modes as themes', () => {
+    const text = JSON.stringify({
+      'blue-900': { sets: { light: { value: '#1d4ed8' }, dark: { value: '#93c5fd' } } },
+      'accent-color': { value: '{blue-900}' },
+    });
+    clearAll();
+    store.set({ ...store.get(), settings: legacy });
+    // Legacy files are converted as they load, so read with legacy formats accepted.
+    const f = parseSource({ name: 'palette.json', text, origin: 'file' }, legacy);
+    if (isLoadError(f)) throw new Error(f.message);
+    addFiles([f]);
+    const s = store.get();
+    expect(s.themes.map((t) => t.name)).toEqual(['light', 'dark']);
+    expect(codes().filter((c) => c.startsWith('reference-to-group') || c.startsWith('invalid-node'))).toEqual([]);
+    expect(s.model.issues.filter((i) => i.code === 'value-per-mode')).toHaveLength(1);
+  });
+
+  it('leaves such values unread with legacy formats off', () => {
+    const text = JSON.stringify({ color: { $type: 'color', a: { $value: { light: hex('#ffffff'), dark: hex('#000000') } } } });
+    expect(detectThemes([loadText(text, 'set.tokens.json')], S)).toEqual([]);
+  });
+
+  const value = (theme: string, id: string) => store.get().themeModels.find((m) => m.theme.name === theme)!.model.tokens.get(id)!.value as { hex: string };
 });

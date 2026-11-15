@@ -67,6 +67,8 @@ interface Parsed {
   /** "on-X": pairs with X, whatever its role. */
   on: boolean;
   key: string;
+  /** A line around a shape (border, outline): it must stand out from what is around the shape, not from its own fill. */
+  edge: boolean;
 }
 
 /** Foreground words for a line around a shape rather than a mark on it. */
@@ -81,37 +83,47 @@ export type PairGlyph = 'text' | 'border' | 'ui';
 export const glyphOf = (pair: Pick<Pair, 'fg' | 'kind'>): PairGlyph =>
   pair.kind === 'text' ? 'text' : words(pair.fg).some((w) => EDGE.has(w)) ? 'border' : 'ui';
 
+/** Words for a component nobody can use right now: WCAG 1.4.3 and 1.4.11 don't ask it for contrast. */
+const INACTIVE = new Set(['disabled', 'inactive']);
+/** Whether a pair is a disabled or inactive state. */
+export const isInactive = (pair: Pick<Pair, 'fg' | 'bg'>) => [...words(pair.fg), ...words(pair.bg)].some((w) => INACTIVE.has(w));
+
 /** Whether a name has a background or foreground role word: true for `text.danger`, false for `red.500`. */
 export const hasRole = (ws: readonly string[]) => ws.some((w) => BG.has(w) || TEXT.has(w) || UI.has(w));
 
+const isRole = (w: string) => BG.has(w) || TEXT.has(w) || UI.has(w);
+
+/**
+ * Where a name's role word is: the last one, nearest the token, since the
+ * words before it name what it belongs to (`button.outline.bgColor` is a
+ * background of the outline button, not an outline). An "on-" name is the
+ * exception: "on" makes it a foreground of what follows.
+ */
+function roleAt(ws: readonly string[]): number {
+  if (ws.includes('on')) return ws.findIndex(isRole);
+  for (let i = ws.length - 1; i >= 0; i--) if (isRole(ws[i]!)) return i;
+  return -1;
+}
+
 function parse(id: string): Parsed {
   const ws = words(id);
-  let role: Parsed['role'] = 'none';
-  let kind: PairKind = 'text';
-  let on = false;
-  for (const w of ws) {
-    if (w === 'on') on = true;
-    if (role !== 'none') continue;
-    if (TEXT.has(w)) role = 'fg';
-    else if (UI.has(w)) (role = 'fg'), (kind = 'ui');
-    else if (BG.has(w)) role = 'bg';
-  }
+  const on = ws.includes('on');
+  const at = roleAt(ws);
+  const w = ws[at];
+  let role: Parsed['role'] = w === undefined ? 'none' : TEXT.has(w) ? 'fg' : UI.has(w) ? 'fg' : 'bg';
+  const kind: PairKind = w !== undefined && UI.has(w) && !on ? 'ui' : 'text';
   // "on-surface-icon" is a foreground even though "surface" came first.
   if (on) role = 'fg';
-  const key = ws.filter((w) => !NOISE.has(w) && (KEPT.has(w) || !(BG.has(w) || TEXT.has(w) || UI.has(w)))).sort().join(' ');
-  return { id, role, kind, on, key };
+  // An "on-" name drops every role word, as it pairs with what it sits on; any other drops only its own.
+  const key = ws.filter((x, i) => !NOISE.has(x) && (KEPT.has(x) || (on ? !isRole(x) : i !== at))).sort().join(' ');
+  return { id, role, kind, on, key, edge: !on && w !== undefined && EDGE.has(w) };
 }
 
 /** A name with its role word blanked out, e.g. "color.*.default" for `color.bg.default` and `color.fg.default`. */
 function shape(id: string): string {
-  let done = false;
-  return words(id)
-    .map((w) => {
-      if (done || !(BG.has(w) || TEXT.has(w) || UI.has(w))) return w;
-      done = true;
-      return '*';
-    })
-    .join('.');
+  const ws = words(id);
+  const at = roleAt(ws);
+  return ws.map((w, i) => (i === at ? '*' : w)).join('.');
 }
 
 /** Pairs inferred from the names of `ids` (color tokens), in the order of their foregrounds. */
@@ -122,7 +134,9 @@ export function detectPairs(ids: readonly string[]): Pair[] {
   const defaults = byKey(bgs, '');
   const pairs = new Map<string, Pair>();
   for (const fg of parsed.filter((p) => p.role === 'fg')) {
-    let match = byKey(bgs, fg.key);
+    // A border shows a shape's edge against what surrounds it (WCAG 1.4.11), so it is checked on the
+    // default backgrounds, never on the fill it surrounds.
+    let match = fg.edge ? defaults : byKey(bgs, fg.key);
     // "on-primary" sits on "primary", which has no background word of its own.
     if (fg.on) match = [...match, ...byKey(parsed.filter((p) => p.role === 'none'), fg.key)];
     if (!match.length) match = defaults;

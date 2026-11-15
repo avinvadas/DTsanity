@@ -3,7 +3,7 @@ import { DTCG_TYPES, FONT_WEIGHT_NAMES, LEGACY_EXT, LEGACY_TO_DTCG, VALUE_EXTRAS
 import { convertLegacyValue, isAlias, parseCubicBezier, parseDimension, parseDuration, parseFontFamily, parseFontWeight, parseNumber, type Dimension } from '../legacy/values';
 import { makeIssue, parseAlias } from '../model/build';
 import { closest } from '../model/suggest';
-import { modeValues } from '../model/modes';
+import { tokenModes } from '../model/modes';
 import type { Edit, Fix, Issue, Model, Token } from '../model/types';
 import { findEmbedded } from './references';
 
@@ -363,8 +363,9 @@ function hexDistance(a: string, b: string): number {
 }
 
 /** Guess a DTCG type from a literal value, for tokens that have none. */
-export function inferType(v: unknown): string | undefined {
-  if (typeof v === 'number') return 'number';
+export function inferType(v: unknown, id = ''): string | undefined {
+  // A number is a font weight too: the name tells them apart (`font.weight`, `fontWeightBold`).
+  if (typeof v === 'number') return /(^|[^a-z])weight|Weight/.test(id) && v >= 1 && v <= 1000 ? 'fontWeight' : 'number';
   if (typeof v === 'string') return cssToDtcg(v) ? 'color' : parseDimension(v) && /px|rem/.test(v) ? 'dimension' : /^\s*[\d.]+\s*m?s\s*$/.test(v) ? 'duration' : undefined;
   if (Array.isArray(v)) return v.length === 4 && v.every((x) => typeof x === 'number') ? 'cubicBezier' : undefined;
   if (isObj(v)) {
@@ -416,7 +417,7 @@ export function typeAndValueRules(model: Model): Issue[] {
 
     if (t.type === undefined) {
       if (t.resolution === 'broken') continue;
-      const inferred = parseAlias(t.rawValue) === undefined ? inferType(t.rawValue) : undefined;
+      const inferred = parseAlias(t.rawValue) === undefined ? inferType(t.rawValue, t.id) : undefined;
       issues.push(
         makeIssue(
           'error',
@@ -495,7 +496,7 @@ function referencedFontSize(model: Model, t: Token): Dimension | 'varies' | unde
     seen.add(id);
     const target = model.tokens.get(id);
     if (!target) return undefined;
-    if (modeValues(target.extensions)) return 'varies';
+    if (tokenModes(target, model.settings.acceptLegacy)) return 'varies';
     id = target.aliasOf;
   }
   return asDimension(t.value.fontSize);

@@ -49,3 +49,44 @@ export function modeAlpha(entry: unknown): number | undefined {
   if (!isObj(entry) || typeof entry.alpha !== 'number' || entry.alpha === 1) return undefined;
   return '$value' in entry || isAlphaOnly(entry) ? entry.alpha : undefined;
 }
+
+/** Words that name a mode or theme. */
+export const MODE_KEY = /^(default|base|light|dark|darkest|day|night|dim|dimmed|high-?contrast|hc[bw]?|contrast|wireframe)$/i;
+
+/**
+ * Per-mode values written in the token itself, in formats of their own
+ * (read only when legacy formats are accepted):
+ *  - `"$value": { "light": …, "dark": … }` (Cloudscape, GitLab);
+ *  - `"sets": { "light": { "$value": … }, "dark": { "$value": … } }` (Spectrum).
+ * A map counts only when every key names a mode, so neither a composite
+ * value (`{ "colorSpace", "components" }`) nor a map of states
+ * (`{ "default", "disabled" }`) or densities is read as one.
+ */
+export function ownModes(token: Record<string, unknown>): ModeValues | undefined {
+  const v = token.$value;
+  if (isObj(v) && isModeMap(v)) return { values: v, path: ['$value'] };
+  const sets = token.sets;
+  if (!('$value' in token) && isObj(sets) && isModeMap(sets) && Object.values(sets).every((e) => isObj(e) && '$value' in e)) return { values: sets, path: ['sets'] };
+  return undefined;
+}
+
+const isModeMap = (v: Record<string, unknown>) => {
+  const keys = Object.keys(v);
+  return keys.length >= 2 && keys.every((k) => MODE_KEY.test(k));
+};
+
+/** A token object that holds its values per mode in `sets`, with no `$value` of its own (Spectrum). */
+export const isSetsToken = (token: Record<string, unknown>) => ownModes(token)?.path[0] === 'sets';
+
+/**
+ * A built token's per-mode values: in `$extensions`, or (legacy formats
+ * accepted) written in the token itself. Outside a mode theme, such a
+ * token's `rawValue` is the map itself and `valuePath` says where it sits.
+ */
+export function tokenModes(t: { extensions?: Record<string, unknown>; rawValue: unknown; valuePath: string[] }, legacy: boolean): ModeValues | undefined {
+  const ext = modeValues(t.extensions);
+  if (ext || !legacy) return ext;
+  const v = t.rawValue;
+  if (t.valuePath.length === 1 && isObj(v) && isModeMap(v)) return { values: v, path: t.valuePath };
+  return undefined;
+}

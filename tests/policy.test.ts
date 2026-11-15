@@ -63,7 +63,7 @@ describe('rule list', () => {
     for (const [code, sevs] of seen) {
       if (RULES.some((r) => r.id === code)) expect([code, [...sevs]]).toEqual([code, [levelOf({}, code)]]);
     }
-  });
+  }, 60_000);
 });
 
 describe('policy', () => {

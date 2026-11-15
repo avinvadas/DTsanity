@@ -2,7 +2,7 @@ import { entry, toJS, type JNode, type JObject, type Pos } from '../json/cst';
 import { DEFAULT_SETTINGS } from './defaults';
 import { closest } from './suggest';
 import { isMetaFile } from './format';
-import { modeAlpha, modeValue, modeValues } from './modes';
+import { isSetsToken, modeAlpha, modeValue, modeValues, ownModes } from './modes';
 import { cssToDtcg } from '../color/dtcg';
 import type { Category, Fix, Group, Issue, Model, Settings, Severity, SourceFile, ThemeScope, Token } from './types';
 
@@ -194,7 +194,8 @@ function walkGroup(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPa
       invalidNode(ctx, f, childPath, childKeyPath, e.pos, `Expected a token or group, found a ${e.value.kind}. If it is data about this group, move it under the group’s “$extensions”.`);
       continue;
     }
-    if (entry(e.value, '$value')) addToken(ctx, f, e.value, childPath, childKeyPath, type, e.pos);
+    if (entry(e.value, '$value') || (ctx.model.settings.acceptLegacy && entry(e.value, 'sets') && isSetsToken(toJS(e.value) as Record<string, unknown>)))
+      addToken(ctx, f, e.value, childPath, childKeyPath, type, e.pos);
     else walkGroup(ctx, f, e.value, childPath, childKeyPath, type, e.pos);
   }
 }
@@ -205,11 +206,13 @@ function invalidNode(ctx: Ctx, f: SourceFile, path: string[], keyPath: string[],
 
 function addToken(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPath: string[], inheritedType: string | undefined, pos: Pos | undefined) {
   const id = path.join('.');
-  let rawValue = toJS(entry(node, '$value')!.value);
-  let valuePath = ['$value'];
+  // A token with its values per mode in `sets` (legacy formats accepted) has no `$value`: the map stands for it.
+  const own = entry(node, '$value') ? '$value' : 'sets';
+  let rawValue = toJS(entry(node, own)!.value);
+  let valuePath = [own];
   let modeAlphaOf: number | undefined;
   if (ctx.scope.mode !== undefined) {
-    const modes = modeValues(obj(entry(node, '$extensions')?.value));
+    const modes = modeValues(obj(entry(node, '$extensions')?.value)) ?? (ctx.model.settings.acceptLegacy ? ownModes({ [own]: rawValue }) : undefined);
     // The theme's own mode, else the modes it builds on, most specific first.
     // An entry with no value of its own (Primer's `{ alpha: 0.2 }`) leaves the token's value as it is.
     const order = modes ? [ctx.scope.mode, ...[...(ctx.scope.modeFallback ?? [])].reverse()].filter((m) => Object.prototype.hasOwnProperty.call(modes.values, m)) : [];

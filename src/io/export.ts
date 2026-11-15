@@ -15,7 +15,9 @@ export const exportText = (f: SourceFile): string => serialize(f.doc);
  */
 export function exportAs(f: SourceFile, format: ExportFormat = 'dtcg'): { text: string; notes: string[] } {
   if (format === 'original' && f.converted && f.legacyKind) {
-    const { doc, notes } = dtcgToLegacy(f.doc, f.legacyKind);
+    // A Style Dictionary file writes references as "{a.b.value}" only if it did so when loaded (Spectrum writes "{a.b}").
+    const suffix = f.legacyKind === 'style-dictionary' && (/\{[^{}]+\.value\}/.test(f.text) || !/\{[^{}]+\}/.test(f.text));
+    const { doc, notes } = dtcgToLegacy(f.doc, f.legacyKind, suffix);
     return { text: serialize(doc), notes };
   }
   return { text: exportText(f), notes: [] };

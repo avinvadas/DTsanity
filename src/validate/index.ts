@@ -1,4 +1,5 @@
-import type { JNode } from '../json/cst';
+import { toJS, type JNode } from '../json/cst';
+import { ownModes } from '../model/modes';
 import { buildModel, makeIssue } from '../model/build';
 import { ruleTitle } from '../model/rules';
 import { issuesWithPolicy } from '../policy/rules';
@@ -40,6 +41,8 @@ export function analyze(files: SourceFile[], settings: Settings, scope: ThemeSco
     }
     const unsupported = unreadable(f, tokens, [...modelIssues, ...rules]);
     if (unsupported) modelIssues.push(unsupported);
+    const perMode = settings.acceptLegacy ? valuesPerMode(f) : undefined;
+    if (perMode) modelIssues.push(perMode);
   }
   model.issues = issuesWithPolicy([...modelIssues, ...rules], settings.policy);
   return model;
@@ -88,24 +91,46 @@ function unreadable(f: SourceFile, tokens: number, issues: Issue[]): Issue | und
   );
 }
 
-/** Words that name a mode or theme. */
-const MODE_KEY = /^(default|base|light|dark|day|night|dim|dimmed|high-?contrast|hc|contrast)$/i;
-
-/** Tokens whose "$value" is an object of values by mode, and the mode keys they use. */
-function modeValues(root: JNode): { tokens: number; keys: string[] } {
+/** Tokens that hold their values by mode in the token itself (see `ownModes`), the mode keys they use and where the map sits. */
+function modeValues(root: JNode): { tokens: number; keys: string[]; where: string; first: string[] } {
   let tokens = 0;
   const keys = new Set<string>();
-  const visit = (n: JNode) => {
+  const where = new Set<string>();
+  const first: string[] = [];
+  const visit = (n: JNode, path: string[]) => {
     if (n.kind !== 'object') return;
-    const v = n.entries.find((e) => e.key === '$value')?.value;
-    if (v?.kind === 'object' && v.entries.length >= 2 && v.entries.every((e) => !e.key.startsWith('$')) && v.entries.some((e) => MODE_KEY.test(e.key))) {
+    // Only the two places a mode map can sit are read: a token's "$value", or "sets" in place of one.
+    const own = n.entries.find((e) => e.key === '$value') ?? n.entries.find((e) => e.key === 'sets');
+    const modes = own?.value.kind === 'object' ? ownModes({ [own.key]: toJS(own.value) }) : undefined;
+    if (modes) {
       tokens++;
-      v.entries.forEach((e) => keys.add(e.key));
+      Object.keys(modes.values).forEach((k) => keys.add(k));
+      where.add(modes.path[0]!);
+      if (first.length < 3) first.push(path.join('.'));
+      return;
     }
-    for (const e of n.entries) if (!e.key.startsWith('$')) visit(e.value);
+    for (const e of n.entries) if (!e.key.startsWith('$')) visit(e.value, [...path, e.key]);
   };
-  visit(root);
-  return { tokens, keys: [...keys].slice(0, 4) };
+  visit(root, []);
+  return { tokens, keys: [...keys].slice(0, 4), where: [...where].map((w) => `“${w}”`).join(' or '), first };
+}
+
+/**
+ * Tokens whose values by mode are written in the token itself, read as
+ * themes when legacy formats are accepted: one finding per file, since it is
+ * one way of writing the file, fixed where the file is made.
+ */
+function valuesPerMode(f: SourceFile): Issue | undefined {
+  const m = modeValues(f.doc.root);
+  if (!m.tokens) return undefined;
+  const keys = m.keys.map((k) => `“${k}”`).join(', ');
+  return makeIssue(
+    'warning',
+    'format',
+    'value-per-mode',
+    `${m.tokens} tokens hold one value per mode inside ${m.where} (${keys}; first: ${m.first.map((p) => `\`${p}\``).join(', ')}). DTCG gives a token one value: each mode's values go in a file of their own, chosen by a resolver document, or under “$extensions”. DTsanity read each mode as a theme.`,
+    { fileId: f.id },
+  );
 }
 
 /** Tokens in a document: objects with a "$value". */

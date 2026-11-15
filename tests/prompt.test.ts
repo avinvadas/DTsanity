@@ -4,6 +4,7 @@ import { addFiles, clearAll, setLoadErrors, store } from '../src/state/app';
 import { loadFixture, loadText } from './helpers';
 import { findings, findingTotal } from '../src/ui/findings';
 import { copiedLabel } from '../src/ui/prompt-link';
+import { pairsOf } from '../src/state/pairs';
 
 beforeEach(() => clearAll());
 
@@ -43,6 +44,17 @@ describe('fix prompt', () => {
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatch(/: below AA text \(4\.5\) in (light|dark) \(has [^)]+\) and (dark|light) \(has [^)]+\)\.$/);
     expect(p.count).toBe(findingTotal(findings(store.get())));
+  });
+
+  it('lists a disabled pair below its level without counting it, as WCAG asks it for no contrast', () => {
+    addFiles([
+      loadText(JSON.stringify({ color: { $type: 'color', gray: { 100: ok(0.95), 300: ok(0.85) } } }), 'primitives.tokens.json'),
+      loadText(JSON.stringify({ color: { $type: 'color', bg: { disabled: { $value: '{color.gray.100}' } }, text: { disabled: { $value: '{color.gray.300}' } } } }), 'semantic.tokens.json'),
+    ]);
+    const rows = pairsOf(store.get()).rows;
+    expect(rows.map((r) => [r.pair.fg, r.pass, r.tone])).toEqual([['color.text.disabled', false, 'info']]);
+    expect(findings(store.get()).contrast).toEqual([]);
+    expect(fixPrompt(store.get()).text).not.toContain('## Contrast');
   });
 
   it('says what it copied in the page’s units, with the rest apart', () => {

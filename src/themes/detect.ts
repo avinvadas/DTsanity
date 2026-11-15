@@ -3,7 +3,7 @@ import { buildModel, tokenSets } from '../model/build';
 import { findFile } from '../model/build';
 import type { ContrastLevel } from '../semantic/pairs';
 import { isMetaFile, isResolverFile } from '../model/format';
-import { modeValues } from '../model/modes';
+import { tokenModes } from '../model/modes';
 import type { Settings, SourceFile, ThemeScope } from '../model/types';
 
 /**
@@ -15,11 +15,13 @@ import type { Settings, SourceFile, ThemeScope } from '../model/types';
  *  2. Tokens Studio `$themes` (in a multi-set file, or a separate `$themes.json`);
  *  3. file names: `semantic.light.json` + `semantic.dark.json`, with files
  *     that carry no theme word shared by every theme;
- *  4. per-mode values in `$extensions` (`mode` or `<vendor>.modes`).
+ *  4. files that define nearly the same tokens: alternatives of one set
+ *     (`sap_horizon`, `sap_horizon_dark`, `sap_horizon_hcb`), one theme each;
+ *  5. per-mode values in `$extensions` (`mode` or `<vendor>.modes`).
  * The user can edit the result.
  */
 
-export type ThemeSource = 'resolver' | 'tokens-studio' | 'file-names' | 'modes' | 'manual';
+export type ThemeSource = 'resolver' | 'tokens-studio' | 'file-names' | 'same-tokens' | 'modes' | 'manual';
 
 export interface Theme {
   id: string;
@@ -44,7 +46,7 @@ const THEME_WORD = /(?:^|[^a-z0-9])(light|dark|dim|night|day|high-?contrast|hc)(
 const baseName = (name: string) => name.split('/').at(-1)!.replace(/\.(tokens\.)?json[5c]?$|\.tokens$/i, '');
 
 export function detectThemes(files: SourceFile[], settings: Settings): Theme[] {
-  const themes = fromResolver(files) ?? fromTokensStudio(files) ?? fromFileNames(files, settings) ?? fromModes(files, settings) ?? [];
+  const themes = fromResolver(files) ?? fromTokensStudio(files) ?? fromFileNames(files, settings) ?? fromSameTokens(files, settings) ?? fromModes(files, settings) ?? [];
   return themes.map((t) => (isHighContrast(t) ? { ...t, contrast: 'enhanced' as const } : t));
 }
 
@@ -320,10 +322,56 @@ function withModes(themes: Draft[], files: SourceFile[], settings: Settings): Th
 function modeNames(files: SourceFile[], settings: Settings): Map<string, Set<string>> {
   const out = new Map<string, Set<string>>();
   for (const t of buildModel(files, settings).tokens.values()) {
-    const modes = modeValues(t.extensions);
+    const modes = tokenModes(t, settings.acceptLegacy);
     if (modes) for (const m of Object.keys(modes.values)) out.set(m.toLowerCase(), (out.get(m.toLowerCase()) ?? new Set()).add(m));
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Files that define the same tokens
+
+/** How much of two files' tokens both define, as a share of each: alternatives define nearly all of each other's. */
+const SAME_TOKENS = 0.8;
+/** Files this small say too little to be told apart from a split set. */
+const MIN_TOKENS = 10;
+
+/**
+ * Files that each define nearly every token the others define are
+ * alternatives of one set, not parts of it: loaded together, every token
+ * would be defined several times. Each becomes a theme, read over the files
+ * that are not alternatives, and is named by what its file name adds to the
+ * name they share (`sap_horizon_dark` → `dark`).
+ */
+function fromSameTokens(files: SourceFile[], settings: Settings): Theme[] | undefined {
+  const candidates = files.filter((f) => !isMetaFile(f));
+  const paths = new Map(candidates.map((f) => [f, new Set(buildModel([f], settings).tokens.keys())] as const));
+  const big = candidates.filter((f) => paths.get(f)!.size >= MIN_TOKENS);
+  const same = (a: SourceFile, b: SourceFile) => {
+    const pa = paths.get(a)!;
+    const pb = paths.get(b)!;
+    let both = 0;
+    for (const p of pa) if (pb.has(p)) both++;
+    return both / pa.size >= SAME_TOKENS && both / pb.size >= SAME_TOKENS;
+  };
+  // Groups of alternatives; the largest one gives the themes.
+  const groups: SourceFile[][] = [];
+  for (const f of big) {
+    const g = groups.find((members) => members.every((m) => same(m, f)));
+    if (g) g.push(f);
+    else groups.push([f]);
+  }
+  const alternatives = groups.filter((g) => g.length >= 2).sort((a, b) => b.length - a.length)[0];
+  if (!alternatives) return undefined;
+  const names = alternatives.map((f) => baseName(f.name));
+  let common = names[0]!;
+  for (const n of names) while (!n.startsWith(common)) common = common.slice(0, -1);
+  const shared = candidates.filter((f) => !alternatives.includes(f));
+  return alternatives.map((f, i) => {
+    const own = names[i]!.slice(common.length).replace(/^[._\s-]+/, '');
+    const name = own || names[i]!;
+    return { id: `same:${name}`, name, source: 'same-tokens' as const, fileIds: [...shared, f].map((x) => x.id), scope: {} };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -333,7 +381,7 @@ function fromModes(files: SourceFile[], settings: Settings): Theme[] | undefined
   const model = buildModel(files, settings);
   const names: string[] = [];
   for (const t of model.tokens.values()) {
-    const modes = modeValues(t.extensions);
+    const modes = tokenModes(t, settings.acceptLegacy);
     if (modes) for (const m of Object.keys(modes.values)) if (!names.includes(m)) names.push(m);
   }
   if (names.length < 2) return undefined;

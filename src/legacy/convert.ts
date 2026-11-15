@@ -141,7 +141,7 @@ export function legacyToDtcg(doc: JDoc): { doc: JDoc; notes: ConversionNote[] } 
  * down onto tokens (legacy formats have no inheritance), original legacy
  * types and extra properties are restored from the conversion extension.
  */
-export function dtcgToLegacy(doc: JDoc, kind: LegacyKind): { doc: JDoc; notes: string[] } {
+export function dtcgToLegacy(doc: JDoc, kind: LegacyKind, valueSuffix = kind === 'style-dictionary'): { doc: JDoc; notes: string[] } {
   const notes: string[] = [];
   const style = doc.style;
   const descKey = kind === 'style-dictionary' ? 'comment' : 'description';
@@ -164,7 +164,8 @@ export function dtcgToLegacy(doc: JDoc, kind: LegacyKind): { doc: JDoc; notes: s
         const base = toLegacyValue(dtcgType, value);
         // Typography properties DTCG has no place for (textCase…) go back into the value.
         const legacyValue = extras && typeof extras === 'object' && base && typeof base === 'object' && !Array.isArray(base) ? { ...base, ...extras } : base;
-        const written = kind === 'style-dictionary' ? addValueSuffix(legacyValue) : legacyValue;
+        // References as the file wrote them: Style Dictionary v3's "{color.blue.value}" only where the file used it.
+        const written = valueSuffix ? addValueSuffix(legacyValue) : legacyValue;
         out.push({ ...rename(e, 'value'), value: reshape(e.value, written, depth + 1, style, inline) });
       } else if (e.key === '$type') {
         out.push({ ...rename(e, 'type'), value: reshape(e.value, legacyType, depth + 1, style) });

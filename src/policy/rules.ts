@@ -51,6 +51,7 @@ const GUIDE: Record<string, string> = {
   'file-not-in-theme': 'Add the file to a theme in the themes matrix.',
   'contrast-text': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
   'contrast-ui': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
+  'contrast-inactive': 'Re-alias the pair in its tier view to a token that passes, or reshape the scale in the curve editor.',
   'cvd-pair': 'Re-alias the pair in its tier view, or reshape the scale in the curve editor.',
   'cvd-siblings': 'Re-alias the status tokens in their tier view so they differ in lightness.',
 };
@@ -62,6 +63,7 @@ export const RULES: readonly RuleDef[] = [
   rule('Format', 'legacy-conversion', 'warning', 'none', 'Something in a legacy file that has no exact DTCG equivalent.'),
   rule('Format', 'json5-syntax', 'warning', 'none', 'A .json file that uses JSON5 syntax (comments, trailing commas…), which most JSON tools can’t read.'),
   rule('Format', 'resolver-missing', 'warning', 'none', 'A file the DTCG resolver names for a theme that isn’t loaded, so that theme is checked without it.'),
+  rule('Format', 'value-per-mode', 'warning', 'none', 'A file whose tokens hold one value per mode in the token itself (“$value”: {“light”, “dark”}), which DTCG doesn’t define. DTsanity reads each mode as a theme.'),
   rule('Format', 'unsupported-format', 'warning', 'none', 'A file DTsanity can’t read: neither DTCG nor a Tokens Studio or Style Dictionary file, so most of its tokens (or all) go unread.'),
   rule('Format', 'no-tokens', 'info', 'none', 'A file with no “$value” anywhere.'),
   rule('Format', 'file-not-in-theme', 'info', 'guided', 'A file that no theme reads, so it goes unchecked.'),
@@ -109,6 +111,7 @@ export const RULES: readonly RuleDef[] = [
 
   rule('Contrast', 'contrast-text', 'error', 'guided', 'A text pair below the selected contrast level.', 'Low text contrast'),
   rule('Contrast', 'contrast-ui', 'warning', 'guided', 'An icon, border or other UI pair below the non-text level.', 'Low UI contrast'),
+  rule('Contrast', 'contrast-inactive', 'info', 'guided', 'A disabled or inactive pair below its level. WCAG (1.4.3, 1.4.11) doesn’t require contrast of components nobody can use, so it is listed, not counted.', 'Low contrast, inactive'),
 
   rule('Color blindness', 'cvd-pair', 'warning', 'guided', 'A pair that passes with typical vision but not with a color-vision deficiency.', 'Fails with color blindness'),
   rule('Color blindness', 'cvd-siblings', 'warning', 'guided', 'Status colors (danger, warning, success…) too close to tell apart.', 'Status colors too close'),

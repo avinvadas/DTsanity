@@ -102,7 +102,9 @@ const OPS: Record<string, Op> = {
     return { code: 'unresolved-reference', doc, restore: 'file' };
   },
   'missing type': (doc, _all, pick) => {
-    const t = pick(walk(doc).tokens.filter((x) => !x.inherited && typeof x.node.$type === 'string' && !alias(x.node.$value)));
+    // A reference gives a token its type, also one per mode (`{ "default": "{…}", "dark": "{…}" }`): not a defect there.
+    const refs = (v: unknown) => alias(v) || (isObj(v) && Object.values(v).length > 0 && Object.values(v).every(alias));
+    const t = pick(walk(doc).tokens.filter((x) => !x.inherited && typeof x.node.$type === 'string' && !refs(x.node.$value)));
     if (!t) return;
     delete t.node.$type;
     return { code: 'missing-type', doc, restore: 'file' };
