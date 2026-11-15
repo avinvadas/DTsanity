@@ -190,7 +190,7 @@ function walkGroup(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPa
     }
     if (e.key.startsWith('$')) continue;
     if (e.value.kind !== 'object') {
-      invalidNode(ctx, f, childPath, childKeyPath, e.pos, `Expected an object, found a ${e.value.kind}.`);
+      invalidNode(ctx, f, childPath, childKeyPath, e.pos, `Expected a token or group, found a ${e.value.kind}. If it is data about this group, move it under the group’s “$extensions”.`);
       continue;
     }
     if (entry(e.value, '$value')) addToken(ctx, f, e.value, childPath, childKeyPath, type, e.pos);
@@ -380,7 +380,7 @@ function resolveAll(ctx: Ctx) {
         report(
           owner,
           'reference-to-group',
-          `{${targetId}} is a group.${root ? ` Did you mean its root token {${root}}?` : ''}`,
+          `{${targetId}} is a group.${root ? ` Did you mean its root token {${root}}?` : ' Point at one of the tokens in it; which one is a design choice.'}`,
           root ? refFix(owner, targetId, root) : undefined,
         );
       } else {

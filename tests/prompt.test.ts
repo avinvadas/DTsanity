@@ -31,14 +31,35 @@ describe('fix prompt', () => {
     addFiles([loadFixture('dtcg-broken.tokens.json')]);
     const format = fixPrompt(store.get()).text;
     expect(format).toContain('Rules (DTsanity changes the format, never the design):');
-    expect(format).toContain('- List every change you make, per file.');
     expect(format).not.toContain('To fix contrast');
     clearAll();
     addFiles([
       loadText(JSON.stringify({ color: { $type: 'color', gray: { 100: ok(0.95), 300: ok(0.85) } } }), 'primitives.tokens.json'),
       loadText(JSON.stringify({ color: { $type: 'color', bg: { default: { $value: '{color.gray.100}' } }, text: { default: { $value: '{color.gray.300}' } } } }), 'semantic.tokens.json'),
     ]);
-    expect(fixPrompt(store.get()).text).toContain('- To fix contrast, prefer pointing');
+    const contrast = fixPrompt(store.get()).text;
+    expect(contrast).toContain('- To fix contrast, prefer pointing');
+    expect(contrast, 'no property findings, no property rule').not.toContain('Keep what a property does');
+  });
+
+  it('asks every time for changes that keep the design and add nothing new, with a report', () => {
+    addFiles([loadFixture('dtcg-broken.tokens.json')]);
+    const text = fixPrompt(store.get()).text;
+    for (const rule of [
+      '- Change only what the corrections below list.',
+      'every token must resolve to the same value in every theme',
+      '- A correction must not create a new problem',
+      '- End with a report, per file: the changes you made; the corrections you didn’t make, and why; and every token whose value changed',
+    ])
+      expect(text).toContain(rule);
+  });
+
+  it('says where a property beside “$value” belongs when it changes the value', () => {
+    const t = { color: { $type: 'color', veil: { $value: { colorSpace: 'srgb', components: [0, 0, 0] }, alpha: 0.4 } } };
+    addFiles([loadText(JSON.stringify(t, null, 2), 'alpha.tokens.json')]);
+    const text = fixPrompt(store.get()).text;
+    expect(text).toContain('- Keep what a property does.');
+    expect(text).toMatch(/\[token-has-children\]\. “alpha” sits beside “\$value”.* it belongs inside “\$value”/);
   });
 
   it('lists one rule broken in several places of a file once, naming each place', () => {

@@ -7,6 +7,9 @@ import { modeValues } from '../model/modes';
 import type { Edit, Fix, Issue, Model, Token } from '../model/types';
 import { findEmbedded } from './references';
 
+/** What to do with a property DTCG doesn't define inside a value: keep what it does. */
+const EXTRA_HINT = 'Keep what each one does: an alpha belongs to the color it applies to (its “alpha”); anything that doesn’t change the value goes under the token’s “$extensions”.';
+
 /**
  * Type and value rules. Each token's `$value` is checked against its type's
  * DTCG 2025.10 shape. Problems with a mechanical fix (legacy strings, 0–255
@@ -286,7 +289,7 @@ class Checker {
     const missing = required.filter((k) => !(k in v));
     if (missing.length) this.add(`${at} is missing ${missing.map((k) => `“${k}”`).join(', ')}.`, false);
     const extra = Object.keys(v).filter((k) => !(k in fields));
-    if (extra.length) this.add(`${at} has properties DTCG doesn't define: ${extra.map((k) => `“${k}”`).join(', ')}.`, false);
+    if (extra.length) this.add(`${at} has properties DTCG doesn't define: ${extra.map((k) => `“${k}”`).join(', ')}. ${EXTRA_HINT}`, false);
     const out: Record<string, unknown> = {};
     for (const [k, x] of Object.entries(v)) out[k] = fields[k] ? this.check(fields[k], x, `${at}.${k}`) : x;
     return out;
@@ -348,7 +351,7 @@ class Checker {
       }
     }
     const extra = Object.keys(v).filter((k) => !['colorSpace', 'components', 'alpha', 'hex'].includes(k));
-    if (extra.length) this.add(`${at} has properties DTCG doesn't define: ${extra.map((k) => `“${k}”`).join(', ')}.`, false);
+    if (extra.length) this.add(`${at} has properties DTCG doesn't define: ${extra.map((k) => `“${k}”`).join(', ')}. ${EXTRA_HINT}`, false);
     return out;
   }
 }

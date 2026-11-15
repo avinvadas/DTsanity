@@ -61,21 +61,43 @@ export const FIX_EXCEPTIONS: readonly Principle[] = [
 export interface PromptRule {
   text: string;
   /** When the rule applies: always, or only when the prompt lists findings of that kind. */
-  when: 'always' | 'files' | 'tiers' | 'contrast' | 'status';
+  when: 'always' | 'files' | 'properties' | 'tiers' | 'contrast' | 'status';
 }
 
-/** The guidance the fix prompt gives with its corrections. */
+/**
+ * The guidance the fix prompt gives with its corrections. Written for whoever
+ * applies them, often an AI assistant, so that a round of corrections fixes
+ * what is listed and adds nothing new: each rule says what a correct change
+ * keeps, not only what to change.
+ */
 export const PROMPT_RULES: readonly PromptRule[] = [
   { when: 'files', text: 'First make the files that couldn’t be read valid (JSON, or JSON5 in .json5 and .jsonc files), changing nothing else in them; then they can be checked.' },
-  { when: 'always', text: 'Keep each file’s structure, token names and order unless a correction says otherwise.' },
-  { when: 'always', text: 'Change the format, not the design: don’t change colors, sizes or what a token means unless a correction asks for it.' },
+  {
+    when: 'always',
+    text: 'Change only what the corrections below list. Keep each file’s structure, token names and order: don’t rename, move, add or remove tokens unless a correction asks for it, since other tokens and code refer to them by name.',
+  },
+  {
+    when: 'always',
+    text: 'Change the format, not the design: after your changes, every token must resolve to the same value in every theme (color and its alpha, size, duration, font) unless a correction asks for a new one.',
+  },
+  {
+    when: 'properties',
+    text: 'Keep what a property does. A property that changes the value (a color’s alpha, for example) goes inside “$value”, not under “$extensions”: tools that read DTCG ignore “$extensions”. Move a property there only when it doesn’t change the value.',
+  },
   { when: 'tiers', text: 'Tiers: base tokens hold values only; semantic tokens point at base or semantic tokens; component tokens point at semantic or base tokens.' },
   {
     when: 'contrast',
     text: 'To fix contrast, prefer pointing a semantic or component token at another existing base token over changing base values. Change a base value only when no existing token works, and say which.',
   },
   { when: 'status', text: 'To tell status colors apart, separate them by lightness, not only by hue: hue is what color blindness takes away.' },
-  { when: 'always', text: 'List every change you make, per file.' },
+  {
+    when: 'always',
+    text: 'A correction must not create a new problem: no broken reference, no token pointing across tiers, no value DTCG can’t read. If the only change you see would, or if it needs a choice these rules don’t settle, don’t make it: ask under Questions.',
+  },
+  {
+    when: 'always',
+    text: 'End with a report, per file: the changes you made; the corrections you didn’t make, and why; and every token whose value changed, in which theme and why. Then Questions, if any.',
+  },
 ];
 
 /** Why the prompt's contrast rule prefers re-aliasing, for the page. */

@@ -41,6 +41,9 @@ export interface PromptScope {
   files?: boolean;
 }
 
+/** Findings about properties DTCG has no place for, where a fix may move what a property does. */
+const PROPERTY_RULES = new Set(['token-has-children', 'unknown-property', 'invalid-value', 'legacy-property']);
+
 const code = (s: string) => `\`${s}\``;
 const list = (xs: string[]) => xs.map(code).join(', ');
 
@@ -140,6 +143,8 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   };
   const byFile = (xs: Issue[]) => [...xs].sort((a, b) => (fileName.get(a.fileId ?? '') ?? '').localeCompare(fileName.get(b.fileId ?? '') ?? ''));
   if (issues.some((i) => i.code.startsWith('tier-'))) listed.add('tiers');
+  // Properties DTCG has no place for: say where what they do must go.
+  if (issues.some((i) => PROPERTY_RULES.has(i.code))) listed.add('properties');
   section(required, 'Errors', issueItems(byFile(issues.filter((i) => i.severity === 'error'))));
   section(required, 'Warnings', issueItems(byFile(issues.filter((i) => i.severity === 'warning'))));
 
