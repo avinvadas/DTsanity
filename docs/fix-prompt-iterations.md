@@ -333,6 +333,45 @@ Each test round runs twice:
 - **Prompt + files + reference-system.md.** This tests that a system with its
   own brain gets what it needs, and that its own rules are respected.
 
+### Done (2026-11-15)
+
+- **`docs/reference-system.md`** is the stand-in brain, the rules of no real
+  system. It covers:
+  - where tokens come from (the files are the source; non-DTCG data goes
+    under `$extensions` in `org.example.ds`; one file per mode, chosen by a
+    resolver);
+  - tiers, and when a hard-coded value is fine;
+  - names (renamed only when a standard requires it, with every reference
+    updated);
+  - types (on the group when all share it; read from the name and use, not
+    the value; ask when unclear);
+  - an order for contrast fixes (another step of the same scale, then a
+    lightness-only change, never a brand color), with decorative borders,
+    disabled states and status colors shown with icons declined;
+  - scales and typography, when to ask, and the report.
+
+  It gives answers where the prompt leaves choices, so a round with it tests
+  that the prompt's "done when" and "decline if" leave room for a system's
+  own rules.
+- **`tests/reference-system.test.ts`** keeps it neutral. It checks that the
+  file:
+  - names no sample set and no tool, and uses no sample token name of more
+    than two parts;
+  - is never referred to by the prompt or its rule texts;
+  - asks for the same numbered report as the prompt.
+- **`npm run round -- <set or folder> <out> [--brain] [--rules a,b]`**
+  writes one round:
+  - `files/` (a copy of the set) and `prompt.md`;
+  - `BRIEF.md`, which says only what a person handing it over would;
+  - `reference-system.md` when run with `--brain`;
+  - `round.json` (counts by rule, size).
+
+  `--rules` keeps only those rules' findings, as a group's prompt does.
+  Contrast is filtered by pair, so a pair's color-blindness findings come
+  with it. Run without an out folder, it is the fresh check: the findings of
+  a folder by rule, from the files alone. Copying a sample and checking it
+  afresh gives the sample's own counts.
+
 ## Step 5. Real rounds, few and recorded
 
 Run on three sets of different shapes (one contrast-heavy, one format-heavy,
