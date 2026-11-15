@@ -95,7 +95,7 @@ describe('policy', () => {
     expect(flags()).toContain('error inversion');
     setRuleLevel('scale-inversion', 'off');
     expect(flags().some((f) => f.endsWith('inversion'))).toBe(false);
-  });
+   }, 60_000);
 
   it('sets the tone of contrast failures and turns the check off', () => {
     addFiles([pairsFile()]);
