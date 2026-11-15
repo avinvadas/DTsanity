@@ -6,3 +6,6 @@ dist-strict/
 .claude/
 # Local token files used for manual testing; may contain real design-system data.
 test-token-files/
+
+# Token files corrected by an assistant from a fix prompt, for comparing runs (npm run compare).
+corrected/

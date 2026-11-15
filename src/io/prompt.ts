@@ -64,25 +64,84 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const listed = new Set<PromptRule['when']>(['always']);
   const optional: string[] = [];
   let count = 0;
-  const section = (into: string[], title: string, items: string[]) => {
+  // An item is one line; a line that stands for several findings of one rule says how many.
+  type Item = string | { line: string; n: number };
+  const section = (into: string[], title: string, items: Item[]) => {
     if (!items.length) return;
-    count += items.length;
-    into.push(`## ${title} (${items.length})`, '', ...items.map((x) => `- ${x}`), '');
+    const n = items.reduce((sum, x) => sum + (typeof x === 'string' ? 1 : x.n), 0);
+    count += n;
+    into.push(`## ${title} (${n})`, '', ...items.map((x) => `- ${typeof x === 'string' ? x : x.line}`), '');
   };
 
+  // Files that couldn't be read: they come first, since nothing in them was checked.
+  const unread = !scope || scope.files ? s.loadErrors : [];
+  if (unread.length) listed.add('files');
+  section(required, "Files that couldn't be read", unread.map((e) => `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`));
+
   // Format, structure, references and tier rules, by file.
-  // One line per issue, in the order the page shows it: place, title [rule], detail, fix.
+  // In the order the page shows them: place, title [rule], detail, fix; one line per correction to make.
+  const themesOf = (i: Issue) => (i.themes?.length ? ` (${i.themes.join(', ')} only)` : '');
+  const fixOf = (i: Issue) => (i.fix ? `Fix: ${i.fix.label}${i.fix.preview ? ` (${i.fix.preview.before} → ${i.fix.preview.after})` : ''}.` : '');
   const issueLine = (i: Issue) => {
     const file = i.fileId ? fileName.get(i.fileId) : undefined;
     const where = [file && i.pos ? `${file}:${i.pos.line}` : file, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
-    const themes = i.themes?.length ? ` (${i.themes.join(', ')} only)` : '';
-    const fix = i.fix ? ` Fix: ${i.fix.label}${i.fix.preview ? ` (${i.fix.preview.before} → ${i.fix.preview.after})` : ''}.` : '';
-    return `${where ? `${where}: ` : ''}${ruleTitle(i.code)} [${i.code}]${themes}.${i.message ? ` ${i.message}` : ''}${fix}`;
+    const fix = fixOf(i);
+    return `${where ? `${where}: ` : ''}${ruleTitle(i.code)} [${i.code}]${themesOf(i)}.${i.message ? ` ${i.message}` : ''}${fix ? ` ${fix}` : ''}`;
+  };
+  // The same finding in several places of one file (same rule, message and themes) is one line
+  // that names each place, so a rule a file breaks everywhere doesn't fill the prompt with copies.
+  // Messages that differ only in what they quote (“a value”, {a.reference}) count as the same;
+  // each place then keeps its own quotes.
+  const QUOTED = /“[^”]*”|\{[^{}]*\}/g;
+  const template = (m: string) => m.replace(QUOTED, (q) => (q.startsWith('{') ? '{…}' : '“…”'));
+  const quotes = (m: string) => m.match(QUOTED) ?? [];
+  const issueItems = (xs: Issue[]): Item[] => {
+    const groups = new Map<string, Issue[]>();
+    const order: (Issue | Issue[])[] = [];
+    for (const i of xs) {
+      if (!i.target && !i.pos) {
+        order.push(i);
+        continue;
+      }
+      // Places with a one-click fix stay apart from those without, as the group buttons copy only the latter.
+      const key = [i.fileId, i.code, template(i.message ?? ''), i.themes?.join(','), i.fix ? 'fix' : ''].join('\u0000');
+      const g = groups.get(key);
+      if (g) g.push(i);
+      else {
+        const first = [i];
+        groups.set(key, first);
+        order.push(first);
+      }
+    }
+    return order.map((g) => {
+      if (!Array.isArray(g)) return issueLine(g);
+      if (g.length === 1) return issueLine(g[0]!);
+      const i = g[0]!;
+      const file = i.fileId ? fileName.get(i.fileId) : undefined;
+      // A message or fix all the places share goes once; what is each place's own goes beside it
+      // (a fix by its label alone: the label already says what it changes to).
+      const sameMessage = g.every((x) => x.message === i.message);
+      const sameFix = g.every((x) => fixOf(x) === fixOf(i));
+      const sameLabel = g.every((x) => x.fix?.label === i.fix?.label);
+      const shared = sameFix ? fixOf(i) : sameLabel && i.fix ? `Fix: ${i.fix.label}.` : '';
+      const ownFix = (x: Issue) =>
+        sameFix || !x.fix ? '' : sameLabel ? (x.fix.preview ? `${x.fix.preview.before} → ${x.fix.preview.after}` : '') : `Fix: ${x.fix.label}`;
+      const places = g.map((x) => {
+        const fix = ownFix(x);
+        // A quote the place's own fix already shows isn't given twice.
+        const own = sameMessage ? [] : quotes(x.message ?? '').filter((q) => !fix.includes(q));
+        const notes = [x.pos ? `line ${x.pos.line}` : '', own.join(', '), fix].filter(Boolean).join('; ');
+        return `${x.target ? code(x.target) : ''}${x.target && notes ? ' ' : ''}${notes ? (x.target ? `(${notes})` : notes) : ''}`;
+      });
+      const message = sameMessage ? i.message : template(i.message ?? '');
+      const line = `${file ? `${file}: ` : ''}${ruleTitle(i.code)} [${i.code}]${themesOf(i)}.${message ? ` ${message}` : ''}${shared ? ` ${shared}` : ''} In ${g.length} places: ${places.join(', ')}.`;
+      return { line, n: g.length };
+    });
   };
   const byFile = (xs: Issue[]) => [...xs].sort((a, b) => (fileName.get(a.fileId ?? '') ?? '').localeCompare(fileName.get(b.fileId ?? '') ?? ''));
   if (issues.some((i) => i.code.startsWith('tier-'))) listed.add('tiers');
-  section(required, 'Errors', byFile(issues.filter((i) => i.severity === 'error')).map(issueLine));
-  section(required, 'Warnings', byFile(issues.filter((i) => i.severity === 'warning')).map(issueLine));
+  section(required, 'Errors', issueItems(byFile(issues.filter((i) => i.severity === 'error'))));
+  section(required, 'Warnings', issueItems(byFile(issues.filter((i) => i.severity === 'warning'))));
 
   // Contrast with typical vision: every theme a pair fails in, with its value and the levels it misses.
   // Findings the policy sets to info go under Suggestions with the other info-level ones.
@@ -115,11 +174,6 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   );
   section(required, 'Color-vision', [...cvdOf(rows.filter((r) => counted(r.cvdTone))), ...siblingsOf(sibs.filter((g) => counted(g.tone)))]);
 
-  // Files that couldn't be read: they come first, since nothing in them was checked.
-  const unread = !scope || scope.files ? s.loadErrors : [];
-  if (unread.length) listed.add('files');
-  section(required, "Files that couldn't be read", unread.map((e) => `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`));
-
   // Typography: the range checks the tier views show, in each theme; a finding in only some themes says which.
   const typeNotes = new Map<string, { severity: string; themes: string[] }>();
   if (!scope || scope.typography) {
@@ -143,7 +197,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   section(required, 'Base color scales', scale('error', 'warning'));
 
   section(optional, 'Suggestions', [
-    ...byFile(issues.filter((i) => i.severity === 'info')).map(issueLine),
+    ...issueItems(byFile(issues.filter((i) => i.severity === 'info'))),
     ...scale('info'),
     ...contrastOf(rows.filter((r) => r.tone === 'info')),
     ...cvdOf(rows.filter((r) => r.cvdTone === 'info')),
@@ -184,3 +238,19 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     .trim();
   return { text: `${text}\n`, count };
 }
+
+/** A stable key for an issue, the same in every merge of the theme models. */
+const issueKey = (i: Issue) => [i.code, i.fileId, i.target, i.keyPath?.join('.'), i.message].join('\u0000');
+
+/** Scope: these issues. */
+export const issuesScope = (issues: readonly Issue[]): PromptScope => {
+  const keys = new Set(issues.map(issueKey));
+  return { issue: (i) => keys.has(issueKey(i)) };
+};
+
+/** Scope: these pairs and status groups (a contrast or color-blindness section). */
+export const pairsScope = (rows: readonly PairRow[], groups: readonly SiblingRow[] = []): PromptScope => {
+  const pairs = new Set(rows.map((r) => `${r.pair.fg}\u0000${r.pair.bg}`));
+  const ids = new Set(groups.map((g) => g.group.id));
+  return { pair: (x) => pairs.has(`${x.pair.fg}\u0000${x.pair.bg}`), sibling: (x) => ids.has(x.group.id) };
+};

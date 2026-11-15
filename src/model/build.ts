@@ -120,7 +120,12 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
       );
       continue;
     }
+    // One note per token and message: the same expression in several layers of a shadow is one thing to change.
+    const noted = new Set<string>();
     for (const note of f.conversionNotes ?? []) {
+      const key = `${note.keyPath.join('\u0000')}\u0001${note.message}`;
+      if (noted.has(key)) continue;
+      noted.add(key);
       model.issues.push(makeIssue('warning', 'format', 'legacy-conversion', note.message, { fileId: f.id, target: note.keyPath.join('.'), keyPath: note.keyPath }));
     }
     const sets = tokenSets(f.doc.root);

@@ -32,8 +32,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:samples": "SAMPLES_REPORT=1 vitest run tests/samples tests/fix-safety tests/planted tests/remedy",
-    "typecheck": "tsc --noEmit"
+    "test:samples": "SAMPLES_REPORT=1 vitest run tests/samples tests/fix-safety tests/planted tests/remedy tests/output-files tests/output-edge tests/output-prompt",
+    "typecheck": "tsc --noEmit",
+    "compare": "node scripts/compare.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

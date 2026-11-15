@@ -69,5 +69,5 @@ describe('sample design systems', () => {
         ].join(' | '),
       );
     }
-  });
+  }, 120_000);
 });

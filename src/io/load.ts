@@ -210,22 +210,6 @@ async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource |
   return found.length > MAX_FILES ? [...read, tooMany(dir.name)] : read;
 }
 
-/** Choose a folder: with a handle where the browser offers one (for Reload), else with the standard folder input. */
-export async function pickFolder(fallback: HTMLInputElement): Promise<(RawSource | LoadError)[] | null> {
-  if (typeof window.showDirectoryPicker !== 'function' || pickerBroken) {
-    fallback.click();
-    return null;
-  }
-  try {
-    return await readDirHandle(await window.showDirectoryPicker({ mode: 'read' }));
-  } catch (err) {
-    if (err instanceof DOMException && err.name === 'AbortError') return null;
-    pickerBroken = true;
-    fallback.click();
-    return null;
-  }
-}
-
 /**
  * Read through a file handle so Reload can see later changes on disk. Some
  * browsers (embedded Chromium builds in particular) expose the API but fail

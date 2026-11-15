@@ -1,7 +1,5 @@
 import { fixPrompt, type PromptScope } from '../io/prompt';
-import type { Issue } from '../model/types';
 import { store } from '../state/app';
-import type { PairRow, SiblingRow } from '../state/pairs';
 import { h, icon, plural } from './dom';
 import { TIP } from './tips';
 
@@ -45,18 +43,4 @@ export function promptRow(text: (string | Node)[] | string, scope: PromptScope |
   return h('div', { class: `prompt-row ${cls}`.trim() }, h('span', { class: 'prompt-row-text' }, text), promptButton(scope));
 }
 
-/** A stable key for an issue, the same in every merge of the theme models. */
-const issueKey = (i: Issue) => [i.code, i.fileId, i.target, i.keyPath?.join('.'), i.message].join('\u0000');
-
-/** Scope: these issues. */
-export const issuesScope = (issues: readonly Issue[]): PromptScope => {
-  const keys = new Set(issues.map(issueKey));
-  return { issue: (i) => keys.has(issueKey(i)) };
-};
-
-/** Scope: these pairs and status groups (a contrast or color-blindness section). */
-export const pairsScope = (rows: readonly PairRow[], groups: readonly SiblingRow[] = []): PromptScope => {
-  const pairs = new Set(rows.map((r) => `${r.pair.fg}\u0000${r.pair.bg}`));
-  const ids = new Set(groups.map((g) => g.group.id));
-  return { pair: (x) => pairs.has(`${x.pair.fg}\u0000${x.pair.bg}`), sibling: (x) => ids.has(x.group.id) };
-};
+export { issuesScope, pairsScope } from '../io/prompt';

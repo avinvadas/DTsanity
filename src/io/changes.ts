@@ -1,5 +1,6 @@
 import type { AppState } from '../state/app';
 import type { SourceFile } from '../model/types';
+import { parseJson, toJS } from '../json/cst';
 import { exportText } from './export';
 
 /**
@@ -49,9 +50,10 @@ export function show(v: unknown): string {
   return json.length > 120 ? `${json.slice(0, 117)}…` : json;
 }
 
-const parse = (text: string): unknown => {
+/** A document's value, read in the file's own syntax (JSON5 for .json5 and .jsonc files, and .json files that use it). */
+const parse = (text: string, json5: boolean): unknown => {
   try {
-    return JSON.parse(text);
+    return toJS(parseJson(text, { json5 }).doc.root);
   } catch {
     return undefined;
   }
@@ -59,7 +61,8 @@ const parse = (text: string): unknown => {
 
 /** Changes per file, in DTCG terms: what was loaded (or its conversion) against what is there now. */
 export function fileChanges(f: SourceFile): TokenChange[] {
-  return diffTokens(parse(f.baseText), parse(exportText(f)));
+  const json5 = f.syntax === 'json5';
+  return diffTokens(parse(f.baseText, json5), parse(exportText(f), json5));
 }
 
 const code = (s: string) => `\`${s.replaceAll('`', 'ˋ')}\``;

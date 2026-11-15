@@ -41,6 +41,20 @@ describe('fix prompt', () => {
     expect(fixPrompt(store.get()).text).toContain('- To fix contrast, prefer pointing');
   });
 
+  it('lists one rule broken in several places of a file once, naming each place', () => {
+    const text = '{\n  "size": {\n    "a": { "$value": "1px" },\n    "b": { "$value": "2px" },\n    "c": { "$value": "3px" }\n  },\n  "color": { "$type": "color", "x": { "$value": "{size.zz}" }, "y": { "$value": "{size.yy}" } }\n}\n';
+    addFiles([loadText(text, 'set.tokens.json')]);
+    const p = fixPrompt(store.get());
+    const missing = p.text.split('\n').filter((l) => l.includes('[missing-type]'));
+    expect(missing).toHaveLength(1);
+    expect(missing[0]).toMatch(/^- set\.tokens\.json: .*\[missing-type\]\. .* In 3 places: `size\.a` \(line 3\), `size\.b` \(line 4\), `size\.c` \(line 5\)\.$/);
+    // Messages that differ only in what they quote: one line, each place with its own quote.
+    const broken = p.text.split('\n').filter((l) => l.includes('[unresolved-reference]'));
+    expect(broken).toHaveLength(1);
+    expect(broken[0]).toMatch(/\{…\}.* In 2 places: `color\.x` \(line 7; \{size\.zz\} → \{size\.a\}\), `color\.y` \(line 7; \{size\.yy\} → \{size\.a\}\)\.$/);
+    expect(p.text).toMatch(/## Errors \(5\)/);
+  });
+
   it('covers only the findings in its scope', () => {
     addFiles([loadFixture('dtcg-broken.tokens.json')]);
     const all = fixPrompt(store.get());
@@ -60,6 +74,9 @@ describe('fix prompt', () => {
     expect(all).toContain('## Typography (1)');
     expect(all).toMatch(/semantic\.type\.body, semantic\.type\.copy look the same/);
     expect(all).toContain('First make the files that couldn’t be read valid');
+    // Nothing in them was checked, so they come before every other correction.
+    expect(all.indexOf("## Files that couldn't be read")).toBeLessThan(all.indexOf('## Typography'));
+    expect(all.indexOf("## Files that couldn't be read")).toBeLessThan(all.indexOf('## Warnings') === -1 ? Infinity : all.indexOf('## Warnings'));
     expect(fixPrompt(store.get(), { typography: true }).count).toBe(1);
     expect(fixPrompt(store.get(), { files: true }).count).toBe(1);
   });

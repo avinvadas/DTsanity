@@ -619,7 +619,6 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
 .view[data-empty] .setting { text-align: left; }
 
 /* Under the drop zone: choosing a whole folder instead of files. */
-button.folder-pick { font-size: var(--font-sm); font-weight: 500; }
 .url-form { display: flex; flex-direction: column; gap: var(--space-2); justify-content: center; width: min(440px, 100%); }
 .url-form label { font-weight: 600; }
 .url-form .row { display: flex; gap: var(--space-2); align-self: stretch; }
@@ -1319,6 +1318,8 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 .landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-sm); line-height: 1.55; color: var(--muted); text-align: center; text-wrap: balance; }
 /* The credit closes every scrolled view, desktop and phone alike: centered, 4rem below the content. */
 .page-foot { max-width: var(--content-w); margin: 4rem auto 0; text-align: center; text-wrap: balance; font-size: var(--font-sm); color: var(--subtle); }
+/* The privacy line, on its own line above the credit. */
+.foot-privacy { margin: 0 0 var(--space-1); }
 /* The phone's body already spaces its parts; the foot makes up the rest of the 4rem. */
 .m-body > .page-foot { margin: calc(4rem - var(--space-5)) 0 0; }
 /* The credit reads as part of the footer: quiet text, the name underlined as a link. */
