@@ -44,7 +44,7 @@ const THEME_WORD = /(?:^|[^a-z0-9])(light|dark|dim|night|day|high-?contrast|hc)(
 const baseName = (name: string) => name.split('/').at(-1)!.replace(/\.(tokens\.)?json[5c]?$|\.tokens$/i, '');
 
 export function detectThemes(files: SourceFile[], settings: Settings): Theme[] {
-  const themes = fromResolver(files) ?? fromTokensStudio(files) ?? fromFileNames(files) ?? fromModes(files, settings) ?? [];
+  const themes = fromResolver(files) ?? fromTokensStudio(files) ?? fromFileNames(files, settings) ?? fromModes(files, settings) ?? [];
   return themes.map((t) => (isHighContrast(t) ? { ...t, contrast: 'enhanced' as const } : t));
 }
 
@@ -247,20 +247,83 @@ function fromTokensStudio(files: SourceFile[]): Theme[] | undefined {
 // ---------------------------------------------------------------------------
 // File names
 
-function fromFileNames(files: SourceFile[]): Theme[] | undefined {
+/** A theme while it is detected: with the names of the themes it builds on, if it is a variant. */
+type Draft = Theme & { variantOf?: string[] };
+
+/**
+ * The file a theme file builds on: another file of the same theme whose name
+ * it extends (`dark.dimmed` and `dark.high-contrast` on `dark`,
+ * `atlassian-light-increased-contrast` on `atlassian-light`). The longest such
+ * name, so a variant of a variant builds on its nearest parent.
+ */
+function parentOf(f: SourceFile, sameTheme: SourceFile[]): SourceFile | undefined {
+  const name = baseName(f.name).toLowerCase();
+  let best: SourceFile | undefined;
+  for (const p of sameTheme) {
+    const pn = baseName(p.name).toLowerCase();
+    if (p === f || !name.startsWith(pn) || !/^[._-]./.test(name.slice(pn.length))) continue;
+    if (!best || pn.length > baseName(best.name).length) best = p;
+  }
+  return best;
+}
+
+function fromFileNames(files: SourceFile[], settings: Settings): Theme[] | undefined {
   // Grouped without regard to case or spelling (hc, highcontrast, high-contrast); named as the first file writes it.
   const spelled = (f: SourceFile) => THEME_WORD.exec(baseName(f.name))?.[1];
   const word = (f: SourceFile) => spelled(f)?.toLowerCase().replace(/^highcontrast$/, 'high-contrast').replace(/^hc$/, 'high-contrast');
   const keys = [...new Set(files.map(word).filter((k): k is string => !!k))];
   if (keys.length < 2) return undefined;
   const shared = files.filter((f) => !word(f) && !isMetaFile(f)).map((f) => f.id);
-  return keys.map((k) => ({
-    id: `file:${k}`,
-    name: spelled(files.find((f) => word(f) === k)!)!,
-    source: 'file-names' as const,
-    fileIds: files.filter((f) => shared.includes(f.id) || word(f) === k).map((f) => f.id),
-    scope: {},
-  }));
+  const themes: Draft[] = [];
+  for (const k of keys) {
+    const own = files.filter((f) => word(f) === k);
+    const parent = new Map(own.map((f) => [f, parentOf(f, own)] as const));
+    // Variants are themes of their own, read over the files they build on; the theme itself reads the rest.
+    const variants = own.filter((f) => parent.get(f));
+    const name = spelled(own[0]!)!;
+    const base = own.filter((f) => !variants.includes(f));
+    // A variant's files load last, each after the one it builds on, so they win.
+    const fileIdsOf = (extra: SourceFile[]) => [...files.filter((f) => shared.includes(f.id) || base.includes(f)), ...extra].map((f) => f.id);
+    themes.push({ id: `file:${k}`, name, source: 'file-names', fileIds: fileIdsOf([]), scope: {} });
+    for (const v of variants) {
+      const chain: SourceFile[] = [];
+      for (let p: SourceFile | undefined = v; p && variants.includes(p); p = parent.get(p)) chain.unshift(p);
+      // Named by what each step adds to the theme: dark → dark-dimmed → dark-dimmed-high-contrast.
+      const steps = chain.map((c) => baseName(c.name).slice(baseName(parent.get(c)!.name).length + 1));
+      const names = steps.map((_, i) => [name, ...steps.slice(0, i + 1)].join('-'));
+      themes.push({ id: `file:${k}:${names.at(-1)}`, name: names.at(-1)!, source: 'file-names', fileIds: fileIdsOf(chain), scope: { overlays: chain.map((c) => c.id) }, variantOf: [name, ...names.slice(0, -1)] });
+    }
+  }
+  return withModes(themes, files, settings);
+}
+
+/**
+ * Themes named like the modes in `$extensions` read those modes: Primer's
+ * `org.primer.overrides` hold each token's value in `dark`,
+ * `dark-high-contrast`… A variant also reads the modes of the themes it
+ * builds on, where it has none of its own.
+ */
+function withModes(themes: Draft[], files: SourceFile[], settings: Settings): Theme[] {
+  const names = modeNames(files, settings);
+  if (!names.size) return themes.map(({ variantOf: _, ...t }) => t);
+  const has = (n: string) => names.has(n.toLowerCase());
+  return themes.map(({ variantOf, ...t }) => {
+    const chain = [...(variantOf ?? []), t.name].filter(has).map((n) => [...names.get(n.toLowerCase())!][0]!);
+    if (!chain.length) return t;
+    const mode = chain.at(-1)!;
+    const fallback = chain.slice(0, -1);
+    return { ...t, scope: { ...t.scope, mode, ...(fallback.length ? { modeFallback: fallback } : {}) } };
+  });
+}
+
+/** The mode names tokens give values for, by lower-case name, as written. */
+function modeNames(files: SourceFile[], settings: Settings): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  for (const t of buildModel(files, settings).tokens.values()) {
+    const modes = modeValues(t.extensions);
+    if (modes) for (const m of Object.keys(modes.values)) out.set(m.toLowerCase(), (out.get(m.toLowerCase()) ?? new Set()).add(m));
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------

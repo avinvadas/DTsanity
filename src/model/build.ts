@@ -2,7 +2,8 @@ import { entry, toJS, type JNode, type JObject, type Pos } from '../json/cst';
 import { DEFAULT_SETTINGS } from './defaults';
 import { closest } from './suggest';
 import { isMetaFile } from './format';
-import { modeValues } from './modes';
+import { modeAlpha, modeValue, modeValues } from './modes';
+import { cssToDtcg } from '../color/dtcg';
 import type { Category, Fix, Group, Issue, Model, Settings, Severity, SourceFile, ThemeScope, Token } from './types';
 
 /**
@@ -206,14 +207,31 @@ function addToken(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPat
   const id = path.join('.');
   let rawValue = toJS(entry(node, '$value')!.value);
   let valuePath = ['$value'];
+  let modeAlphaOf: number | undefined;
   if (ctx.scope.mode !== undefined) {
     const modes = modeValues(obj(entry(node, '$extensions')?.value));
-    if (modes && Object.prototype.hasOwnProperty.call(modes.values, ctx.scope.mode)) {
-      rawValue = modes.values[ctx.scope.mode];
-      valuePath = [...modes.path, ctx.scope.mode];
+    // The theme's own mode, else the modes it builds on, most specific first.
+    // An entry with no value of its own (Primer's `{ alpha: 0.2 }`) leaves the token's value as it is.
+    const order = modes ? [ctx.scope.mode, ...[...(ctx.scope.modeFallback ?? [])].reverse()].filter((m) => Object.prototype.hasOwnProperty.call(modes.values, m)) : [];
+    const mode = order.find((m) => modeValue(modes!.values[m]));
+    const v = mode !== undefined ? modeValue(modes!.values[mode]) : undefined;
+    if (v) {
+      rawValue = v.value;
+      valuePath = [...modes!.path, mode!, ...v.path];
+    }
+    // The alpha of the most specific entry that gives one, up to the entry that gives the value:
+    // an entry with a value of its own replaces what the themes it builds on say.
+    for (const m of order) {
+      const a = modeAlpha(modes!.values[m]);
+      if (a !== undefined) {
+        modeAlphaOf = a;
+        break;
+      }
+      if (m === mode) break;
     }
   }
   const t: Token = { id, path, fileId: f.id, keyPath, rawValue, valuePath, refs: [], resolution: 'ok', order: ctx.order++ };
+  if (modeAlphaOf !== undefined) t.modeAlpha = modeAlphaOf;
   const declaredType = str(entry(node, '$type')?.value);
   if (declaredType !== undefined) t.declaredType = declaredType;
   if (inheritedType !== undefined) t.inheritedType = inheritedType;
@@ -229,7 +247,8 @@ function addToken(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPat
 
   const prev = ctx.model.tokens.get(id);
   const sameKey = prev && prev.fileId === f.id && prev.keyPath.join('\u0000') === keyPath.join('\u0000');
-  if (prev && !prev.extendedFrom && !sameKey) {
+  const overlay = prev && prev.fileId !== f.id && ctx.scope.overlays?.includes(f.id);
+  if (prev && !prev.extendedFrom && !sameKey && !overlay) {
     const where = (x: { fileId: string; keyPath: string[]; path: string[] }) => {
       const name = ctx.model.files.find((file) => file.id === x.fileId)?.name ?? 'another file';
       const set = x.keyPath.length > x.path.length ? x.keyPath[0] : undefined;
@@ -305,6 +324,16 @@ interface Status {
   broken: boolean;
 }
 
+/** A resolved color with its alpha replaced; any other value as it is. A CSS color string counts only when legacy values are read. */
+function withAlpha(v: unknown, alpha: number, css: boolean): unknown {
+  if (v && typeof v === 'object' && !Array.isArray(v) && 'colorSpace' in v && 'components' in v) return { ...v, alpha };
+  if (css && typeof v === 'string') {
+    const c = cssToDtcg(v);
+    if (c) return { ...c, alpha };
+  }
+  return v;
+}
+
 function resolveAll(ctx: Ctx) {
   const { model } = ctx;
   const stack: string[] = [];
@@ -340,7 +369,7 @@ function resolveAll(ctx: Ctx) {
       delete t.value;
     } else {
       t.resolution = 'ok';
-      t.value = value;
+      t.value = t.modeAlpha === undefined ? value : withAlpha(value, t.modeAlpha, model.settings.acceptLegacy);
     }
     const target = t.aliasOf ? model.tokens.get(t.aliasOf) : undefined;
     const type = t.declaredType ?? t.inheritedType ?? target?.type;

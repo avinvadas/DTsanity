@@ -354,7 +354,10 @@ export function applyFixes(fixes: Fix[], label = fixes.length === 1 ? fixes[0]!.
   // One fix per token in a batch: two fixes worked out on their own can clash on the same token
   // (removing a "$type" so the reference gives it, and writing the value in place of that reference).
   // The others wait; checked again after this batch, each is offered again if it still applies.
-  const claimed = new Set<string>();
+  // Edits to different mode entries of one token (`$extensions.org.primer.overrides.dark`, `….dark-dimmed`) don't clash:
+  // each claims its own entry, and waits only for an edit to the whole token.
+  const whole = new Set<string>();
+  const parts = new Map<string, Set<string>>();
   let applied = 0;
   for (const f of fixes) {
     if ('setting' in f) {
@@ -362,9 +365,13 @@ export function applyFixes(fixes: Fix[], label = fixes.length === 1 ? fixes[0]!.
       applied++;
       continue;
     }
-    const tokens = [...new Set(f.edits.map(editToken))];
-    if (tokens.some((t) => claimed.has(t))) continue;
-    tokens.forEach((t) => claimed.add(t));
+    const claims = f.edits.map(editClaim);
+    const clash = claims.some(({ token, entry }) => whole.has(token) || (entry === undefined ? parts.has(token) : parts.get(token)?.has(entry)));
+    if (clash) continue;
+    for (const { token, entry } of claims) {
+      if (entry === undefined) whole.add(token);
+      else parts.set(token, (parts.get(token) ?? new Set()).add(entry));
+    }
     edits.push(...f.edits);
     applied++;
   }
@@ -392,6 +399,16 @@ export function applyFixes(fixes: Fix[], label = fixes.length === 1 ? fixes[0]!.
 function editToken(e: Edit): string {
   const end = e.path.findIndex((k) => typeof k === 'string' && k.startsWith('$'));
   return [e.fileId, ...(end === -1 ? e.path : e.path.slice(0, end))].join('\u0000');
+}
+
+/** What an edit claims in a batch: its token, and the mode entry it writes when it writes only one (see `modeValues`). */
+function editClaim(e: Edit): { token: string; entry?: string } {
+  const token = editToken(e);
+  const end = e.path.findIndex((k) => typeof k === 'string' && k.startsWith('$'));
+  const rest = end === -1 ? [] : e.path.slice(end).map(String);
+  // `$extensions` › (`mode` | vendor › `modes` | vendor `.modes`/`.overrides`) › mode name.
+  const at = rest[0] !== '$extensions' ? -1 : rest[1] === 'mode' || /\.(modes|overrides)$/.test(rest[1] ?? '') ? 2 : rest[2] === 'modes' ? 3 : -1;
+  return at > 0 && rest.length > at && 'value' in e ? { token, entry: rest.slice(0, at + 1).join('\u0000') } : { token };
 }
 
 const issueKey = (i: { code: string; fileId?: string; keyPath?: string[]; target?: string }) =>

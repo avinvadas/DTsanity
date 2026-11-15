@@ -102,6 +102,8 @@ export interface Token {
   rawValue: unknown;
   /** Where `rawValue` sits inside the token object: ["$value"], or a mode entry under `$extensions`. */
   valuePath: string[];
+  /** In a mode theme: the alpha the mode's entry gives the color it resolves to (Primer's `{ $value, alpha }`). */
+  modeAlpha?: number;
   /** `$value` with every reference replaced; undefined when resolution failed. */
   value?: unknown;
   /** Set when the whole value is a reference to another token. */
@@ -141,6 +143,10 @@ export interface Group {
 export interface ThemeScope {
   sets?: Readonly<Record<string, readonly string[]>>;
   mode?: string;
+  /** Modes `mode` builds on, applied in order where a token has no value for `mode` (Primer: dark, then dark-high-contrast). */
+  modeFallback?: readonly string[];
+  /** Files laid over the others on purpose (a theme variant such as `dark.high-contrast`): their tokens replace earlier ones without a warning. */
+  overlays?: readonly string[];
 }
 
 export interface Model {

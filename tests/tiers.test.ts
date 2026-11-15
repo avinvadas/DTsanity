@@ -46,6 +46,19 @@ describe('tier detection', () => {
     expect(tiers.get('components.button.bg')).toBe('component');
     expect(tiers.get('base.card')).toBe('base');
   });
+
+  it('reads a layer from the folders a file is in (Primer: base/, functional/, component/)', () => {
+    const m = analyze(
+      [
+        loadText(JSON.stringify({ base: { display: { blue: { '0': { $type: 'color', $value: { colorSpace: 'srgb', components: [0, 0, 1] } } } } } }), 'base/color/dark/display-dark.json5'),
+        loadText(JSON.stringify({ display: { blue: { scale: { '0': { $type: 'color', $value: '{base.display.blue.0}' } } } } }), 'functional/color/display.json5'),
+      ],
+      DEFAULT_SETTINGS,
+    );
+    // A numbered step is a palette step only when nothing names its layer: here the folder does.
+    expect(tiersOf(m).get('display.blue.scale.0')).toBe('semantic');
+    expect(m.issues.filter((i) => i.code === 'tier-base-reference')).toEqual([]);
+  });
 });
 
 describe('component names', () => {

@@ -21,7 +21,7 @@ export type Tier = 'base' | 'semantic' | 'component';
 export const TIER_LABEL: Record<Tier, string> = { base: 'Base', semantic: 'Semantic', component: 'Component' };
 
 const BASE = new Set(['primitive', 'primitives', 'base', 'core', 'global', 'globals', 'ref', 'reference', 'references', 'palette', 'palettes', 'foundation', 'foundations']);
-const SEMANTIC = new Set(['semantic', 'semantics', 'sys', 'system', 'alias', 'aliases', 'decision', 'decisions']);
+const SEMANTIC = new Set(['semantic', 'semantics', 'sys', 'system', 'alias', 'aliases', 'decision', 'decisions', 'functional']);
 const COMPONENT_GROUP = new Set(['component', 'components', 'comp', 'cmp']);
 /** Common component names. Words that are also roles (label, link) are left out. */
 const COMPONENTS = new Set([
@@ -48,17 +48,26 @@ const asWritten = (word: string, ...sources: string[]) => {
   return word;
 };
 
+/** The folders a file is in, nearest first, each as its words (`functional/color/bg.json5` → functional's after color's). */
+const folderWords = (name: string) =>
+  name
+    .split('/')
+    .slice(0, -1)
+    .reverse()
+    .map((seg) => seg.split(/[.\-_\s]+/).map((w) => w.toLowerCase()));
+
 /**
  * The layer a token's file names explicitly, and the word it uses for it:
  * first the top two groups (`semantic.color.bg`, a Tokens Studio set name
- * such as `global`), then the file name (`primitives.tokens.json`).
+ * such as `global`), then the file name (`primitives.tokens.json`), then the
+ * folders it is in, nearest first (Primer's `base/`, `functional/`, `component/`).
  */
 function layerOf(t: Token, fileName: string): { tier: Tier; word: string } | undefined {
   const top = t.keyPath.slice(0, 2).flatMap((seg) => words(seg));
-  for (const layer of [top, fileWords(fileName)]) {
+  for (const layer of [top, fileWords(fileName), ...folderWords(fileName)]) {
     for (const [tier, set] of [['component', COMPONENT_GROUP], ['base', BASE], ['semantic', SEMANTIC]] as const) {
       const word = layer.find((w) => set.has(w));
-      if (word) return { tier, word: asWritten(word, ...t.keyPath.slice(0, 2), fileName.split('/').at(-1)!) };
+      if (word) return { tier, word: asWritten(word, ...t.keyPath.slice(0, 2), ...fileName.split('/').reverse()) };
     }
   }
   return undefined;

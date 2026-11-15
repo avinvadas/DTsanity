@@ -237,3 +237,100 @@ describe('contrast level per theme', () => {
     expect(row.seen.normal.every((x) => x!.pass)).toBe(true);
   });
 });
+
+describe('theme variants and per-theme overrides (Primer)', () => {
+  const c = (hex: string) => ({ colorSpace: 'srgb', components: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255), hex });
+  // Primer's layout: dark.json5, a variant laid over it, and a light file; functional tokens hold per-theme values in `org.primer.overrides`.
+  const files = () => [
+    loadText(JSON.stringify({ base: { $type: 'color', black: { $value: c('#010409') }, blue: { $value: c('#0969da') } } }), 'base/color/dark/dark.json5'),
+    loadText(JSON.stringify({ base: { $type: 'color', black: { $value: c('#000000') } } }), 'base/color/dark/dark.high-contrast.json5'),
+    loadText(JSON.stringify({ base: { $type: 'color', black: { $value: c('#1f2328') }, blue: { $value: c('#0969da') } } }), 'base/color/light/light.json5'),
+    loadText(
+      JSON.stringify({
+        fg: {
+          $type: 'color',
+          accent: { $value: '{base.blue}', $extensions: { 'org.primer.overrides': { dark: c('#4493f8'), 'dark-high-contrast': c('#74b9ff') } } },
+          muted: { $value: '{base.blue}', $extensions: { 'org.primer.overrides': { dark: { $value: c('#9198a1'), alpha: 1 }, 'dark-high-contrast': { alpha: 0.5 } } } },
+        },
+      }),
+      'functional/color/fg.json5',
+    ),
+  ];
+  const value = (theme: string, id: string) => store.get().themeModels.find((m) => m.theme.name === theme)!.model.tokens.get(id)!.value as { hex: string };
+
+  it('makes a file that extends another one’s name a theme of its own, read over it', () => {
+    clearAll();
+    addFiles(files());
+    const s = store.get();
+    const names = new Map(s.files.map((f) => [f.id, f.name]));
+    expect(s.themes.map((t) => [t.name, t.contrast, t.fileIds.map((id) => names.get(id))])).toEqual([
+      ['dark', undefined, ['base/color/dark/dark.json5', 'functional/color/fg.json5']],
+      ['dark-high-contrast', 'enhanced', ['base/color/dark/dark.json5', 'functional/color/fg.json5', 'base/color/dark/dark.high-contrast.json5']],
+      ['light', undefined, ['base/color/light/light.json5', 'functional/color/fg.json5']],
+    ]);
+    // The variant wins over the file it builds on, and replacing its tokens is what it is for: no "defined twice".
+    expect(value('dark-high-contrast', 'base.black').hex).toBe('#000000');
+    expect(codes().filter((c) => c.startsWith('duplicate-path'))).toEqual([]);
+  });
+
+  it('reads each theme’s value from `<vendor>.overrides`, a variant falling back to the theme it builds on', () => {
+    clearAll();
+    addFiles(files());
+    expect(value('dark', 'fg.accent').hex).toBe('#4493f8');
+    expect(value('dark-high-contrast', 'fg.accent').hex).toBe('#74b9ff');
+    expect(value('light', 'fg.accent').hex).toBe('#0969da');
+    // An entry written as a token gives its `$value`; one with only an alpha leaves the value to the theme it builds on.
+    expect(value('dark', 'fg.muted').hex).toBe('#9198a1');
+    expect(value('dark-high-contrast', 'fg.muted').hex).toBe('#9198a1');
+  });
+
+  it('gives the color the alpha of its per-theme entry, as Primer builds it', () => {
+    const alpha = (theme: string, id: string) => (value(theme, id) as { alpha?: number }).alpha ?? 1;
+    clearAll();
+    addFiles([
+      ...files().slice(0, 3),
+      loadText(
+        JSON.stringify({
+          fg: {
+            $type: 'color',
+            // `{ $value, alpha }`: the alpha replaces the alpha of the color the entry resolves to.
+            border: { $value: '{base.blue}', $extensions: { 'org.primer.overrides': { dark: { $value: '{fg.translucent}', alpha: 1 }, 'dark-high-contrast': { $value: '{base.blue}', alpha: 0.4 } } } },
+            translucent: { $value: { ...c('#0969da'), alpha: 0.5 } },
+            // `{ alpha }` alone changes the alpha of the value the theme would have.
+            skeleton: { $value: '{base.black}', $extensions: { 'org.primer.overrides': { dark: { alpha: 0.2 } } } },
+            // A color written as the entry keeps its own alpha.
+            literal: { $value: '{base.blue}', $extensions: { 'org.primer.overrides': { dark: { ...c('#4493f8'), alpha: 0.3 } } } },
+            usesBorder: { $value: '{fg.border}' },
+          },
+        }),
+        'functional/color/fg.json5',
+      ),
+    ]);
+    // `alpha: 1` leaves the alpha of the color it points at, as Primer's CSS does.
+    expect(alpha('dark', 'fg.border')).toBe(0.5);
+    expect(alpha('dark-high-contrast', 'fg.border')).toBe(0.4);
+    expect(alpha('light', 'fg.border')).toBe(1);
+    expect(alpha('dark', 'fg.skeleton')).toBe(0.2);
+    expect(value('dark', 'fg.skeleton').hex).toBe('#010409');
+    expect(alpha('dark-high-contrast', 'fg.skeleton')).toBe(0.2);
+    expect(alpha('light', 'fg.skeleton')).toBe(1);
+    expect(alpha('dark', 'fg.literal')).toBe(0.3);
+    // An alias carries the alpha of the color it points at, as Primer's `var(--…)` does.
+    expect(alpha('dark-high-contrast', 'fg.usesBorder')).toBe(0.4);
+    // The written value is unchanged: fixes and format checks still see the file as it is.
+    const t = store.get().themeModels.find((m) => m.theme.name === 'dark-high-contrast')!.model.tokens.get('fg.border')!;
+    expect(t.rawValue).toBe('{base.blue}');
+  });
+
+  it('applies fixes to several per-theme values of one token in one go', () => {
+    clearAll();
+    addFiles([
+      ...files().slice(0, 3),
+      loadText(JSON.stringify({ fg: { $type: 'color', accent: { $value: '{base.blue}', $extensions: { 'org.primer.overrides': { dark: '#4493F8', 'dark-high-contrast': '#74B9FF' } } } } }), 'functional/color/fg.json5'),
+    ]);
+    const fixes = store.get().themeModels.flatMap((m) => m.model.issues).filter((i) => i.code === 'legacy-value' && i.fix).map((i) => i.fix!);
+    expect(fixes).toHaveLength(2);
+    expect(applyFixes(fixes)).toBe(2);
+    expect(store.get().themeModels.flatMap((m) => m.model.issues).filter((i) => i.code === 'legacy-value')).toEqual([]);
+  });
+});

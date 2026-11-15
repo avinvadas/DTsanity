@@ -190,7 +190,8 @@ const PER_OP = 4;
 const canonical = (v: unknown): string =>
   JSON.stringify(v, (_k, x) => (isObj(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a.localeCompare(b))) : x));
 
-const place = (i: Issue, names: Map<string, string>) => [i.code, names.get(i.fileId ?? '') ?? '', i.target ?? ''].join(' | ');
+/** Where an issue is: its rule, file and token, and the themes it occurs in (one token's `$value` and its per-theme values are told apart). */
+const place = (i: Issue, names: Map<string, string>) => [i.code, names.get(i.fileId ?? '') ?? '', i.target ?? '', (i.themes ?? []).join(',')].join(' | ');
 
 function analyze(texts: { name: string; text: string }[]) {
   clearAll();
