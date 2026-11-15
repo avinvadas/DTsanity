@@ -4,11 +4,15 @@ import { formatContrast } from '../contrast/metrics';
 import { ruleTitle } from '../model/rules';
 import type { Issue } from '../model/types';
 import type { AppState } from '../state/app';
-import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
+import { contrastRule, pairsOf, type PairRow, type SiblingRow } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
 import { mergeModels } from '../themes/merge';
-import { PRINCIPLE, PROMPT_RULES, type PromptRule } from '../policy/principles';
-import { withPolicy } from '../policy/rules';
+import { PROMPT_RULES, type PromptRule } from '../policy/principles';
+import { RULES, withPolicy } from '../policy/rules';
+import { BASIS, basisLabel } from '../policy/basis';
+import { CRITERIA, UNREADABLE } from '../policy/criteria';
+import { formatColor, type ColorInfo } from '../color/format';
+import type { Model } from '../model/types';
 import { rangeNotes, typeStyle, typographyIds } from '../semantic/typography';
 import { allModels } from '../state/app';
 
@@ -47,16 +51,44 @@ export interface PromptScope {
   files?: boolean;
 }
 
-/** Findings about properties DTCG has no place for, where a fix may move what a property does. */
-const PROPERTY_RULES = new Set(['token-has-children', 'unknown-property', 'invalid-value', 'legacy-property']);
-
 const code = (s: string) => `\`${s}\``;
 const list = (xs: string[]) => xs.map(code).join(', ');
+
+/**
+ * A finding's message as evidence for the prompt. The page's messages may
+ * suggest a change ("Did you mean…?"), guess a type from a value, or point at
+ * a DTsanity setting; the prompt keeps what they show and drops what they
+ * steer, since the fix is the design system's to choose (and DTCG 5.2.2 bars
+ * guessing a type from its value).
+ */
+export function evidence(message: string): string {
+  return message
+    .replace(/ Did you mean (its root token )?(\S.*?)\?/g, (_, root, x) => ` Closest existing ${root ? 'root token' : 'name'}: ${x}.`)
+    .replace(/ The value looks like an? [\w-]+\./g, '')
+    .replace(/ Point at one of the tokens in it; which one is a design choice\./g, '')
+    .replace(/ Switch the target gamut to Display P3 if that's intended\./g, '');
+}
+
+/** A finding in the prompt: one line, standing for `n` findings of one rule. */
+interface Entry {
+  rule: string;
+  line: string;
+  n: number;
+  /** Counted as the Issues page counts; the rest are listed beside the count. */
+  counted: boolean;
+}
+
+/** The rules in the order the prompt lists them: unread files first, then as the Policy page groups them. */
+const RULE_ORDER = [UNREADABLE, ...RULES.map((r) => r.id)];
+const titleOf = (id: string) => (id === UNREADABLE ? "File couldn't be read" : (RULES.find((r) => r.id === id)?.title ?? ruleTitle(id)));
+const standingOf = (id: string) => (id === UNREADABLE ? 'required' : (BASIS[id]?.standing ?? 'advice'));
+const basisOf = (id: string) => (id === UNREADABLE ? 'Required · JSON RFC 8259' : (basisLabel(id) ?? 'Advice · DTsanity check'));
 
 export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   // Issues from every theme, not just the one on screen.
   const model = s.themeModels.length ? mergeModels(s.themeModels) : s.model;
   const themeNames = s.themeModels.map((m) => m.theme.name);
+  const models = allModels(s);
   const fileName = new Map(s.files.map((f) => [f.id, f.name]));
   const pairs = pairsOf(s);
   const palettes = palettesOf(s).palettes.filter((p) => p.included);
@@ -67,37 +99,21 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const sibs = scope ? pairs.siblings.filter(scope.sibling ?? none) : pairs.siblings;
   const pals = scope && !scope.scales ? [] : palettes;
 
-  const required: string[] = [];
-  // The kinds of findings listed, so the rules section states only the rules that apply to them.
-  const listed = new Set<PromptRule['when']>(['always']);
-  const optional: string[] = [];
-  let count = 0;
-  let more = 0;
-  // An item is one line; a line that stands for several findings of one rule says how many.
-  type Item = string | { line: string; n: number };
-  /** A section of the prompt; `counted` when the Issues page counts its findings too. */
-  const section = (into: string[], title: string, items: Item[], counted = true) => {
-    if (!items.length) return;
-    const n = items.reduce((sum, x) => sum + (typeof x === 'string' ? 1 : x.n), 0);
-    if (counted) count += n;
-    else more += n;
-    into.push(`## ${title} (${n})`, '', ...items.map((x) => `- ${typeof x === 'string' ? x : x.line}`), '');
-  };
+  const entries: Entry[] = [];
+  const add = (rule: string, line: string, counted: boolean, n = 1) => entries.push({ rule, line, n, counted });
 
-  // Files that couldn't be read: they come first, since nothing in them was checked.
+  // Files that couldn't be read: nothing in them was checked.
   const unread = !scope || scope.files ? s.loadErrors : [];
-  if (unread.length) listed.add('files');
-  section(required, "Files that couldn't be read", unread.map((e) => `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`), false);
+  for (const e of unread) add(UNREADABLE, `${code(e.name)}${e.line ? ` (line ${e.line}, column ${e.col})` : ''}: ${e.message}`, false);
 
-  // Format, structure, references and tier rules, by file.
-  // In the order the page shows them: place, title [rule], detail, fix; one line per correction to make.
+  // Format, structure, references and tier rules: the place and what is there. The rule's
+  // problem and "done when" go once, above its findings; a one-click fix isn't given, since
+  // the fix is the design system's to choose.
   const themesOf = (i: Issue) => (i.themes?.length ? ` (${i.themes.join(', ')} only)` : '');
-  const fixOf = (i: Issue) => (i.fix ? `Fix: ${i.fix.label}${i.fix.preview ? ` (${i.fix.preview.before} → ${i.fix.preview.after})` : ''}.` : '');
   const issueLine = (i: Issue) => {
     const file = i.fileId ? fileName.get(i.fileId) : undefined;
     const where = [file && i.pos ? `${file}:${i.pos.line}` : file, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
-    const fix = fixOf(i);
-    return `${where ? `${where}: ` : ''}${ruleTitle(i.code)} [${i.code}]${themesOf(i)}.${i.message ? ` ${i.message}` : ''}${fix ? ` ${fix}` : ''}`;
+    return `${where || 'All files'}${themesOf(i)}:${i.message ? ` ${evidence(i.message)}` : ''}`;
   };
   // The same finding in several places of one file (same rule, message and themes) is one line
   // that names each place, so a rule a file breaks everywhere doesn't fill the prompt with copies.
@@ -106,7 +122,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const QUOTED = /“[^”]*”|\{[^{}]*\}/g;
   const template = (m: string) => m.replace(QUOTED, (q) => (q.startsWith('{') ? '{…}' : '“…”'));
   const quotes = (m: string) => m.match(QUOTED) ?? [];
-  const issueItems = (xs: Issue[]): Item[] => {
+  const addIssues = (xs: Issue[]) => {
     const groups = new Map<string, Issue[]>();
     const order: (Issue | Issue[])[] = [];
     for (const i of xs) {
@@ -124,70 +140,79 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
         order.push(first);
       }
     }
-    return order.map((g) => {
-      if (!Array.isArray(g)) return issueLine(g);
-      if (g.length === 1) return issueLine(g[0]!);
-      const i = g[0]!;
+    for (const g of order) {
+      const i = Array.isArray(g) ? g[0]! : g;
+      const counted = i.severity !== 'info';
+      if (!Array.isArray(g) || g.length === 1) {
+        add(i.code, issueLine(i), counted);
+        continue;
+      }
       const file = i.fileId ? fileName.get(i.fileId) : undefined;
-      // A message or fix all the places share goes once; what is each place's own goes beside it
-      // (a fix by its label alone: the label already says what it changes to).
       const sameMessage = g.every((x) => x.message === i.message);
-      const sameFix = g.every((x) => fixOf(x) === fixOf(i));
-      const sameLabel = g.every((x) => x.fix?.label === i.fix?.label);
-      const shared = sameFix ? fixOf(i) : sameLabel && i.fix ? `Fix: ${i.fix.label}.` : '';
-      const ownFix = (x: Issue) =>
-        sameFix || !x.fix ? '' : sameLabel ? (x.fix.preview ? `${x.fix.preview.before} → ${x.fix.preview.after}` : '') : `Fix: ${x.fix.label}`;
       const places = g.map((x) => {
-        const fix = ownFix(x);
-        // A quote the place's own fix already shows isn't given twice.
-        const own = sameMessage ? [] : quotes(x.message ?? '').filter((q) => !fix.includes(q));
-        const notes = [x.pos ? `line ${x.pos.line}` : '', own.join(', '), fix].filter(Boolean).join('; ');
+        const own = sameMessage ? [] : quotes(evidence(x.message ?? ''));
+        const notes = [x.pos ? `line ${x.pos.line}` : '', own.join(', ')].filter(Boolean).join('; ');
         return `${x.target ? code(x.target) : ''}${x.target && notes ? ' ' : ''}${notes ? (x.target ? `(${notes})` : notes) : ''}`;
       });
-      const message = sameMessage ? i.message : template(i.message ?? '');
-      const line = `${file ? `${file}: ` : ''}${ruleTitle(i.code)} [${i.code}]${themesOf(i)}.${message ? ` ${message}` : ''}${shared ? ` ${shared}` : ''} In ${g.length} places: ${places.join(', ')}.`;
-      return { line, n: g.length };
-    });
+      const message = evidence(sameMessage ? i.message : template(i.message ?? ''));
+      add(i.code, `${file ?? 'All files'}${themesOf(i)}:${message ? ` ${message}` : ''} In ${g.length} places: ${places.join(', ')}.`, counted, g.length);
+    }
   };
   const byFile = (xs: Issue[]) => [...xs].sort((a, b) => (fileName.get(a.fileId ?? '') ?? '').localeCompare(fileName.get(b.fileId ?? '') ?? ''));
-  if (issues.some((i) => i.code.startsWith('tier-'))) listed.add('tiers');
-  // Properties DTCG has no place for: say where what they do must go.
-  if (issues.some((i) => PROPERTY_RULES.has(i.code))) listed.add('properties');
-  section(required, 'Errors', issueItems(byFile(issues.filter((i) => i.severity === 'error'))));
-  section(required, 'Warnings', issueItems(byFile(issues.filter((i) => i.severity === 'warning'))));
+  addIssues(byFile(issues));
 
-  // Contrast with typical vision: one line per pair, as the page counts it, naming each level it misses
-  // and, with themes, the themes it misses it in with the value in each.
+  // Contrast with typical vision: one line per pair, as the page counts it. The evidence is each
+  // level it misses, in which themes, with the ratio and both colors there, and the references
+  // each token follows to its value, so the reader sees which token holds the color.
   const counted = (tone: string | undefined) => tone !== undefined && tone !== 'info';
   const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
-  const contrastOf = (rows: typeof pairs.rows) => rows.flatMap((r) => {
+  const hex = (c: ColorInfo) => formatColor(c, 'hex').text;
+  const chain = (id: string, m: Model | undefined) => {
+    const ids = [id];
+    for (let t = m?.tokens.get(id); t?.aliasOf && !ids.includes(t.aliasOf); t = m?.tokens.get(t.aliasOf)) ids.push(t.aliasOf);
+    return ids.length > 1 ? ids.map(code).join(' → ') : '';
+  };
+  /** The references both tokens follow, once when every theme named agrees, else per theme. */
+  const chains = (r: PairRow, themes: number[]) => {
+    const per = themes.map((i) => [chain(r.pair.fg, models[i]), chain(r.pair.bg, models[i])].filter(Boolean).join('; '));
+    if (per.every((c) => !c)) return '';
+    if (per.every((c) => c === per[0])) return ` References: ${per[0]}.`;
+    // Themes that follow the same references are named together.
+    const same = new Map<string, string[]>();
+    themes.forEach((t, k) => per[k] && same.set(per[k]!, [...(same.get(per[k]!) ?? []), themeNames[t]!]));
+    return ` References: ${[...same].map(([c, names]) => `${names.join(', ')}: ${c}`).join(' | ')}.`;
+  };
+  for (const r of rows.filter((x) => counted(x.tone))) {
     const byLevel = new Map<string, string[]>();
+    const failing: number[] = [];
     r.seen.normal.forEach((c, i) => {
       if (!c || c.pass) return;
+      failing.push(i);
+      const colors = `${hex(c.fg)} on ${hex(c.bg)}${c.fg.oklch.alpha < 1 ? `, shown as ${hex(c.shown)}` : ''}`;
       for (const x of c.results.filter((y) => !y.pass)) {
-        const has = formatContrast(x.value, x.level.metric);
+        const has = `${formatContrast(x.value, x.level.metric)}, ${colors}`;
         byLevel.set(x.level.label, [...(byLevel.get(x.level.label) ?? []), themeNames[i] ? `${themeNames[i]} (has ${has})` : `has ${has}`]);
       }
     });
-    if (!byLevel.size) return [];
-    const misses = [...byLevel].map(([level, where]) => (themeNames.length ? `below ${level} in ${andList(where)}` : `below ${level}, ${where.join(', ')}`));
-    return [`${code(r.pair.fg)} on ${code(r.pair.bg)} (${r.pair.kind === 'text' ? 'text' : 'UI part'}): ${misses.join('; ')}.`];
-  });
-  section(required, 'Contrast', contrastOf(rows.filter((r) => counted(r.tone))));
+    if (!byLevel.size) continue;
+    const misses = [...byLevel].map(([level, where]) => (themeNames.length ? `below ${level} in ${andList(where)}` : `below ${level}: ${where.join(', ')}`));
+    const use = r.pair.kind === 'text' ? 'text' : 'UI part';
+    add(contrastRule(r.pair), `${code(r.pair.fg)} on ${code(r.pair.bg)} (${use}): ${misses.join('; ')}.${chains(r, failing)}`, true);
+  }
 
   // Color-vision: one line per pair that passes with typical vision but not with a deficiency, naming each
   // deficiency and the themes it fails in; one per status group whose colors look alike, by theme.
   const visionLabel = (v: string) => VISIONS.find((x) => x.id === v)!.label;
-  const cvdOf = (rows: typeof pairs.rows) => rows.flatMap((r) => {
+  for (const r of rows.filter((x) => counted(x.cvdTone))) {
     const withs = r.cvdFails.flatMap((v) => {
       const themes = r.seen[v].flatMap((c, i) => (c && !c.pass ? [themeNames[i] ?? ''] : []));
       if (!themes.length) return [];
       return [`${visionLabel(v)}${themes.some(Boolean) ? ` (${andList(themes.filter(Boolean))})` : ''}`];
     });
-    return withs.length ? [`${code(r.pair.fg)} on ${code(r.pair.bg)} drops below its contrast level with ${andList(withs)}.`] : [];
-  });
+    if (withs.length) add('cvd-pair', `${code(r.pair.fg)} on ${code(r.pair.bg)} drops below its contrast level with ${andList(withs)}.`, true);
+  }
   const seenWith = (v: string) => (v === 'normal' ? 'typical vision' : visionLabel(v));
-  const siblingsOf = (groups: typeof pairs.siblings) => groups.flatMap((g) => {
+  for (const g of sibs.filter((x) => counted(x.tone))) {
     const members = new Set<string>();
     const parts = g.checks.flatMap((c, i) => {
       const fails = (c?.results ?? []).filter((x) => !x.pass && x.vision !== 'achroma');
@@ -195,57 +220,74 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
       for (const x of fails) for (const m of x.closest) members.add(m);
       return [`${themeNames[i] ? `in ${themeNames[i]} ` : ''}with ${fails.map((x) => `${seenWith(x.vision)} (${x.distance.toFixed(3)})`).join(', ')}`];
     });
-    if (!parts.length) return [];
-    return [`Status colors ${list([...members])} (${code(g.group.id)}) are too close to tell apart ${parts.join('; ')}; they need a difference of at least ${s.settings.cvdDistance} (ΔE OKLab). Separate them by lightness, not only hue.`];
-  });
-  section(required, 'Color-vision', [...cvdOf(rows.filter((r) => counted(r.cvdTone))), ...siblingsOf(sibs.filter((g) => counted(g.tone)))]);
+    if (parts.length) add('cvd-siblings', `Status colors ${list([...members])} (${code(g.group.id)}) are too close to tell apart ${parts.join('; ')}; the distance needed is ${s.settings.cvdDistance} (ΔE OKLab).`, true);
+  }
 
   // Typography: the range checks the tier views show, in each theme; a finding in only some themes says which.
-  const typeNotes = new Map<string, { severity: string; themes: string[] }>();
+  const typeNotes = new Map<string, { rule: string; themes: string[] }>();
   if (!scope || scope.typography) {
-    allModels(s).forEach((m, i) => {
+    models.forEach((m, i) => {
       for (const tier of ['semantic', 'component'] as const) {
         const styles = typographyIds(m, tier).map((id) => typeStyle(m.tokens.get(id)!, m));
         for (const n of withPolicy(rangeNotes(styles), s.settings.policy, (x) => `type-${x.code}`)) {
-          const e = typeNotes.get(n.message) ?? { severity: n.severity, themes: [] };
+          const e = typeNotes.get(n.message) ?? { rule: `type-${n.code}`, themes: [] };
           if (themeNames[i]) e.themes.push(themeNames[i]!);
           typeNotes.set(n.message, e);
         }
       }
     });
   }
-  const typeLines = (sevs: string[]) =>
-    [...typeNotes].filter(([, e]) => sevs.includes(e.severity)).map(([message, e]) => `${message}${e.themes.length && e.themes.length < themeNames.length ? ` (${e.themes.join(', ')} only)` : ''}`);
-  section(required, 'Typography', typeLines(['error', 'warning']), false);
+  for (const [message, e] of typeNotes) add(e.rule, `${evidence(message)}${e.themes.length && e.themes.length < themeNames.length ? ` (${e.themes.join(', ')} only)` : ''}`, false);
 
   // Base color scales.
-  const scale = (...sevs: string[]) => pals.flatMap((p) => p.flags.filter((f) => sevs.includes(f.severity)).map((f) => `${code(p.id)}: ${f.message}`));
-  section(required, 'Base color scales', scale('error', 'warning'), false);
+  for (const p of pals) for (const f of p.flags) add(`scale-${f.kind}`, `${code(p.id)}: ${evidence(f.message)}`, false);
 
-  section(optional, 'Suggestions', [
-    ...issueItems(byFile(issues.filter((i) => i.severity === 'info'))),
-    ...scale('info'),
-    // Pairs the policy sets to info (a disabled pair, which WCAG asks for no contrast) aren't on the Issues page,
-    // only in the tier views; the prompt lists what the page lists.
-    ...typeLines(['info']),
-  ], false);
-  if (rows.some((r) => !r.pass || r.cvdFails.length)) listed.add('contrast');
-  if (sibs.some(siblingFails)) listed.add('status');
-
+  const count = entries.filter((e) => e.counted).reduce((n, e) => n + e.n, 0);
+  const more = entries.filter((e) => !e.counted).reduce((n, e) => n + e.n, 0);
   if (!count && !more) return { text: '', count: 0, more: 0 };
-  // Be clear about what DTsanity could have done itself: those lines carry "Fix:", the rest it can't fix.
-  const withFix = issues.filter((i) => i.fix).length;
-  const fixNote = withFix
-    ? `${withFix} of these ${withFix === 1 ? 'has' : 'have'} a one-click fix in DTsanity, given after “Fix:”. DTsanity can't make the other changes itself; they need a decision about the design.`
-    : `DTsanity can't make these changes itself; they need a decision about the design.`;
+
+  // One section per rule: its standing and source, the problem, "done when" and "decline if"
+  // once, then its findings, numbered for the report. Required rules first, then advice.
+  const byRule = new Map<string, Entry[]>();
+  for (const e of entries) byRule.set(e.rule, [...(byRule.get(e.rule) ?? []), e]);
+  const ruleIds = [...byRule.keys()].sort((a, b) => rank(a) - rank(b));
+  let no = 0;
+  const part = (standing: 'required' | 'advice', title: string) => {
+    const ids = ruleIds.filter((id) => standingOf(id) === standing);
+    if (!ids.length) return [];
+    const n = ids.reduce((sum, id) => sum + byRule.get(id)!.reduce((k, e) => k + e.n, 0), 0);
+    return [
+      `# ${title} (${n})`,
+      '',
+      ...ids.flatMap((id) => {
+        const xs = byRule.get(id)!;
+        const c = CRITERIA[id];
+        return [
+          `## ${titleOf(id)} [${id}] (${xs.reduce((k, e) => k + e.n, 0)})`,
+          '',
+          `Basis: ${basisOf(id)}`,
+          c ? `Problem: ${c.problem}` : '',
+          c ? `Done when: ${c.done}` : '',
+          c?.decline ? `Decline if: ${c.decline}` : '',
+          '',
+          ...xs.map((e) => `- #${++no} ${e.line}`),
+          '',
+        ];
+      }),
+    ];
+  };
+  const required = part('required', 'Required');
+  const advice = part('advice', 'Advice');
+  const listed = new Set<PromptRule['when']>(['always']);
+  if (unread.length) listed.add('files');
+  if (advice.length) listed.add('advice');
+
   const targets = TARGETS.filter((t) => s.settings.contrast.includes(t.id)).map((t) => t.label);
   const enhanced = s.themes.filter((t) => t.contrast === 'enhanced').map((t) => t.name);
   const text = [
-    '# Corrections for design token files',
+    '# Findings in design token files',
     '',
-    'DTsanity checked these design token files (DTCG format) for format, token tiers, contrast and color-vision accessibility. Apply the corrections below to the files.',
-    '',
-    fixNote,
+    'DTsanity checked these design token files against the DTCG format (2025.10), WCAG 2.2 contrast and common token conventions. This is a report, not a list of edits: each finding gives the problem, the evidence and what must be true when it is done. How to fix it is for your design system to decide.',
     '',
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
     `Checked with: DTsanity build ${__VERSION__}, ${s.settings.acceptLegacy ? 'legacy formats accepted' : 'DTCG 2025.10 only'}`,
@@ -253,17 +295,22 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     targets.length ? `Contrast targets: ${targets.join(', ')}` : '',
     enhanced.length ? `Enhanced contrast (AAA text, or APCA Lc 75 text and Lc 60 UI) in: ${enhanced.join(', ')}` : '',
     '',
-    `Rules (${PRINCIPLE.replace(/\.$/, '')}):`,
+    'How to work through it:',
     ...PROMPT_RULES.filter((r) => listed.has(r.when)).map((r) => `- ${r.text}`),
     '',
     ...required,
-    ...(optional.length ? ['# Optional', '', ...optional] : []),
+    ...advice,
   ]
     .filter((line, i, all) => line !== '' || all[i - 1] !== '')
     .join('\n')
     .trim();
   return { text: `${text}\n`, count, more };
 }
+
+const rank = (id: string) => {
+  const i = RULE_ORDER.indexOf(id);
+  return i < 0 ? RULE_ORDER.length : i;
+};
 
 /** A stable key for an issue, the same in every merge of the theme models. */
 const issueKey = (i: Issue) => [i.code, i.fileId, i.target, i.keyPath?.join('.'), i.message].join('\u0000');

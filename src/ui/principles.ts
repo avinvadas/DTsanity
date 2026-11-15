@@ -43,7 +43,7 @@ export class TTPrinciples extends HTMLElement {
         items(FIX_EXCEPTIONS),
 
         h('h2', null, 'The fix prompt'),
-        h('p', null, 'What DTsanity can’t fix goes into the fix prompt, for an AI assistant or a ticket. It lists every correction with where it is, and gives these rules with them:'),
+        h('p', null, 'The fix prompt reports every finding to an AI assistant, your design system’s own tooling or a ticket: by rule, required first, then advice, each with its source, the problem, the evidence and what must be true when it is done. It never says how to fix it, and gives these rules with it:'),
         h('ul', { class: 'principles rules' }, PROMPT_RULES.map((r) => h('li', null, h('span', null, r.text)))),
         h('p', null, PROMPT_WHY),
       ),

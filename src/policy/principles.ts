@@ -61,45 +61,44 @@ export const FIX_EXCEPTIONS: readonly Principle[] = [
 export interface PromptRule {
   text: string;
   /** When the rule applies: always, or only when the prompt lists findings of that kind. */
-  when: 'always' | 'files' | 'properties' | 'tiers' | 'contrast' | 'status';
+  when: 'always' | 'files' | 'advice';
 }
 
 /**
- * The guidance the fix prompt gives with its corrections. Written for whoever
- * applies them, often an AI assistant, so that a round of corrections fixes
- * what is listed and adds nothing new: each rule says what a correct change
- * keeps, not only what to change.
+ * How the fix prompt asks to be worked through. It reports; the reader's
+ * design system decides. So the rules say what a finding gives, what the
+ * result must keep, and how to answer, never how to change a token: each
+ * finding carries its own problem, evidence, "done when" and "decline if"
+ * (src/policy/criteria.ts).
  */
 export const PROMPT_RULES: readonly PromptRule[] = [
-  { when: 'files', text: 'First make the files that couldn’t be read valid (JSON, or JSON5 in .json5 and .jsonc files), changing nothing else in them; then they can be checked.' },
   {
     when: 'always',
-    text: 'Change only what the corrections below list. Keep each file’s structure, token names and order: don’t rename, move, add or remove tokens unless a correction asks for it, since other tokens and code refer to them by name.',
-  },
-  {
-    when: 'always',
-    text: 'Change the format, not the design: after your changes, every token must resolve to the same value in every theme (color and its alpha, size, duration, font) unless a correction asks for a new one.',
-  },
-  {
-    when: 'properties',
-    text: 'Keep what a property does. A property that changes the value (a color’s alpha, for example) goes inside “$value”, not under “$extensions”: tools that read DTCG ignore “$extensions”. Move a property there only when it doesn’t change the value.',
-  },
-  { when: 'tiers', text: 'Tiers: base tokens hold values only; semantic tokens point at base or semantic tokens; component tokens point at semantic or base tokens.' },
-  {
-    when: 'contrast',
-    text: 'To fix contrast, prefer pointing a semantic or component token at another existing base token over changing base values. Change a base value only when no existing token works, and say which.',
-  },
-  { when: 'status', text: 'To tell status colors apart, separate them by lightness, not only by hue: hue is what color blindness takes away.' },
-  {
-    when: 'always',
-    text: 'A correction must not create a new problem: no broken reference, no token pointing across tiers, no value DTCG can’t read. If the only change you see would, or if it needs a choice these rules don’t settle, don’t make it: ask under Questions.',
+    text: 'Each finding says what is wrong, the evidence, and what must be true when it is done. How to get there is yours to decide, by your design system’s own rules (its tiers, scales, naming, generators). If these files are generated, from design files or a script, make the change where they are produced.',
   },
   {
     when: 'always',
-    text: 'End with a report, per file: the changes you made; the corrections you didn’t make, and why; and every token whose value changed, in which theme and why. Then Questions, if any.',
+    text: 'Required findings come from a standard (DTCG 2025.10, WCAG 2.2, JSON): they are done when their check passes.',
+  },
+  {
+    when: 'advice',
+    text: 'Advice comes from common conventions, not a standard. Follow it, or decline it when your system does otherwise, and say how.',
+  },
+  { when: 'files', text: 'First make the files that couldn’t be read valid, changing nothing else in them; then they can be checked.' },
+  {
+    when: 'always',
+    text: 'Keep what no finding is about: token names, structure and order, and the value every token resolves to in every theme. Other tokens and code refer to tokens by name.',
+  },
+  {
+    when: 'always',
+    text: 'A change must not cause a finding of its own: a broken reference, a value DTCG can’t read, a pair that falls below its level. If a finding needs a choice that neither the files nor your system’s rules settle, leave it and ask.',
+  },
+  {
+    when: 'always',
+    text: 'End with a report that lists every finding by its number (#1, #2…): done, or declined and why. Then every token whose resolved value changed, in which theme and why, and your questions.',
   },
 ];
 
-/** Why the prompt's contrast rule prefers re-aliasing, for the page. */
+/** Why the prompt reports instead of prescribing, for the page. */
 export const PROMPT_WHY =
-  'Re-pointing a token keeps the palette as it is and changes one use of a color; changing a base value changes every token that points at it. The fix prompt states only the rules that apply to what it lists.';
+  'A design system has its own rules for how its tokens are made. The prompt gives each finding the context to fix it that way, and a check any tool can run afterwards, so the result is judged on a fresh run, not against DTsanity’s idea of the fix. It states only the rules that apply to what it lists.';

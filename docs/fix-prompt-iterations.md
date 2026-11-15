@@ -243,6 +243,82 @@ the places and their evidence repeat.
 - **Size:** tokens per finding, measured per sample. Large sets split by group
   (fix prompts are for groups only).
 
+### Done (2026-11-15)
+
+**The prompt is a report.** Findings come by rule, under `# Required` then
+`# Advice`. Each rule's section says once:
+- **Basis:** its standing and source ("Required · DTCG Format 7.2 Reference
+  Resolution"; "Advice · DTsanity convention: token tiers…").
+- **Problem:** what is wrong and why it matters.
+- **Done when:** the outcome, as a check any tool can run on the files.
+- **Decline if:** for every advice rule, and for required rules whose scope
+  the files can't show (contrast pairs DTsanity paired by name).
+
+Then its findings, numbered `#1, #2…` across the prompt, each with its place
+and evidence. The rule texts live in `src/policy/criteria.ts`. The general
+rules (`PROMPT_RULES`) now say only how to work through it: the system
+decides how, at the source if the files are generated; required means the
+check passes and advice may be declined; keep what no finding is about; add no
+finding; report every number, done or declined and why.
+
+**What was taken out, as prescriptions:**
+- one-click fixes ("Fix: … → …");
+- "prefer re-pointing to an existing base token" for contrast;
+- in messages, "Did you mean X?". It became "Closest existing name: X".
+- the type guessed from a value. DTCG 5.2.2 forbids guessing.
+- "point at one of the tokens in it";
+- "switch the target gamut", a DTsanity setting.
+
+The page keeps its own wording; only the prompt changes
+(`evidence()` in `src/io/prompt.ts`).
+
+**Contrast evidence:** the ratio and both colors in each failing theme (and
+the blended color for a translucent foreground), plus the references each
+token follows to its value. Themes that share references are named together.
+
+**Validations:**
+- **Prompt lint** (`tests/prompt-lint.test.ts`, and B4 in
+  `tests/output-prompt.test.ts` on all ten samples): every rule has a problem
+  and a check; every advice rule can be declined and asks why. Every
+  section in every sample prompt is whole, findings are numbered in order, and
+  no rule text or finding contains a word that steers the fix
+  (`tests/prompt-words.ts`).
+- **Criterion test** (`tests/criteria.test.ts`): 21 rules, each fixed two
+  different valid ways (point at a token, or hold a value; a type on the
+  token, or on its group; a file per mode, or the modes under
+  `$extensions`; re-point the text, or change the base value…). Checked with
+  a fresh prompt built from the fixed files alone. All 42 fixes clear their
+  finding with no new required finding. One first draft didn't: darkening a
+  background to fix an icon made another pair fail. The test caught it as it
+  should, and that fix was replaced.
+- **Size** (`SAMPLES_REPORT=1 npx vitest run tests/output-prompt.test.ts`):
+
+| Set | Findings | Before (chars) | Now (chars) | Tokens per finding |
+|---|---|---|---|---|
+| Atlassian | 2,013 | 303,664 | 183,511 | 23 |
+| Backpack | 314 | 18,595 | 21,430 | 17 |
+| Carbon | 116 | 18,077 | 29,878 | 64 |
+| Cloudscape | 7,022 | 500,889 | 502,274 | 18 |
+| Designsystemet | 644 | 155,363 | 159,305 | 62 |
+| GitLab | 459 | 84,441 | 137,582 | 75 |
+| Open Props | 736 | 113,145 | 74,490 | 25 |
+| Primer | 609 | 90,906 | 173,280 | 71 |
+| SAP Horizon | 30,529 | 3,249,588 | 3,250,450 | 27 |
+| Spectrum | 2,911 | 136,347 | 137,998 | 12 |
+
+Sets with many contrast pairs grow, Primer and GitLab most. A pair's
+evidence (about 500 characters) is mostly its reference chains in each theme,
+which is what a system needs to choose the token to change. Border contrast,
+which is advice, is the largest section in both. Sets that had many one-click
+fixes shrink. The full prompts of SAP and Cloudscape remain too large to paste
+whole; their group prompts are what is meant to be used.
+
+**Seen while reading the prompts (for later):**
+- Carbon's `text-on-color` and `icon-on-color` are paired with the page
+  background, though "on color" says they sit on colored fills.
+- Primer's `codeMirror.gutterMarker.fgColor.default` resolves to the
+  background it is paired with, likely on purpose. "Decline if" covers it.
+
 ## Step 4. A stand-in brain for testing
 
 Real systems bring their own rules. For tests we write one neutral file,

@@ -5,6 +5,9 @@ import type { Issue } from '../src/model/types';
 import { addFiles, allModels, clearAll, store, updateSettings } from '../src/state/app';
 import { findings, findingTotal } from '../src/ui/findings';
 import { issuesOf, parse, SETS, SETTINGS, setTexts } from './oracle/samples';
+import { BASIS } from '../src/policy/basis';
+import { CRITERIA } from '../src/policy/criteria';
+import { PRESCRIBES } from './prompt-words';
 
 /**
  * The fix prompt on every sample set (part B of the output test plan).
@@ -15,20 +18,26 @@ import { issuesOf, parse, SETS, SETTINGS, setTexts } from './oracle/samples';
  *     prompt" one.
  * B2. Accuracy: every correction names a loaded file, a line that holds the
  *     key it is about, and a token or group that exists.
+ * B4. Lint: every rule's section has its basis, problem, check and (for advice) a way to
+ *     decline; findings are numbered 1, 2… in order; nothing steers the fix.
  * B3. The same files give the same prompt; set SAMPLES_REPORT=1 to print
  *     each prompt's size.
  */
 
 const T = 120_000;
 
-/** The corrections a prompt lists: its "- " lines under a "## " heading, past the rules. */
+/**
+ * The findings a prompt lists: its "- #n " lines under a rule's "## … [rule] (n)" heading, as
+ * "[rule] line". The number is left out: it counts from 1 in every prompt, so a group's
+ * prompt numbers its findings differently from the full one.
+ */
 function items(text: string): string[] {
   const out: string[] = [];
-  let inSection = false;
+  let rule: string | undefined;
   for (const line of text.split('\n')) {
-    if (line.startsWith('## ')) inSection = true;
-    else if (line.startsWith('# ')) inSection = false;
-    else if (inSection && line.startsWith('- ')) out.push(line);
+    if (line.startsWith('## ')) rule = /\[([a-z0-9-]+)\] \(\d+\)$/.exec(line)?.[1];
+    else if (line.startsWith('# ')) rule = undefined;
+    else if (rule && line.startsWith('- #')) out.push(`[${rule}] ${line.replace(/^- #\d+ /, '')}`);
   }
   return out;
 }
@@ -138,6 +147,26 @@ describe.each(SETS)('fix prompt: %s', (set) => {
       expect(misplaced.slice(0, 8), 'each line number points at its key').toEqual([]);
       expect(unknown.slice(0, 8), 'each key path is in its file').toEqual([]);
 
+      // B4: each rule's section is whole, findings are numbered in order, and nothing steers the fix.
+      const lines = full.text.split('\n');
+      const sections = full.text.split('\n## ').slice(1);
+      const broken: string[] = [];
+      for (const sec of sections) {
+        const id = /^.+ \[([a-z0-9-]+)\] \(\d+\)\n/.exec(sec)?.[1];
+        if (!id || !CRITERIA[id]) {
+          broken.push(`no rule: ${sec.slice(0, 60)}`);
+          continue;
+        }
+        for (const field of ['Basis: ', 'Problem: ', 'Done when: ']) if (!sec.includes(`\n${field}`)) broken.push(`${id}: no ${field}`);
+        if (BASIS[id]?.standing === 'advice' && !sec.includes('\nDecline if: ')) broken.push(`${id}: advice without "Decline if"`);
+      }
+      expect(broken.slice(0, 5), 'every section whole').toEqual([]);
+      const numbers = lines.filter((l) => l.startsWith('- #')).map((l) => Number(/^- #(\d+) /.exec(l)?.[1]));
+      expect(numbers.every((n, k) => n === k + 1), 'numbered 1, 2… in order').toBe(true);
+      const steers = lines.filter((l) => l.startsWith('- #') && PRESCRIBES.test(l));
+      const around = (l: string) => new RegExp(`.{0,80}(${PRESCRIBES.source}).{0,40}`, 'i').exec(l)?.[0];
+      expect(steers.slice(0, 3).map(around), 'no finding steers the fix').toEqual([]);
+
       // B3: the same files, loaded again, give the same prompt.
       expect(fixPrompt(store.get()).text === full.text, 'built twice, the same').toBe(true);
       clearAll();
@@ -147,7 +176,7 @@ describe.each(SETS)('fix prompt: %s', (set) => {
 
       if (process.env.SAMPLES_REPORT) {
         const chars = full.text.length;
-        console.log(`\n${set}: fix prompt ${full.count} corrections + ${full.more} others on ${listed.length} lines, ${chars} characters (~${Math.round(chars / 4)} tokens)`);
+        console.log(`\n${set}: fix prompt ${full.count} corrections + ${full.more} others on ${listed.length} lines, ${chars} characters (~${Math.round(chars / 4)} tokens, ~${Math.round(chars / 4 / Math.max(1, full.count + full.more))} per finding)`);
       }
     },
     T,
