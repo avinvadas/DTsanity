@@ -119,3 +119,5 @@ document.addEventListener('keydown', (e) => {
 
 // Which build this is, for telling a hosted copy from a newer one.
 console.info(`DTsanity build ${__VERSION__}`);
+const footBuild = document.getElementById('foot-build');
+if (footBuild) footBuild.textContent = `Build ${__VERSION__}`;

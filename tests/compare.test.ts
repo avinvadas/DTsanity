@@ -65,7 +65,8 @@ function load(dir: string, settings: Settings): { s: AppState; total: number; al
   const issue = (i: Issue): Finding => {
     const file = (i.fileId && name.get(i.fileId)) || '';
     const place = i.target ?? i.keyPath?.join('.') ?? '';
-    return { key: [i.code, file, place, i.message].join(' | '), kind: i.code.startsWith('tier-') ? 'tiers' : 'format', rule: i.code, severity: i.severity, file, place, message: i.message ?? '' };
+    // Not the message: a correction that changes only what a finding says (a partly fixed value) leaves the finding where it was.
+    return { key: [i.code, file, place, (i.themes ?? []).join(',')].join(' | '), kind: i.code.startsWith('tier-') ? 'tiers' : 'format', rule: i.code, severity: i.severity, file, place, message: i.message ?? '' };
   };
   for (const i of issuesOf(s)) all.push(issue(i));
   const f = findings(s);
@@ -97,11 +98,19 @@ describe.skipIf(!BEFORE || !AFTER)('compare two loads', () => {
       for (const [label, settings] of configs) {
         const a = load(resolve(BEFORE!), settings);
         const b = load(resolve(AFTER!), settings);
-        const keysA = new Set(a.all.map((x) => x.key));
-        const keysB = new Set(b.all.map((x) => x.key));
-        const fixed = a.all.filter((x) => !keysB.has(x.key));
-        const added = b.all.filter((x) => !keysA.has(x.key));
-        const kept = b.all.filter((x) => keysA.has(x.key));
+        // Matched as multisets: two findings of one rule at one place pair up one for one.
+        const minus = (xs: Finding[], ys: Finding[]) => {
+          const left = new Map<string, number>();
+          for (const y of ys) left.set(y.key, (left.get(y.key) ?? 0) + 1);
+          return xs.filter((x) => {
+            const n = left.get(x.key) ?? 0;
+            if (n) left.set(x.key, n - 1);
+            return !n;
+          });
+        };
+        const fixed = minus(a.all, b.all);
+        const added = minus(b.all, a.all);
+        const kept = minus(b.all, added);
         const counted = (xs: Finding[]) => xs.filter((x) => x.severity !== 'info').length;
         out.push(
           `## ${label}`,

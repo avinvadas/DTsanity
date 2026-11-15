@@ -250,6 +250,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     fixNote,
     '',
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
+    `Checked with: DTsanity build ${__VERSION__}, ${s.settings.acceptLegacy ? 'legacy formats accepted' : 'DTCG 2025.10 only'}`,
     themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',
     targets.length ? `Contrast targets: ${targets.join(', ')}` : '',
     enhanced.length ? `Enhanced contrast (AAA text, or APCA Lc 75 text and Lc 60 UI) in: ${enhanced.join(', ')}` : '',

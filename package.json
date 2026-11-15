@@ -34,7 +34,8 @@
     "test:watch": "vitest",
     "test:samples": "SAMPLES_REPORT=1 vitest run tests/samples tests/fix-safety tests/planted tests/remedy tests/output-files tests/output-edge tests/output-prompt",
     "typecheck": "tsc --noEmit",
-    "compare": "node scripts/compare.mjs"
+    "compare": "node scripts/compare.mjs",
+    "audit": "node scripts/audit.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

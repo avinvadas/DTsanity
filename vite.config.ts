@@ -53,9 +53,10 @@ function csp(strict: boolean, stamp: string): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const strict = mode === 'strict';
-  const stamp = buildStamp();
+  // The dev server serves the working tree as it changes: a commit stamped at start would go stale.
+  const stamp = command === 'serve' ? 'dev (working tree)' : buildStamp();
   return {
     base: './',
     define: { __STRICT__: JSON.stringify(strict), __VERSION__: JSON.stringify(stamp) },
