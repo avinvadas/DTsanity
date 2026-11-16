@@ -32,7 +32,10 @@ npm test
 npm run build          # hosted build: dist/index.html, one self-contained file
 npm run build:strict   # strict build: no usability recording, runs offline from disk
 npm run build:cli      # offline check: dist-cli/dtsanity-check.mjs, one file
+npm run serve          # serve the strict build at http://127.0.0.1:4173, this machine only
 ```
+
+The built page also opens straight from disk. Some browsers, Brave for one, can't read a dropped folder on a page opened that way (`file://`): files drop fine, but folders need the page at a local address. `npm run serve` serves the strict build at `http://127.0.0.1:4173`, to this machine only and with nothing sent anywhere. Add `-- dist` to serve the hosted build instead.
 
 The offline check prints the same report as the page's fix prompt, for a folder of token files. It only reads the files and sends nothing. It exits with 1 while findings remain, so a script, CI or an assistant can check its own changes:
 
