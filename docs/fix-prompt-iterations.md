@@ -725,3 +725,34 @@ unchecked side effect, is gone.
 - "On" read as a foreground in names like `SURFACE_CONTRAST_ON_NIGHT`.
 - Text and surface sharing one color (the hero), probably text on an image.
 - The unchecked pairs found earlier (pressed surfaces, input borders).
+
+### Round 4 completed: step 5 passes on Sonnet (builds 035318e and 9c18474)
+
+The four remaining Sonnet rounds ran with `check.mjs` in the folder. The
+checker gained `--rules`, so a group round checks the same rules its prompt
+has; the prompt text is unchanged. Together with the two Backpack rounds,
+all six Sonnet rounds pass the revised rule:
+
+| Set | Sonnet | Sonnet, rules |
+|---|---|---|
+| Carbon (36 [1]) | 35 [0], nothing new | 27 [0], nothing new; 8 cvd-pair fixed |
+| Backpack (155 [152]) | 51 [49], nothing new | 46 [44], nothing new |
+| Designsystemet (29 advice) | all declined with reasons | all declined by rule |
+
+- Every report's count matches the fresh check, and every round ran the
+  checker on its own work.
+- **With the stand-in rules, Sonnet fixed more and declined by rule.**
+  Without them, it declined more advice in bulk ("would change the look of
+  every border") with broader reasons.
+- **One stretch of a rule:** Carbon with rules declined tile, chat and tag
+  borders as decorative, beyond the four names rule 5 lists. It gave reasons
+  (each component is shown by its fill and text).
+
+**Step 5 passed (2026-11-16).** What is left is in "Left for DTsanity" above
+and in the round 2 and 3 notes:
+- pairs DTsanity doesn't check;
+- "on" read as a foreground in names like `SURFACE_CONTRAST_ON_NIGHT`;
+- text and surface sharing one color;
+- a type change that silences a finding.
+
+The Haiku rounds have not been rerun with the checker.
