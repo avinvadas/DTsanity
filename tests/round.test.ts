@@ -35,13 +35,13 @@ const walk = (d: string): string[] =>
     });
 
 /** The brief: what a person would say when handing the prompt over, and nothing about DTsanity's own idea of the fix. */
-const brief = (brain: boolean) =>
+const brief = (brain: boolean, rules: string[]) =>
   [
     '# Brief',
     '',
     'The design token files of our design system are in `files/`. `prompt.md` reports what a checker found in them.',
     brain ? '`reference-system.md` holds our design system’s rules for changing tokens: follow them.' : '',
-    '`check.mjs` is the checker that wrote the report. `node check.mjs` checks `files/` again and prints a fresh report (`--summary` for counts by rule). It only reads the files.',
+    `\`check.mjs\` is the checker that wrote the report. \`node check.mjs${rules.length ? ` --rules ${rules.join(',')}` : ''}\` checks \`files/\` again and prints a fresh report (add \`--summary\` for counts by rule). It only reads the files.`,
     '',
     'Work through the report. Change the files in place, under `files/`, keeping their paths and names. Write your report, as `prompt.md` asks for it, to `report.md`.',
     '',
@@ -73,7 +73,7 @@ const brief = (brain: boolean) =>
         copyFileSync(from, to);
       }
       writeFileSync(join(out, 'prompt.md'), p.text);
-      writeFileSync(join(out, 'BRIEF.md'), brief(BRAIN));
+      writeFileSync(join(out, 'BRIEF.md'), brief(BRAIN, RULES));
       if (BRAIN) copyFileSync(join(ROOT, 'docs/reference-system.md'), join(out, 'reference-system.md'));
       const cli = join(ROOT, 'dist-cli/dtsanity-check.mjs');
       if (existsSync(cli)) copyFileSync(cli, join(out, 'check.mjs'));

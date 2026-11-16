@@ -54,4 +54,11 @@ describe('offline check', () => {
     expect(r.stdout).toMatch(/^0 counted/);
     expect(r.status).toBe(0);
   });
+
+  it('keeps only the named rules with --rules, as a group prompt does', () => {
+    const out = run(join(SAMPLES, 'backpack'), '--summary', '--rules', 'contrast-text').stdout;
+    // A pair comes with its color-vision finding, as in the round builder.
+    expect(out).toMatch(/^7 counted \+ 0 others\ncontrast-text 6\ncvd-pair 1$/m);
+    expect(out).not.toContain('missing-type');
+  });
 });
