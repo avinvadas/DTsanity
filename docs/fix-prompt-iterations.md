@@ -391,6 +391,87 @@ Our own before-and-after comparisons stay a local development tool
 (`npm run compare` on the gitignored `corrected/` folder). The product never
 needs them.
 
+### Round 1 (2026-11-16): not passed
+
+Build b523931. Twelve rounds: Carbon (contrast-heavy, whole prompt),
+Backpack (format-heavy, whole prompt), Designsystemet (multi-theme, the
+`contrast-border` and `cvd-siblings` group), each with Sonnet and Haiku, with
+and without `reference-system.md`. Each round was a fresh assistant that saw
+only its round folder, given the four-line prompt "read BRIEF.md and do what
+it asks; work only inside this folder". Each was checked afresh with
+`npm run round -- <folder>/files`. The folders, reports and fresh counts are in
+`corrected/rounds/` (gitignored, local only).
+
+Counted findings before → after the round; "required" covers the standard rules.
+
+| Round | Counted | Required | New findings | Items left unanswered |
+|---|---|---|---|---|
+| Carbon, Sonnet | 40 → 40 | 7 → 7 | none | none: all declined, #1 wrongly |
+| Carbon, Sonnet, rules | 40 → 39 | 7 → 6 | none | none |
+| Carbon, Haiku | 40 → 38 | 7 → 6 | none | 12, asked |
+| Carbon, Haiku, rules | 40 → 28 | 7 → 6 | none counted; one it reported itself | 3, asked |
+| Backpack, Sonnet | 155 → 89 | 152 → 85 | 37, all from a checker bug | some, asked |
+| Backpack, Sonnet, rules | 155 → 94 | 152 → 91 | 40, all from a checker bug | some, asked |
+| Backpack, Haiku | 155 → 35 | 152 → 32 | none | contrast #15–#20, asked |
+| Backpack, Haiku, rules | 155 → 49 | 152 → 44 | cvd-pair +2 (advice) | some, asked |
+| Designsystemet, Sonnet | 29 → 29 | 0 | none | 11, asked |
+| Designsystemet, Sonnet, rules | 29 → 29 | 0 | none | none: all declined by rule |
+| Designsystemet, Haiku | 29 → 29 | 0 | none | none |
+| Designsystemet, Haiku, rules | 29 → 29 | 0 | none | 11, asked |
+
+No round reached 90% fixed. Most of what was left is not the assistants'
+failing: they declined it, correctly, as DTsanity misreading the files. That
+has to be fixed first.
+
+**DTsanity misreadings the rounds found** (the fresh count can't be trusted
+until these are fixed):
+- `src/legacy/convert.ts` `isLegacyToken`: a legacy `value` that holds a DTCG
+  composite with dimension objects (`offsetX: {value, unit}`) is read as a
+  group of legacy tokens. All 37 and 40 "new" Backpack findings
+  (`invalid-node` and shadow `invalid-value`) come from this.
+- Backpack tiers: the 157 `aliases.*` entries (the raw palette and scales) are
+  called semantic tokens, and so are steps added to them.
+  `props.COLOR_SYSTEM_GREEN`/`RED` are flagged though their `originalValue`
+  references `{!MONTEVERDE}`/`{!PANJIN}` like every other prop. All four
+  Backpack rounds declined these.
+- Carbon: the `…Hover` entries inside each scale are read as scale steps (48
+  `scale-inversion` and 12 `scale-uneven-lightness` findings). Three rounds
+  declined them. Carbon, Haiku, rules instead rewrote all 48 hover steps
+  in the palette. That changed dozens of hover tokens, made link hovers
+  equal their resting colors, and dropped `icon-inverse` on dark hover
+  fills to 1.89:1, which DTsanity doesn't pair. A misreading that looks like
+  a finding is the most harmful kind.
+- Carbon: `text-on-color`, `icon-on-color` and `link-inverse-*` are paired
+  with the page background (noted in step 3). All four rounds declined them.
+
+**Prompt.** "Keep … the value every token resolves to in every theme" is read
+as forbidding any visible change:
+- Carbon, Sonnet (no rules) declined the required placeholder contrast fix
+  for that reason.
+- Backpack, Haiku (no rules) left all six required contrast findings as
+  questions.
+
+The rule must say a value may change where a finding requires it.
+
+**Stand-in rules.** In rule 5, "only when the pair's contrast passes" is
+ambiguous for status siblings: one round read it as the status colors against
+each other, which always fails. It should name the pair: each status color
+against the surface it sits on.
+
+**With rules vs without.**
+- With the rules, Sonnet cited a rule for every decline, and both models
+  fixed contrast in the order the rules give (re-point, then add a step).
+- Without them, assistants declined or asked more, but they never invented a
+  system rule.
+
+**Advice-level side effects.** Contrast fixes that pass with typical vision
+can fail under simulated color-vision deficiency, which the assistant can't
+see without the checker (Backpack, +1 and +2 `cvd-pair`). Sonnet noticed and
+asked. Haiku didn't.
+
+**Harness note.** Some round assistants were refused writing `report.md` and
+returned the report as text; it was saved to the folder by hand.
+
 ## Order and stop points
 
 1. Step 0, then step 1. **Stop and review**: how many findings were
