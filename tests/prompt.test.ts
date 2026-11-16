@@ -91,7 +91,7 @@ describe('fix prompt', () => {
     const text = fixPrompt(store.get()).text;
     for (const rule of [
       'How to get there is yours to decide, by your design system’s own rules',
-      'the value every token resolves to in every theme',
+      'the value every other token resolves to in every theme',
       '- A change must not cause a finding of its own',
       '- End with a report that lists every finding by its number (#1, #2…): done, or declined and why.',
     ])

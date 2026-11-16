@@ -87,7 +87,7 @@ export const PROMPT_RULES: readonly PromptRule[] = [
   { when: 'files', text: 'First make the files that couldn’t be read valid, changing nothing else in them; then they can be checked.' },
   {
     when: 'always',
-    text: 'Keep what no finding is about: token names, structure and order, and the value every token resolves to in every theme. Other tokens and code refer to tokens by name.',
+    text: 'Change what a finding needs, including a value people see, where its “done when” can’t be met otherwise. Keep the rest: token names, structure and order, and the value every other token resolves to in every theme. Other tokens and code refer to tokens by name.',
   },
   {
     when: 'always',

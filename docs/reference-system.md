@@ -76,7 +76,8 @@ Choose a contrast fix in this order:
 - Status colors (danger, warning, success, info) differ in lightness as well
   as hue. Every use of a status color also shows an icon, so a sibling
   finding about status colors that look alike may be declined for that
-  reason, but only when the pair's contrast passes.
+  reason, but only when each status color passes contrast against the
+  surface it sits on (status colors are not compared with each other).
 
 ## 6. Scales and typography
 

@@ -49,6 +49,10 @@ const TEXT = new Set(['fg', 'foreground', 'text', 'content', 'label', 'link', 'o
 const UI = new Set(['icon', 'icons', 'border', 'borders', 'outline', 'stroke', 'divider', 'separator', 'ring']);
 /** Words that say nothing about which pair a token belongs to. "default" is the same as no modifier. */
 const NOISE = new Set(['color', 'colors', 'colour', 'colours', 'semantic', 'semantics', 'sys', 'alias', 'aliases', 'theme', 'default', 'base']);
+/** Words for a surface family of its own, whose foregrounds sit on it rather than on the page. */
+const INVERSE = new Set(['inverse', 'inverted']);
+/** Interaction states: a state of a foreground sits where the foreground does. */
+const STATES = new Set(['hover', 'hovered', 'active', 'pressed', 'focus', 'focused', 'visited', 'selected']);
 /** Roles that also tell variants apart, so they stay in the modifiers: primary-container is not primary. */
 const KEPT = new Set(['container']);
 
@@ -136,9 +140,23 @@ export function detectPairs(ids: readonly string[]): Pair[] {
   for (const fg of parsed.filter((p) => p.role === 'fg')) {
     // A border shows a shape's edge against what surrounds it (WCAG 1.4.11), so it is checked on the
     // default backgrounds, never on the fill it surrounds.
+    // "on-color" names no fill (only a word like "color"): it sits on colored fills, not the page, so it has no pair to infer.
+    // "on-surface" names one.
+    if (fg.on && !fg.key) {
+      const ws = words(fg.id);
+      if (!ws.slice(ws.indexOf('on') + 1).some((w) => BG.has(w))) continue;
+    }
     let match = fg.edge ? defaults : byKey(bgs, fg.key);
     // "on-primary" sits on "primary", which has no background word of its own.
     if (fg.on) match = [...match, ...byKey(parsed.filter((p) => p.role === 'none'), fg.key)];
+    // A state of a foreground for inverse surfaces (`link-inverse-visited`) sits on the inverse background, not the page.
+    if (!match.length && !fg.edge) {
+      const ws = fg.key.split(' ');
+      const family = ws.find((w) => INVERSE.has(w));
+      if (family && ws.every((w) => w === family || STATES.has(w))) match = byKey(bgs, family);
+    }
+    // An "on-" name says what it sits on; with nothing of that name, it isn't on the page either.
+    if (!match.length && fg.on) continue;
     if (!match.length) match = defaults;
     // Of several candidates, keep those named in the same shape: color.fg goes with
     // color.bg, color.fg.default with color.bg.default, not across.

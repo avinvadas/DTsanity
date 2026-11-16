@@ -17,8 +17,14 @@ export function isLegacyToken(n: JNode): boolean {
   if (n.kind !== 'object' || entry(n, '$value')) return false;
   const v = entry(n, 'value')?.value;
   if (!v) return false;
-  if (v.kind === 'object') return !v.entries.some((e) => e.value.kind === 'object' && entry(e.value, 'value'));
+  if (v.kind === 'object') return !v.entries.some((e) => e.value.kind === 'object' && entry(e.value, 'value') && !isUnitValue(e.value));
   return true;
+}
+
+/** A DTCG dimension or duration (`{ "value": 4, "unit": "px" }`) inside a composite value: a value, not a nested token. */
+function isUnitValue(n: JNode): boolean {
+  if (n.kind !== 'object' || n.entries.length !== 2) return false;
+  return entry(n, 'value')?.value.kind === 'number' && entry(n, 'unit')?.value.kind === 'string';
 }
 
 export function detectLegacyKind(root: JNode): LegacyKind {

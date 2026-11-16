@@ -1,4 +1,5 @@
 import { hasRole, words } from '../semantic/pairs';
+import { LEGACY_EXT } from '../legacy/types';
 import type { Model, SourceFile, Token } from './types';
 
 /**
@@ -63,7 +64,8 @@ const folderWords = (name: string) =>
  * folders it is in, nearest first (Primer's `base/`, `functional/`, `component/`).
  */
 function layerOf(t: Token, fileName: string): { tier: Tier; word: string } | undefined {
-  const top = t.keyPath.slice(0, 2).flatMap((seg) => words(seg));
+  // Groups only: a layer word in the token's own name (`COLOR_SYSTEM_GREEN`) names no layer.
+  const top = t.keyPath.slice(0, Math.min(2, t.keyPath.length - 1)).flatMap((seg) => words(seg));
   for (const layer of [top, fileWords(fileName), ...folderWords(fileName)]) {
     for (const [tier, set] of [['component', COMPONENT_GROUP], ['base', BASE], ['semantic', SEMANTIC]] as const) {
       const word = layer.find((w) => set.has(w));
@@ -89,12 +91,44 @@ export function tierOf(t: Token, fileName = ''): Tier {
 
 const cache = new WeakMap<Model, Map<string, Tier>>();
 
+/**
+ * What a token points at: its references or, in an older file that keeps the
+ * resolved value beside the reference it came from (Style Dictionary's
+ * `originalValue`), that reference: by its id, or by a name only one token has.
+ */
+function pointsAt(t: Token, model: Model): string[] {
+  if (t.refs.length) return t.refs;
+  const original = (t.extensions?.[LEGACY_EXT] as { originalValue?: unknown } | undefined)?.originalValue;
+  const m = typeof original === 'string' ? /^\{!?([^{}]+)\}$/.exec(original.trim()) : null;
+  if (!m) return [];
+  const name = m[1];
+  if (model.tokens.has(name)) return [name];
+  const named = [...model.tokens.values()].filter((x) => x.fileId === t.fileId && x.path.at(-1) === name);
+  return named.length === 1 ? [named[0].id] : [];
+}
+
 /** The tier of every token in a model (computed once per model). */
 export function tiersOf(model: Model): Map<string, Tier> {
   const known = cache.get(model);
   if (known) return known;
   const names = new Map(model.files.map((f: SourceFile) => [f.id, f.name]));
   const tiers = new Map([...model.tokens.values()].map((t) => [t.id, tierOf(t, names.get(t.fileId))]));
+  // A group named as a semantic layer that holds only values, while other
+  // tokens point at it, is used as the base: what the files do outweighs the
+  // word (older Style Dictionary files keep their raw palette under `aliases`).
+  const groups = new Map<string, Token[]>();
+  for (const t of model.tokens.values()) {
+    if (tiers.get(t.id) !== 'semantic' || layerOf(t, names.get(t.fileId) ?? '')?.tier !== 'semantic') continue;
+    // The group the layer word names, or the whole file for tokens at its top.
+    const key = `${t.fileId}\u0000${t.keyPath.length > 1 ? t.keyPath[0] : ''}`;
+    groups.set(key, [...(groups.get(key) ?? []), t]);
+  }
+  for (const members of groups.values()) {
+    if (members.some((t) => t.refs.length)) continue;
+    const inside = new Set(members.map((t) => t.id));
+    const used = [...model.tokens.values()].some((t) => !inside.has(t.id) && pointsAt(t, model).some((r) => inside.has(r)));
+    if (used) for (const t of members) tiers.set(t.id, 'base');
+  }
   cache.set(model, tiers);
   return tiers;
 }
@@ -148,9 +182,10 @@ export function tierNames(model: Model): Record<Tier, string> {
   if (known) return known;
   const files = new Map(model.files.map((f: SourceFile) => [f.id, f.name]));
   const seen: Record<Tier, Map<string, number>> = { base: new Map(), semantic: new Map(), component: new Map() };
+  const tiers = tiersOf(model);
   for (const t of model.tokens.values()) {
     const l = layerOf(t, files.get(t.fileId) ?? '');
-    if (l) seen[l.tier].set(l.word, (seen[l.tier].get(l.word) ?? 0) + 1);
+    if (l && tiers.get(t.id) === l.tier) seen[l.tier].set(l.word, (seen[l.tier].get(l.word) ?? 0) + 1);
   }
   const pick = (tier: Tier) => {
     const top = [...seen[tier]].sort((a, b) => b[1] - a[1])[0]?.[0];

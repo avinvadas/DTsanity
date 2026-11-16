@@ -110,6 +110,15 @@ export function addValueSuffix(v: unknown): unknown {
  * original legacy type when there is no equivalent). Values that can't be
  * converted are returned unchanged with a note.
  */
+/** A value already written as DTCG 2025.10 writes it (a color or unit object), as an assistant or a newer tool writes into an older file. */
+function isDtcgForm(type: string | undefined, v: unknown): boolean {
+  if (!isObj(v)) return false;
+  if (type === 'color') return typeof v.colorSpace === 'string' && Array.isArray(v.components);
+  if (type === 'dimension') return typeof v.value === 'number' && (v.unit === 'px' || v.unit === 'rem');
+  if (type === 'duration') return typeof v.value === 'number' && (v.unit === 'ms' || v.unit === 's');
+  return false;
+}
+
 export function convertLegacyValue(type: string | undefined, v: unknown, note: Note): unknown {
   if (typeof v === 'string') {
     const s = convertAliasSyntax(v);
@@ -120,6 +129,7 @@ export function convertLegacyValue(type: string | undefined, v: unknown, note: N
     }
     v = s;
   }
+  if (isDtcgForm(type, v)) return v;
   const keep = (what: string) => {
     note(`“${display(v)}” can't be written as a DTCG ${what}, so it was left as is.`);
     return v;

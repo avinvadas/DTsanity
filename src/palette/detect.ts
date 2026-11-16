@@ -47,6 +47,9 @@ export interface PaletteSet {
 
 const SEMANTIC_NAMES = /^(semantics?|alias(es)?|themes?|components?|bg|backgrounds?|fg|foregrounds?|text|surfaces?|borders?|status|feedback|intents?|states?)$/i;
 
+/** A step name that names a state of another step: `70Hover`, `500-active`, `blue_pressed`. */
+const STATE_STEP = /^(?:\d+(?:\.\d+)?|[a-z]+)[-_]?(hover|hovered|active|pressed|focus|focused|selected|disabled|visited)$/i;
+
 /** True for tokens that hold their own color value (tier 1). */
 export function isBaseColor(t: Token): boolean {
   return t.type === 'color' && !t.aliasOf && t.refs.length === 0 && t.resolution === 'ok' && !t.extendedFrom;
@@ -72,7 +75,11 @@ export function detectPalettes(model: Model, overrides: Readonly<Record<string, 
 
   const palettes: Palette[] = [];
   const loose: Swatch[] = [];
-  for (const [id, swatches] of groups) {
+  for (const [id, all] of groups) {
+    // A state of a step (`70Hover`, `500-pressed`) is not a step of the scale: it has its own place in the ramp.
+    const swatches = all.filter((s) => !STATE_STEP.test(s.step));
+    loose.push(...all.filter((s) => STATE_STEP.test(s.step)));
+    if (!swatches.length) continue;
     const ordered = orderSteps(swatches, (s) => s.step);
     // Named or numbered steps make a scale; steps in file order only when the colors read as one.
     const isScale = ordered.kind === 'file' ? swatches.length >= 3 && looksLikeRamp(swatches) : swatches.length >= 2;
