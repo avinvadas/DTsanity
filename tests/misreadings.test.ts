@@ -4,6 +4,7 @@ import { DEFAULT_SETTINGS } from '../src/model/defaults';
 import { tiersOf } from '../src/model/tiers';
 import { detectPalettes } from '../src/palette/detect';
 import { detectPairs } from '../src/semantic/pairs';
+import { contrastRule } from '../src/state/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -98,5 +99,16 @@ describe('pairs', () => {
 
   it('leaves a component’s inverse text on the page default, not the inverse background', () => {
     expect(pairs(['background', 'background-inverse', 'notification-action-tertiary-inverse-text'])).toEqual(['notification-action-tertiary-inverse-text on background']);
+  });
+
+  it('reads a token its own description calls a background as one, whatever its name says', () => {
+    const ids = ['background', 'text-primary', 'content-switcher-selected'];
+    expect(pairs(ids)).toContain('content-switcher-selected on background');
+    expect(detectPairs(ids, new Set(['content-switcher-selected'])).map((p) => `${p.fg} on ${p.bg}`)).not.toContain('content-switcher-selected on background');
+  });
+
+  it('checks separators and dividers as borders (advice), not as required UI parts', () => {
+    const [pair] = detectPairs(['background', 'button-separator']);
+    expect(contrastRule(pair!)).toBe('contrast-border');
   });
 });

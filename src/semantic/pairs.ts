@@ -76,7 +76,7 @@ interface Parsed {
 }
 
 /** Foreground words for a line around a shape rather than a mark on it. */
-const EDGE = new Set(['border', 'borders', 'outline', 'outlines', 'stroke', 'ring', 'frame', 'edge']);
+const EDGE = new Set(['border', 'borders', 'outline', 'outlines', 'stroke', 'ring', 'frame', 'edge', 'divider', 'dividers', 'separator', 'separators']);
 
 /**
  * How a pair is drawn: "Aa" for text, a line around the background for
@@ -130,9 +130,9 @@ function shape(id: string): string {
   return ws.map((w, i) => (i === at ? '*' : w)).join('.');
 }
 
-/** Pairs inferred from the names of `ids` (color tokens), in the order of their foregrounds. */
-export function detectPairs(ids: readonly string[]): Pair[] {
-  const parsed = ids.map(parse);
+/** Pairs inferred from the names of `ids` (color tokens), in the order of their foregrounds. `backgrounds` are tokens whose own description calls them a background, whatever their name says. */
+export function detectPairs(ids: readonly string[], backgrounds: ReadonlySet<string> = new Set()): Pair[] {
+  const parsed = ids.map(parse).map((p) => (backgrounds.has(p.id) && p.role === 'fg' ? { ...p, role: 'bg' as const, kind: 'text' as const, on: false, edge: false } : p));
   const bgs = parsed.filter((p) => p.role === 'bg');
   const byKey = (list: Parsed[], key: string) => list.filter((p) => p.key === key);
   const defaults = byKey(bgs, '');
@@ -357,6 +357,17 @@ export function realias(model: Model, id: string, target: string): Edit | undefi
 }
 
 /** Tokens with a color across `models` (every theme): color tokens and composite borders, in source order. */
+/**
+ * Color tokens whose own description says they are a background or fill
+ * (“Background color for the selected option”), for names whose words read
+ * otherwise (`content-switcher-selected`, where “content” names the component).
+ */
+export function describedBackgrounds(models: readonly Model[]): Set<string> {
+  const out = new Set<string>();
+  for (const m of models) for (const t of m.tokens.values()) if (t.description && /^\s*(the\s+)?(background|fill)\b/i.test(t.description)) out.add(t.id);
+  return out;
+}
+
 export function colorTokenIds(models: readonly Model[]): string[] {
   const seen = new Map<string, number>();
   for (const m of models) for (const t of m.tokens.values()) if ((t.type === 'color' || t.type === 'border') && !seen.has(t.id) && tokenColor(t, m.settings.acceptLegacy)) seen.set(t.id, t.order);

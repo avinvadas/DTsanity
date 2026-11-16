@@ -1,5 +1,5 @@
 import { VISIONS, type Vision } from '../color/cvd';
-import { applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, isInactive, type Pair, type PairCheck } from '../semantic/pairs';
+import { applyPairEdits, checkPair, colorTokenIds, describedBackgrounds, detectPairs, glyphOf, isInactive, type Pair, type PairCheck } from '../semantic/pairs';
 import { checkSiblings, detectSiblings, type SiblingCheck, type SiblingGroup } from '../semantic/siblings';
 import { componentOf, tiersOf, type Tier } from '../model/tiers';
 import { severityOf } from '../policy/rules';
@@ -73,7 +73,7 @@ export function pairsOf(s: AppState): PairsResult {
   if (cache && cache.key.every((k, i) => k === key[i])) return cache.result;
   const models = allModels(s);
   const colorIds = colorTokenIds(models);
-  const pairs = applyPairEdits(detectPairs(colorIds), s.pairEdits);
+  const pairs = applyPairEdits(detectPairs(colorIds, describedBackgrounds(models)), s.pairEdits);
   const tiers = models.map(tiersOf);
   const isComponent = (id: string) => tiers.some((t) => t.get(id) === 'component');
   const tierOfId = (id: string): Tier => tiers.map((t) => t.get(id)).find(Boolean) ?? 'semantic';

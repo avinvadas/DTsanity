@@ -91,7 +91,7 @@ export const PROMPT_RULES: readonly PromptRule[] = [
   },
   {
     when: 'always',
-    text: 'A change must not cause a finding of its own: a broken reference, a value DTCG can’t read, a pair that falls below its level. If a finding needs a choice that neither the files nor your system’s rules settle, leave it and ask.',
+    text: 'A change must not cause a finding of its own: a broken reference, a value DTCG can’t read, a pair that falls below its level, also as the color-vision deficiencies this report simulates see it, where it simulates them. If a finding needs a choice that neither the files nor your system’s rules settle, leave it and ask.',
   },
   {
     when: 'always',

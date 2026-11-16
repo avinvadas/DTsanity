@@ -542,3 +542,13 @@ no DTCG form, as failures. By "every finding done, or declined or asked with a
 reason a person would accept", eleven rounds pass and Designsystemet, Haiku
 doesn't. By "nothing new", the Backpack rounds and Carbon, Haiku, rules fail,
 on advice only.
+
+**Fixed after round 2** (no round run on it yet):
+- A token whose own description calls it a background or fill is read as one,
+  whatever its name says (`content-switcher-selected`).
+- Separators and dividers are checked as borders (`contrast-border`, advice),
+  not as required UI parts.
+- The prompt says a change must keep pairs passing under the color-vision
+  deficiencies the report simulates, where it simulates them.
+- On the ten samples, only Carbon's counts changed: 37 → 36 counted, 4 → 1
+  required.
