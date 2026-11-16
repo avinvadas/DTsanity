@@ -1,9 +1,9 @@
 // npm run serve [-- <folder>] [--port <n>]
 //
 // Serves a built DTsanity page (dist-strict/ by default, or dist/) on this machine only, at
-// http://127.0.0.1:<port>. A page opened from disk (file://) can't read dropped folders in
-// some browsers (Brave, for one); served like this, folder drops work and nothing leaves the
-// machine. No dependencies; it only reads files from the folder and answers local requests.
+// http://127.0.0.1:<port>. Some browsers (Brave, for one) can't read a folder dragged from
+// Finder onto a page opened from disk (file://); served like this, folder drops work and
+// nothing leaves the machine. No dependencies; it only reads files from the folder and answers local requests.
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, normalize, resolve, sep } from 'node:path';
