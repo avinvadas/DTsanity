@@ -552,3 +552,52 @@ on advice only.
   deficiencies the report simulates, where it simulates them.
 - On the ten samples, only Carbon's counts changed: 37 → 36 counted, 4 → 1
   required.
+
+### Round 3 (2026-11-16): every finding answered, side effects remain
+
+Build 545d91f. Same twelve rounds, each checked afresh. Counted findings
+before → after (required in brackets), and new findings the round caused.
+
+| Round | Carbon (36 [1]) | Backpack (155 [152]) | Designsystemet (29 advice) |
+|---|---|---|---|
+| Sonnet | 27 [0], none new | 48 [47], +1 cvd-pair | no change, all declined |
+| Sonnet, rules | 27 [0], none new | 87 [85], +84 required (see below) | no change, all declined by rule |
+| Haiku | 18 [0], +1 cvd-pair | 22 [19], +2 cvd-pair | 18 fixed, +16 cvd-pair |
+| Haiku, rules | 21 [0], +1 cvd-pair | 27 [23], +2 cvd-pair | 25 declined by rule, 4 asked |
+
+- **Carbon has no required finding left in any round.** Both Sonnet rounds
+  fixed or declined everything and caused nothing new.
+- **Every round answered every finding**: done, declined with a reason, or
+  asked. Required findings left open are values with no DTCG form (em,
+  `100%`, media queries), each with a question.
+- **The color-vision sentence helped Sonnet, not Haiku.**
+  - Sonnet, rules on Backpack left the day hero text as a question, because
+    no step passes without failing a simulation.
+  - Haiku still caused 1–16 new `cvd-pair` findings per round. Once it even
+    noted the deficiency and left it.
+  - Every new finding in Haiku rounds is advice.
+- **Backpack, Sonnet, rules converted the file to DTCG.** That is what the
+  stand-in rules ask for, and it was done well (references from
+  `originalValue`, legacy fields under `$extensions`). But the first fresh
+  check showed 364 false `tier-base-reference` findings. The file name
+  `base.raw.json` made every token base, including `props`, which now pointed
+  at `aliases`.
+  - **Fixed in DTsanity:** a group that points at another group of the same
+    base-named file is semantic. On the samples, counts are unchanged.
+  - **What is left is the round's own doing:** four tokens with no DTCG form
+    were left in the older shape inside the converted file (`invalid-node` 48,
+    `legacy-property` 36).
+
+**Pairs DTsanity doesn't check, again.**
+- Designsystemet's status text on `surface-active` (4.00:1).
+- Backpack's `INPUT_BORDER` on white (1.70:1), which the stand-in rules say
+  must reach 3:1.
+- Backpack's `PRIVATE_SEGMENTED_CONTROL_SURFACE_CONTRAST_ON_NIGHT`, which
+  Sonnet called a fill misread as text: "on" in its name makes it a
+  foreground.
+
+**Against the pass rule.**
+- 90% fixed: no round.
+- Every finding answered with a reason: all twelve.
+- Nothing new: five rounds (Carbon Sonnet ×2, Designsystemet Sonnet ×2 and
+  Designsystemet, Haiku, rules).

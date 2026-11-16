@@ -75,6 +75,12 @@ function layerOf(t: Token, fileName: string): { tier: Tier; word: string } | und
   return undefined;
 }
 
+/** Whether a token's own groups name a layer (rather than only its file or folders). */
+function groupLayer(t: Token): boolean {
+  const top = t.keyPath.slice(0, Math.min(2, t.keyPath.length - 1)).flatMap((seg) => words(seg));
+  return top.some((w) => BASE.has(w) || SEMANTIC.has(w) || COMPONENT_GROUP.has(w));
+}
+
 /** The tier of a token, from its name, its file name and its value. */
 export function tierOf(t: Token, fileName = ''): Tier {
   const ws = words(t.id);
@@ -128,6 +134,24 @@ export function tiersOf(model: Model): Map<string, Tier> {
     const inside = new Set(members.map((t) => t.id));
     const used = [...model.tokens.values()].some((t) => !inside.has(t.id) && pointsAt(t, model).some((r) => inside.has(r)));
     if (used) for (const t of members) tiers.set(t.id, 'base');
+  }
+  // A file named as a base layer (`base.raw.json`) that holds a group of
+  // references pointing at another group of the same file holds two tiers:
+  // the group that points is not base.
+  const byGroup = new Map<string, Token[]>();
+  for (const t of model.tokens.values()) {
+    if (tiers.get(t.id) !== 'base' || t.keyPath.length < 2 || groupLayer(t)) continue;
+    if (layerOf(t, names.get(t.fileId) ?? '')?.tier !== 'base') continue;
+    const key = `${t.fileId}\u0000${t.keyPath[0]}`;
+    byGroup.set(key, [...(byGroup.get(key) ?? []), t]);
+  }
+  for (const members of byGroup.values()) {
+    const refs = members.flatMap((t) => t.refs.map((r) => model.tokens.get(r)));
+    if (!refs.length) continue;
+    const group = members[0]!;
+    const elsewhere = refs.every((r) => r && r.fileId === group.fileId && r.keyPath[0] !== group.keyPath[0]);
+    if (!elsewhere) continue;
+    for (const t of members) if (t.refs.length && !/^\d+$/.test(t.path.at(-1) ?? '')) tiers.set(t.id, 'semantic');
   }
   cache.set(model, tiers);
   return tiers;

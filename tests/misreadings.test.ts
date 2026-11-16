@@ -62,6 +62,23 @@ describe('tiers', () => {
     expect(rules(m)).not.toContain('tier-hardcoded');
   });
 
+  it('reads a group that points at another group of a base-named file as semantic', () => {
+    const c = { $value: { colorSpace: 'srgb', components: [1, 1, 1] } };
+    const m = analyze([loadText(JSON.stringify({ aliases: { $type: 'color', WHITE: c }, props: { $type: 'color', CANVAS_DAY: { $value: '{aliases.WHITE}' } } }), 'base.raw.json')], DEFAULT_SETTINGS);
+    expect(tiersOf(m).get('aliases.WHITE')).toBe('base');
+    expect(tiersOf(m).get('props.CANVAS_DAY')).toBe('semantic');
+    expect(rules(m)).not.toContain('tier-base-reference');
+  });
+
+  it('still flags a token of a base-named file that points at another file', () => {
+    const c = { $value: { colorSpace: 'srgb', components: [1, 1, 1] } };
+    const m = analyze(
+      [loadText(JSON.stringify({ gray: { $type: 'color', 0: c } }), 'palette.json'), loadText(JSON.stringify({ color: { $type: 'color', white: { $value: '{gray.0}' } } }), 'base.json')],
+      DEFAULT_SETTINGS,
+    );
+    expect(rules(m)).toContain('tier-base-reference');
+  });
+
   it('still reads an alias group of references as semantic', () => {
     const c = { $value: { colorSpace: 'srgb', components: [0, 0, 1] } };
     const m = analyze([loadText(JSON.stringify({ base: { $type: 'color', blue: c }, aliases: { $type: 'color', link: { $value: '{base.blue}' }, raw: c } }))], DEFAULT_SETTINGS);
