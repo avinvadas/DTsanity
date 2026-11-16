@@ -485,3 +485,60 @@ returned the report as text; it was saved to the folder by hand.
 - One-click fixes stay in DTsanity for people editing the files by hand. The
   prompt doesn't depend on them.
 - DTsanity doesn't apply an assistant's answer, store results or compare runs.
+
+### Round 2 (2026-11-16): much closer, not passed
+
+Build a136d21, after fixing the round 1 misreadings and the prompt sentence
+(it now says a value may change where a finding needs it). Same twelve rounds,
+same four-line launch prompt, each checked afresh.
+
+Before → after the round, counted findings (required in brackets).
+
+| Round | Carbon (37 [4]) | Backpack (155 [152]) | Designsystemet (29 advice) |
+|---|---|---|---|
+| Sonnet | 36 [2] | 57 [51] | 29: all declined with reasons |
+| Sonnet, rules | 36 [2] | 48 [42] | 29: all declined by rule |
+| Haiku | 23 [1] | 26 [22] | 29: all left as questions |
+| Haiku, rules | 21 [2] | 24 [20] | 29: all declined by rule |
+
+What changed from round 1:
+- **Plain rounds now fix contrast.** Both Carbon rounds fixed the required
+  placeholder contrast (round 1 Sonnet declined it), and Backpack Haiku fixed
+  all six contrast findings (round 1 left them as questions).
+- **The fixed misreadings stayed fixed.** No `invalid-node`, no hover-step
+  findings, no `aliases` tier findings. Nobody rewrote the Carbon palette.
+- **The clarified stand-in rule works.** Designsystemet with rules declined the
+  11 status siblings by rule 5 in both models. Haiku checked each status color
+  against its surface, as the rule now says. Backpack Haiku with rules declined
+  the night status fills, which pass against their surface. It kept the day
+  fills open, because they don't pass.
+
+What is left:
+- **Required leftovers are declined or asked, with reasons.** Backpack's em
+  letter spacing, `100%` radius and media-query tokens have no DTCG form. Each
+  round asked which tools read them, or which font size the em values are for.
+- **Advice-level side effects of contrast fixes.** Every Backpack round ended
+  with one new `cvd-pair`: the day destructive text re-pointed to `BERRY_75`
+  passes 4.5:1 with typical vision but not under simulated deficiencies.
+  Carbon, Haiku, rules raised tag and AI borders to 3:1, and nine of them now
+  fail under simulated deficiencies. The assistant can't see that without the
+  checker. Sonnet noticed and asked; Haiku didn't.
+- **Two misreadings remain.** Every Carbon round declined them:
+  - `content-switcher-selected` is a fill, but "content" is read as a text
+    role.
+  - `button-separator` is a separator, decorative by WCAG 1.4.11, yet it is
+    counted as a required `contrast-ui` finding.
+- **Pairs DTsanity doesn't check.** The assistants found pairs that matter and
+  aren't checked:
+  - status text on Designsystemet's `surface-active` (3.99:1);
+  - Carbon's placeholder on the dark `layer-02/03` and `field-02/03` surfaces;
+  - Carbon link hovers that now equal their resting colors.
+
+  A fix can make an unchecked pair worse, and the fresh run won't show it.
+
+**Against the pass rule.** No round fixed 90% of its counted findings. The
+rule counts advice that a design system rightly declines, and findings with
+no DTCG form, as failures. By "every finding done, or declined or asked with a
+reason a person would accept", eleven rounds pass and Designsystemet, Haiku
+doesn't. By "nothing new", the Backpack rounds and Carbon, Haiku, rules fail,
+on advice only.
