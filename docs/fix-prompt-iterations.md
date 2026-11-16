@@ -384,7 +384,7 @@ starts in a fresh session and is checked in a fresh DTsanity tab.
 - every item left is declined in the report with a reason a person would
   accept.
 
-**Pass (revised after round 3).** The 90% bar counted as failures the
+**Pass (revised after round 3, kept 2026-11-16).** The 90% bar counted as failures the
 declines the prompt invites (advice a system does otherwise) and DTsanity's
 own misreadings. It measured the checker as much as the prompt. A round
 passes when a fresh check of its files and a reading of its report show:
