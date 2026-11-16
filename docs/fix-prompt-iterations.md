@@ -378,11 +378,35 @@ Run on three sets of different shapes (one contrast-heavy, one format-heavy,
 one multi-theme), each with two models, in both modes from step 4. Each round
 starts in a fresh session and is checked in a fresh DTsanity tab.
 
-**Pass:**
+**Pass (first version, used in rounds 1–3):**
 - at least 90% of listed items are fixed;
 - nothing new appears;
 - every item left is declined in the report with a reason a person would
   accept.
+
+**Pass (revised after round 3).** The 90% bar counted as failures the
+declines the prompt invites (advice a system does otherwise) and DTsanity's
+own misreadings. It measured the checker as much as the prompt. A round
+passes when a fresh check of its files and a reading of its report show:
+
+1. **Answered.** Every finding has an answer by its number: done, declined,
+   or asked.
+2. **True.** Every "done" holds in the fresh check. A claim the check
+   contradicts ("both groups fixed", "no pair that passed now fails") fails
+   the round, whatever else it did.
+3. **Required findings settled.** Each is done, or declined or asked for a
+   reason at the standard's level: the standard has no form for the value
+   (an em length in DTCG), or the report names it a misreading. A named
+   misreading is a DTsanity issue to check before the next round.
+4. **Nothing new unreported.** No new required finding. A new advice finding
+   passes only when the report names it.
+5. **Advice declined for a reason.** No share of advice must be done. A
+   decline names something a person can check: a rule of the system, how the
+   token is used, or what the change would cost.
+
+The step passes when every round passes on the larger model (Sonnet). Rounds
+on the smaller model (Haiku) are recorded and show where the prompt needs
+more for a smaller reader, but don't block the step.
 
 **Record per round:** the prompt, the model, the report, the fresh count and
 the build.
@@ -601,3 +625,24 @@ before → after (required in brackets), and new findings the round caused.
 - Every finding answered with a reason: all twelve.
 - Nothing new: five rounds (Carbon Sonnet ×2, Designsystemet Sonnet ×2 and
   Designsystemet, Haiku, rules).
+
+### Round 3 under the revised pass rule
+
+Rounds 1 and 2 ran on builds with misreadings since fixed, so only round 3 is
+scored. The numbers refer to the five conditions of the revised rule.
+
+| Round | Carbon | Backpack | Designsystemet |
+|---|---|---|---|
+| Sonnet | pass | fails 4: white hero text now fails tritanopia, not named | pass |
+| Sonnet, rules | pass | fails 4: 84 new required findings from tokens left in the older format | pass |
+| Haiku | fails 2, 4: says every check passes; `ai-border-end` now fails color-vision checks | fails 2, 4: says both sibling groups are fixed, one is not; two new `cvd-pair` not named | fails 2, 4: says no passing pair now fails; 16 do |
+| Haiku, rules | fails 2, 4: says every pair was checked under the simulations; `ai-border-start` fails | fails 4: names the destructive text, not the hero text | pass |
+
+Sonnet: 4 of 6 pass. Haiku: 1 of 6. The step has not passed. The two Sonnet
+failures are both on Backpack:
+- one color-vision side effect left unnamed;
+- a DTCG conversion left half done.
+
+Every Haiku failure is a claim the fresh check contradicts. A smaller model
+checking its own work against a re-implemented checker is the weak point,
+not the prompt's wording.
