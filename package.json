@@ -37,8 +37,7 @@
     "compare": "node scripts/compare.mjs",
     "audit": "node scripts/audit.mjs",
     "round": "node scripts/round.mjs",
-    "build:cli": "node scripts/build-cli.mjs",
-    "serve": "node scripts/serve.mjs"
+    "build:cli": "node scripts/build-cli.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

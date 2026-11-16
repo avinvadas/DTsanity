@@ -175,12 +175,6 @@ async function readDirHandle(dir: FileSystemDirectoryHandle): Promise<(RawSource
   return found.length > MAX_FILES ? [...read, tooMany(dir.name)] : read;
 }
 
-/** Whether the page was opened from disk (file://), where some browsers can't read a dropped folder. */
-const fromDisk = () => typeof location !== 'undefined' && location.protocol === 'file:';
-/** Why a dropped folder fails on a page opened from disk, and what works instead. */
-const FROM_DISK =
-  'This page was opened from disk (file://). Some browsers, Brave for one, can’t read a dropped folder there. Open the page through a local address instead: run “npm run serve” in the DTsanity folder and open the address it prints. Nothing leaves your computer. Dropping the files themselves works here too.';
-
 /** The same for a dropped folder entry, where the browser gives no handles (Reload re-reads the File). */
 async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource | LoadError)[]> {
   const found: { entry: FileSystemFileEntry; path: string }[] = [];
@@ -205,7 +199,7 @@ async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource |
   try {
     await walk(dir, dir.name);
   } catch (err) {
-    return [{ name: dir.name, message: `The folder could not be read.${reason(err)}${fromDisk() ? ` ${FROM_DISK}` : ''}` }];
+    return [{ name: dir.name, message: `The folder could not be read.${reason(err)}` }];
   }
   if (!found.length) return [noTokenFiles(dir.name)];
   const read = await Promise.all(
