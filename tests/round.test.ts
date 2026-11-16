@@ -13,7 +13,8 @@ import { parse, SAMPLES, SETTINGS } from './oracle/samples';
  *
  *   npm run round -- <set or folder> <out folder> [--brain] [--rules a,b]
  *
- * writes what the assistant is given: files/ (a copy of the set), prompt.md, BRIEF.md and,
+ * writes what the assistant is given: files/ (a copy of the set), prompt.md, BRIEF.md, check.mjs
+ * (the offline check, built by scripts/round.mjs) and,
  * with --brain, reference-system.md, the stand-in for a design system's own rules. Without an
  * out folder it is the fresh check: the findings of the folder by rule, from the prompt built
  * from its files alone, as a fresh DTsanity tab builds it.
@@ -40,6 +41,7 @@ const brief = (brain: boolean) =>
     '',
     'The design token files of our design system are in `files/`. `prompt.md` reports what a checker found in them.',
     brain ? '`reference-system.md` holds our design system’s rules for changing tokens: follow them.' : '',
+    '`check.mjs` is the checker that wrote the report. `node check.mjs` checks `files/` again and prints a fresh report (`--summary` for counts by rule). It only reads the files.',
     '',
     'Work through the report. Change the files in place, under `files/`, keeping their paths and names. Write your report, as `prompt.md` asks for it, to `report.md`.',
     '',
@@ -73,6 +75,8 @@ const brief = (brain: boolean) =>
       writeFileSync(join(out, 'prompt.md'), p.text);
       writeFileSync(join(out, 'BRIEF.md'), brief(BRAIN));
       if (BRAIN) copyFileSync(join(ROOT, 'docs/reference-system.md'), join(out, 'reference-system.md'));
+      const cli = join(ROOT, 'dist-cli/dtsanity-check.mjs');
+      if (existsSync(cli)) copyFileSync(cli, join(out, 'check.mjs'));
       writeFileSync(join(out, 'round.json'), `${JSON.stringify({ source: SRC, brain: BRAIN, rules: RULES, count: p.count, more: p.more, characters: p.text.length, byRule }, null, 2)}\n`);
       console.log(`Round written to ${out}`);
     },

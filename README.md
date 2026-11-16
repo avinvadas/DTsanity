@@ -31,6 +31,13 @@ npm run dev            # http://localhost:5173
 npm test
 npm run build          # hosted build: dist/index.html, one self-contained file
 npm run build:strict   # strict build: no usability recording, runs offline from disk
+npm run build:cli      # offline check: dist-cli/dtsanity-check.mjs, one file
+```
+
+The offline check prints the same report as the page's fix prompt, for a folder of token files. It only reads the files and sends nothing. It exits with 1 while findings remain, so a script, CI or an assistant can check its own changes:
+
+```bash
+node dist-cli/dtsanity-check.mjs path/to/tokens --summary
 ```
 
 ## More

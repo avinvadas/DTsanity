@@ -679,3 +679,16 @@ same place as before or close to it.
   can't see what the fresh run sees.
 - **The letter-spacing retype is a gap in DTsanity:** a type change that
   silences a finding without keeping the meaning goes unreported.
+
+### Round assistants get the checker (build after a7541fa)
+
+Every failure in round 3 and the reruns was a self-check the assistant got
+wrong without DTsanity. Round folders now hold `check.mjs`, DTsanity's offline
+check (`npm run build:cli`, from `src/cli/check.ts`).
+- It prints, for `files/`, the same report the page's fix prompt gives
+  (tested against the page on Backpack), or counts by rule with `--summary`.
+- It only reads the files and sends nothing.
+- The brief names it in one line, as a team would hand over its checker.
+
+Its fresh report is the check the pass rule already uses, so a round can now
+see what it will be scored on.
