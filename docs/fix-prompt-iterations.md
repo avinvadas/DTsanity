@@ -646,3 +646,36 @@ failures are both on Backpack:
 Every Haiku failure is a claim the fresh check contradicts. A smaller model
 checking its own work against a re-implemented checker is the weak point,
 not the prompt's wording.
+
+### Rerun of the two failing Backpack rounds with Sonnet (build e83ec37)
+
+Same prompt, same files, fresh assistants. Both fail again, each in the
+same place as before or close to it.
+
+- **Without the stand-in rules: 155 → 36, fails condition 4 again.**
+  - It made the day hero text white again. That fails the tritanopia
+    simulation (4.46:1), and the report doesn't say so.
+  - It checked the simulations for the destructive button colors, which it
+    changed by its own choice of value, but not for white.
+  - New this time: it retyped the em letter spacings as plain numbers
+    (-0.02). DTsanity accepts that, but DTCG reads a number as a unitless
+    multiplier, not a length. It clears the check without settling what the
+    value means.
+- **With the stand-in rules: 155 → 86, fails condition 4.**
+  - This time it kept the older format, then wrote `$type` keys with
+    older-format type names (`size`) and duration strings (`"50ms"`) on the
+    aliases. That causes 22 new `unknown-type` and 3 `legacy-value` findings,
+    all required.
+  - It did name the hero text's tritanopia result (4.46) as a question.
+
+**What the reruns show.**
+- **Without the stand-in rules,** the failure repeats: white on the day hero
+  is the obvious fix, and both Sonnet runs left its color-vision result
+  unchecked and unnamed.
+- **With the stand-in rules,** the failure moves. Both runs failed while
+  changing the file's format (half converted, then mixed keys). Neither time
+  was the prompt's wording the cause.
+- **Both failures are self-checks.** An assistant without the checker
+  can't see what the fresh run sees.
+- **The letter-spacing retype is a gap in DTsanity:** a type change that
+  silences a finding without keeping the meaning goes unreported.
