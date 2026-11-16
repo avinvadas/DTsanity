@@ -692,3 +692,36 @@ check (`npm run build:cli`, from `src/cli/check.ts`).
 
 Its fresh report is the check the pass rule already uses, so a round can now
 see what it will be scored on.
+
+### Round 4: the two Backpack Sonnet rounds with the checker (build 035318e)
+
+Both pass the revised rule. Both ran `check.mjs` on their own work, and both
+reports' counts match the fresh check.
+
+- **Without the stand-in rules: 155 → 51, nothing new.**
+  - The hero pairs (text and surface are one color) and the segmented-control
+    "on" fill are declined as misreadings, by name.
+  - The em, `100%` and Sass-function values are declined: DTCG has no form
+    for them.
+- **With the stand-in rules: 155 → 46 (44 required, 2 advice), nothing new.**
+  - It saw the color-vision findings its first contrast fixes caused and
+    cleared them. The hero surface moved one step darker on its own scale,
+    and the destructive button's background moved to a lighter grey.
+  - The status-fill declines lean on rule 5 with a thin reason ("no contrast
+    finding exists"), but they name the rule.
+
+With the checker, the failure behind every earlier Backpack round, an
+unchecked side effect, is gone.
+
+**Where step 5 stands.**
+- Under the revised rule, all six Sonnet rounds now pass: Carbon and
+  Designsystemet in round 3, Backpack here.
+- They ran on two builds, though. The prompt text was the same, and the
+  checker in the folder was new here.
+- One more Sonnet pass of Carbon and Designsystemet with `check.mjs` would
+  put all six on one build.
+
+**Left for DTsanity.**
+- "On" read as a foreground in names like `SURFACE_CONTRAST_ON_NIGHT`.
+- Text and surface sharing one color (the hero), probably text on an image.
+- The unchecked pairs found earlier (pressed surfaces, input borders).
