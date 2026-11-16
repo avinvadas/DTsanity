@@ -43,7 +43,7 @@ export function parse(texts: { name: string; text: string }[], settings: Setting
   });
 }
 
-/** Issues across every theme, as the Issues view, the cards and the fix prompt see them. */
+/** Issues across every theme, as the Issues view, the cards and the findings report see them. */
 export const issuesOf = (s: AppState): Issue[] => (s.themeModels.length ? mergeModels(s.themeModels) : s.model).issues;
 
 /** A key for an issue that survives re-analysis: rule, file, place. */

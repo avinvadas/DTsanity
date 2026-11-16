@@ -157,7 +157,7 @@ export class TTPalettes extends HTMLElement {
           : total === 0
             ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with a raw value rather than a token reference.')
             : null,
-        // The scale findings have no one-click fix: one fix prompt for all of them.
+        // The scale findings have no one-click fix: one findings report for all of them.
         scaleFindings(included) ? h('div', { class: 'prompt-row scale-findings' }, h('span', { class: 'prompt-row-text' }, `${plural(scaleFindings(included), 'scale finding')} ${scaleFindings(included) === 1 ? 'needs' : 'need'} your change`), promptButton({ scales: true })) : null,
         this.systems(set.palettes, settings, shown, contrast),
         parityPanel(contrast, included),

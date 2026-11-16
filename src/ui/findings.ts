@@ -17,7 +17,7 @@ export type FindingKind = 'format' | 'tiers' | 'contrast' | 'vision';
 
 const isTier = (i: Issue) => i.code.startsWith('tier-');
 
-/** Issues across every theme, as the fix prompt sees them. */
+/** Issues across every theme, as the findings report sees them. */
 export const issuesOf = (s: AppState): Issue[] => (s.themeModels.length ? mergeModels(s.themeModels) : s.model).issues;
 
 export interface Findings {
@@ -59,7 +59,7 @@ export function findingTones(f: Findings): Record<FindingKind, Severity | undefi
 /** Every finding the cards count, as the Issues label and title say it. */
 export const findingTotal = (f: Findings) => f.format.length + f.tiers.length + f.contrast.length + f.vision.length + f.groups.length;
 
-/** Every file was read and nothing is left to fix: the fix prompt has nothing to say. */
+/** Every file was read and nothing is left to fix: the findings report has nothing to say. */
 export const allClear = (s: AppState) => s.files.length > 0 && s.loadErrors.length === 0 && findingTotal(findings(s)) === 0;
 
 
@@ -78,7 +78,7 @@ export function openLines(f: Findings): string[] {
   return out;
 }
 
-/** What DTsanity can fix of the issues found, and what is left to the user, with the fix prompt for the rest. */
+/** What DTsanity can fix of the issues found, and what is left to the user, with the findings report for the rest. */
 export function fixableLine(withFix: number, total: number): HTMLElement {
   if (withFix === total) return h('p', { class: 'findings-fixable' }, total === 1 ? 'It has a one-click fix here.' : 'Each has a one-click fix here.');
   // The ones counted without a fix: issues with none, and the contrast, color-vision and scale findings (info notes aside).

@@ -16,7 +16,7 @@ src/contrast/  WCAG 2.2 / APCA levels, pass ranges, step distance, cross-palette
 src/curves/    curve model: monotone splines, anchor, presets, gamut fitting, contrast-targeted lightness, batch mapping
 src/themes/    theme detection (file names, Tokens Studio $themes, $extensions modes) and the all-themes view
 src/state/     store, settings, undoable edits and fixes
-src/io/        loading (file, drop, URL), export, the fixed-set zip with CHANGES.md, the fix prompt
+src/io/        loading (file, drop, URL), export, the fixed-set zip with CHANGES.md, the findings report
 src/ui/        custom elements
 tests/         Vitest suites and fixture token files
 ```

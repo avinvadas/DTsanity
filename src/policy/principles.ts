@@ -1,17 +1,17 @@
 /**
  * How DTsanity fixes: the principles behind its one-click fixes and the
- * guidance in the fix prompt. One source for the "How DTsanity fixes" page,
- * the fix prompt's rules and docs/features.md, so the three never disagree.
+ * guidance in the findings report. One source for the "How DTsanity fixes" page,
+ * the findings report's rules and docs/features.md, so the three never disagree.
  *
  * The short version: DTsanity changes the format, never the design. What is
  * mechanical it fixes itself; what needs a design decision it leaves to you
- * (or to the assistant you give the fix prompt to), with guidance.
+ * (or to the assistant you give the findings report to), with guidance.
  */
 
 export const PRINCIPLE = 'DTsanity changes the format, never the design.';
 
 export const PRINCIPLE_ABOUT =
-  'What is mechanical, DTsanity fixes itself. What needs a design decision is left to you, or to the AI assistant you give the fix prompt to, with guidance on how to make it.';
+  'What is mechanical, DTsanity fixes itself. What needs a design decision is left to you, or to the AI assistant you give the findings report to, with guidance on how to make it.';
 
 export interface Principle {
   title: string;
@@ -65,7 +65,7 @@ export interface PromptRule {
 }
 
 /**
- * How the fix prompt asks to be worked through. It reports; the reader's
+ * How the findings report asks to be worked through. It reports; the reader's
  * design system decides. So the rules say what a finding gives, what the
  * result must keep, and how to answer, never how to change a token: each
  * finding carries its own problem, evidence, "done when" and "decline if"
@@ -99,6 +99,6 @@ export const PROMPT_RULES: readonly PromptRule[] = [
   },
 ];
 
-/** Why the prompt reports instead of prescribing, for the page. */
+/** Why the findings report describes findings instead of prescribing fixes, for the page. */
 export const PROMPT_WHY =
-  'A design system has its own rules for how its tokens are made. The prompt gives each finding the context to fix it that way, and a check any tool can run afterwards, so the result is judged on a fresh run, not against DTsanity’s idea of the fix. It states only the rules that apply to what it lists.';
+  'A design system has its own rules for how its tokens are made. The report gives each finding the context to fix it that way, and a check any tool can run afterwards, so the result is judged on a fresh run, not against DTsanity’s idea of the fix. It states only the rules that apply to what it lists.';

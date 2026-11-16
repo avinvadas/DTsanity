@@ -10,7 +10,7 @@ beforeEach(() => clearAll());
 
 const ok = (l: number, h = 250, c = 0.05) => ({ $value: { colorSpace: 'oklch', components: [l, c, h] } });
 
-describe('fix prompt', () => {
+describe('findings report', () => {
   it('lists format issues by rule, with the rule’s basis, problem and check, and each place numbered', () => {
     addFiles([loadFixture('dtcg-broken.tokens.json')]);
     const { text, count } = fixPrompt(store.get());

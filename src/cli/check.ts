@@ -14,7 +14,7 @@ import { contrastRule } from '../state/pairs';
  *
  * Prints the report a fresh DTsanity tab gives for those files: the same
  * findings, numbered the same way. With --summary, only the counts by rule;
- * with --rules, only those rules' findings, as a group's fix prompt has them.
+ * with --rules, only those rules' findings, as a group's findings report has them.
  * Reads the files and writes nothing; nothing is sent anywhere. Legacy formats
  * are accepted, as in the round tests.
  */

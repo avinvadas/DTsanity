@@ -273,7 +273,7 @@ button.danger { color: var(--error); }
 button.danger:hover:not(:disabled) { color: var(--error); background: var(--error-soft); }
 button.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); font-weight: 500; }
 button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
-/* A line that says what is left to do, with the fix prompt button aligned right. */
+/* A line that says what is left to do, with the findings report button aligned right. */
 .prompt-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .prompt-row-text { flex: 1 1 auto; min-width: 0; }
 button.prompt-btn { display: inline-flex; align-items: center; gap: var(--space-1); margin-left: auto; flex: none; }
@@ -763,7 +763,7 @@ tt-files .file .badge + button { margin-left: auto; }
 .issue-subgroup[open] > .cl-summary { margin-bottom: var(--space-2); }
 .issue-subgroup h5 { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--font-sm); font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
 .group-note { margin: 0 0 var(--space-2); font-size: var(--font-sm); color: var(--muted); }
-/* Group actions, applying fixes or copying the fix prompt: secondary buttons of one size, aligned right with the icon trailing. */
+/* Group actions, applying fixes or copying the findings report: secondary buttons of one size, aligned right with the icon trailing. */
 button.fix-all, button.prompt-btn { display: inline-flex; align-items: center; gap: var(--space-1); }
 button.fix-all .icon, button.prompt-btn .icon, button.fix-btn .icon, .m-fix .icon, .m-fixall .icon { width: 14px; height: 14px; flex: none; }
 .fix-btn, .m-fix, .m-fixall { display: inline-flex; align-items: center; gap: var(--space-1); }
@@ -783,7 +783,7 @@ button.fix-all .icon, button.prompt-btn .icon, button.fix-btn .icon, .m-fix .ico
 .issue .fix { margin-top: var(--space-1); }
 .fix-clusters { display: flex; flex-direction: column; gap: var(--space-3); }
 .cluster-head { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); font-size: var(--font-sm); font-weight: 500; color: var(--text-soft); }
-/* The title takes the line; the fix prompt button sits at its right end. */
+/* The title takes the line; the findings report button sits at its right end. */
 .cluster-title { flex: 1 1 auto; min-width: 0; }
 .cluster-head .icon { width: 14px; height: 14px; color: var(--accent); }
 .issue .no-fix { margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--muted); }
@@ -1479,7 +1479,7 @@ tt-mobile .finding-cards { grid-template-columns: 1fr 1fr; }
 .m-ok { display: inline-flex; color: var(--ok); }
 .m-ok .icon { width: 16px; height: 16px; }
 .m-clear { margin: 0; color: var(--muted); }
-/* Group actions on phones, applying fixes or copying the fix prompt: secondary, one size, big enough to tap. */
+/* Group actions on phones, applying fixes or copying the findings report: secondary, one size, big enough to tap. */
 .m-fixall, tt-mobile button.prompt-btn { min-height: 40px; padding: 0 var(--space-3); font-size: var(--font-sm); font-weight: 500; }
 .m-fixall { align-self: flex-start; }
 .m-list { display: flex; flex-direction: column; gap: var(--space-3); }

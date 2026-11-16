@@ -74,7 +74,7 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
         counts.styles ? h('span', { class: 'chip warning', 'data-tip': TIP.typeStyleAlerts }, severityIcon('warning'), `${plural(counts.styles, 'style')} to check`) : null,
         counts.range ? h('span', { class: 'chip warning', 'data-tip': TIP.typeRangeAlerts }, severityIcon('warning'), `${plural(counts.range, 'range alert')}`) : null,
         h('span', { class: 'spacer' }),
-        // The range alerts have no fix here: their fix prompt, for every theme.
+        // The range alerts have no fix here: their findings report, for every theme.
         notes.length ? promptButton({ typography: true }) : null,
         modes.length
           ? masked(

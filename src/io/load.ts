@@ -179,7 +179,7 @@ async function readDirHandle(dir: FileSystemDirectoryHandle): Promise<(RawSource
 const fromDisk = () => typeof location !== 'undefined' && location.protocol === 'file:';
 /** Why a dropped folder fails on a page opened from disk, and what works instead. */
 const FROM_DISK =
-  'This page was opened from disk (file://). Some browsers, Brave for one, can’t read a dropped folder there. Open the page through a local address instead: run “npm run serve” in the DTsanity folder and open the address it prints. Nothing leaves your computer. Dropping the files themselves works here too.';
+  'This page was opened from disk (file://). Some browsers, Brave for one, can’t read a folder dragged onto a page opened that way, though they read it on a page with a web address. Open the page through a local address instead: run “npm run serve” in the DTsanity folder and open the address it prints. Nothing leaves your computer. Dropping the files themselves works here too.';
 
 /** The same for a dropped folder entry, where the browser gives no handles (Reload re-reads the File). */
 async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource | LoadError)[]> {

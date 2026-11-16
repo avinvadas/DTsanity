@@ -1,5 +1,5 @@
 /**
- * What the fix prompt says about each rule, so a finding stands on its own
+ * What the findings report says about each rule, so a finding stands on its own
  * for a reader with no other context (often an AI assistant, or a design
  * system's own tooling):
  * - problem: what is wrong and why it matters;

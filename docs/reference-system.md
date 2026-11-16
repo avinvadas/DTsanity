@@ -1,7 +1,7 @@
 # Reference design system: how we change our tokens
 
 This file stands in for a design system's own rules in tests of the fix
-prompt. It belongs to no real system, and the fix prompt never refers to it.
+prompt. It belongs to no real system, and the findings report never refers to it.
 Give it to the assistant beside the prompt and the token files, as a team
 would give its own guidelines.
 

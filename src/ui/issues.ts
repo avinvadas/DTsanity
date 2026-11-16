@@ -176,7 +176,7 @@ export class TTIssues extends HTMLElement {
   }
 
   private render(v: AppState) {
-    // Every theme's issues, as the cards, the sidebar and the fix prompt count them; an issue in only some themes is tagged with them.
+    // Every theme's issues, as the cards, the sidebar and the findings report count them; an issue in only some themes is tagged with them.
     const all = issuesOf(v);
     // All loaded files: a theme's model only knows its own, and the all-themes view merges several.
     const names = new Map(store.get().files.map((f) => [f.id, f.name]));
@@ -277,7 +277,7 @@ export class TTIssues extends HTMLElement {
   /**
    * A list of issues in two clusters: the ones DTsanity fixes in one click,
    * then the ones that need a change from the user (in the file, with a tool
-   * here, or through the fix prompt). A cluster with nothing in it is left out.
+   * here, or through the findings report). A cluster with nothing in it is left out.
    */
   private clusters(issues: Issue[], where: (i: Issue) => string, notes = false) {
     const fixable = issues.filter((i) => i.fix);

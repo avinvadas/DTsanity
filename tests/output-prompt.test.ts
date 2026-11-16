@@ -10,7 +10,7 @@ import { CRITERIA } from '../src/policy/criteria';
 import { PRESCRIBES } from './prompt-words';
 
 /**
- * The fix prompt on every sample set (part B of the output test plan).
+ * The findings report on every sample set (part B of the output test plan).
  *
  * B1. Coverage: every finding is in the full prompt once; each group's
  *     button (as the views build them) copies exactly that group, the
@@ -48,7 +48,7 @@ const findingsIn = (lines: string[]) => lines.reduce((n, l) => n + weight(l), 0)
 
 const isTier = (i: Issue) => i.code.startsWith('tier-');
 
-/** Every group that has a fix prompt button, scoped as its view scopes it. */
+/** Every group that has a findings report button, scoped as its view scopes it. */
 function groups(): { name: string; scope: PromptScope; size: number }[] {
   const s = store.get();
   const all = issuesOf(s);
@@ -69,7 +69,7 @@ function groups(): { name: string; scope: PromptScope; size: number }[] {
   return out;
 }
 
-describe.each(SETS)('fix prompt: %s', (set) => {
+describe.each(SETS)('findings report: %s', (set) => {
   it(
     'lists every finding once, in the right group, at the right place',
     () => {
@@ -176,7 +176,7 @@ describe.each(SETS)('fix prompt: %s', (set) => {
 
       if (process.env.SAMPLES_REPORT) {
         const chars = full.text.length;
-        console.log(`\n${set}: fix prompt ${full.count} corrections + ${full.more} others on ${listed.length} lines, ${chars} characters (~${Math.round(chars / 4)} tokens, ~${Math.round(chars / 4 / Math.max(1, full.count + full.more))} per finding)`);
+        console.log(`\n${set}: findings report ${full.count} corrections + ${full.more} others on ${listed.length} lines, ${chars} characters (~${Math.round(chars / 4)} tokens, ~${Math.round(chars / 4 / Math.max(1, full.count + full.more))} per finding)`);
       }
     },
     T,

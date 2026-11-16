@@ -15,7 +15,7 @@
 ## Close the loop
 
 - **Get fixed files**: the whole token set as you loaded it, with your changes, in one zip with a `CHANGES.md`.
-- **Copy fix prompt**: every remaining correction as one prompt for an AI assistant or a ticket.
+- **Copy findings report**: every remaining finding as one report for an AI assistant, your design system's tooling or a ticket.
 
 ## Privacy
 
@@ -35,9 +35,9 @@ npm run build:cli      # offline check: dist-cli/dtsanity-check.mjs, one file
 npm run serve          # serve the strict build at http://127.0.0.1:4173, this machine only
 ```
 
-The built page also opens straight from disk. Some browsers, Brave for one, can't read a dropped folder on a page opened that way (`file://`): files drop fine, but folders need the page at a local address. `npm run serve` serves the strict build at `http://127.0.0.1:4173`, to this machine only and with nothing sent anywhere. Add `-- dist` to serve the hosted build instead.
+The built page also opens straight from disk. Some browsers, Brave for one (seen on macOS), can't read a folder dragged from Finder onto a page opened that way (`file://`): files drop fine, and the same folders drop fine on a page with a web address. `npm run serve` serves the strict build at `http://127.0.0.1:4173`, to this machine only and with nothing sent anywhere. Add `-- dist` to serve the hosted build instead.
 
-The offline check prints the same report as the page's fix prompt, for a folder of token files. It only reads the files and sends nothing. It exits with 1 while findings remain, so a script, CI or an assistant can check its own changes:
+The offline check prints the same report as the page's findings report, for a folder of token files. It only reads the files and sends nothing. It exits with 1 while findings remain, so a script, CI or an assistant can check its own changes:
 
 ```bash
 node dist-cli/dtsanity-check.mjs path/to/tokens --summary

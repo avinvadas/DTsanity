@@ -3,8 +3,8 @@ import { store } from '../state/app';
 import { h, icon, plural } from './dom';
 import { TIP } from './tips';
 
-/** The label on every fix prompt button. */
-export const COPY_PROMPT = 'Copy the fix prompt';
+/** The label on every findings report button. */
+export const COPY_PROMPT = 'Copy the findings report';
 
 /**
  * What a copy put on the clipboard, in the units the Issues page counts
@@ -18,7 +18,7 @@ export function copiedLabel({ count, more }: FixPrompt, empty = 'Nothing to copy
 }
 
 /**
- * A secondary button that copies the fix prompt, for the group of findings it
+ * A secondary button that copies the findings report, for the group of findings it
  * heads (`scope`) or for all of them, with a copy icon after its label. Only groups get one,
  * never a single finding. While the copy
  * is confirmed, it says how many corrections went to the clipboard.
@@ -49,7 +49,7 @@ export function promptButton(scope?: PromptScope): HTMLButtonElement {
   return button;
 }
 
-/** A line of text with the fix prompt button aligned right. */
+/** A line of text with the findings report button aligned right. */
 export function promptRow(text: (string | Node)[] | string, scope: PromptScope | undefined, cls = ''): HTMLElement {
   return h('div', { class: `prompt-row ${cls}`.trim() }, h('span', { class: 'prompt-row-text' }, text), promptButton(scope));
 }

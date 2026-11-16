@@ -8,7 +8,7 @@ import { contrastRule } from '../src/state/pairs';
 import { parse, SAMPLES, SETTINGS } from './oracle/samples';
 
 /**
- * One test round of the fix prompt (docs/fix-prompt-iterations.md, steps 4 and 5), run only
+ * One test round of the findings report (docs/fix-prompt-iterations.md, steps 4 and 5), run only
  * when asked:
  *
  *   npm run round -- <set or folder> <out folder> [--brain] [--rules a,b]

@@ -3,7 +3,7 @@ import { REMEDY, RULES, type Remedy } from '../policy/rules';
 import { h, plural, viewHead } from './dom';
 
 /**
- * "How DTsanity fixes": the principles behind its fixes and the fix prompt,
+ * "How DTsanity fixes": the principles behind its fixes and the findings report,
  * and what it does about each check. Linked from the footer; shown as a page
  * of its own, with only the header and the footer around it.
  */
@@ -42,8 +42,8 @@ export class TTPrinciples extends HTMLElement {
         h('h2', null, 'Two fixes that go a step further'),
         items(FIX_EXCEPTIONS),
 
-        h('h2', null, 'The fix prompt'),
-        h('p', null, 'The fix prompt reports every finding to an AI assistant, your design system’s own tooling or a ticket: by rule, required first, then advice, each with its source, the problem, the evidence and what must be true when it is done. It never says how to fix it, and gives these rules with it:'),
+        h('h2', null, 'The findings report'),
+        h('p', null, 'The findings report lists every finding for an AI assistant, your design system’s own tooling or a ticket: by rule, required first, then advice, each with its source, the problem, the evidence and what must be true when it is done. It never says how to fix it, and gives these rules with it:'),
         h('ul', { class: 'principles rules' }, PROMPT_RULES.map((r) => h('li', null, h('span', null, r.text)))),
         h('p', null, PROMPT_WHY),
       ),

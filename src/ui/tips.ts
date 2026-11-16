@@ -73,8 +73,8 @@ export const TIP = {
   downloadAll: 'Save every loaded file in the DTCG format.',
   downloadUpdated: 'Save the whole token set with your changes as one folder (zipped): every loaded file under its own name and in its own format, plus CHANGES.md listing each change.',
   downloadUpdatedNone: 'Active once you change the tokens here: apply a fix, re-alias a token or edit a curve.',
-  copyScopedPrompt: 'Copy a prompt with the corrections for these findings only, for an AI assistant or a ticket. It names your tokens and stays on your clipboard.',
-  copyFixPrompt: 'Copy a prompt that lists every correction still needed (errors, warnings, contrast, color-vision and scale checks) for an AI assistant or a ticket. It counts corrections as the Issues page does, and the rest (suggestions, typography and color scales) apart. It names your tokens and stays on your clipboard.',
+  copyScopedPrompt: 'Copy a report of these findings only, for an AI assistant, your design system’s tooling or a ticket. It names your tokens and stays on your clipboard.',
+  copyFixPrompt: 'Copy a report of every finding still open (errors, warnings, contrast, color-vision and scale checks) for an AI assistant, your design system’s tooling or a ticket. It counts corrections as the Issues page does, and the rest (suggestions, typography and color scales) apart. It names your tokens and stays on your clipboard.',
   clearAll: 'Remove every loaded file and start over.',
 
   // Issues
@@ -94,7 +94,7 @@ export const TIP = {
   themeTag: 'This issue happens only when the file is read in these themes.',
   groupCount: 'Number of issues in this group.',
   clusterFixable: 'Issues DTsanity fixes in one click. Each fix shows its change first and can be undone.',
-  clusterManual: 'Issues DTsanity can’t fix for you: the right change needs a decision. Edit the file, or copy the fix prompt for an AI assistant or a ticket.',
+  clusterManual: 'Issues DTsanity can’t fix for you: the right change needs a decision. Edit the file, or copy the findings report for an AI assistant or a ticket.',
 
   // Themes
   themeErrors: 'DTCG errors found when the files are read as this theme. Green means none.',

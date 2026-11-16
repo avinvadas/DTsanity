@@ -23,7 +23,7 @@ import { themeToggle } from './theme';
  * section, under the files' status, which opens the file list (and Add files); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
  * blindness); a card with a fix has its button, and each group needing a
- * change has a button that copies its fix prompt. Copy fix prompt (the main
+ * change has a button that copies its findings report. Copy findings report (the main
  * action) and Get fixed files stay in a fixed footer. The tools for fine
  * control (curve editor, palette grid, re-aliasing, themes matrix) stay on
  * larger screens, as the note under the list says.
@@ -228,7 +228,7 @@ export class TTMobile extends HTMLElement {
     const clustered = (issues: Issue[]) => {
       const fixable = issues.filter(canFix);
       const manual = issues.filter((i) => !canFix(i));
-      // As on desktop: the count first, by token; the fix prompt for the group that needs a change.
+      // As on desktop: the count first, by token; the findings report for the group that needs a change.
       const counted = (items: Issue[], one: string, many: string) => {
         const tokens = items.every((i) => i.target);
         const n = tokens ? new Set(items.map((i) => i.target)).size : items.length;
@@ -343,7 +343,7 @@ export class TTMobile extends HTMLElement {
       const { text } = fixPrompt(store.get());
       try {
         await navigator.clipboard.writeText(text || 'No corrections needed: every check passes.');
-        this.say('Fix prompt copied');
+        this.say('Findings report copied');
       } catch {
         this.say('Copy failed');
       }
@@ -359,7 +359,7 @@ export class TTMobile extends HTMLElement {
     return h(
       'footer',
       { class: 'm-foot' },
-      h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy fix prompt'),
+      h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy findings report'),
       save,
     );
   }

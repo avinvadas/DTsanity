@@ -34,7 +34,7 @@ export interface RuleDef {
  * - fix: every finding comes with a one-click fix;
  * - sometimes: a fix when the right change is clear (a close match, an inferable type), otherwise none;
  * - guided: no automatic fix, but a tool here to work on it (re-aliasing, the curve editor, the themes matrix);
- * - none: reported and explained, and listed in the fix prompt, but the change is yours to make.
+ * - none: reported and explained, and listed in the findings report, but the change is yours to make.
  * tests/remedy.test.ts holds the labels to what the checks actually do.
  */
 export type Remedy = 'fix' | 'sometimes' | 'guided' | 'none';
@@ -146,8 +146,8 @@ export function noFixNote(id: string): string {
   const remedy = remedyOf(id);
   // Where to work on it; that there is no one-click fix shows already (no fix button, “need your change”).
   if (remedy === 'guided') return GUIDE[id] ?? (id.startsWith('scale-') ? 'Reshape the scale in the curve editor.' : 'Use the tools in its view.');
-  if (remedy === 'sometimes') return 'No automatic fix here: the right change isn’t clear. Edit the file, or use the fix prompt.';
-  return 'DTsanity doesn’t fix this one: edit the file, or use the fix prompt.';
+  if (remedy === 'sometimes') return 'No automatic fix here: the right change isn’t clear. Edit the file, or use the findings report.';
+  return 'DTsanity doesn’t fix this one: edit the file, or use the findings report.';
 }
 
 /** The level a rule reports at under `policy`. Rules not in the list keep `fallback`. */

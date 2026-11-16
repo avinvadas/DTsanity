@@ -54,7 +54,7 @@
 ## Severity policy
 
 - Every check reports at a level: **error** (breaks the DTCG format, or text fails contrast), **warning** (valid but likely wrong, or a non-text accessibility failure) or **info** (a suggestion, listed apart and not counted).
-- The cog beside the appearance switch opens the policy, on desktop and on phones: one line per check (55 in all), with a switch to turn it off and its level. While it's open, a back arrow appears beside the cog; either one returns to where you were. Changes apply right away to every file and view, including the fix prompt, and are kept in this browser with the other preferences. Reset to defaults, at the bottom, brings back the built-in levels.
+- The cog beside the appearance switch opens the policy, on desktop and on phones: one line per check (55 in all), with a switch to turn it off and its level. While it's open, a back arrow appears beside the cog; either one returns to where you were. Changes apply right away to every file and view, including the findings report, and are kept in this browser with the other preferences. Reset to defaults, at the bottom, brings back the built-in levels.
 - Errors are red with a filled triangle, warnings yellow with an outlined one, info gray with a circled “i”. Each color passes WCAG AA (4.5:1) on every surface it sits on, in light and dark mode.
 
 ## What DTsanity fixes, and what it doesn't
@@ -64,13 +64,13 @@ Not every finding can be fixed for you, and DTsanity says which ones it fixes. E
 - **Auto-fix:** every finding comes with a one-click fix (empty groups, legacy values, non-text descriptions, turning on legacy support).
 - **Fix when clear:** a fix when the right change is clear, such as a broken reference with one close match, a type that can be inferred from the value, or a name that can be cleaned up. Otherwise the change is yours.
 - **Guided:** no automatic fix, but a tool here to work on it: re-alias a pair for contrast and color blindness, reshape a scale in the curve editor, add a file to a theme.
-- **Report only:** found and explained, and listed in the fix prompt, but the change is yours, such as duplicate tokens, circular references, hard-coded values or type sizes.
+- **Report only:** found and explained, and listed in the findings report, but the change is yours, such as duplicate tokens, circular references, hard-coded values or type sizes.
 
 In the Issues view, each category lists the issues DTsanity can fix in one click (Fixable here) before the ones that need a change from you (Needs your change); guided findings say which tool to use. The Issues summary says how many of the issues found can be fixed in one click, and `CHANGES.md` ends with what is still open. A test checks these labels against every sample set, so a label can't claim a fix the check doesn't offer.
 
 ## How DTsanity fixes
 
-The principle: **DTsanity changes the format, never the design.** What is mechanical it fixes itself; what needs a design decision is left to you, or to the AI assistant you give the fix prompt to, with guidance. The page **How DTsanity fixes**, linked in the footer, says the same in the app. The text lives in `src/policy/principles.ts`, which the page and the fix prompt both read.
+The principle: **DTsanity changes the format, never the design.** What is mechanical it fixes itself; what needs a design decision is left to you, or to the AI assistant you give the findings report to, with guidance. The page **How DTsanity fixes**, linked in the footer, says the same in the app. The text lives in `src/policy/principles.ts`, which the page and the findings report both read.
 
 One-click fixes:
 
@@ -83,12 +83,12 @@ One-click fixes:
 
 Two fixes go a step further, and are kept because they are previewed and undoable: **Write the value instead** (a base token that points at another gets the resolved value) and **Remove the empty group** (the one fix that deletes, for a group with nothing in it).
 
-The fix prompt reports; the design system decides. It never offers a fix, picks a token or points at a DTsanity screen. Its general rules: each finding gives the problem, the evidence and what must be true when it is done, and how to get there is the system's choice (at the source, when the files are generated); required findings are done when their check passes, and advice may be declined with the reason; keep names, structure and every resolved value no finding is about; add no finding of its own; report every finding by its number, done or declined and why.
+The findings report reports; the design system decides. It never offers a fix, picks a token or points at a DTsanity screen. Its general rules: each finding gives the problem, the evidence and what must be true when it is done, and how to get there is the system's choice (at the source, when the files are generated); required findings are done when their check passes, and advice may be declined with the reason; keep names, structure and every resolved value no finding is about; add no finding of its own; report every finding by its number, done or declined and why.
 
 ## Close the loop
 
 - **Get fixed files**: one zip holding the whole set as you loaded it, every file under its own name and in its own format, plus `CHANGES.md` listing each change per file, the actions applied, and what is still open.
-- **Copy fix prompt**: every remaining finding as one Markdown report for an AI assistant, a design system's own tooling or a ticket. Findings come by rule, required first, then advice. Each rule says once what it stands on (a DTCG section, a WCAG criterion, or a DTsanity convention), the problem, "done when" (a check any tool can run on the files) and, for advice, "decline if"; then its findings, numbered for the report, each with its place and evidence. A contrast finding gives the ratio and both colors in each theme it fails in, and the references each token follows to its value. Suggestions in a message ("did you mean") become evidence ("closest existing name"), and a type guessed from a value is left out, as DTCG 5.2.2 asks. Every group of findings without a one-click fix has its own button for just that group (each “need your change” group, contrast, color blindness, scale findings, typography alerts, unread files); single findings don't. Fixes apply to one token or a whole group.
+- **Copy findings report**: every remaining finding as one Markdown report for an AI assistant, a design system's own tooling or a ticket. Findings come by rule, required first, then advice. Each rule says once what it stands on (a DTCG section, a WCAG criterion, or a DTsanity convention), the problem, "done when" (a check any tool can run on the files) and, for advice, "decline if"; then its findings, numbered for the report, each with its place and evidence. A contrast finding gives the ratio and both colors in each theme it fails in, and the references each token follows to its value. Suggestions in a message ("did you mean") become evidence ("closest existing name"), and a type guessed from a value is left out, as DTCG 5.2.2 asks. Every group of findings without a one-click fix has its own button for just that group (each “need your change” group, contrast, color blindness, scale findings, typography alerts, unread files); single findings don't. Fixes apply to one token or a whole group.
 - Unchanged files download byte for byte as loaded; edits change only the lines they touch.
 
 ## Privacy

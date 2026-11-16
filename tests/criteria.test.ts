@@ -11,7 +11,7 @@ import { loadText } from './helpers';
  * with no new required finding. If only one did, the rule (or its check) would assume a
  * solution, and that is a bug.
  *
- * The check is the fix prompt itself, built from the files alone, as a fresh DTsanity tab
+ * The check is the findings report itself, built from the files alone, as a fresh DTsanity tab
  * would build it: the rules it lists, by their "## … [rule] (n)" headings.
  */
 

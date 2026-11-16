@@ -1,5 +1,5 @@
 /**
- * Every issue has a stable rule code (for tools, tests and the fix prompt)
+ * Every issue has a stable rule code (for tools, tests and the findings report)
  * and a short title naming the rule (for people). An issue reads as
  * Title · target · detail: the title says what's wrong in a few words, the
  * target says where, and the message adds only the facts the two leave out.
