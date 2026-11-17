@@ -4,7 +4,7 @@ import { h, icon, plural } from './dom';
 import { TIP } from './tips';
 
 /** The label on every findings report button. */
-export const COPY_PROMPT = 'Copy the findings report';
+export const COPY_PROMPT = 'Copy these as prompt';
 
 /**
  * What a copy put on the clipboard, in the units the Issues page counts

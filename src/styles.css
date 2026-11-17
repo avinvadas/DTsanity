@@ -96,6 +96,8 @@
   --text: var(--ref-tone-800);
   --text-soft: var(--ref-tone-700); /* secondary lines set in a lighter weight rather than a lighter color */
   --muted: var(--ref-tone-600);
+  /* Labels of controls that can't be used yet: clearly quieter than text (WCAG 1.4.3 exempts inactive controls). */
+  --disabled: var(--ref-tone-450);
   --subtle: var(--ref-tone-600);
   --border: var(--ref-tone-200);
   --border-strong: var(--ref-tone-250);
@@ -200,6 +202,7 @@
     --line-strong: rgb(255 255 255 / 0.15);
     --shadow-soft: 0 0 48px rgb(8 10 12 / 0.4);
     --muted: var(--ref-tone-400);
+    --disabled: var(--ref-tone-600);
     --subtle: var(--ref-tone-450);
     --control-border: var(--ref-tone-500);
     --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239f9e9b' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E");
@@ -266,7 +269,7 @@ button {
 }
 button:hover:not(:disabled), button:focus-visible:not(:disabled) { background: var(--surface-hover); }
 /* Disabled reads as quiet, not faded: muted text (4.5:1 on every surface) instead of transparency. */
-button:disabled { color: var(--muted); border-color: var(--border); cursor: default; }
+button:disabled { color: var(--disabled); border-color: var(--border); cursor: default; }
 button.ghost { background: transparent; border-color: transparent; color: var(--muted); }
 button.ghost:hover:not(:disabled) { color: var(--text); }
 button.danger { color: var(--error); }
@@ -281,7 +284,7 @@ button.prompt-btn .icon { width: 14px; height: 14px; flex: none; }
 button.primary, button[type='submit'] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 button.primary:hover:not(:disabled), button[type='submit']:hover:not(:disabled) { background: color-mix(in oklch, var(--accent), var(--bg) 18%); }
 /* A disabled primary looks like a disabled secondary: nothing to act on yet, so no emphasis. */
-button.primary:disabled, button[type='submit']:disabled { background: transparent; border-color: var(--border-strong); color: var(--text); }
+button.primary:disabled, button[type='submit']:disabled { background: transparent; border-color: var(--border); color: var(--disabled); }
 button.small { min-height: 24px; font-size: var(--font-sm); padding: 0 var(--space-2); }
 
 input, select {

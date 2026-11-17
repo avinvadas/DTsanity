@@ -104,7 +104,7 @@ export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: Read
   }
   // What these files still have: DTsanity doesn't fix everything, and a clean-looking zip shouldn't suggest it did.
   lines.push('## Still open', '');
-  if (open.length) lines.push('DTsanity didn’t change these; the findings report (Copy findings report in DTsanity) lists each one:', '', ...open.map((x) => `- ${x}`), '');
+  if (open.length) lines.push('DTsanity didn’t change these; the findings report (Copy as prompt in DTsanity) lists each one:', '', ...open.map((x) => `- ${x}`), '');
   else lines.push('Nothing: every check passes.', '');
   return lines.join('\n');
 }

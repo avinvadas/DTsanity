@@ -23,7 +23,7 @@ import { themeToggle } from './theme';
  * section, under the files' status, which opens the file list (and Add files); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
  * blindness); a card with a fix has its button, and each group needing a
- * change has a button that copies its findings report. Copy findings report (the main
+ * change has a button that copies its findings report. Copy as prompt (the main
  * action) and Get fixed files stay in a fixed footer. The tools for fine
  * control (curve editor, palette grid, re-aliasing, themes matrix) stay on
  * larger screens, as the note under the list says.
@@ -359,7 +359,7 @@ export class TTMobile extends HTMLElement {
     return h(
       'footer',
       { class: 'm-foot' },
-      h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy findings report'),
+      h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy as prompt'),
       save,
     );
   }

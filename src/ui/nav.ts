@@ -285,11 +285,11 @@ export class TTNav extends HTMLElement {
           } catch {
             label.textContent = 'Copy failed';
           }
-          setTimeout(() => (label.textContent = 'Copy findings report'), 1800);
+          setTimeout(() => (label.textContent = 'Copy as prompt'), 1800);
         },
       },
       icon('copy'),
-      h('span', null, 'Copy findings report'),
+      h('span', null, 'Copy as prompt'),
     );
     // Nothing left to fix: the reward in place of the prompt; the fixed set stays if anything was fixed here.
     // Nothing left to fix: no prompt; what was fixed here is the one way out, made prominent.

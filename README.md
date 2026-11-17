@@ -15,7 +15,7 @@
 ## Close the loop
 
 - **Get fixed files**: the whole token set as you loaded it, with your changes, in one zip with a `CHANGES.md`.
-- **Copy findings report**: every remaining finding as one report for an AI assistant, your design system's tooling or a ticket.
+- **Copy as prompt**: every remaining finding as one prompt to paste into your AI assistant, which can work through each one by your design system's rules. It also suits your own tooling or a ticket.
 
 ## Privacy
 
