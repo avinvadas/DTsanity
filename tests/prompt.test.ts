@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fixPrompt } from '../src/io/prompt';
-import { addFiles, clearAll, setLoadErrors, store } from '../src/state/app';
+import { addFiles, clearAll, setLoadErrors, store, updateSettings } from '../src/state/app';
+import { DEFAULT_SETTINGS } from '../src/model/defaults';
 import { loadFixture, loadText } from './helpers';
 import { findings, findingTotal } from '../src/ui/findings';
 import { copiedLabel } from '../src/ui/prompt-link';
 import { pairsOf } from '../src/state/pairs';
 
-beforeEach(() => clearAll());
+beforeEach(() => {
+  clearAll();
+  updateSettings(DEFAULT_SETTINGS);
+});
 
 const ok = (l: number, h = 250, c = 0.05) => ({ $value: { colorSpace: 'oklch', components: [l, c, h] } });
 
@@ -33,6 +37,21 @@ describe('findings report', () => {
     expect(text).toContain('## Low text contrast [contrast-text] (1)');
     // The evidence: the ratio, both colors, and the references each token follows to its value.
     expect(text).toMatch(/- #1 `color\.text\.default` on `color\.bg\.default` \(text\): below AA text \(4\.5\): has \d\.\d\d, #[0-9a-f]{6} on #[0-9a-f]{6}\. References: `color\.text\.default` → `color\.gray\.300`; `color\.bg\.default` → `color\.gray\.100`\.$/m);
+  });
+
+  it('labels contrast findings as APCA guidance, not a WCAG requirement, when APCA is the target', () => {
+    updateSettings({ ...DEFAULT_SETTINGS, contrast: ['apca'] });
+    addFiles([
+      loadText(JSON.stringify({ color: { $type: 'color', gray: { 100: ok(0.95), 300: ok(0.85) } } }), 'primitives.tokens.json'),
+      loadText(JSON.stringify({ color: { $type: 'color', bg: { default: { $value: '{color.gray.100}' } }, text: { default: { $value: '{color.gray.300}' } } } }), 'semantic.tokens.json'),
+    ]);
+    const { text } = fixPrompt(store.get());
+    expect(text).toContain('APCA contrast (the method proposed for WCAG 3, not yet a standard)');
+    expect(text).not.toContain('WCAG 2.2 contrast');
+    expect(text).not.toMatch(/# Required/);
+    expect(text).toMatch(/# Advice \(\d+\)[\s\S]*## Low text contrast \[contrast-text\] \(1\)\n\nBasis: Advice · APCA, the contrast method proposed for WCAG 3/);
+    expect(text).toContain('below the APCA level the theme is held to (Lc 60');
+    expect(text).toMatch(/below Lc 60 content text/);
   });
 
   it('lists a pair that fails in several themes once, naming each theme, as the page counts it', () => {

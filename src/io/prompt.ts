@@ -10,7 +10,7 @@ import { mergeModels } from '../themes/merge';
 import { PROMPT_RULES, type PromptRule } from '../policy/principles';
 import { RULES, withPolicy } from '../policy/rules';
 import { BASIS, basisLabel } from '../policy/basis';
-import { CRITERIA, UNREADABLE } from '../policy/criteria';
+import { CRITERIA, UNREADABLE, type Criterion } from '../policy/criteria';
 import { formatColor, type ColorInfo } from '../color/format';
 import type { Model } from '../model/types';
 import { rangeNotes, typeStyle, typographyIds } from '../semantic/typography';
@@ -81,12 +81,38 @@ interface Entry {
 /** The rules in the order the prompt lists them: unread files first, then as the Policy page groups them. */
 const RULE_ORDER = [UNREADABLE, ...RULES.map((r) => r.id)];
 const titleOf = (id: string) => (id === UNREADABLE ? "File couldn't be read" : (RULES.find((r) => r.id === id)?.title ?? ruleTitle(id)));
-const standingOf = (id: string) => (id === UNREADABLE ? 'required' : (BASIS[id]?.standing ?? 'advice'));
-const basisOf = (id: string) => (id === UNREADABLE ? 'Required · JSON RFC 8259' : (basisLabel(id) ?? 'Advice · DTsanity check'));
+const standingOf = (id: string, apca = false) => (id === UNREADABLE ? 'required' : apca && APCA_CRITERIA[id] ? 'advice' : (BASIS[id]?.standing ?? 'advice'));
+const basisOf = (id: string, apca = false) =>
+  id === UNREADABLE ? 'Required · JSON RFC 8259' : apca && APCA_CRITERIA[id] ? APCA_BASIS : (basisLabel(id) ?? 'Advice · DTsanity check');
+
+/**
+ * With APCA as the contrast target, contrast findings follow APCA, the method
+ * proposed for WCAG 3. It is guidance, not yet a standard, so they are advice,
+ * and say APCA's levels instead of WCAG 2.2's.
+ */
+const APCA_BASIS = 'Advice · APCA, the contrast method proposed for WCAG 3 (not yet a standard): Lc 60 for text and Lc 45 for UI parts; Lc 75 and Lc 60 in high-contrast themes';
+const APCA_CRITERIA: Record<string, Criterion> = {
+  'contrast-text': {
+    problem: 'Text in this foreground on this background is below the APCA level the theme is held to (Lc 60; Lc 75 in high-contrast themes), so people with low vision may not read it. DTsanity paired the two tokens by their names.',
+    done: CRITERIA['contrast-text']!.done,
+    decline: 'these two tokens are never used together as text on that background, the text is decorative, or your system holds contrast to another method (such as WCAG 2.2). Say which.',
+  },
+  'contrast-ui': {
+    problem: 'An icon or other part of the interface in this color on this background is below the APCA level for non-text (Lc 45; Lc 60 in high-contrast themes), so people with low vision may not see it. DTsanity paired the two tokens by their names.',
+    done: CRITERIA['contrast-ui']!.done,
+    decline: 'these two tokens are never used together, the part is decorative, or your system holds contrast to another method (such as WCAG 2.2). Say which.',
+  },
+  'contrast-border': {
+    problem: 'A border or outline below the APCA level for non-text (Lc 45) on the background around it. It matters where the border is what shows the component (its edge, or its state); the files can’t tell which borders those are.',
+    done: CRITERIA['contrast-border']!.done,
+    decline: CRITERIA['contrast-border']!.decline!,
+  },
+};
 
 export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   // Issues from every theme, not just the one on screen.
   const model = s.themeModels.length ? mergeModels(s.themeModels) : s.model;
+  const apca = s.settings.contrast.includes('apca');
   const themeNames = s.themeModels.map((m) => m.theme.name);
   const models = allModels(s);
   const fileName = new Map(s.files.map((f) => [f.id, f.name]));
@@ -253,7 +279,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const ruleIds = [...byRule.keys()].sort((a, b) => rank(a) - rank(b));
   let no = 0;
   const part = (standing: 'required' | 'advice', title: string) => {
-    const ids = ruleIds.filter((id) => standingOf(id) === standing);
+    const ids = ruleIds.filter((id) => standingOf(id, apca) === standing);
     if (!ids.length) return [];
     const n = ids.reduce((sum, id) => sum + byRule.get(id)!.reduce((k, e) => k + e.n, 0), 0);
     return [
@@ -261,11 +287,11 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
       '',
       ...ids.flatMap((id) => {
         const xs = byRule.get(id)!;
-        const c = CRITERIA[id];
+        const c = (apca && APCA_CRITERIA[id]) || CRITERIA[id];
         return [
           `## ${titleOf(id)} [${id}] (${xs.reduce((k, e) => k + e.n, 0)})`,
           '',
-          `Basis: ${basisOf(id)}`,
+          `Basis: ${basisOf(id, apca)}`,
           c ? `Problem: ${c.problem}` : '',
           c ? `Done when: ${c.done}` : '',
           c?.decline ? `Decline if: ${c.decline}` : '',
@@ -287,7 +313,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const text = [
     '# Findings in design token files',
     '',
-    'DTsanity checked these design token files against the DTCG format (2025.10), WCAG 2.2 contrast and common token conventions. This is a report, not a list of edits: each finding gives the problem, the evidence and what must be true when it is done. How to fix it is for your design system to decide.',
+    `DTsanity checked these design token files against the DTCG format (2025.10), ${apca ? 'APCA contrast (the method proposed for WCAG 3, not yet a standard)' : 'WCAG 2.2 contrast'} and common token conventions. This is a report, not a list of edits: each finding gives the problem, the evidence and what must be true when it is done. How to fix it is for your design system to decide.`,
     '',
     '**These findings are flags, not instructions.** Your design system’s own rules, conventions and decisions come first. Where a finding conflicts with them, leave it as it is and say which rule prevails. A finding is closed when its check passes, or when you decline it with your reason.',
     '',

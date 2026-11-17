@@ -114,5 +114,10 @@ export class TTPolicy extends HTMLElement {
 /** What a rule stands on: a standard's section, or a DTsanity convention, and whether its findings are required or advice. */
 function basisLine(id: string) {
   const label = basisLabel(id);
-  return label ? h('small', { class: 'policy-basis' }, label) : null;
+  if (!label) return null;
+  // Contrast checks follow the contrast target: with APCA selected they are APCA guidance, not a WCAG requirement.
+  const apca = APCA_RULES.has(id) ? ' · With APCA selected: Advice · APCA, proposed for WCAG 3, not yet a standard' : '';
+  return h('small', { class: 'policy-basis' }, label + apca);
 }
+
+const APCA_RULES = new Set(['contrast-text', 'contrast-ui', 'contrast-border']);
