@@ -57,9 +57,10 @@ describe('tiers', () => {
     });
     const tiers = tiersOf(m);
     expect(tiers.get('aliases.MONTEVERDE')).toBe('base');
-    // "system" in a token's own name names no layer.
-    expect(tiers.get('props.COLOR_SYSTEM_GREEN')).toBe('base');
+    // "system" in a token's own name names no layer; the props point at the palette, so they read as semantic.
+    expect(tiers.get('props.COLOR_SYSTEM_GREEN')).toBe('semantic');
     expect(rules(m)).not.toContain('tier-hardcoded');
+    expect(rules(m)).not.toContain('tier-base-reference');
   });
 
   it('reads a group that points at another group of a base-named file as semantic', () => {

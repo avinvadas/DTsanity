@@ -78,7 +78,7 @@ export const PROMPT_RULES: readonly PromptRule[] = [
   },
   {
     when: 'always',
-    text: 'Required findings come from a standard (DTCG 2025.10, WCAG 2.2, JSON): they are done when their check passes.',
+    text: 'Required findings come from a standard (DTCG 2025.10, WCAG 2.2, JSON): they are done when their check passes. Where your system departs from the standard on purpose, decline it, and name your rule and the standard it departs from. A file that can’t be read is the exception: no tool can use it until it is valid.',
   },
   {
     when: 'advice',

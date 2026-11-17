@@ -1,7 +1,7 @@
 import { formatContrast } from '../contrast/metrics';
 import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
-import { TIER_LABEL, tierNames, type Tier } from '../model/tiers';
+import { TIER_LABEL, tierNames, tierReadings, type Tier } from '../model/tiers';
 import type { Model, Severity } from '../model/types';
 import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
@@ -221,13 +221,13 @@ export class TTSemantic extends HTMLElement {
                   'td',
                   { class: 'token-id' },
                   h('span', { class: 'token-cell' }, r.pair.fg, this.realiasButton(r, 'fg', v)),
-                  this.tierTag(r.tiers.fg),
+                  this.tierTag(r.tiers.fg, r.pair.fg),
                 ),
                 h(
                   'td',
                   { class: 'token-id' },
                   h('span', { class: 'token-cell' }, r.pair.bg, r.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, ' added') : null, this.realiasButton(r, 'bg', v)),
-                  this.tierTag(r.tiers.bg),
+                  this.tierTag(r.tiers.bg, r.pair.bg),
                 ),
                 h('td', null, this.kindSelect(r)),
                 r.seen.normal.map((c, i) => h('td', null, this.result(c, r, i, v))),
@@ -653,9 +653,15 @@ export class TTSemantic extends HTMLElement {
    * semantic or base token paired with a component one; in Semantic, a base
    * token used as a background.
    */
-  private tierTag(tier: Tier) {
+  private tierTag(tier: Tier, id: string) {
     const own = this.tier === 'component' ? 'component' : 'semantic';
-    return tier === own ? null : h('span', { class: `tier-tag ${tier}`, 'data-tip': TIP.tierOther }, TIER_LABEL[tier].toLowerCase());
+    if (tier === own) return null;
+    // Why DTsanity read it so: a tier name in the files, or what the token does. The tooltip bubble is masked.
+    const reading = allModels(store.get())
+      .map((m) => tierReadings(m).get(id))
+      .find(Boolean);
+    const tip = reading ? `${TIP.tierOther} Read as ${TIER_LABEL[tier].toLowerCase()}: ${reading.why}.` : TIP.tierOther;
+    return h('span', { class: `tier-tag ${tier}`, 'data-tip': tip }, TIER_LABEL[tier].toLowerCase());
   }
 
   /** Why no pairs were found: what is loaded, and which semantic tokens lack a foreground or background word. */

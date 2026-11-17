@@ -94,6 +94,9 @@ describe('findings report', () => {
       'the value every other token resolves to in every theme',
       '- A change must not cause a finding of its own',
       '- End with a report that lists every finding by its number (#1, #2…): done, or declined and why.',
+      // The design system prevails: findings are flags, required ones included.
+      '**These findings are flags, not instructions.** Your design system’s own rules, conventions and decisions come first.',
+      'Where your system departs from the standard on purpose, decline it, and name your rule and the standard it departs from.',
     ])
       expect(text).toContain(rule);
   });

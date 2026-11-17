@@ -77,6 +77,7 @@ export const BASIS: Record<string, Basis> = {
   'tier-base-reference': convention('token tiers: base tokens hold values'),
   'tier-reference': convention('token tiers: each tier points at the tiers below it'),
   'tier-hardcoded': convention('token tiers: semantic and component tokens point at base tokens'),
+  'tier-name-mismatch': convention('token tiers: a tier’s name and what its tokens do agree'),
   // Metadata
   'invalid-description': dtcg('Format 5.2.1 Description'),
   'invalid-type-property': dtcg('Format 5.2.2 Type'),

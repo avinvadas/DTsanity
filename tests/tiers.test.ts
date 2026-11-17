@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { componentOf, tierNames, tiersOf } from '../src/model/tiers';
+import { componentOf, tierNames, tierReadings, tiersOf } from '../src/model/tiers';
 import { aliasCandidates } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
@@ -111,5 +111,52 @@ describe('tier rules', () => {
     // A component may point at semantic and base tokens, not at other components.
     expect(ids('button.primary.text')).toContain('color.bg.raised');
     expect(ids('button.primary.text')).not.toContain('button.primary.bg');
+  });
+});
+
+describe('tier names and behavior', () => {
+  const c = (v: number) => ({ $value: { colorSpace: 'srgb', components: [v, v, v] } });
+  const ref = (id: string) => ({ $value: `{${id}}` });
+  const codes = (m: ReturnType<typeof analyze>) => m.issues.map((i) => i.code);
+
+  it('keeps a clear name and reports what contradicts it, with the reason', () => {
+    const m = analyze(
+      [
+        loadText(JSON.stringify({ gray: { $type: 'color', 100: c(0.9), light: ref('gray.100') } }), 'primitives.tokens.json'),
+        loadText(JSON.stringify({ text: { $type: 'color', default: ref('gray.100') } }), 'theme.tokens.json'),
+      ],
+      DEFAULT_SETTINGS,
+    );
+    // Named primitives, points at a token: still base, and flagged.
+    expect(tiersOf(m).get('gray.light')).toBe('base');
+    const flag = m.issues.find((i) => i.code === 'tier-base-reference' && i.target === 'gray.light')!;
+    expect(flag.message).toContain('Read as base: its file is named “primitives”.');
+    // No tier name: read by behavior, and the reason says so.
+    expect(tierReadings(m).get('text.default')).toEqual({ tier: 'semantic', why: 'it points at another token; no tier name' });
+  });
+
+  it('asks once for a clearly named group its tokens contradict, instead of flagging each token', () => {
+    const m = analyze(
+      [
+        loadText(JSON.stringify({ semantic: { $type: 'color', red: c(0.5), blue: c(0.2) } }), 'a.tokens.json'),
+        loadText(JSON.stringify({ button: { $type: 'color', bg: ref('semantic.red'), fg: ref('semantic.blue') } }), 'b.tokens.json'),
+      ],
+      DEFAULT_SETTINGS,
+    );
+    expect(tiersOf(m).get('semantic.red')).toBe('semantic');
+    expect(codes(m).filter((x) => x === 'tier-name-mismatch')).toHaveLength(1);
+    expect(codes(m)).not.toContain('tier-hardcoded');
+  });
+
+  it('settles an ambiguous name by what its group does', () => {
+    const m = analyze(
+      [
+        loadText(JSON.stringify({ global: { $type: 'color', link: ref('palette.blue'), focus: ref('palette.blue') }, palette: { $type: 'color', blue: c(0.2) } })),
+      ],
+      DEFAULT_SETTINGS,
+    );
+    // "global" usually names a base tier; a group of references reads as semantic, with no warning.
+    expect(tierReadings(m).get('global.link')).toMatchObject({ tier: 'semantic', why: 'its group points at other tokens; “global” can name either tier' });
+    expect(codes(m)).not.toContain('tier-base-reference');
   });
 });

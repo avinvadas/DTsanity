@@ -19,7 +19,12 @@
 ## Tiers
 
 - Every token is read as **base** (raw values such as `color.blue.500`), **semantic** (what a value is for, such as `color.text.danger`) or **component** (one component's use, such as `button.primary.bg`).
-- The tier comes from layer names in groups or file names (`primitives`, `semantic`, `components`…), then from the token's name and value. Tab names follow the words your files use.
+- The tier comes from two signals that check each other. **Names** state the system's intent: a group, file or folder named `primitives`, `semantic`, `components`… (the nearest one counts; a token's own name states nothing). **Behavior** says what the token does: a raw value reads as base, a reference as semantic, a component or pattern in its name as component.
+  - A clear name decides; where the token does otherwise, that's the finding (a base token that points elsewhere, a semantic one with a raw value).
+  - Behavior decides alone where no name says anything; where the word means different tiers in different systems (`aliases`, `global`, `core`), where it picks the meaning by what the whole group does; and where a file or folder named as the base tier holds a group that points at another of its groups.
+  - A clearly named group that its tokens contradict as a whole (a semantic group of raw values the rest points at) keeps its name and gets one question instead of a finding per token.
+  - Each tier finding, and each tier tag's tooltip, says why the token was read so.
+- Tab names follow the words your files use.
 - Rules: base tokens hold values; semantic tokens point at base or semantic tokens; component tokens point at semantic or base tokens.
 
 ## Base tier: color scales
@@ -83,7 +88,7 @@ One-click fixes:
 
 Two fixes go a step further, and are kept because they are previewed and undoable: **Write the value instead** (a base token that points at another gets the resolved value) and **Remove the empty group** (the one fix that deletes, for a group with nothing in it).
 
-The findings report reports; the design system decides. It never offers a fix, picks a token or points at a DTsanity screen. Its general rules: each finding gives the problem, the evidence and what must be true when it is done, and how to get there is the system's choice (at the source, when the files are generated); required findings are done when their check passes, and advice may be declined with the reason; keep names, structure and every resolved value no finding is about; add no finding of its own; report every finding by its number, done or declined and why.
+The findings report reports; the design system decides. It opens by saying its findings are flags, not instructions: where one conflicts with the system's own rules, the system prevails, and the finding is declined with that rule, a required one too, naming the standard it departs from (a file that can't be read is the exception). It never offers a fix, picks a token or points at a DTsanity screen. Its general rules: each finding gives the problem, the evidence and what must be true when it is done, and how to get there is the system's choice (at the source, when the files are generated); required findings are done when their check passes, and advice may be declined with the reason; keep names, structure and every resolved value no finding is about; add no finding of its own; report every finding by its number, done or declined and why.
 
 ## Close the loop
 

@@ -103,6 +103,7 @@ export const RULES: readonly RuleDef[] = [
   rule('Tiers', 'tier-base-reference', 'warning', 'sometimes', 'A base token that points at another token instead of holding a value.'),
   rule('Tiers', 'tier-reference', 'warning', 'none', 'A token that points at a tier it shouldn’t, such as base pointing at semantic.'),
   rule('Tiers', 'tier-hardcoded', 'info', 'none', 'A semantic or component token with a raw value instead of a reference.'),
+  rule('Tiers', 'tier-name-mismatch', 'info', 'none', 'A group named as one tier whose tokens all behave as another, such as a semantic group of raw values the rest points at.'),
 
   rule('Metadata', 'invalid-description', 'error', 'fix', 'A “$description” that isn’t text.'),
   rule('Metadata', 'invalid-type-property', 'error', 'none', 'A “$type” that isn’t text.'),

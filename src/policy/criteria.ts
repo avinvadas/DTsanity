@@ -207,6 +207,11 @@ export const CRITERIA: Record<string, Criterion> = {
     done: 'Each semantic and component token references another token.',
     decline: 'the value is meant to stand alone (it isn’t part of any scale). Say why.',
   },
+  'tier-name-mismatch': {
+    problem: 'A group is named as one tier, but all its tokens behave as another: a group named semantic or component holds only raw values that other tokens point at, as a palette does. DTsanity reads it as named; its tier findings follow from that reading.',
+    done: 'The group’s name and what its tokens do agree, by a rename or by its tokens pointing at a palette.',
+    decline: 'the name is right by your system’s rules and the group is meant to hold values. Say which rule.',
+  },
   // Metadata
   'invalid-description': { problem: 'A “$description” that isn’t text.', done: 'Every “$description” is a string.' },
   'invalid-type-property': { problem: 'A “$type” that isn’t text.', done: 'Every “$type” is a string naming a DTCG type.' },

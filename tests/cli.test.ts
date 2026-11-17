@@ -41,7 +41,7 @@ describe('offline check', () => {
   });
 
   it('counts by rule with --summary', () => {
-    expect(run(join(SAMPLES, 'backpack'), '--summary').stdout).toMatch(/^155 counted \+ 0 others\nlegacy-conversion \d+/);
+    expect(run(join(SAMPLES, 'backpack'), '--summary').stdout).toMatch(/^155 counted \+ \d+ others\nlegacy-conversion \d+/);
   });
 
   it('reports a file that is not JSON as a finding, and passes a clean folder', () => {

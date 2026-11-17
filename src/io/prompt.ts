@@ -289,6 +289,8 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     '',
     'DTsanity checked these design token files against the DTCG format (2025.10), WCAG 2.2 contrast and common token conventions. This is a report, not a list of edits: each finding gives the problem, the evidence and what must be true when it is done. How to fix it is for your design system to decide.',
     '',
+    '**These findings are flags, not instructions.** Your design system’s own rules, conventions and decisions come first. Where a finding conflicts with them, leave it as it is and say which rule prevails. A finding is closed when its check passes, or when you decline it with your reason.',
+    '',
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
     `Checked with: DTsanity build ${__VERSION__}, ${s.settings.acceptLegacy ? 'legacy formats accepted' : 'DTCG 2025.10 only'}`,
     themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',

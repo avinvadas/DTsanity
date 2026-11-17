@@ -1,5 +1,5 @@
 import { makeIssue } from '../model/build';
-import { MAY_REFERENCE, TIER_LABEL, tiersOf } from '../model/tiers';
+import { MAY_REFERENCE, pointsAt, TIER_LABEL, tierMismatches, tierReadings, tiersOf } from '../model/tiers';
 import type { Issue, Model } from '../model/types';
 
 /**
@@ -9,10 +9,27 @@ import type { Issue, Model } from '../model/types';
  */
 export function tierRules(model: Model): Issue[] {
   const tiers = tiersOf(model);
+  const readings = tierReadings(model);
+  const mismatches = tierMismatches(model);
+  const asked = new Set(mismatches.flatMap((m) => m.tokens));
   const issues: Issue[] = [];
+  // Asked once per group, not once per token: the name and what the group does disagree.
+  for (const m of mismatches) {
+    const first = model.tokens.get(m.tokens[0]!)!;
+    issues.push(
+      makeIssue(
+        'info',
+        'references',
+        'tier-name-mismatch',
+        `The group is named “${m.word}” (${TIER_LABEL[m.named].toLowerCase()}), but its ${m.tokens.length} tokens hold raw values that other tokens point at, as a palette does. Read as ${TIER_LABEL[m.named].toLowerCase()}, as named.`,
+        { fileId: first.fileId, target: first.id, keyPath: first.keyPath.slice(0, 1), pos: groupPos(model, first.fileId, first.keyPath[0]!) ?? first.pos },
+      ),
+    );
+  }
   for (const t of model.tokens.values()) {
     if (t.extendedFrom) continue;
     const tier = tiers.get(t.id)!;
+    const why = ` Read as ${TIER_LABEL[tier].toLowerCase()}: ${readings.get(t.id)!.why}.`;
     const at = { fileId: t.fileId, target: t.id, keyPath: t.keyPath, pos: t.pos };
     if (tier === 'base' && t.refs.length) {
       // A whole-value reference that resolves can be replaced by the value it gives.
@@ -29,7 +46,7 @@ export function tierRules(model: Model): Issue[] {
           'warning',
           'references',
           'tier-base-reference',
-          `Points at ${t.refs.map((r) => `{${r}}`).join(', ')}; base tokens hold raw values.`,
+          `Points at ${t.refs.map((r) => `{${r}}`).join(', ')}; base tokens hold raw values.${why}`,
           at,
           fix,
         ),
@@ -44,18 +61,19 @@ export function tierRules(model: Model): Issue[] {
           'warning',
           'references',
           'tier-reference',
-          `Points at ${TIER_LABEL[to].toLowerCase()} token {${ref}}; ${TIER_LABEL[tier].toLowerCase()} tokens point at ${MAY_REFERENCE[tier].map((x) => TIER_LABEL[x].toLowerCase()).join(' or ')}.`,
+          `Points at ${TIER_LABEL[to].toLowerCase()} token {${ref}}; ${TIER_LABEL[tier].toLowerCase()} tokens point at ${MAY_REFERENCE[tier].map((x) => TIER_LABEL[x].toLowerCase()).join(' or ')}.${why}`,
           at,
         ),
       );
     }
-    if (tier !== 'base' && !t.refs.length) {
+    // A reference kept beside the value (Style Dictionary's originalValue) counts: the token does point at its base.
+    if (tier !== 'base' && !pointsAt(t, model).length && !asked.has(t.id)) {
       issues.push(
         makeIssue(
           'info',
           'references',
           'tier-hardcoded',
-          `${TIER_LABEL[tier]} token with a raw value; point it at a base token.`,
+          `${TIER_LABEL[tier]} token with a raw value; point it at a base token.${why}`,
           at,
         ),
       );
@@ -63,6 +81,10 @@ export function tierRules(model: Model): Issue[] {
   }
   return issues;
 }
+
+/** Where a top-level group starts in its file, for findings about the whole group. */
+const groupPos = (model: Model, fileId: string, key: string) =>
+  [...model.groups.values()].find((g) => g.fileId === fileId && g.keyPath.length === 1 && g.keyPath[0] === key)?.pos;
 
 const short = (v: unknown) => {
   const text = typeof v === 'string' ? v : JSON.stringify(v);

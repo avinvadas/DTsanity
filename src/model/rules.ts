@@ -40,6 +40,7 @@ export const RULE_TITLE: Record<string, string> = {
   'tier-base-reference': 'Base token is an alias',
   'tier-reference': 'Wrong tier reference',
   'tier-hardcoded': 'Hard-coded value',
+  'tier-name-mismatch': 'Tier name and use disagree',
   // Types and values
   'unknown-type': 'Unknown type',
   'missing-type': 'Missing type',
