@@ -21,6 +21,31 @@ export function isLegacyToken(n: JNode): boolean {
   return true;
 }
 
+/**
+ * Whether a legacy file looks like design tokens rather than other JSON that
+ * happens to use a "value" key (a form, a config, a translation): some token
+ * gives a type, or a value a token would hold (a color, a size, a number, a
+ * reference). One is enough; none means it isn't a token file.
+ */
+export function looksLikeLegacyTokens(root: JNode): boolean {
+  const TOKEN_VALUE = /^\s*(#[0-9a-f]{3,8}|(rgb|hsl|oklch|oklab|lab|lch|color)a?\(|-?\d*\.?\d+(px|rem|em|%|ms|s|pt|dp|vw|vh)?\s*$|\{[^{}]+\})/i;
+  let found = false;
+  const visit = (n: JNode): void => {
+    if (found || n.kind !== 'object') {
+      if (!found && n.kind === 'array') for (const it of n.items) visit(it.value);
+      return;
+    }
+    if (isLegacyToken(n)) {
+      const v = entry(n, 'value')!.value;
+      if (entry(n, 'type') || v.kind === 'number' || v.kind === 'object' || (v.kind === 'string' && TOKEN_VALUE.test(v.value))) found = true;
+      return;
+    }
+    for (const e of n.entries) visit(e.value);
+  };
+  visit(root);
+  return found;
+}
+
 /** A DTCG dimension or duration (`{ "value": 4, "unit": "px" }`) inside a composite value: a value, not a nested token. */
 function isUnitValue(n: JNode): boolean {
   if (n.kind !== 'object' || n.entries.length !== 2) return false;

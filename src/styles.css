@@ -650,9 +650,16 @@ body.dragging .m-load .dropzone, .m-load .dropzone.loading { background: linear-
 .url-form input { flex: 1; }
 .url-form .hint { color: var(--subtle); font-size: var(--font-sm); }
 .url-form .hint:empty { display: none; }
-/* Files set aside because they aren't token files: a quiet note, not an error. */
-.set-aside { margin: var(--space-2) 0 0; color: var(--text-soft); font-size: var(--font-sm); text-align: center; text-wrap: balance; }
-.set-aside[hidden] { display: none; }
+/* Files set aside at loading: a closable note at the top of the page, not an error. */
+tt-set-aside { display: block; margin: var(--space-3) var(--space-4) 0; }
+/* Desktop: clear of the settings and appearance controls fixed in the top right corner (84px wide, 16px in). */
+@media (min-width: 641px) { main.workspace > tt-set-aside { margin: 12px calc(84px + 16px + var(--space-3)) 0 var(--space-5); } }
+tt-set-aside[hidden] { display: none; }
+.set-aside { display: flex; align-items: flex-start; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-soft); font-size: var(--font-sm); }
+.set-aside > .sev-icon { flex: none; margin-top: 2px; color: var(--muted); }
+.set-aside p { flex: 1 1 auto; margin: 0; overflow-wrap: anywhere; }
+.set-aside strong { color: var(--text); font-weight: 600; }
+.set-aside .set-aside-close { flex: none; margin: -2px 0; }
 
 .load-errors:empty { display: none; }
 .load-errors { margin-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
@@ -1836,3 +1843,8 @@ button.corner-btn[hidden] { display: none; }
 
 /* Under a theme's name: the contrast its pairs must have. */
 .theme-contrast { display: block; margin-top: var(--space-1); font-size: var(--font-xs); max-width: 100%; }
+
+/* Issues: a closed section shows its worst severity beside its title; once open, its list says it. */
+.group-sev { display: inline-flex; align-items: center; }
+.group-sev .sev-icon { width: 16px; height: 16px; }
+details.cl[open] > summary .group-sev { display: none; }

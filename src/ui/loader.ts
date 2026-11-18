@@ -1,7 +1,7 @@
 import { isUnchanged } from '../io/export';
 import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
 import type { SourceFile } from '../model/types';
-import { addFiles, clearAll, replaceFiles, setBusy, store, type LoadError } from '../state/app';
+import { addFiles, clearAll, replaceFiles, setBusy, store, type LoadError, type SetAside } from '../state/app';
 import { createStore } from '../state/store';
 import { targetSelect } from './contrast';
 import { h, masked, plural } from './dom';
@@ -39,10 +39,10 @@ export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
   try {
     const files: SourceFile[] = [];
     const errors: LoadError[] = [];
-    const setAside: string[] = [];
+    const setAside: SetAside[] = [];
     for (const r of await pending) {
       const parsed = 'text' in r ? parseSource(r, store.get().settings) : r;
-      if (isLoadError(parsed)) (parsed.skipped ? setAside.push(parsed.name) : errors.push(parsed));
+      if (isLoadError(parsed)) (parsed.skipped ? setAside.push({ name: parsed.name, why: parsed.message }) : errors.push(parsed));
       else files.push(parsed);
     }
     // A file named like a loaded one replaces it; if that one has edits not yet downloaded, ask first.
@@ -260,10 +260,8 @@ export class TTLoader extends HTMLElement {
     );
 
     const errors = masked(h('div', { class: 'load-errors', role: 'alert' }));
-    // Files that aren't token files: a quiet note, not an error, and not a finding.
-    const aside = masked(h('p', { class: 'set-aside', role: 'status' }));
 
-    this.replaceChildren(h('div', { class: 'loader' }, input, zone, form), errors, aside);
+    this.replaceChildren(h('div', { class: 'loader' }, input, zone, form), errors);
 
     this.unsubs.push(
       // Before any file is loaded, the Files view is a centered landing.
@@ -277,15 +275,6 @@ export class TTLoader extends HTMLElement {
           this.toggleAttribute('aria-busy', busy);
           submit.disabled = busy;
           submit.textContent = busy ? 'Loading…' : 'Load';
-        },
-      ),
-      store.select(
-        (s) => s.setAside,
-        (names) => {
-          aside.hidden = !names.length;
-          aside.textContent = names.length
-            ? `Set aside, not ${names.length === 1 ? 'a token file' : 'token files'}: ${names.join(', ')}. DTsanity reads .json, .json5, .jsonc and .tokens files.`
-            : '';
         },
       ),
       store.select(

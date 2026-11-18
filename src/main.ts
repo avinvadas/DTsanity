@@ -4,6 +4,7 @@ import { redo, store, undo } from './state/app';
 import { TTFiles } from './ui/files';
 import { TTIssues } from './ui/issues';
 import { confirmClearAll, contrastControl, filesBar, ingest, reloadAll, TTLoader } from './ui/loader';
+import { TTSetAside } from './ui/set-aside';
 import { openFilesDialog } from './ui/files-dialog';
 import { TIP } from './ui/tips';
 import { h, icon } from './ui/dom';
@@ -24,6 +25,7 @@ import { initTheme, themeToggle } from './ui/theme';
 document.querySelectorAll('[data-logo]').forEach((el) => el.replaceWith(homeLink(goHome)));
 
 customElements.define('tt-loader', TTLoader);
+customElements.define('tt-set-aside', TTSetAside);
 customElements.define('tt-files', TTFiles);
 customElements.define('tt-issues', TTIssues);
 customElements.define('tt-tokens', TTTokens);

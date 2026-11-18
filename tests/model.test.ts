@@ -112,6 +112,7 @@ describe('files', () => {
   });
 
   it('rejects non-object roots', () => {
-    expect(codes(buildModel([loadText('[1, 2]')]))).toEqual(['root-not-object']);
+    // An array of tokens: meant as tokens, but DTCG needs an object at the top.
+    expect(codes(buildModel([loadText('[{"$value": 1}]')]))).toEqual(['root-not-object']);
   });
 });

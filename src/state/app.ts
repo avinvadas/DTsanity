@@ -27,6 +27,17 @@ export interface LoadError {
   skipped?: boolean;
 }
 
+/** A file set aside at loading, with why. */
+export interface SetAside {
+  name: string;
+  why: string;
+}
+
+/** Close the note about files set aside. */
+export function dismissSetAside() {
+  store.set({ setAside: [] });
+}
+
 /** One undoable step: the documents it changed, before and after. */
 export interface Command {
   label: string;
@@ -64,8 +75,8 @@ export interface AppState {
   /** The model for the active theme (all themes merged for ALL_THEMES; the whole file set without themes). */
   model: Model;
   loadErrors: LoadError[];
-  /** Files from the last load that aren't token files (by their name), set aside unread. Not findings. */
-  setAside: string[];
+  /** Files from the last load set aside unread, and why: not a token file type, or JSON with no tokens in it. Not findings. */
+  setAside: SetAside[];
   busy: boolean;
   past: Command[];
   future: Command[];
@@ -144,7 +155,7 @@ function activeModel(themeModels: ThemeModel[], active: string): Model {
 export const allModels = (s: AppState): Model[] => (s.themeModels.length ? s.themeModels.map((m) => m.model) : [s.model]);
 
 /** Add or replace (by name) loaded files. Loading is not an undoable edit. */
-export function addFiles(added: SourceFile[], errors: LoadError[] = [], setAside: string[] = []) {
+export function addFiles(added: SourceFile[], errors: LoadError[] = [], setAside: SetAside[] = []) {
   store.set((s) => {
     const names = new Set(added.map((f) => f.name));
     const replaced = new Set(s.files.filter((f) => names.has(f.name)).map((f) => f.id));

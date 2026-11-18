@@ -65,7 +65,10 @@ const unreadable: LoadError[] = [];
 for (const p of walk(dir)) {
   const name = relative(dir, p);
   const r = parseSource({ name, text: readFileSync(p, 'utf8'), origin: 'file' }, settings);
-  if (isLoadError(r)) unreadable.push(r);
+  // A file with no design tokens in it is set aside, as on the page: not a finding.
+  if (isLoadError(r)) {
+    if (!r.skipped) unreadable.push(r);
+  }
   else files.push(r);
 }
 

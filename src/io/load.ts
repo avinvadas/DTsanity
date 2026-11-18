@@ -1,7 +1,7 @@
 import { JsonParseError, parseJson, serialize } from '../json/cst';
-import { detectLegacyKind, legacyToDtcg } from '../legacy/convert';
+import { detectLegacyKind, legacyToDtcg, looksLikeLegacyTokens } from '../legacy/convert';
 import { DEFAULT_SETTINGS } from '../model/defaults';
-import { detectFormat } from '../model/format';
+import { detectFormat, isMetaFile, looksLikeTokens } from '../model/format';
 import type { Settings, SourceFile } from '../model/types';
 import type { LoadError } from '../state/app';
 
@@ -50,6 +50,12 @@ export function parseSource(raw: RawSource, settings: Settings = DEFAULT_SETTING
   try {
     const { doc: parsed, duplicates, json5 } = parseText(raw.name, raw.text);
     const format = detectFormat(parsed.root);
+    // JSON that holds no design tokens (a translation file, a config, a form) is set aside, not checked:
+    // its "issues" would be about a file that was never meant to be tokens.
+    const meta = isMetaFile({ name: raw.name, doc: parsed });
+    if (!meta && ((format === 'unknown' && !looksLikeTokens(parsed.root)) || (format === 'legacy' && !looksLikeLegacyTokens(parsed.root)))) {
+      return { name: raw.name, message: NO_TOKENS_INSIDE, skipped: true };
+    }
     let doc = parsed;
     const file: SourceFile = {
       id: `f${++nextId}`,
@@ -93,6 +99,10 @@ export function parseSource(raw: RawSource, settings: Settings = DEFAULT_SETTING
 
 export const isLoadError = (x: SourceFile | LoadError): x is LoadError => !('doc' in x);
 
+/** Why a file was set aside: not a token file type, or JSON with no tokens in it. */
+export const NOT_A_TOKEN_FILE = 'not a token file type';
+export const NO_TOKENS_INSIDE = 'JSON with no design tokens in it';
+
 /** Up to two lines of context before the error line, plus a caret under the column. */
 function excerpt(text: string, line: number, col: number): string {
   const lines = text.split(/\r?\n/);
@@ -129,9 +139,11 @@ export function readFiles(files: Iterable<File>): Promise<(RawSource | LoadError
   const inFolder = (f: File) => !!f.webkitRelativePath;
   if (list.some(inFolder)) {
     const top = list.find(inFolder)!.webkitRelativePath.split('/')[0]!;
-    const kept = list.filter((f) => isTokenPath(f.webkitRelativePath || f.name));
-    if (!kept.length) return Promise.resolve([noTokenFiles(top)]);
-    return Promise.all(kept.map((f) => readFile(f, undefined, f.webkitRelativePath || f.name)));
+    const pathOf = (f: File) => f.webkitRelativePath || f.name;
+    const kept = list.filter((f) => isTokenPath(pathOf(f)));
+    const aside = list.filter((f) => !isTokenPath(pathOf(f)) && !pathOf(f).split('/').slice(0, -1).some((d) => SKIP_DIR.test(d))).flatMap((f) => asideIn(pathOf(f)));
+    if (!kept.length) return Promise.resolve([noTokenFiles(top), ...aside]);
+    return Promise.all(kept.map((f) => readFile(f, undefined, pathOf(f)))).then((read) => [...read, ...aside]);
   }
   return Promise.all(list.map((f) => readFile(f)));
 }
@@ -150,12 +162,14 @@ const MAX_FILES = 2000;
 
 /** Whether a file's name makes it one DTsanity reads: a token file type, and not a package manifest or tool config. */
 const isTokenName = (name: string) => TOKEN_FILE.test(name) && !NOT_TOKENS.test(name);
-const NOT_A_TOKEN_FILE = 'Not a token file: DTsanity reads .json, .json5, .jsonc and .tokens files.';
 
 const isTokenPath = (path: string) => {
   const parts = path.split('/');
   return TOKEN_FILE.test(parts.at(-1)!) && !NOT_TOKENS.test(parts.at(-1)!) && !parts.slice(0, -1).some((d) => SKIP_DIR.test(d));
 };
+
+/** A file in a folder that isn't a token file, to say it was set aside. Hidden files (".DS_Store") aren't mentioned. */
+const asideIn = (path: string): LoadError[] => (/^\./.test(path.split('/').at(-1)!) ? [] : [{ name: path, message: NOT_A_TOKEN_FILE, skipped: true }]);
 
 const noTokenFiles = (folder: string): LoadError => ({ name: folder, message: 'This folder has no token files (.json, .json5, .jsonc or .tokens).' });
 const tooMany = (folder: string): LoadError => ({ name: folder, message: `This folder has more than ${MAX_FILES} token files; only the first ${MAX_FILES} were read. Choose the folder that holds the tokens.` });
@@ -163,6 +177,7 @@ const tooMany = (folder: string): LoadError => ({ name: folder, message: `This f
 /** Every token file in a folder handle, with its path from the folder (its name included), keeping handles for Reload. */
 async function readDirHandle(dir: FileSystemDirectoryHandle): Promise<(RawSource | LoadError)[]> {
   const found: { handle: FileSystemFileHandle; path: string }[] = [];
+  const aside: LoadError[] = [];
   const walk = async (d: FileSystemDirectoryHandle, prefix: string) => {
     const entries: FileSystemHandle[] = [];
     for await (const e of d.values()) entries.push(e);
@@ -173,12 +188,13 @@ async function readDirHandle(dir: FileSystemDirectoryHandle): Promise<(RawSource
       if (e.kind === 'directory') {
         if (!SKIP_DIR.test(e.name)) await walk(e as FileSystemDirectoryHandle, path);
       } else if (isTokenPath(path)) found.push({ handle: e as FileSystemFileHandle, path });
+      else aside.push(...asideIn(path));
     }
   };
   await walk(dir, dir.name);
-  if (!found.length) return [noTokenFiles(dir.name)];
+  if (!found.length) return [noTokenFiles(dir.name), ...aside];
   const read = await Promise.all(found.slice(0, MAX_FILES).map(async ({ handle, path }) => readFile(await handle.getFile(), handle, path)));
-  return found.length > MAX_FILES ? [...read, tooMany(dir.name)] : read;
+  return [...read, ...(found.length > MAX_FILES ? [tooMany(dir.name)] : []), ...aside];
 }
 
 /** Whether the page was opened from disk (file://), where some browsers can't read a dropped folder. */
@@ -190,6 +206,7 @@ const FROM_DISK =
 /** The same for a dropped folder entry, where the browser gives no handles (Reload re-reads the File). */
 async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource | LoadError)[]> {
   const found: { entry: FileSystemFileEntry; path: string }[] = [];
+  const aside: LoadError[] = [];
   const list = (d: FileSystemDirectoryEntry) =>
     new Promise<FileSystemEntry[]>((done, fail) => {
       const reader = d.createReader();
@@ -206,6 +223,7 @@ async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource |
       if (e.isDirectory) {
         if (!SKIP_DIR.test(e.name)) await walk(e as FileSystemDirectoryEntry, path);
       } else if (isTokenPath(path)) found.push({ entry: e as FileSystemFileEntry, path });
+      else aside.push(...asideIn(path));
     }
   };
   try {
@@ -213,13 +231,13 @@ async function readDirEntry(dir: FileSystemDirectoryEntry): Promise<(RawSource |
   } catch (err) {
     return [{ name: dir.name, message: `The folder could not be read.${reason(err)}${fromDisk() ? ` ${FROM_DISK}` : ''}` }];
   }
-  if (!found.length) return [noTokenFiles(dir.name)];
+  if (!found.length) return [noTokenFiles(dir.name), ...aside];
   const read = await Promise.all(
     found.slice(0, MAX_FILES).map(
       ({ entry, path }) => new Promise<File>((done, fail) => entry.file(done, fail)).then((f) => readFile(f, undefined, path), (err) => ({ name: path, message: `The file could not be read.${reason(err)}` })),
     ),
   );
-  return found.length > MAX_FILES ? [...read, tooMany(dir.name)] : read;
+  return [...read, ...(found.length > MAX_FILES ? [tooMany(dir.name)] : []), ...aside];
 }
 
 /**

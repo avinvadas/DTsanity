@@ -160,6 +160,7 @@ export class TTMobile extends HTMLElement {
         h(
           'main',
           { class: 'm-body' },
+          Object.assign(document.createElement('tt-set-aside'), { hidden: true }),
           this.content,
           this.policySection,
           this.principlesSection,

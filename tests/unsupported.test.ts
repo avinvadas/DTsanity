@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS as S } from '../src/model/defaults';
+import { parseSource } from '../src/io/load';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -28,5 +29,23 @@ describe('unsupported formats', () => {
   it('leaves DTCG files alone, even with a few problems, and Tokens Studio types too', () => {
     expect(flags(JSON.stringify({ color: { ...five((i) => ({ $type: 'color', $value: c(`#00000${i}`) })), bad: { $type: 'color', $value: 'nope' } } }))).toEqual([]);
     expect(flags(JSON.stringify({ size: five((i) => ({ $type: 'fontSizes', $value: `${i * 4}px` })) }))).toEqual([]);
+  });
+});
+
+describe('JSON that isn’t design tokens', () => {
+  const read = (text: string, name = 'x.json') => parseSource({ name, text, origin: 'file' });
+  it('is set aside, not checked: a translation file, a config, a form with “value” fields', () => {
+    for (const text of ['{"greeting": "Hello", "bye": "Bye"}', '{"port": 8080, "debug": true}', '{"field": {"value": "Your name", "label": "Name"}}', '{}', '[1, 2]']) {
+      expect(read(text)).toMatchObject({ skipped: true });
+    }
+  });
+  it('is kept when it looks meant as tokens: any DTCG key, a misspelled one too, or design values', () => {
+    for (const text of ['{"a": {"$valeu": 1}}', '{"$description": "empty"}', '{"primary": "#0055ff"}', '{"space": {"value": "4px"}}', '{"c": {"value": "x", "type": "color"}}']) {
+      expect('skipped' in read(text)).toBe(false);
+    }
+  });
+  it('keeps the files that describe a set: Tokens Studio metadata and resolvers', () => {
+    expect('skipped' in read('{"tokenSetOrder": []}', '$metadata.json')).toBe(false);
+    expect('skipped' in read('{"resolutionOrder": []}', 'themes.resolver.json')).toBe(false);
   });
 });

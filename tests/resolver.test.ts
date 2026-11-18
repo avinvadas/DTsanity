@@ -57,7 +57,9 @@ describe('paths', () => {
   it('names files from a chosen folder by their path in it, and skips what isn’t tokens', async () => {
     const file = (path: string, text = '{}') => Object.defineProperty(new File([text], path.split('/').at(-1)!), 'webkitRelativePath', { value: path });
     const read = await readFiles([file('set/white/theme.tokens.json'), file('set/g100/theme.tokens.json'), file('set/package.json'), file('set/node_modules/x/a.json'), file('set/notes.md')]);
-    expect(read.map((r) => r.name)).toEqual(['set/white/theme.tokens.json', 'set/g100/theme.tokens.json']);
+    expect(read.filter((r) => !('skipped' in r)).map((r) => r.name)).toEqual(['set/white/theme.tokens.json', 'set/g100/theme.tokens.json']);
+    // What isn't tokens is said to be set aside; what's in node_modules isn't mentioned.
+    expect(read.filter((r) => 'skipped' in r).map((r) => r.name)).toEqual(['set/package.json', 'set/notes.md']);
   });
 });
 
