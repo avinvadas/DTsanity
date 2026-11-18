@@ -232,7 +232,8 @@ export class TTLoader extends HTMLElement {
     );
 
     const url = masked(h('input', { type: 'url', id: 'tt-url', placeholder: 'https://…/tokens.json', autocomplete: 'off', spellcheck: 'false', required: true }));
-    const hint = h('small', { class: 'hint' }, 'Fetched without cookies or referrer.');
+    // Shown only when it has something to say; the fetch itself is unchanged (no cookies, no referrer).
+    const hint = h('small', { class: 'hint' });
     url.addEventListener('input', () => {
       let rewritten = false;
       try {
@@ -240,9 +241,7 @@ export class TTLoader extends HTMLElement {
       } catch {
         /* not a URL yet */
       }
-      hint.textContent = rewritten
-        ? 'GitHub link: the raw file will be loaded.'
-        : 'Fetched without cookies or referrer.';
+      hint.textContent = rewritten ? 'GitHub link: the raw file will be loaded.' : '';
     });
     const submit = h('button', { type: 'submit' }, 'Load');
     const form = h(

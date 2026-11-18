@@ -634,6 +634,7 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
 .url-form .row { display: flex; gap: var(--space-2); align-self: stretch; }
 .url-form input { flex: 1; }
 .url-form .hint { color: var(--subtle); font-size: var(--font-sm); }
+.url-form .hint:empty { display: none; }
 
 .load-errors:empty { display: none; }
 .load-errors { margin-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
@@ -1686,7 +1687,8 @@ button.corner-btn .icon { width: 20px; height: 20px; display: block; }
   body:not(.has-files) .m-load { flex: 1 1 0; display: flex; flex-direction: column; }
   body:not(.has-files) .m-load tt-loader,
   body:not(.has-files) .m-load .loader { flex: 1 1 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: safe center; }
-  body:not(.has-files) .m-load .url-form { flex: none; align-self: stretch; }
+  /* The link field (its label, input and Load button) sits 1rem in from the screen's edges. */
+  body:not(.has-files) .m-load .url-form { flex: none; align-self: stretch; width: auto; margin-inline: 1rem; }
   body:not(.has-files) .m-load .dropzone {
     container-type: size;
     flex: 1 1 0; min-height: 180px; max-height: calc(100vw - 2 * var(--space-4));
