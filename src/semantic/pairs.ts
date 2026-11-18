@@ -171,6 +171,16 @@ export function detectPairs(ids: readonly string[], backgrounds: ReadonlySet<str
   return [...pairs.values()];
 }
 
+/**
+ * The page background of a set: the first background whose name has no
+ * modifier beyond role words (`background.color.default`, `color.bg`). A
+ * translucent background is drawn over it, so it is blended over it before
+ * it is measured.
+ */
+export function pageBackground(ids: readonly string[]): string | undefined {
+  return ids.map(parse).find((p) => p.role === 'bg' && p.key === '')?.id;
+}
+
 /** Detected pairs with the user's additions, removals and kind changes. */
 export function applyPairEdits(detected: readonly Pair[], edits: PairEdits): Pair[] {
   const removed = new Set(edits.removed);
@@ -208,6 +218,8 @@ export interface PairCheck {
   /** Each required level and whether it passes. */
   results: { level: Level; value: number; pass: boolean }[];
   pass: boolean;
+  /** A translucent background as written, and the page it was blended over: `bg` is then the blend. */
+  under?: { bg: ColorInfo; page: ColorInfo };
 }
 
 /** A translucent foreground blended over its (opaque) background, in sRGB as a screen does. */
@@ -301,10 +313,16 @@ export function checkColors(fg: ColorInfo, bg: ColorInfo, kind: PairKind, target
  * Check a pair in one model (theme), as seen with `vision`. Undefined when
  * either token is missing or not a color there.
  */
-export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTarget[], vision: Vision = 'normal', level: ContrastLevel = 'standard'): PairCheck | undefined {
+export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTarget[], vision: Vision = 'normal', level: ContrastLevel = 'standard', page?: string): PairCheck | undefined {
   const fg = colorOf(model, pair.fg);
-  const bg = colorOf(model, pair.bg);
-  return fg && bg ? checkColors(simulate(fg, vision), simulate(bg, vision), pair.kind, targets, level) : undefined;
+  const raw = colorOf(model, pair.bg);
+  if (!fg || !raw) return undefined;
+  // A translucent background shows the page through it: measure the blend, as a screen shows it.
+  const under = raw.oklch.alpha < 1 && page && page !== pair.bg ? colorOf(model, page) : undefined;
+  const blended = under && under.oklch.alpha >= 1;
+  const bg = blended ? over(raw, under) : raw;
+  const check = checkColors(simulate(fg, vision), simulate(bg, vision), pair.kind, targets, level);
+  return blended ? { ...check, under: { bg: raw, page: under } } : check;
 }
 
 export interface AliasCandidate {

@@ -60,6 +60,13 @@ describe('scale checks', () => {
     expect(blue.flags.find((f) => f.kind === 'near-duplicate')).toMatchObject({ steps: ['800', '900'] });
   });
 
+  it('tells apart the steps of an alpha scale by their alpha', () => {
+    const a = (alpha: number) => ({ $value: { colorSpace: 'srgb', components: [0.02, 0.02, 0.024], alpha } });
+    const m = analyze([loadText(JSON.stringify({ alpha: { $type: 'color', dark: { 6: a(0.06), 16: a(0.16), 24: a(0.24), 25: a(0.24) } } }))], DEFAULT_SETTINGS);
+    const dup = pal(detectPalettes(m, {}, 'srgb'), 'alpha.dark').flags.filter((f) => f.kind === 'near-duplicate');
+    expect(dup.map((f) => f.steps)).toEqual([['24', '25']]);
+  });
+
   it('notes hue drift, uneven lightness and unordered names', () => {
     expect(pal(srgb, 'color.green').flags.find((f) => f.kind === 'hue-drift')?.message).toMatch(/Hue shifts 55°/);
     expect(pal(srgb, 'color.orange').flags.find((f) => f.kind === 'uneven-lightness')).toMatchObject({ steps: ['300', '400'] });

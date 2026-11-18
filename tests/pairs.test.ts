@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { colorInfo } from '../src/color/format';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, isInactive, NO_PAIR_EDITS, over, pairId, pointColor, realias } from '../src/semantic/pairs';
+import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, isInactive, NO_PAIR_EDITS, over, pageBackground, pairId, pointColor, realias } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -112,6 +112,26 @@ describe('pair checks', () => {
 
   it('is undefined when a token is missing in the theme', () => {
     expect(checkPair({ id: 'x', fg: 'color.text.default', bg: 'color.bg.gone', kind: 'text', source: 'user' }, model, ['wcag'])).toBeUndefined();
+  });
+
+  it('measures a translucent background as it shows over the page background', () => {
+    // A ghost button: light text on 16% white, on a dark page. On its own, white at full opacity would fail.
+    const dark = {
+      color: {
+        $type: 'color',
+        bg: { default: { $value: hex('#18171d') }, hover: { $value: { colorSpace: 'srgb', components: [1, 1, 1], alpha: 0.16 } } },
+        text: { hover: { $value: hex('#ecebea') } },
+      },
+    };
+    const m = analyze([loadText(JSON.stringify(dark))], DEFAULT_SETTINGS);
+    const ids = colorTokenIds([m]);
+    expect(pageBackground(ids)).toBe('color.bg.default');
+    const pair = { id: 'p', fg: 'color.text.hover', bg: 'color.bg.hover', kind: 'text' as const, source: 'user' as const };
+    expect(checkPair(pair, m, ['wcag'])!.pass).toBe(false);
+    const seen = checkPair(pair, m, ['wcag'], 'normal', 'standard', pageBackground(ids))!;
+    expect(seen.values.wcag).toBeGreaterThan(9);
+    expect(seen.under?.bg.oklch.alpha).toBeCloseTo(0.16, 2);
+    expect(seen.bg.oklch.alpha).toBe(1);
   });
 
   it('blends a translucent foreground over its background', () => {

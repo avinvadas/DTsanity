@@ -77,6 +77,26 @@ describe('DTCG resolver', () => {
     expect(s.model.issues.filter((i) => i.code === 'no-tokens' || i.code === 'file-not-in-theme')).toEqual([]);
   });
 
+  it('reads a later step’s files over earlier ones, as an override, not a duplicate', () => {
+    // GitLab-like: the base files hold the default values; a dark context overrides some of them.
+    const base = { bg: { $type: 'color', $value: c('#ffffff') }, text: { $type: 'color', $value: c('#222222') }, same: { $type: 'color', $value: c('#111111') }, twice: { $type: 'color', $value: c('#333333') } };
+    const dark = { bg: { $type: 'color', $value: c('#18171d') } };
+    const resolver = {
+      version: '2025.10',
+      sets: { base: { sources: [{ $ref: 'base.tokens.json' }, { $ref: 'more.tokens.json' }] } },
+      modifiers: { theme: { default: 'light', contexts: { light: [], dark: [{ $ref: 'dark/base.tokens.json' }] } } },
+      resolutionOrder: [{ $ref: '#/sets/base' }, { $ref: '#/modifiers/theme' }],
+    };
+    clearAll();
+    addFiles([loadText(json(base), 'set/base.tokens.json'), loadText(json({ twice: base.twice }), 'set/more.tokens.json'), loadText(json(dark), 'set/dark/base.tokens.json'), loadText(json(resolver), 'set/x.resolver.json')]);
+    const s = store.get();
+    const dm = s.themeModels.find((m) => m.theme.name === 'dark')!.model;
+    expect((dm.tokens.get('bg')!.value as { hex: string }).hex).toBe('#18171d');
+    // The override is what the resolver is for; a token defined twice within one set is still flagged.
+    const dups = (m: typeof dm) => m.issues.filter((i) => i.code === 'duplicate-path').map((i) => i.target);
+    expect(dups(dm)).toEqual(['twice']);
+  });
+
   it('says which named files aren’t loaded', () => {
     clearAll();
     addFiles(carbonLike());

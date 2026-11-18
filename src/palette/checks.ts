@@ -81,7 +81,8 @@ function nearDuplicates(s: Swatch[]) {
     const a = s[i - 1]!;
     const b = s[i]!;
     const d = distance(a.info, b.info);
-    if (d >= NEAR_DUPLICATE) continue;
+    // Steps of one color at different opacities (an alpha scale) differ by their alpha.
+    if (d >= NEAR_DUPLICATE || Math.abs(a.info.oklch.alpha - b.info.oklch.alpha) >= NEAR_DUPLICATE) continue;
     flags.push({
       kind: 'near-duplicate',
       severity: 'warning',

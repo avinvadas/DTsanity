@@ -214,7 +214,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     r.seen.normal.forEach((c, i) => {
       if (!c || c.pass) return;
       failing.push(i);
-      const colors = `${hex(c.fg)} on ${hex(c.bg)}${c.fg.oklch.alpha < 1 ? `, shown as ${hex(c.shown)}` : ''}`;
+      const colors = `${hex(c.fg)} on ${c.under ? `${hex(c.under.bg)} over the page ${hex(c.under.page)} (together ${hex(c.bg)})` : hex(c.bg)}${c.fg.oklch.alpha < 1 ? `, shown as ${hex(c.shown)}` : ''}`;
       for (const x of c.results.filter((y) => !y.pass)) {
         const has = `${formatContrast(x.value, x.level.metric)}, ${colors}`;
         byLevel.set(x.level.label, [...(byLevel.get(x.level.label) ?? []), themeNames[i] ? `${themeNames[i]} (has ${has})` : `has ${has}`]);

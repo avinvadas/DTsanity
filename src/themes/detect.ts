@@ -112,7 +112,9 @@ function fromResolver(files: SourceFile[]): Theme[] | undefined {
   return combos.map((combo, i) => {
     const fileIds: string[] = [];
     const missing: string[] = [];
-    for (const s of order) {
+    // Files a later step of the resolution order adds override earlier ones, as the resolver says (not a duplicate).
+    const overlays: string[] = [];
+    for (const [k, s] of order.entries()) {
       const sources = s.contexts ? (s.contexts[combo[s.name]!] ?? []) : (s.sources ?? []);
       for (const src of sources) {
         if (typeof src.$ref !== 'string') {
@@ -121,11 +123,14 @@ function fromResolver(files: SourceFile[]): Theme[] | undefined {
         }
         const f = findFile(files, src.$ref.split('#')[0]!, file.name);
         if (!f) missing.push(src.$ref);
-        else if (!fileIds.includes(f.id)) fileIds.push(f.id);
+        else if (!fileIds.includes(f.id)) {
+          fileIds.push(f.id);
+          if (k > 0) overlays.push(f.id);
+        }
       }
     }
     const name = mods.length === 1 ? combo[mods[0]!.name]! : mods.length ? mods.map((m) => `${m.name}: ${combo[m.name]}`).join(' / ') : typeof doc.name === 'string' ? doc.name : 'Resolver';
-    const theme: Theme = { id: `resolver:${i}`, name, source: 'resolver', fileIds, scope: {} };
+    const theme: Theme = { id: `resolver:${i}`, name, source: 'resolver', fileIds, scope: overlays.length ? { overlays } : {} };
     if (missing.length) theme.missing = missing;
     return theme;
   });

@@ -1,5 +1,5 @@
 import { VISIONS, type Vision } from '../color/cvd';
-import { applyPairEdits, checkPair, colorTokenIds, describedBackgrounds, detectPairs, glyphOf, isInactive, type Pair, type PairCheck } from '../semantic/pairs';
+import { applyPairEdits, checkPair, colorTokenIds, describedBackgrounds, detectPairs, glyphOf, isInactive, pageBackground, type Pair, type PairCheck } from '../semantic/pairs';
 import { checkSiblings, detectSiblings, type SiblingCheck, type SiblingGroup } from '../semantic/siblings';
 import { componentOf, tiersOf, type Tier } from '../model/tiers';
 import { severityOf } from '../policy/rules';
@@ -74,6 +74,7 @@ export function pairsOf(s: AppState): PairsResult {
   const models = allModels(s);
   const colorIds = colorTokenIds(models);
   const pairs = applyPairEdits(detectPairs(colorIds, describedBackgrounds(models)), s.pairEdits);
+  const page = pageBackground(colorIds);
   const tiers = models.map(tiersOf);
   const isComponent = (id: string) => tiers.some((t) => t.get(id) === 'component');
   const tierOfId = (id: string): Tier => tiers.map((t) => t.get(id)).find(Boolean) ?? 'semantic';
@@ -83,7 +84,7 @@ export function pairsOf(s: AppState): PairsResult {
   };
   const rows = pairs.map((pair) => {
     // Each theme at its own level: enhanced for a high-contrast theme.
-    const seen = Object.fromEntries(VISIONS.map(({ id }) => [id, models.map((m, i) => checkPair(pair, m, s.settings.contrast, id, s.themeModels[i]?.theme.contrast))])) as PairRow['seen'];
+    const seen = Object.fromEntries(VISIONS.map(({ id }) => [id, models.map((m, i) => checkPair(pair, m, s.settings.contrast, id, s.themeModels[i]?.theme.contrast, page))])) as PairRow['seen'];
     const level = severityOf(policy, contrastRule(pair));
     const measured = passes(seen.normal);
     // A check the policy turns off doesn't fail.
