@@ -110,6 +110,7 @@
   --zone-fill: rgb(39 41 43 / 0.06);
   --zone-fill-active: rgb(39 41 43 / 0.09);
   --zone-shadow: inset 0 0 0.5rem rgb(39 41 43 / 0.1); /* light: pressed in; dark (below): lifted */
+  --zone-shadow-ink: rgb(39 41 43 / 0.33); /* the landing circle's 2rem shadow */
   --line: rgb(39 41 43 / 0.05);
   --line-strong: rgb(39 41 43 / 0.15);
   --shadow-soft: 0 0 48px rgb(39 41 43 / 0.1);
@@ -198,6 +199,7 @@
     --zone-fill: rgb(255 255 255 / 0.06);
     --zone-fill-active: rgb(255 255 255 / 0.09);
     --zone-shadow: 0 0 3rem rgb(8 10 12 / 0.2);
+    --zone-shadow-ink: rgb(8 10 12 / 0.33);
     --line: rgb(255 255 255 / 0.05);
     --line-strong: rgb(255 255 255 / 0.15);
     --shadow-soft: 0 0 48px rgb(8 10 12 / 0.4);
@@ -528,11 +530,11 @@ dialog.files-dialog .dropzone:hover:not(:disabled)::after, .view[data-view='file
 body.dragging dialog.files-dialog .dropzone::after, body.dragging .view[data-view='files']:not([data-empty]) .dropzone::after { border-color: var(--line-strong); }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
 .dropzone > .icon { width: calc(var(--zone) * var(--icon-k)); height: auto; color: var(--text); }
-/* The token-file icon fades in. On the landing, a glow behind it (50% opacity, 5rem blur) takes the border light's color, cycling through the whole spectrum in step with the light. */
+/* The token-file icon fades in. On the landing, a glow behind it (50% opacity, 5rem blur) in the text color; the spectrum colors stay on the circle's border light. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; filter: drop-shadow(var(--shadow-soft)); }
-.view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { filter: drop-shadow(var(--shadow-soft)) drop-shadow(0 0 5rem oklch(0.68 0.22 var(--tf-hue) / 0.5)); animation: tf-in 0.6s ease-out backwards, tf-hue 13s linear infinite; }
-/* The drawing (outline, label, letters) at 0.66; the file's solid body stays opaque. */
+.view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { filter: drop-shadow(var(--shadow-soft)) drop-shadow(0 0 5rem color-mix(in oklch, var(--text) 50%, transparent)); }
+/* The drawing (outline, label, letters) at 0.66, as one layer so the label and the outline are the same ink; the file's solid body stays opaque. */
 .token-file-icon > :not(.tf-base, defs) { opacity: 0.66; transition: opacity 0.1s ease-out; }
 /* Pointing at the target, or dragging files over the page, brings the drawing to full strength. */
 .dropzone:hover:not(:disabled) > .token-file-icon > :not(.tf-base, defs), body.dragging .dropzone > .token-file-icon > :not(.tf-base, defs) { opacity: 1; }
@@ -619,11 +621,15 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
   .view[data-empty] .dropzone::before, .m-load .dropzone::before { animation: none; }
 }
 .view[data-empty] .url-form { align-items: center; }
+/* The landing circle: a 2rem shadow at 33%, pressed in on desktop, lifted on phones. */
+.view[data-empty] .dropzone { box-shadow: inset 0 0 2rem var(--zone-shadow-ink); }
+.m-load .dropzone { box-shadow: 0 0 2rem var(--zone-shadow-ink); }
+/* "Or load from a link" labels the field: it sits at the field's start, in the field label's style, not as a heading. */
+.url-form label { align-self: flex-start; font-weight: 400; font-size: var(--font-sm); color: var(--text-soft); }
 .view[data-empty] .setting { text-align: left; }
 
 /* Under the drop zone: choosing a whole folder instead of files. */
 .url-form { display: flex; flex-direction: column; gap: var(--space-2); justify-content: center; width: min(440px, 100%); }
-.url-form label { font-weight: 600; }
 .url-form .row { display: flex; gap: var(--space-2); align-self: stretch; }
 .url-form input { flex: 1; }
 .url-form .hint { color: var(--subtle); font-size: var(--font-sm); }
