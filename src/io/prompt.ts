@@ -33,6 +33,8 @@ export interface FixPrompt {
   count: number;
   /** What else it lists, which the Issues count leaves out: files that couldn't be read, typography and color-scale checks, suggestions. */
   more: number;
+  /** Each finding as listed, in report order (the #n numbering); for the offline check's --json. */
+  entries: readonly Entry[];
 }
 
 /**
@@ -70,7 +72,7 @@ export function evidence(message: string): string {
 }
 
 /** A finding in the prompt: one line, standing for `n` findings of one rule. */
-interface Entry {
+export interface Entry {
   rule: string;
   line: string;
   n: number;
@@ -270,7 +272,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
 
   const count = entries.filter((e) => e.counted).reduce((n, e) => n + e.n, 0);
   const more = entries.filter((e) => !e.counted).reduce((n, e) => n + e.n, 0);
-  if (!count && !more) return { text: '', count: 0, more: 0 };
+  if (!count && !more) return { text: '', count: 0, more: 0, entries: [] };
 
   // One section per rule: its standing and source, the problem, "done when" and "decline if"
   // once, then its findings, numbered for the report. Required rules first, then advice.
@@ -278,6 +280,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   for (const e of entries) byRule.set(e.rule, [...(byRule.get(e.rule) ?? []), e]);
   const ruleIds = [...byRule.keys()].sort((a, b) => rank(a) - rank(b));
   let no = 0;
+  const listedEntries: Entry[] = [];
   const part = (standing: 'required' | 'advice', title: string) => {
     const ids = ruleIds.filter((id) => standingOf(id, apca) === standing);
     if (!ids.length) return [];
@@ -296,7 +299,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
           c ? `Done when: ${c.done}` : '',
           c?.decline ? `Decline if: ${c.decline}` : '',
           '',
-          ...xs.map((e) => `- #${++no} ${e.line}`),
+          ...xs.map((e) => (listedEntries.push(e), `- #${++no} ${e.line}`)),
           '',
         ];
       }),
@@ -332,7 +335,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     .filter((line, i, all) => line !== '' || all[i - 1] !== '')
     .join('\n')
     .trim();
-  return { text: `${text}\n`, count, more };
+  return { text: `${text}\n`, count, more, entries: listedEntries };
 }
 
 const rank = (id: string) => {

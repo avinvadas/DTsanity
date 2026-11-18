@@ -38,7 +38,8 @@
     "audit": "node scripts/audit.mjs",
     "round": "node scripts/round.mjs",
     "build:cli": "node scripts/build-cli.mjs",
-    "serve": "node scripts/serve.mjs"
+    "serve": "node scripts/serve.mjs",
+    "corpus": "npm run build:cli && node scripts/corpus.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

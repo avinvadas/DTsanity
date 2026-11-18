@@ -1,0 +1,582 @@
+{
+  "set": "designsystemet",
+  "verdicts": {
+    "alias-type-mismatch · primitives/modes/size/global.json · _size.base, _size.mode-font-size, _size.step": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "In primitives/modes/size/global.json `_size.base`, `_size.step` and `_size.mode-font-size` are \"$type\": \"number\" but reference size._base / size._step / size._mode-font-size, which the size mode files (e.g. size/small.json) type as \"dimension\".",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.accent.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.accent.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.brand1.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.brand1.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.brand2.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.brand2.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.danger.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.danger.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.info.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.info.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.neutral.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.neutral.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.success.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.success.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.warning.border-subtle` on `background-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `color.warning.border-subtle` on `surface-default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "border-subtle (step 7) is the lightest of three border roles (border-subtle, border-default, border-strong in semantic/style.json) and sits at ~1.8–2.2:1 in every color and scheme alike, so it is the system's deliberately low-contrast border; border-default/strong exist for component edges. A person should confirm it is not used as the only edge of a component.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.background-default`, `color.danger.background-default`, `color.success.background-default`, `color.info.background-default` (`color.*.background.default`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in large with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in small with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in Secondary with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in Light with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in brand1 with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in brand2 with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in neutral with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in info with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in success with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in warning with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); in danger with typical vision (0.033), Protanopia (red-blind) (0.011), Deuteranopia (green-blind) (0.005), Tritanopia (blue-blind) (0.013); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.background-tinted`, `color.danger.background-tinted`, `color.success.background-tinted`, `color.info.background-tinted` (`color.*.background.tinted`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in large with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in small with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in Secondary with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in Light with typical vision (0.018), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.004); in brand1 with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in brand2 with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in neutral with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in info with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in success with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in warning with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); in danger with typical vision (0.041), Protanopia (red-blind) (0.012), Deuteranopia (green-blind) (0.006), Tritanopia (blue-blind) (0.016); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.border-default`, `color.danger.border-default`, `color.success.border-default`, `color.info.border-default` (`color.*.border.default`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in large with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in small with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in Secondary with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in Light with Protanopia (red-blind) (0.046), Deuteranopia (green-blind) (0.037), Tritanopia (blue-blind) (0.049); in brand1 with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in brand2 with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in neutral with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in info with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in success with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in warning with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); in danger with typical vision (0.077), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.037); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.border-strong`, `color.danger.border-strong`, `color.success.border-strong`, `color.info.border-strong` (`color.*.border.strong`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in large with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in small with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in Secondary with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in Light with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.028), Tritanopia (blue-blind) (0.046); in brand1 with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in brand2 with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in neutral with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in info with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in success with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in warning with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in danger with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.border-subtle`, `color.danger.border-subtle`, `color.success.border-subtle`, `color.info.border-subtle` (`color.*.border.subtle`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in large with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in small with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in Secondary with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in Light with Protanopia (red-blind) (0.056), Deuteranopia (green-blind) (0.028), Tritanopia (blue-blind) (0.024); in brand1 with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in brand2 with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in neutral with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in info with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in success with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in warning with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); in danger with typical vision (0.084), Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.016), Tritanopia (blue-blind) (0.030); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.surface-active`, `color.danger.surface-active`, `color.success.surface-active`, `color.info.surface-active` (`color.*.surface.active`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in large with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in small with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in Secondary with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in Light with typical vision (0.090), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.021), Tritanopia (blue-blind) (0.019); in brand1 with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in brand2 with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in neutral with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in info with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in success with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in warning with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); in danger with typical vision (0.073), Protanopia (red-blind) (0.023), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.025); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.surface-default`, `color.danger.surface-default`, `color.success.surface-default`, `color.info.surface-default` (`color.*.surface.default`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in large with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in small with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in Secondary with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in Light with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in brand1 with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in brand2 with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in neutral with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in info with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in success with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in warning with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); in danger with typical vision (0.050), Protanopia (red-blind) (0.013), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.019); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.surface-hover`, `color.danger.surface-hover`, `color.success.surface-hover`, `color.info.surface-hover` (`color.*.surface.hover`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in large with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in small with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in Secondary with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in Light with typical vision (0.063), Protanopia (red-blind) (0.031), Deuteranopia (green-blind) (0.013), Tritanopia (blue-blind) (0.012); in brand1 with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in brand2 with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in neutral with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in info with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in success with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in warning with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); in danger with typical vision (0.062), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.012), Tritanopia (blue-blind) (0.022); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.surface-tinted`, `color.danger.surface-tinted`, `color.success.surface-tinted`, `color.info.surface-tinted` (`color.*.surface.tinted`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in large with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in small with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in Secondary with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in Light with typical vision (0.037), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.008); in brand1 with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in brand2 with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in neutral with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in info with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in success with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in warning with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); in danger with typical vision (0.054), Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.010), Tritanopia (blue-blind) (0.020); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.text-default`, `color.danger.text-default`, `color.success.text-default`, `color.info.text-default` (`color.*.text.default`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in large with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in small with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in Secondary with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in Light with typical vision (0.084), Protanopia (red-blind) (0.021), Deuteranopia (green-blind) (0.014), Tritanopia (blue-blind) (0.024); in brand1 with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in brand2 with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in neutral with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in info with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in success with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in warning with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); in danger with typical vision (0.020), Protanopia (red-blind) (0.009), Deuteranopia (green-blind) (0.004), Tritanopia (blue-blind) (0.005); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `color.warning.text-subtle`, `color.danger.text-subtle`, `color.success.text-subtle`, `color.info.text-subtle` (`color.*.text.subtle`) are too close to tell apart in medium · designsystemet · Primary · Dark · Semantic · accent with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in large with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in small with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in Secondary with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in Light with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.028), Tritanopia (blue-blind) (0.046); in brand1 with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in brand2 with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in neutral with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in info with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in success with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in warning with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); in danger with typical vision (0.078), Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.019), Tritanopia (blue-blind) (0.017); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Designsystemet generates each step at the same lightness in every color (border-subtle on background-default is 2.19–2.21:1 for all eight colors), so the tinted steps 1–11 are near-neutral by design and look alike even to typical vision; the status colors are carried by base-default/hover/active (steps 12–14), which are not flagged.",
+      "at": "2026-11-18"
+    },
+    "embedded-reference · primitives/modes/size/global.json · _size.0, _size.1, _size.10, _size.11, _size.12, _size.13, _size.14, _size.15, _size.18, _size.2, _size.22, _size.26, _size.3, _size.30, _size.4, _size.5, _size.6, _size.7, _size.8, _size.9, _size.unit": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "References sit inside formula strings, e.g. `_size.1` = \"floor({_size.unit} * 1)\" and `border-radius.1` = \"min({border-radius.base}*0.5,{border-radius.scale})\"; DTCG resolves a reference only as the whole value.",
+      "at": "2026-11-18"
+    },
+    "embedded-reference · themes/designsystemet.json · border-radius.1, border-radius.2, border-radius.3, border-radius.4": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "References sit inside formula strings, e.g. `_size.1` = \"floor({_size.unit} * 1)\" and `border-radius.1` = \"min({border-radius.base}*0.5,{border-radius.scale})\"; DTCG resolves a reference only as the whole value.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.1` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.11` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.12` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.13` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.14` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.15` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.2` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.3` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.4` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.5` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.6` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.7` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.accent.8` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.1` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.11` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.12` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.13` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.14` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.15` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · primitives/modes/color-scheme/dark/designsystemet.json › `designsystemet.brand1.2` (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Secondary, brand1, brand2, neutral, info, success, warning, danger only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "primitives/modes/color-scheme/dark/designsystemet.json holds every color as a CSS hex string under \"$type\": \"color\" (e.g. designsystemet.accent.1 = \"#0c1927\"), not the DTCG 2025.10 color object.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.accent`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.brand1`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.brand2`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.danger`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.info`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.neutral`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.success`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-inversion · `designsystemet.warning`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Steps 12–16 are not further lightness steps: semantic/style.json maps 12–14 to base-default/hover/active and 15–16 to base-contrast-subtle/default (the text on a base fill), so the flagged jump (15→16, or 11→12 for warning) crosses roles and states, not a scale order.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.accent`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.brand1`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.brand2`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.danger`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.info`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.neutral`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.success`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `designsystemet.warning`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Steps 9 and 10 are border-strong and text-subtle in semantic/style.json (color.<c>.border-strong → 9, text-subtle → 10) and are identical in every color in both light and dark (e.g. dark accent #8eaacb, light accent #005db1), so the generator gives these two roles one color on purpose.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.accent`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.brand1`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.brand2`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.danger`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.info`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.neutral`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.success`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `designsystemet.warning`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jump is between roles, not scale steps: 14 is base-active and 15 base-contrast-subtle (text on the base fill), and for warning 11 is text-default and 12 base-default, per semantic/style.json; only 1–11 form the lightness ramp.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · primitives/modes/size/global.json · _size.base, _size.step": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "primitives/modes/size/global.json derives the size scale from the size mode chosen in $themes.json (small/medium/large): `_size.base`/`_size.step`/`_size.mode-font-size` alias size._base etc. from the mode file so the formulas can use them, a deliberate mode indirection within the primitives.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · primitives/modes/size/global.json › `_size.mode-font-size`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "primitives/modes/size/global.json derives the size scale from the size mode chosen in $themes.json (small/medium/large): `_size.base`/`_size.step`/`_size.mode-font-size` alias size._base etc. from the mode file so the formulas can use them, a deliberate mode indirection within the primitives.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · themes/designsystemet.json · color.accent.1, color.accent.10, color.accent.11, color.accent.12, color.accent.13, color.accent.14, color.accent.15, color.accent.16, color.accent.2, color.accent.3, color.accent.4, color.accent.5, color.accent.6, color.accent.7, color.accent.8, color.accent.9, color.brand1.1, color.brand1.10, color.brand1.11, color.brand1.12, color.brand1.13, color.brand1.14, color.brand1.15, color.brand1.16, color.brand1.2, color.brand1.3, color.brand1.4, color.brand1.5, color.brand1.6, color.brand1.7, color.brand1.8, color.brand1.9, color.brand2.1, color.brand2.10, color.brand2.11, color.brand2.12, color.brand2.13, color.brand2.14, color.brand2.15, color.brand2.16, color.brand2.2, color.brand2.3, color.brand2.4, color.brand2.5, color.brand2.6, color.brand2.7, color.brand2.8, color.brand2.9, color.danger.1, color.danger.10, color.danger.11, color.danger.12, color.danger.13, color.danger.14, color.danger.15, color.danger.16, color.danger.2, color.danger.3, color.danger.4, color.danger.5, color.danger.6, color.danger.7, color.danger.8, color.danger.9, color.info.1, color.info.10, color.info.11, color.info.12, color.info.13, color.info.14, color.info.15, color.info.16, color.info.2, color.info.3, color.info.4, color.info.5, color.info.6, color.info.7, color.info.8, color.info.9, color.neutral.1, color.neutral.10, color.neutral.11, color.neutral.12, color.neutral.13, color.neutral.14, color.neutral.15, color.neutral.16, color.neutral.2, color.neutral.3, color.neutral.4, color.neutral.5, color.neutral.6, color.neutral.7, color.neutral.8, color.neutral.9, color.success.1, color.success.10, color.success.11, color.success.12, color.success.13, color.success.14, color.success.15, color.success.16, color.success.2, color.success.3, color.success.4, color.success.5, color.success.6, color.success.7, color.success.8, color.success.9, color.warning.1, color.warning.10, color.warning.11, color.warning.12, color.warning.13, color.warning.14, color.warning.15, color.warning.16, color.warning.2, color.warning.3, color.warning.4, color.warning.5, color.warning.6, color.warning.7, color.warning.8, color.warning.9": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "themes/designsystemet.json is a theme layer between primitives/ and semantic/ in $metadata.json: color.accent.N → {designsystemet.accent.N} picks the active color-scheme primitives (light or dark), so these palette steps are aliases by design, not the base tier, which is primitives/.",
+      "at": "2026-11-18"
+    },
+    "type-close · typography.body.sm (14px) and typography.body.xs (13px) are less than 10% apart in size, with the same family and weight": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "In the small typography size mode font-size.2 = \"13\" and font-size.3 = \"14\"; body.xs and body.sm use those with the same {font-family} and {font-weight.regular}, 7.7% apart.",
+      "at": "2026-11-18"
+    },
+    "type-same · typography.body.lg, typography.body.short.lg, typography.body.long.lg look the same": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The three styles differ in lineHeight: body.<size> uses {line-height.md}, body.short.<size> {line-height.sm} and body.long.<size> {line-height.lg}, which are \"150%\", \"130%\" and \"170%\" (Tokens Studio \"lineHeights\") in every size mode; DTsanity did not read those values and counted them as equal.",
+      "at": "2026-11-18"
+    },
+    "type-same · typography.body.md, typography.body.short.md, typography.body.long.md look the same": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The three styles differ in lineHeight: body.<size> uses {line-height.md}, body.short.<size> {line-height.sm} and body.long.<size> {line-height.lg}, which are \"150%\", \"130%\" and \"170%\" (Tokens Studio \"lineHeights\") in every size mode; DTsanity did not read those values and counted them as equal.",
+      "at": "2026-11-18"
+    },
+    "type-same · typography.body.sm, typography.body.short.sm, typography.body.long.sm look the same": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The three styles differ in lineHeight: body.<size> uses {line-height.md}, body.short.<size> {line-height.sm} and body.long.<size> {line-height.lg}, which are \"150%\", \"130%\" and \"170%\" (Tokens Studio \"lineHeights\") in every size mode; DTsanity did not read those values and counted them as equal.",
+      "at": "2026-11-18"
+    },
+    "type-same · typography.body.xl, typography.body.short.xl, typography.body.long.xl look the same": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The three styles differ in lineHeight: body.<size> uses {line-height.md}, body.short.<size> {line-height.sm} and body.long.<size> {line-height.lg}, which are \"150%\", \"130%\" and \"170%\" (Tokens Studio \"lineHeights\") in every size mode; DTsanity did not read those values and counted them as equal.",
+      "at": "2026-11-18"
+    },
+    "type-same · typography.body.xs, typography.body.short.xs, typography.body.long.xs look the same": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The three styles differ in lineHeight: body.<size> uses {line-height.md}, body.short.<size> {line-height.sm} and body.long.<size> {line-height.lg}, which are \"150%\", \"130%\" and \"170%\" (Tokens Studio \"lineHeights\") in every size mode; DTsanity did not read those values and counted them as equal.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/globals.json · border-width.1, border-width.3, opacity.30, shadow.100, shadow.200, shadow.300, shadow.400, shadow.500": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/primary/designsystemet.json (medium · designsystemet · Primary · Dark · Semantic · accent, large, small, Light, brand1, brand2, neutral, info, success, warning, danger only) · designsystemet.font-family, designsystemet.font-weight.medium, designsystemet.font-weight.regular, designsystemet.font-weight.semibold": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/secondary/designsystemet.json (Secondary only) · designsystemet.font-family, designsystemet.font-weight.medium, designsystemet.font-weight.regular, designsystemet.font-weight.semibold": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/size/large.json (large only) · font-size.1, font-size.10, font-size.2, font-size.3, font-size.4, font-size.5, font-size.6, font-size.7, font-size.8, font-size.9, line-height.lg, line-height.md, line-height.sm": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/size/large.json (large only) · letter-spacing.1, letter-spacing.2, letter-spacing.3, letter-spacing.4, letter-spacing.5, letter-spacing.6, letter-spacing.7, letter-spacing.8, letter-spacing.9": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/size/medium.json (medium · designsystemet · Primary · Dark · Semantic · accent, Secondary, Light, brand1, brand2, neutral, info, success, warning, danger only) · font-size.1, font-size.10, font-size.2, font-size.3, font-size.4, font-size.5, font-size.6, font-size.7, font-size.8, font-size.9, line-height.lg, line-height.md, line-height.sm": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/size/medium.json (medium · designsystemet · Primary · Dark · Semantic · accent, Secondary, Light, brand1, brand2, neutral, info, success, warning, danger only) · letter-spacing.1, letter-spacing.2, letter-spacing.3, letter-spacing.4, letter-spacing.5, letter-spacing.6, letter-spacing.7, letter-spacing.8, letter-spacing.9": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/size/small.json (small only) · font-size.1, font-size.10, font-size.2, font-size.3, font-size.4, font-size.5, font-size.6, font-size.7, font-size.8, font-size.9, line-height.lg, line-height.md, line-height.sm": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · primitives/modes/typography/size/small.json (small only) · letter-spacing.1, letter-spacing.2, letter-spacing.3, letter-spacing.4, letter-spacing.5, letter-spacing.6, letter-spacing.7, letter-spacing.8, letter-spacing.9": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · semantic/style.json · border-width.default, border-width.focus, opacity.disabled, shadow.lg, shadow.md, shadow.sm, shadow.xl, shadow.xs": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · themes/designsystemet.json · font-family, font-weight.medium, font-weight.regular, font-weight.semibold": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The \"$type\" values are Tokens Studio types, not DTCG ones (borderWidth, boxShadow, opacity, fontFamilies, fontWeights, fontSizes, lineHeights, letterSpacing), as the flagged files show.",
+      "at": "2026-11-18"
+    }
+  },
+  "misses": []
+}

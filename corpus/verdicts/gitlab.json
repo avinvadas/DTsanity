@@ -1,0 +1,816 @@
+{
+  "set": "gitlab",
+  "verdicts": {
+    "contrast-border · `action.confirm.border.color.active` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.confirm.border.color.active` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.confirm.border.color.default` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.confirm.border.color.default` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.confirm.border.color.focus` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.confirm.border.color.focus` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.confirm.border.color.hover` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.confirm.border.color.hover` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.danger.border.color.active` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.danger.border.color.active` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.danger.border.color.default` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.danger.border.color.default` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.danger.border.color.focus` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.danger.border.color.focus` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.danger.border.color.hover` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.danger.border.color.hover` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.neutral.border.color.active` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.neutral.border.color.active` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.neutral.border.color.default` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.neutral.border.color.default` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.neutral.border.color.focus` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.neutral.border.color.focus` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.neutral.border.color.hover` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.neutral.border.color.hover` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.confirm.border.color.active` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.confirm.border.color.active` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.confirm.border.color.default` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.confirm.border.color.default` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.confirm.border.color.focus` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.confirm.border.color.focus` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.confirm.border.color.hover` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.confirm.border.color.hover` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.neutral.border.color.active` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.neutral.border.color.active` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.neutral.border.color.default` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.neutral.border.color.default` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.neutral.border.color.focus` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.neutral.border.color.focus` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `action.strong.neutral.border.color.hover` on `background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`action.strong.neutral.border.color.hover` resolves to color.alpha.0 (fully transparent) in both themes (semantic/action.tokens.json), so no border is drawn; the action is shown by its fill or foreground, and a 1:1 'border' is an absent one, not a low-contrast one.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.0`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.0` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.1`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.1` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.10`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.10` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.2` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.3`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.3` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.4`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.4` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.5`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.5` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.6`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.6` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.7`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.7` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.8`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.8` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/opacity.tokens.json › `opacity.9`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`opacity.9` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/shadow.tokens.json · shadow.lg, shadow.md": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "constant/shadow.tokens.json writes shadow offsetX/offsetY/spread as bare 0 (e.g. \"offsetX\": 0) instead of DTCG dimension objects {value, unit}.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/shadow.tokens.json › `shadow.sm`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "constant/shadow.tokens.json writes shadow offsetX/offsetY/spread as bare 0 (e.g. \"offsetX\": 0) instead of DTCG dimension objects {value, unit}.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.0`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.0` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.1`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.1` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.2` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.200`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.200` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.3`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.3` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.4`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.4` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · constant/zindex.tokens.json › `zindex.9999`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`zindex.9999` has \"$type\": \"number\" but its $value is a JSON string (e.g. \"0\", \".1\"), not a number.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/alert.tokens.json · alert.info.title.color, alert.neutral.border.top.color, alert.neutral.title.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/alert.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/application-chrome.tokens.json · application-chrome.background.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/application-chrome.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/avatar.tokens.json · avatar.border.color.default, avatar.border.color.hover, avatar.fallback.text.color.red": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/avatar.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/badge.tokens.json · badge.muted.background.color.active, badge.muted.background.color.default, badge.muted.border.color.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/badge.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/banner.tokens.json · banner.intro.border.color, banner.promo.background.color, banner.promo.border.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/banner.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/button.tokens.json · button.default.primary.background.color.default, button.default.primary.background.color.hover, button.default.primary.foreground.color.default": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/button.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/chart.tokens.json · chart.axis.line.color, chart.threshold.line.color, chart.zoom.filler.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/chart.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/datepicker.tokens.json · datepicker.background.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/datepicker.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/dropdown.tokens.json · dropdown.border.color, dropdown.divider.color, dropdown.option.background.color.selected.default": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/dropdown.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/filtered-search.tokens.json · filtered-search.token.data.background.color.default, filtered-search.token.type.background.color.default, filtered-search.token.type.background.color.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/filtered-search.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/illustration.tokens.json · illustration.fill.color.default, illustration.stroke.color.default, illustration.stroke.width.default": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/illustration.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/label.tokens.json · label.scoped.button.background.color.hover, label.scoped.button.icon.color.default, label.scoped.text.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/label.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/link.tokens.json · link.mention.background.color.default, link.mention.text.color.current, link.mention.text.color.default": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/link.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/nav.tokens.json · nav.item.background.color.hover, nav.item.foreground.color.default, nav.item.foreground.color.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/nav.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/progress-bar.tokens.json · progress-bar.indicator.color.default, progress-bar.track.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/progress-bar.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/skeleton-loader.tokens.json · skeleton-loader.background.color, skeleton-loader.shimmer.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/skeleton-loader.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/spinner.tokens.json · spinner.segment.color.default, spinner.track.color.default": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/spinner.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/token-selector.tokens.json · token-selector.token-container.token.background.color.focus": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/token-selector.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · contextual/token.tokens.json · token.background.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in contextual/token.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "value-per-mode · semantic/action.tokens.json · action.disabled.background.color, action.disabled.border.color, action.disabled.foreground.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each listed token's $value is an object keyed by mode ({\"default\": …, \"dark\": …}) in semantic/action.tokens.json, not a single DTCG value.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `alert.info.background.color`, `alert.success.background.color`, `alert.danger.background.color`, `alert.warning.background.color` (`alert.*.background.color`) are too close to tell apart in default with typical vision (0.030), Protanopia (red-blind) (0.014), Deuteranopia (green-blind) (0.008), Tritanopia (blue-blind) (0.005); in dark with typical vision (0.043), Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.026), Tritanopia (blue-blind) (0.019); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "alert.*.background.color resolve to pale tints (#e8f2fd, #e6f5ea, #fdf0d5, #feeef0 in default) that are nearly identical in lightness; the small distances are consistent with the values.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `alert.info.border.bottom.color`, `alert.success.border.bottom.color` (`alert.*.border.bottom.color`) are too close to tell apart in default with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in dark with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "alert.info/success.border.bottom.color both resolve to color.alpha.0 (transparent) in both themes (contextual/alert.tokens.json); there is no status color to tell apart.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `alert.info.border.color`, `alert.success.border.color` (`alert.*.border.color`) are too close to tell apart in default with Protanopia (red-blind) (0.094), Deuteranopia (green-blind) (0.085), Tritanopia (blue-blind) (0.027); in dark with Tritanopia (blue-blind) (0.035); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "alert.info.border.color (#9dc8f2) and alert.success.border.color (#84d4b6) are light blue and light green of near-equal lightness in default (blue.200/green.200), which collapse under red/green deficiencies.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.background.color.default`, `badge.success.background.color.default`, `badge.danger.background.color.default`, `badge.warning.background.color.default` (`badge.*.background.color.default`) are too close to tell apart in default with typical vision (0.066), Protanopia (red-blind) (0.029), Deuteranopia (green-blind) (0.018), Tritanopia (blue-blind) (0.014); in dark with Protanopia (red-blind) (0.077), Deuteranopia (green-blind) (0.069), Tritanopia (blue-blind) (0.021); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge info/success/danger/warning backgrounds are the 100 steps (#c8e0f9, #bee6d0, #ffd3d7, #fada9c in default), pale tints of near-equal lightness; the measured closeness fits the values.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.background.color.focus`, `badge.success.background.color.focus`, `badge.danger.background.color.focus`, `badge.warning.background.color.focus` (`badge.*.background.color.focus`) are too close to tell apart in default with typical vision (0.066), Protanopia (red-blind) (0.029), Deuteranopia (green-blind) (0.018), Tritanopia (blue-blind) (0.014); in dark with Protanopia (red-blind) (0.077), Deuteranopia (green-blind) (0.069), Tritanopia (blue-blind) (0.021); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge info/success/danger/warning backgrounds are the 100 steps (#c8e0f9, #bee6d0, #ffd3d7, #fada9c in default), pale tints of near-equal lightness; the measured closeness fits the values.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.background.color.hover`, `badge.success.background.color.hover`, `badge.danger.background.color.hover`, `badge.warning.background.color.hover` (`badge.*.background.color.hover`) are too close to tell apart in default with typical vision (0.066), Protanopia (red-blind) (0.029), Deuteranopia (green-blind) (0.018), Tritanopia (blue-blind) (0.014); in dark with Protanopia (red-blind) (0.077), Deuteranopia (green-blind) (0.069), Tritanopia (blue-blind) (0.021); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge info/success/danger/warning backgrounds are the 100 steps (#c8e0f9, #bee6d0, #ffd3d7, #fada9c in default), pale tints of near-equal lightness; the measured closeness fits the values.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.success.background.color.active`, `badge.danger.background.color.active`, `badge.warning.background.color.active` (`badge.*.background.color.active`) are too close to tell apart in default with Protanopia (red-blind) (0.052), Deuteranopia (green-blind) (0.033), Tritanopia (blue-blind) (0.021); in dark with Protanopia (red-blind) (0.052), Deuteranopia (green-blind) (0.033), Tritanopia (blue-blind) (0.021); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge success/danger/warning active backgrounds are the 200 steps (#84d4b6, #ffafb8, #f7b951), near-equal lightness that hue loss under CVD brings together.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.success.border.color.hover`, `badge.danger.border.color.hover`, `badge.warning.border.color.hover` (`badge.*.border.color.hover`) are too close to tell apart in default with Protanopia (red-blind) (0.052), Deuteranopia (green-blind) (0.033), Tritanopia (blue-blind) (0.021); in dark with Protanopia (red-blind) (0.052), Deuteranopia (green-blind) (0.033), Tritanopia (blue-blind) (0.021); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge success/danger/warning hover borders are the 200 steps (#84d4b6, #ffafb8, #f7b951) of near-equal lightness, close under the deficiencies named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.border.color.active`, `badge.success.border.color.active` (`badge.*.border.color.active`) are too close to tell apart in default with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in dark with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "badge.info and badge.success border tokens in this state resolve to color.alpha.0 (transparent) in both themes (contextual/badge.tokens.json); transparent colors carry no status to tell apart.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.border.color.default`, `badge.success.border.color.default` (`badge.*.border.color.default`) are too close to tell apart in default with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in dark with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "badge.info and badge.success border tokens in this state resolve to color.alpha.0 (transparent) in both themes (contextual/badge.tokens.json); transparent colors carry no status to tell apart.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.border.color.focus`, `badge.success.border.color.focus` (`badge.*.border.color.focus`) are too close to tell apart in default with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in dark with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "badge.info and badge.success border tokens in this state resolve to color.alpha.0 (transparent) in both themes (contextual/badge.tokens.json); transparent colors carry no status to tell apart.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.info.icon.color.active`, `badge.success.icon.color.active`, `badge.warning.icon.color.active`, `badge.danger.icon.color.active` (`badge.*.icon.color.active`) are too close to tell apart in default with Tritanopia (blue-blind) (0.031); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.success.icon.color.default`, `badge.danger.icon.color.default`, `badge.info.icon.color.default`, `badge.warning.icon.color.default` (`badge.*.icon.color.default`) are too close to tell apart in default with Deuteranopia (green-blind) (0.081), Tritanopia (blue-blind) (0.039); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.success.icon.color.focus`, `badge.danger.icon.color.focus`, `badge.info.icon.color.focus`, `badge.warning.icon.color.focus` (`badge.*.icon.color.focus`) are too close to tell apart in default with Deuteranopia (green-blind) (0.090), Tritanopia (blue-blind) (0.035); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.success.icon.color.hover`, `badge.danger.icon.color.hover`, `badge.info.icon.color.hover`, `badge.warning.icon.color.hover` (`badge.*.icon.color.hover`) are too close to tell apart in default with Deuteranopia (green-blind) (0.090), Tritanopia (blue-blind) (0.035); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.warning.text.color.active`, `badge.danger.text.color.active`, `badge.success.text.color.active` (`badge.*.text.color.active`) are too close to tell apart in default with typical vision (0.043), Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.026), Tritanopia (blue-blind) (0.019); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.warning.text.color.default`, `badge.danger.text.color.default`, `badge.success.text.color.default` (`badge.*.text.color.default`) are too close to tell apart in default with typical vision (0.066), Protanopia (red-blind) (0.062), Deuteranopia (green-blind) (0.034), Tritanopia (blue-blind) (0.029); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.warning.text.color.focus`, `badge.danger.text.color.focus`, `badge.info.text.color.focus`, `badge.success.text.color.focus` (`badge.*.text.color.focus`) are too close to tell apart in default with typical vision (0.057), Protanopia (red-blind) (0.052), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.025); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `badge.warning.text.color.hover`, `badge.danger.text.color.hover`, `badge.info.text.color.hover`, `badge.success.text.color.hover` (`badge.*.text.color.hover`) are too close to tell apart in default with typical vision (0.057), Protanopia (red-blind) (0.052), Deuteranopia (green-blind) (0.030), Tritanopia (blue-blind) (0.025); in dark with typical vision (0.034), Protanopia (red-blind) (0.035), Deuteranopia (green-blind) (0.027), Tritanopia (blue-blind) (0.007); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "badge status text/icon colors resolve to the same steps across hues (e.g. 950 of blue/green/orange/red in dark: #1d2153, #002c26, #461807, #48151d), very dark and near-equal in lightness, so they differ mainly by hue.",
+      "at": "2026-11-18"
+    },
+    "deprecated-reference · contextual/badge.tokens.json · badge.muted.background.color.focus, badge.muted.background.color.hover": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Both referrers (badge.muted.background.color.hover/focus) are themselves $deprecated and point at the deprecated badge.muted.background.color.default; GitLab retires the state chain together, no live token depends on it.",
+      "at": "2026-11-18"
+    },
+    "deprecated-reference · contextual/button.tokens.json · button.dashed.border.color.focus, button.dashed.border.color.hover": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "button.dashed.border.color.hover/focus are themselves $deprecated and point at the deprecated button.dashed.border.color.default; the whole dashed-button set is retired together, no live token depends on it.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · constant/color.brand.tokens.json › `color.brand-white`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.brand-white has \"hex\": \"#fff\"; the DTCG Color module's hex fallback is a 6-digit #rrggbb.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · constant/color.neutral.tokens.json › `color.neutral.0`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.neutral.0 has \"hex\": \"#fff\"; the DTCG Color module's hex fallback is a 6-digit #rrggbb.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · constant/heading.tokens.json · heading.scale.100, heading.scale.100-fixed, heading.scale.200, heading.scale.200-fixed, heading.scale.300, heading.scale.300-fixed, heading.scale.400, heading.scale.400-fixed, heading.scale.500, heading.scale.500-fixed": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "constant/heading.tokens.json heading.scale.100–500(-fixed) typography values lack fontFamily, add marginTop and color, and set letterSpacing to \"inherit\", none of which DTCG typography allows.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · constant/heading.tokens.json · heading.scale.600, heading.scale.600-fixed, heading.scale.700, heading.scale.700-fixed, heading.scale.800, heading.scale.800-fixed": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "heading.scale.600–800(-fixed) typography values lack fontFamily and add marginTop and color, which DTCG typography doesn't define.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · contextual/illustration.tokens.json (default only) · illustration.fill.color.default, illustration.isometric.glyph.front.fill.color, illustration.isometric.object.highlight.fill.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The default-mode values of the three illustration tokens carry \"hex\": \"#fff\" (contextual/illustration.tokens.json lines 65, 579, 792), not a 6-digit hex.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · semantic/heading.tokens.json · heading.1, heading.1-fixed, heading.2, heading.2-fixed, heading.display": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "semantic/heading.tokens.json heading.display/1/2(-fixed) lack fontFamily and add marginTop, marginBottom and color to the typography value.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · semantic/heading.tokens.json · heading.3, heading.3-fixed, heading.4, heading.4-fixed, heading.5, heading.5-fixed, heading.6, heading.6-fixed": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "heading.3–6(-fixed) lack fontFamily, add marginTop/marginBottom/color, and set letterSpacing to \"inherit\".",
+      "at": "2026-11-18"
+    },
+    "invalid-value · semantic/letter_spacing.tokens.json › `letter-spacing.heading`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "letter-spacing.heading is \"-0.01em\"; DTCG dimensions allow only px or rem and an object form.",
+      "at": "2026-11-18"
+    },
+    "scale-hue-drift · `color.brand-orange`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "color.brand-orange (01g, 01p, 02p, 03p in constant/color.brand.tokens.json) is a brand palette kept apart from the color.orange scale; its steps are distinct brand colors (hue 68° to 32°), not a ramp meant to hold one hue.",
+      "at": "2026-11-18"
+    },
+    "scale-hue-drift · `color.data-aqua`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.data-aqua hue measured in OKLCH runs from ~193° (100) to ~235° (950), a ~41° drift across the scale.",
+      "at": "2026-11-18"
+    },
+    "scale-hue-drift · `color.orange`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.orange hue measured in OKLCH runs from ~84° (100) to ~39° (500–950), a ~45° drift concentrated in the light steps.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `color.alpha.dark`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "color.alpha.dark.4 and .6 share RGB [5,5,6] but have alpha 0.04 and 0.06; an alpha scale's steps differ by opacity, so they aren't the same color.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `color.alpha.light`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "color.alpha.light.4 and .6 are white at alpha 0.04 and 0.06; they differ by opacity, which is the whole point of the alpha scale.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · constant/heading.tokens.json · heading.scale.100, heading.scale.200, heading.scale.300, heading.scale.400, heading.scale.500, heading.scale.800": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "constant/heading.tokens.json heading.scale.* reference other tokens, including semantic ones ({text.color.heading}, {line-height.heading}), so constant tokens point up at the semantic tier, against GitLab's own constant → semantic → contextual direction.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · constant/heading.tokens.json · heading.scale.600, heading.scale.700": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "heading.scale.600/700 in constant/ reference {letter-spacing.heading}, {line-height.heading} and {text.color.heading} from semantic/, a base token pointing at the semantic tier.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · contextual/avatar.tokens.json · avatar.fallback.background.color.blue, avatar.fallback.background.color.green, avatar.fallback.background.color.neutral, avatar.fallback.background.color.orange, avatar.fallback.background.color.purple, avatar.fallback.background.color.red": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "avatar.fallback.background.color.* hold raw colors (palette 200 RGB at alpha 0.239, neutral #bfbfc3) with no reference, so they won't follow palette changes.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · contextual/broadcast.tokens.json · broadcast.banner.background.color.blue, broadcast.banner.background.color.green, broadcast.banner.background.color.indigo, broadcast.banner.background.color.lightblue, broadcast.banner.background.color.lightgreen, broadcast.banner.background.color.lightindigo, broadcast.banner.background.color.lightred, broadcast.banner.background.color.red, broadcast.banner.border.color.blue, broadcast.banner.border.color.green, broadcast.banner.border.color.indigo, broadcast.banner.border.color.lightblue, broadcast.banner.border.color.lightgreen, broadcast.banner.border.color.lightindigo, broadcast.banner.border.color.lightred, broadcast.banner.border.color.red": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "broadcast.banner background/border colors are raw sRGB values (e.g. #4977a5, #235180) that match no palette token.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · contextual/button.tokens.json (dark only) · button.danger.secondary.background.color.active, button.danger.secondary.background.color.default, button.danger.secondary.background.color.hover, button.default.primary.background.color.active, button.default.primary.background.color.default, button.default.primary.background.color.hover, button.disabled.background.color": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark values of the listed button tokens are raw colors (e.g. #89888d at alpha 0.4, #f15168 at alpha 0.4) while their default values reference the palette.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · semantic/action.tokens.json · action.danger.background.color.active, action.danger.background.color.default, action.danger.background.color.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "action.danger.background.color.default/hover/active hold raw colors (red.500/red.400 RGB with alpha 0–0.4) instead of references.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · semantic/background.tokens.json › `background.color.overlay` (dark only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "background.color.overlay's dark value is a raw black at alpha 0.64, while its default references color.alpha.dark.24.",
+      "at": "2026-11-18"
+    },
+    "tier-name-mismatch · semantic/letter_spacing.tokens.json › `letter-spacing.heading`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The single token in this semantic file is named for a role (\"heading\"), not a scale step; it holds a raw value because no scale exists for it. It reads as a palette only because constant/heading.tokens.json points up at it, which tier-base-reference already reports.",
+      "at": "2026-11-18"
+    },
+    "tier-name-mismatch · semantic/line_height.tokens.json › `line-height.heading`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The single token in this semantic file is named for a role (\"heading\"), not a scale step; it holds a raw value because no scale exists for it. It reads as a palette only because constant/heading.tokens.json points up at it, which tier-base-reference already reports.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · contextual/badge.tokens.json · badge.danger.background.color.focus, badge.danger.background.color.hover, badge.danger.icon.color.focus, badge.danger.text.color.focus, badge.info.background.color.focus, badge.info.background.color.hover, badge.info.icon.color.focus, badge.info.text.color.focus, badge.muted.background.color.focus, badge.muted.background.color.hover, badge.muted.icon.color.focus, badge.muted.text.color.focus, badge.neutral.background.color.focus, badge.neutral.background.color.hover, badge.neutral.icon.color.focus, badge.neutral.text.color.focus, badge.success.background.color.focus, badge.success.background.color.hover, badge.success.icon.color.focus, badge.success.text.color.focus, badge.tier.background.color.focus, badge.tier.background.color.hover, badge.tier.icon.color.focus, badge.tier.text.color.focus, badge.warning.background.color.focus, badge.warning.background.color.hover, badge.warning.icon.color.focus, badge.warning.text.color.focus": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Each listed token is a state of the same component pointing at its sibling state (e.g. hover → default, focus → hover); GitLab chains states within a component throughout contextual/ by design.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · contextual/button.tokens.json · button.confirm.primary.background.color.focus, button.confirm.primary.border.color.active, button.confirm.primary.border.color.focus, button.confirm.primary.border.color.hover, button.confirm.primary.foreground.color.active, button.confirm.primary.foreground.color.focus, button.confirm.primary.foreground.color.hover, button.confirm.secondary.background.color.focus, button.confirm.secondary.border.color.focus, button.confirm.secondary.foreground.color.focus, button.danger.primary.background.color.focus, button.danger.primary.border.color.focus, button.danger.primary.foreground.color.active, button.danger.primary.foreground.color.focus, button.danger.primary.foreground.color.hover, button.danger.secondary.background.color.focus, button.danger.secondary.border.color.focus, button.danger.secondary.foreground.color.focus, button.dashed.border.color.focus, button.dashed.border.color.hover, button.default.primary.background.color.focus, button.default.primary.border.color.focus, button.default.primary.foreground.color.active, button.default.primary.foreground.color.focus, button.default.primary.foreground.color.hover, button.link.text.color.active, button.link.text.color.focus, button.link.text.color.hover, button.selected.border.color.focus": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Each listed token is a state of the same component pointing at its sibling state (e.g. hover → default, focus → hover); GitLab chains states within a component throughout contextual/ by design.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · contextual/dropdown.tokens.json › `dropdown.option.background.color.selected.focus`": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Each listed token is a state of the same component pointing at its sibling state (e.g. hover → default, focus → hover); GitLab chains states within a component throughout contextual/ by design.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · contextual/toggle.tokens.json · toggle.switch.background.color.disabled, toggle.switch.background.color.unchecked.active, toggle.switch.background.color.unchecked.focus, toggle.switch.background.color.unchecked.hover, toggle.switch.track.border.color.checked.disabled, toggle.switch.track.border.color.loading, toggle.switch.track.border.color.unchecked.active, toggle.switch.track.border.color.unchecked.focus, toggle.switch.track.color.unchecked.focus, toggle.switch.track.color.unchecked.hover": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "Each listed token is a state of the same component pointing at its sibling state (e.g. hover → default, focus → hover); GitLab chains states within a component throughout contextual/ by design.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · contextual/button.tokens.json (default only) · button.selected.background.color.active, button.selected.background.color.focus, button.selected.background.color.hover, button.selected.foreground.color.active, button.selected.foreground.color.default, button.selected.foreground.color.focus, button.selected.foreground.color.hover": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "button.selected.* states point at button.default.primary.* in the default theme: a variant of the button reusing another button variant's values, done deliberately within contextual/button.tokens.json.",
+      "at": "2026-11-18"
+    },
+    "type-close · heading.scale.200-fixed (13px) and heading.scale.100-fixed (12px) are less than 10% apart in size, with the same family and weight": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "font.size.100-fixed/200-fixed/300-fixed are 0.75, 0.8125 and 0.875rem (12/13/14px) with the same heading weight; neighbours differ by under 10%.",
+      "at": "2026-11-18"
+    },
+    "type-close · heading.scale.300-fixed (14px) and heading.scale.200-fixed (13px) are less than 10% apart in size, with the same family and weight": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "font.size.100-fixed/200-fixed/300-fixed are 0.75, 0.8125 and 0.875rem (12/13/14px) with the same heading weight; neighbours differ by under 10%.",
+      "at": "2026-11-18"
+    },
+    "type-same · heading.scale.200-fixed, heading.6-fixed, heading.6 look the same": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The semantic heading levels restate the constant heading.scale steps (font.size.* descriptions say 'Used for level N headings'), and fixed and responsive variants coincide where the size isn't fluid (font.size.200 = 200-fixed); identical styles here are the tier mapping, not duplicates.",
+      "at": "2026-11-18"
+    },
+    "type-same · heading.scale.300-fixed, heading.5-fixed, heading.5 look the same": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The semantic heading levels restate the constant heading.scale steps (font.size.* descriptions say 'Used for level N headings'), and fixed and responsive variants coincide where the size isn't fluid (font.size.200 = 200-fixed); identical styles here are the tier mapping, not duplicates.",
+      "at": "2026-11-18"
+    },
+    "type-same · heading.scale.400-fixed, heading.4-fixed, heading.4 look the same": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The semantic heading levels restate the constant heading.scale steps (font.size.* descriptions say 'Used for level N headings'), and fixed and responsive variants coincide where the size isn't fluid (font.size.200 = 200-fixed); identical styles here are the tier mapping, not duplicates.",
+      "at": "2026-11-18"
+    },
+    "type-same · heading.scale.500-fixed, heading.3-fixed look the same": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The semantic heading levels restate the constant heading.scale steps (font.size.* descriptions say 'Used for level N headings'), and fixed and responsive variants coincide where the size isn't fluid (font.size.200 = 200-fixed); identical styles here are the tier mapping, not duplicates.",
+      "at": "2026-11-18"
+    },
+    "type-same · heading.scale.600-fixed, heading.2-fixed look the same": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The semantic heading levels restate the constant heading.scale steps (font.size.* descriptions say 'Used for level N headings'), and fixed and responsive variants coincide where the size isn't fluid (font.size.200 = 200-fixed); identical styles here are the tier mapping, not duplicates.",
+      "at": "2026-11-18"
+    },
+    "type-same · heading.scale.700-fixed, heading.1-fixed look the same": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The semantic heading levels restate the constant heading.scale steps (font.size.* descriptions say 'Used for level N headings'), and fixed and responsive variants coincide where the size isn't fluid (font.size.200 = 200-fixed); identical styles here are the tier mapping, not duplicates.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · constant/font.tokens.json · font.size.500, font.size.600, font.size.700, font.size.800": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "font.size.500–800 have \"$type\": \"string\" (values are CSS clamp() expressions); string isn't a DTCG type.",
+      "at": "2026-11-18"
+    },
+    "unsupported-format · constant/heading.tokens.json": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "All 16 typography tokens in constant/heading.tokens.json have values DTCG typography rejects (no fontFamily, extra marginTop/color), so none read as DTCG.",
+      "at": "2026-11-18"
+    },
+    "unsupported-format · semantic/heading.tokens.json": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "13 of 15 tokens in semantic/heading.tokens.json are typography values with no fontFamily and extra margin/color properties; only the two margin dimensions read.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `tooltip.text.color.subtle` on `background.color.default` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "tooltip.text.color.subtle is described as staying the same 'regardless of mode', because tooltips sit on a fixed dark surface (feedback.strong.background.color, neutral.800, 'like a tooltip or toast'), not on the page background.",
+      "at": "2026-11-18"
+    },
+    "contrast-ui · `label.dark.button.icon.color.default` on `label.dark.button.background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "label.dark.button.background.color.default is transparent and the remove button sits on the dark label fill ('on a dark background color'), so the white icon is shown on that fill, not on the white page.",
+      "at": "2026-11-18"
+    },
+    "contrast-ui · `label.light.button.icon.color.default` on `label.light.button.background.color.default` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "label.light.button.background.color.default is transparent and the remove button sits on the light label fill ('on a light background color'), so the neutral.950 icon is shown on that fill, not on the dark page.",
+      "at": "2026-11-18"
+    },
+    "contrast-ui · `status.brand.icon.color` on `status.brand.background.color` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "status.brand.icon.color (purple.500 #7862c8) on status.brand.background.color (purple.900 #362676) in dark is 2.58:1; both belong to the same status item.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `action.strong.confirm.foreground.color.default` on `action.strong.confirm.background.color.default` drops below its contrast level with Protanopia (red-blind) (default) and Tritanopia (blue-blind) (default).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Same-component fg/bg pair named for each other; recomputed with a Machado 2009 simulation, white on blue.500 #1f73ca: 4.81 typical, ~4.25 protan and tritan, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `broadcast.banner.text.color.lightblue` on `broadcast.banner.background.color.lightblue` drops below its contrast level with Protanopia (red-blind) (default and dark).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Same-component fg/bg pair named for each other; recomputed with a Machado 2009 simulation, white on #4977a5: 4.70 typical, ~4.36 protan, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `broadcast.banner.text.color.lightgreen` on `broadcast.banner.background.color.lightgreen` drops below its contrast level with Protanopia (red-blind) (default and dark).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Same-component fg/bg pair named for each other; recomputed with a Machado 2009 simulation, white on #308258: 4.71 typical, ~4.41 protan, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `button.danger.primary.foreground.color.default` on `button.danger.primary.background.color.default` drops below its contrast level with Protanopia (red-blind) (dark).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Same-component fg/bg pair named for each other; recomputed with a Machado 2009 simulation, neutral.950 on red.400 #f15168 in dark: 5.19 typical, ~3.88 protan, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `feedback.strong.link.color` on `feedback.strong.background.color` drops below its contrast level with Deuteranopia (green-blind) (default and dark).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Same-component fg/bg pair named for each other; recomputed with a Machado 2009 simulation, blue.300 #64a7e9 link on neutral.800 #3a383d ('a link on a strong feedback background'): 4.55 typical, ~4.28 deutan, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `highlight.match.text.color` on `highlight.match.background.color` drops below its contrast level with Deuteranopia (green-blind) (default).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Same-component fg/bg pair named for each other; recomputed with a Machado 2009 simulation, white on orange.500 #c74816: 4.81 typical, ~4.16 deutan, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.confirm.secondary.foreground.color.focus` on `button.confirm.secondary.background.color.focus` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.confirm.secondary focus fg/bg alias the hover pair (neutral.10 #f7f7f5 on alpha.light.40 over #18171d in dark), 4.35:1, below 4.5; same component and state, the text sits on that fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.confirm.secondary.foreground.color.hover` on `button.confirm.secondary.background.color.hover` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.confirm.secondary hover fg (neutral.10 #f7f7f5) on its hover bg (alpha.light.40 over #18171d) in dark is 4.35:1, below 4.5; same component and state, the text sits on that fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `datepicker.date.text.color.selected` on `background.color.default` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "datepicker.date.text.color.selected resolves to control.indicator.color.selected (white in default), the indicator color for a selected (filled) control; it sits on a selected fill (control.background.color.selected is neutral.800), not on the page background.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `label.dark.text.color` on `background.color.default` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "label.dark.text.color is described 'label text color on a dark background color'; it is drawn on a dark label fill, not on background.color.default.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `label.light.text.color` on `background.color.default` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "label.light.text.color is described 'label text color on a light background color'; it is drawn on a light label fill, not on the dark-mode page background.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `text.tertiary` on `background.color.default` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "text.tertiary is $deprecated with 'Use text.color.disabled instead' and resolves to text.color.disabled: it is disabled text, which WCAG exempts (contrast-inactive), not active body text.",
+      "at": "2026-11-18"
+    }
+  },
+  "misses": []
+}

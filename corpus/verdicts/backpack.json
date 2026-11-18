@@ -1,0 +1,132 @@
+{
+  "set": "backpack",
+  "verdicts": {
+    "contrast-text · `props.PRIVATE_BUTTON_DESTRUCTIVE_NORMAL_FOREGROUND_DAY` on `props.PRIVATE_BUTTON_DESTRUCTIVE_NORMAL_BACKGROUND_DAY` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`PRIVATE_BUTTON_DESTRUCTIVE_NORMAL_FOREGROUND_DAY` (BERRY, #e70866) and `..._BACKGROUND_DAY` (GREY_20, #e0e4e9) are the same button, variant and state, foreground on background; 3.56 recomputed.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `props.PRIVATE_SEGMENTED_CONTROL_SURFACE_CONTRAST_ON_NIGHT` on `props.PRIVATE_SEGMENTED_CONTROL_SURFACE_CONTRAST_NIGHT` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "\"ON\" in `PRIVATE_SEGMENTED_CONTROL_SURFACE_CONTRAST_ON_NIGHT` (NIGHT_SKY) is the selected segment's fill, as in the chip's `PRIVATE_CHIP_ON_DARK_ON_FILL_*`/`_ON_BACKGROUND_NIGHT` (NIGHT_SKY family), not text drawn on the control surface; a fill on a fill, read as text.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `props.TEXT_HERO_DAY` on `props.SURFACE_HERO_DAY` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`TEXT_HERO_DAY` and `SURFACE_HERO_DAY` both resolve to SKY_BLUE (#0062e3): \"hero\" names a color role shared by a text color and a surface color, never text on that surface (it would be invisible at 1.00).",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `props.TEXT_HERO_NIGHT` on `props.SURFACE_HERO_NIGHT` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`TEXT_HERO_NIGHT` and `SURFACE_HERO_NIGHT` both resolve to NIGHT_GREY_10 (#010913): the same hero role as a text color and a surface color, not a pair used together (1.00).",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `props.TEXT_TERTIARY_LIGHT_COLOR` on `props.BACKGROUND_TERTIARY_LIGHT_COLOR` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`TEXT_TERTIARY_LIGHT_COLOR` (SKY_GRAY_TINT_03, #8f90a0) is light-mode text and every light background (`BACKGROUND_LIGHT_COLOR`, `_TERTIARY_`, `_ELEVATION_0x_`) is WHITE, so it really is shown on white at 3.15; the tokens are deprecated but still published.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `props.PRIVATE_BUTTON_DESTRUCTIVE_NORMAL_FOREGROUND_NIGHT` on `props.PRIVATE_BUTTON_DESTRUCTIVE_NORMAL_BACKGROUND_NIGHT` drops below its contrast level with Protanopia (red-blind) and Tritanopia (blue-blind).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`PRIVATE_BUTTON_DESTRUCTIVE_NORMAL_FOREGROUND_NIGHT` (NIGHT_BERRY, #ff649c) on `..._BACKGROUND_NIGHT` (NIGHT_GREY_25, #243346) is one button state; 4.62 drops to 3.54 (protan) and 4.13 (tritan), recomputed with the Machado matrices.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.BORDER_RADIUS_FULL`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.BORDER_RADIUS_FULL` is type \"size\" with value \"100%\"; a DTCG dimension allows only px or rem.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.BREAKPOINT_DESKTOP_MARGIN`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.BREAKPOINT_DESKTOP_MARGIN` is type \"size\" with value \"1rem * 3\" (originalValue \"{!SPACING_BASE} * 3\"), an expression, not a DTCG dimension.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.INPUT_BORDER`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.INPUT_BORDER` is type \"border\" with the CSS shorthand string \"solid .0625rem #C1C7CF\", not a DTCG border object.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.LETTER_SPACING_DISPLAY`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.LETTER_SPACING_DISPLAY` is type \"size\" with value \"-0.05em\"; em is not a DTCG dimension unit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.LETTER_SPACING_HERO`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.LETTER_SPACING_HERO` is type \"size\" with value \"-0.04em\"; em is not a DTCG dimension unit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.LETTER_SPACING_TIGHT`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.LETTER_SPACING_TIGHT` is type \"size\" with value \"-0.02em\"; em is not a DTCG dimension unit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · base.raw.json › `props.PRIVATE_BUTTON_LINE_HEIGHT`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.PRIVATE_BUTTON_LINE_HEIGHT` is typed \"number\" in the file itself but its value is \"1.5rem\" (originalValue {!SPACING_LG}).",
+      "at": "2026-11-18"
+    },
+    "legacy-conversion · base.raw.json · props.BORDER_RADIUS_FULL, props.BREAKPOINT_DESKTOP_MARGIN, props.LETTER_SPACING_DISPLAY, props.LETTER_SPACING_HERO, props.LETTER_SPACING_TIGHT": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "\"100%\", \"1rem * 3\" and the em letter spacings (`BORDER_RADIUS_FULL`, `BREAKPOINT_DESKTOP_MARGIN`, `LETTER_SPACING_*`) have no DTCG dimension form, so they stay as written.",
+      "at": "2026-11-18"
+    },
+    "legacy-conversion · base.raw.json · props.SPACING_FUNCTION_BASE, props.SPACING_FUNCTION_LG, props.SPACING_FUNCTION_MD, props.SPACING_FUNCTION_SM, props.SPACING_FUNCTION_XL, props.SPACING_FUNCTION_XS, props.SPACING_FUNCTION_XXL, props.SPACING_FUNCTION_XXS, props.SPACING_FUNCTION_XXXL, props.SPACING_FUNCTION_XXXXL": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.SPACING_FUNCTION_*` are type \"function\" holding Sass source (\"@function bpk-spacing-md() { @return .5rem; }\", originalValue with {!SPACING_MD}), which has no DTCG equivalent.",
+      "at": "2026-11-18"
+    },
+    "legacy-conversion · base.raw.json › `props.PRIVATE_BUTTON_LINE_HEIGHT`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`props.PRIVATE_BUTTON_LINE_HEIGHT` is \"1.5rem\" under type \"number\", which can't be written as a DTCG number.",
+      "at": "2026-11-18"
+    },
+    "missing-type · base.raw.json · aliases.ANIMATION_DURATION_BASE, aliases.ANIMATION_DURATION_SM, aliases.ANIMATION_DURATION_XS": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`aliases.ANIMATION_DURATION_XS/SM/BASE` are {\"value\": \"50ms\"} etc. with no type; Theo aliases carry no type, so as DTCG tokens they have none.",
+      "at": "2026-11-18"
+    },
+    "missing-type · base.raw.json · aliases.BORDER_RADIUS_FULL, aliases.FONT_WEIGHT_BLACK, aliases.FONT_WEIGHT_BOLD, aliases.FONT_WEIGHT_BOOK, aliases.FONT_WEIGHT_LIGHT, aliases.LETTER_SPACING_DISPLAY, aliases.LETTER_SPACING_HERO, aliases.LETTER_SPACING_TIGHT, aliases.SPACING_NONE, aliases.ZINDEX_AUTOSUGGEST, aliases.ZINDEX_DRAWER, aliases.ZINDEX_MODAL, aliases.ZINDEX_POPOVER, aliases.ZINDEX_SCRIM, aliases.ZINDEX_TOOLTIP": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The aliases listed (e.g. `aliases.FONT_WEIGHT_BOOK` {\"value\": \"400\"}, `aliases.ZINDEX_MODAL` {\"value\": \"1100\"}, `aliases.BORDER_RADIUS_FULL` {\"value\": \"100%\"}) have only a value, no type on them or a parent.",
+      "at": "2026-11-18"
+    },
+    "missing-type · base.raw.json · aliases.BORDER_RADIUS_LG, aliases.BORDER_RADIUS_MD, aliases.BORDER_RADIUS_NAV_TABS, aliases.BORDER_RADIUS_SM, aliases.BORDER_RADIUS_XL, aliases.BORDER_RADIUS_XS, aliases.BORDER_SIZE_LG, aliases.BORDER_SIZE_SM, aliases.BORDER_SIZE_XL, aliases.BREAKPOINT_ABOVE_DESKTOP, aliases.BREAKPOINT_ABOVE_MOBILE, aliases.BREAKPOINT_ABOVE_TABLET, aliases.BREAKPOINT_DESKTOP, aliases.BREAKPOINT_MOBILE, aliases.BREAKPOINT_SMALL_MOBILE, aliases.BREAKPOINT_SMALL_TABLET, aliases.BREAKPOINT_TABLET, aliases.BUTTON_HEIGHT, aliases.BUTTON_LARGE_HEIGHT, aliases.FONT_LINE_HEIGHT_6XL, aliases.FONT_LINE_HEIGHT_7XL, aliases.FONT_LINE_HEIGHT_8XL, aliases.FONT_LINE_HEIGHT_BASE, aliases.FONT_LINE_HEIGHT_BASE_TIGHT, aliases.FONT_LINE_HEIGHT_LG, aliases.FONT_LINE_HEIGHT_LG_TIGHT, aliases.FONT_LINE_HEIGHT_SM, aliases.FONT_LINE_HEIGHT_XL, aliases.FONT_LINE_HEIGHT_XL_TIGHT, aliases.FONT_LINE_HEIGHT_XS, aliases.FONT_LINE_HEIGHT_XXL, aliases.FONT_LINE_HEIGHT_XXXL, aliases.FONT_LINE_HEIGHT_XXXXL, aliases.FONT_LINE_HEIGHT_XXXXXL, aliases.FONT_SIZE_6XL, aliases.FONT_SIZE_7XL, aliases.FONT_SIZE_8XL, aliases.FONT_SIZE_BASE, aliases.FONT_SIZE_LG, aliases.FONT_SIZE_SM, aliases.FONT_SIZE_XL, aliases.FONT_SIZE_XS, aliases.FONT_SIZE_XXL, aliases.FONT_SIZE_XXXL, aliases.FONT_SIZE_XXXXL, aliases.FONT_SIZE_XXXXXL, aliases.ONE_PIXEL_REM, aliases.SPACING_BASE, aliases.SPACING_LG, aliases.SPACING_MD, aliases.SPACING_SM, aliases.SPACING_XL, aliases.SPACING_XS, aliases.SPACING_XXL, aliases.SPACING_XXS, aliases.SPACING_XXXL, aliases.SPACING_XXXXL": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The aliases listed (e.g. `aliases.SPACING_BASE` {\"value\": \"1rem\"}, `aliases.FONT_LINE_HEIGHT_BASE` {\"value\": \"1.5rem\"}) have only a value; base.raw.json gives no aliases entry a type.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · base.raw.json · props.BUTTON_BORDER_RADIUS, props.BUTTON_HEIGHT, props.BUTTON_LARGE_HEIGHT, props.CALENDAR_DAY_SIZE, props.INPUT_BORDER, props.INPUT_BORDER_RADIUS, props.INPUT_BORDER_WIDTH, props.INPUT_HEIGHT, props.INPUT_LARGE_BORDER_RADIUS, props.INPUT_LARGE_HEIGHT, props.MODAL_INITIAL_OPACITY, props.MODAL_MAX_WIDTH, props.MODAL_OPACITY, props.MODAL_WIDE_MAX_WIDTH, props.PRIVATE_RADIO_ON_CONTRAST_UNSELECTED_BACKGROUND_NIGHT, props.PRIVATE_SKELETON_SHIMMER_CENTER_DAY, props.PRIVATE_SKELETON_SHIMMER_CENTER_NIGHT, props.PRIVATE_SKELETON_SHIMMER_START_END_DAY, props.PRIVATE_SKELETON_SHIMMER_START_END_NIGHT, props.SELECT_BORDER_RADIUS, props.SELECT_BORDER_WIDTH, props.SELECT_LARGE_BORDER_RADIUS, props.ZINDEX_DRAWER, props.ZINDEX_MODAL, props.ZINDEX_POPOVER, props.ZINDEX_TOOLTIP": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "17 of the 26 props reference an alias through Theo's own originalValue (e.g. `BUTTON_HEIGHT` ← \"{!BUTTON_HEIGHT}\", `INPUT_BORDER_RADIUS` ← \"{!BORDER_RADIUS_SM}\", `ZINDEX_MODAL` ← \"{!ZINDEX_MODAL}\"); the resolved value was read as raw. Only 9 (skeleton shimmer, radio, CALENDAR_DAY_SIZE, MODAL_*OPACITY, BUTTON_BORDER_RADIUS) are truly raw.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · base.raw.json · props.BOX_SHADOW_LG, props.BOX_SHADOW_SM, props.BOX_SHADOW_XL, props.BREAKPOINT_QUERY_ABOVE_DESKTOP, props.BREAKPOINT_QUERY_ABOVE_MOBILE, props.BREAKPOINT_QUERY_ABOVE_TABLET, props.BREAKPOINT_QUERY_DESKTOP_ONLY, props.BREAKPOINT_QUERY_MOBILE, props.BREAKPOINT_QUERY_SMALL_MOBILE, props.BREAKPOINT_QUERY_SMALL_TABLET, props.BREAKPOINT_QUERY_SMALL_TABLET_ONLY, props.BREAKPOINT_QUERY_TABLET, props.BREAKPOINT_QUERY_TABLET_ONLY, props.FONT_FAMILY_BASE, props.FONT_FAMILY_LARKEN, props.FONT_SIZE_6XL, props.FONT_SIZE_7XL, props.FONT_SIZE_8XL, props.FONT_SIZE_BASE, props.FONT_SIZE_LG, props.FONT_SIZE_ROOT, props.FONT_SIZE_SM, props.FONT_SIZE_XL, props.FONT_SIZE_XS, props.FONT_SIZE_XXL, props.FONT_SIZE_XXXL, props.FONT_SIZE_XXXXL, props.FONT_SIZE_XXXXXL, props.FONT_WEIGHT_BLACK, props.FONT_WEIGHT_BOLD, props.FONT_WEIGHT_BOOK, props.FONT_WEIGHT_LIGHT, props.INPUT_BACKGROUND, props.INPUT_BORDER_RADIUS, props.INPUT_LARGE_BORDER_RADIUS, props.PRIMARY_GRADIENT, props.SELECT_BORDER_RADIUS, props.SELECT_LARGE_BORDER_RADIUS, props.SPACING_FUNCTION_BASE, props.SPACING_FUNCTION_LG, props.SPACING_FUNCTION_MD, props.SPACING_FUNCTION_SM, props.SPACING_FUNCTION_XL, props.SPACING_FUNCTION_XS, props.SPACING_FUNCTION_XXL, props.SPACING_FUNCTION_XXS, props.SPACING_FUNCTION_XXXL, props.SPACING_FUNCTION_XXXXL": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The types listed (\"box-shadow\", \"media-query\", \"font\", \"font-size\", \"string\", \"background\", \"radius\", \"background-image\", \"function\") are Theo type names written in base.raw.json, none of them a DTCG type.",
+      "at": "2026-11-18"
+    }
+  },
+  "misses": []
+}

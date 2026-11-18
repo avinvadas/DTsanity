@@ -11,7 +11,7 @@ export const COPY_PROMPT = 'Copy these as prompt';
  * ("591 corrections"), with what else the prompt lists named apart, so the
  * two numbers can always be checked against each other.
  */
-export function copiedLabel({ count, more }: FixPrompt, empty = 'Nothing to copy'): string {
+export function copiedLabel({ count, more }: Pick<FixPrompt, 'text' | 'count' | 'more'>, empty = 'Nothing to copy'): string {
   if (!count && !more) return empty;
   const others = more ? plural(more, 'other finding') : '';
   return count ? `Copied ${plural(count, 'correction')}${others ? `, plus ${others}` : ''}` : `Copied ${others}`;

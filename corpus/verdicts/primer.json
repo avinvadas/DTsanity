@@ -1,0 +1,918 @@
+{
+  "set": "primer",
+  "verdicts": {
+    "contrast-border · `border.accent.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.accent.emphasis wraps borderColor.accent.emphasis (functional/color/borderColor.json5: “Use for selected elements and focus states”, blue.5 = #316dca in dark-dimmed, 2.96 on neutral.3 #212830); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.accent.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.accent.muted is Primer’s deliberately low-emphasis variant: borderColor.accent.muted says “Pair with bgColor.accent.muted”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.attention.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.attention.emphasis wraps borderColor.attention.emphasis (borderColor.json5: “emphasized warning borders”, #966600 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.attention.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.attention.muted is Primer’s deliberately low-emphasis variant: borderColor.attention.muted says “Pair with bgColor.attention.muted”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.closed.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.closed.emphasis wraps borderColor.closed.emphasis (borderColor.json5: “emphasized closed state borders” for issues/PRs, aliasing danger.emphasis #c93c37 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.closed.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.closed.muted is Primer’s deliberately low-emphasis variant: aliases danger.muted, “Pair with bgColor.danger.muted”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.danger.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.danger.emphasis wraps borderColor.danger.emphasis (borderColor.json5: “MUST use for destructive action borders”, #c93c37 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.danger.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.danger.muted is Primer’s deliberately low-emphasis variant: borderColor.danger.muted says “Pair with bgColor.danger.muted”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.default` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.default wraps borderColor.default, which borderColor.json5 calls the “RECOMMENDED default for all borders. Use for cards, inputs, and dividers”: an input edge identifies the control, and it is #d1d9e0 on #ffffff (1.43) in light, neutral.7 #3d444d on #0d1117 in dark.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.done.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.done.emphasis wraps borderColor.done.emphasis (borderColor.json5: “emphasized done state borders”, #8256d0 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.done.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.done.muted is Primer’s deliberately low-emphasis variant: the muted done/merged status border; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.draft.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.draft.emphasis wraps borderColor.draft.emphasis (borderColor.json5: “emphasized draft state borders”, #656c76 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.draft.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.draft.muted is Primer’s deliberately low-emphasis variant: the muted draft status border (neutral.7, 70% in dark-dimmed); functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.emphasis wraps borderColor.emphasis (borderColor.json5: “borders needing more visual weight”, usage selected-border, #656c76 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.muted is Primer’s deliberately low-emphasis variant: borderColor.muted is “Subtle border for secondary elements and light separators”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.neutral.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.neutral.emphasis wraps borderColor.neutral.emphasis (borderColor.json5: “emphasized neutral semantic borders” on tags and badges, #656c76 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.neutral.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.neutral.muted is Primer’s deliberately low-emphasis variant: borderColor.neutral.muted is for “neutral semantic borders on tags and badges”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.open.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.open.emphasis wraps borderColor.open.emphasis (borderColor.json5: “emphasized open state borders”, aliasing success.emphasis #347d39 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.open.muted` on `bgColor.default` (UI part)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (below 3:1 on bgColor.default), but border.open.muted is Primer’s deliberately low-emphasis variant: aliases success.muted, “Pair with bgColor.success.muted”; functional/border/border.json5 says “Use muted for subtle dividers and low-emphasis boundaries … Use emphasis when borders need to stand out”, so the component is meant to be shown by its fill and text, with the emphasis variant for borders that must carry it. (Its sibling “alpha” makes it lighter still in light.)",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border.severe.emphasis` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.severe.emphasis wraps borderColor.severe.emphasis (borderColor.json5: “emphasized severe borders”, #ae5622 in dark-dimmed); it outlines a component on the default canvas and resolves to the reported color, which is below 3:1 on bgColor.default in the theme named.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.danger.fgColor.rest` on `button.danger.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Danger button label on its rest fill: button.danger.fgColor.rest has its own dark-dimmed override #ea5c53, on control.bgColor.rest → neutral.5 #2a313c in dark-dimmed: 3.84, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.invisible.fgColor.active` on `button.invisible.bgColor.active` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "button.invisible.fgColor.active on button.invisible.bgColor.active: in light the bg is control.transparent.bgColor.active = neutral.8 with sibling alpha: 0.15 (functional/color/control.json5), a faint tint over the page; #25292e on it is well above 4.5, not 4.23. The tint’s alpha is written beside “$value” (Primer’s own key, flagged by token-has-children), and DTsanity dropped it in this theme while honouring alphas inside overrides, so a translucent tint was read as an opaque fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.invisible.fgColor.hover` on `button.invisible.bgColor.hover` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "button.invisible.fgColor.hover on button.invisible.bgColor.hover: in light the bg is control.transparent.bgColor.hover = neutral.8 with sibling alpha: 0.1, so #25292e is about 13:1 on it, not 4.23 on opaque #818b98. The tint’s alpha is written beside “$value” (Primer’s own key, flagged by token-has-children), and DTsanity dropped it in this theme while honouring alphas inside overrides, so a translucent tint was read as an opaque fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.outline.fgColor.active` on `button.outline.bgColor.active` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Outline button pressed: fgColor.active takes the “dark” override neutral.13 (white) and bgColor.active the “dark” override blue.7, which in dark-high-contrast is #2672f3: white on it is 4.39, below the AAA 7 this theme is held to. (The dark override carrying to the dark variants is how the build reads it: without it, the default $value neutral.0 would give black text in dark variants.)",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.outline.fgColor.hover` on `button.outline.bgColor.hover` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Outline button hover: fg blue.3 (“dark” override) on control.bgColor.hover → neutral.6 #2f3742 in dark-dimmed is 4.22 (< 4.5); #71b7ff on neutral.5 #2a313c in dark-high-contrast is 6.19 (< 7).",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `button.outline.fgColor.rest` on `button.outline.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.outline.json5 “dark” overrides: fgColor.rest → blue.4 #388bfd, bgColor.rest → neutral.12 #f0f6fc, so the outline label is 3.07 on its fill in dark (and lower in dark-dimmed and dark-high-contrast).",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonCounter.danger.fgColor.hover` on `buttonCounter.danger.bgColor.hover` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "buttonCounter.danger.fgColor.hover on buttonCounter.danger.bgColor.hover: the counter bg is neutral.0 (white) with sibling alpha: 0.2, a 20% white wash over the danger button’s red hover fill; white text on that is far above 4.5, not white on opaque white (1.00). The tint’s alpha is written beside “$value” (Primer’s own key, flagged by token-has-children), and DTsanity dropped it in this theme while honouring alphas inside overrides, so a translucent tint was read as an opaque fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonCounter.danger.fgColor.rest` on `buttonCounter.danger.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "True in dark-dimmed: fgColor.danger → red.4 #e5534b on red.9 at alpha 0.2 (override) is 4.09 over the page and about 3.7 over the danger button fill, below 4.5 either way. (The light figure, 1.12 on opaque #cf222e, is misread: that bg has sibling alpha: 0.1 and the real ratio is about 4.8.)",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonCounter.outline.fgColor.hover` on `buttonCounter.outline.bgColor.hover` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "buttonCounter.outline.fgColor.hover on buttonCounter.outline.bgColor.hover: the counter bg is neutral.0 with sibling alpha: 0.2 over the outline button’s blue hover fill (bgColor.accent.emphasis), with white text on it; not white on opaque white (1.00). The tint’s alpha is written beside “$value” (Primer’s own key, flagged by token-has-children), and DTsanity dropped it in this theme while honouring alphas inside overrides, so a translucent tint was read as an opaque fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonCounter.outline.fgColor.rest` on `buttonCounter.outline.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "True in dark-dimmed: blue.4 #4184e4 on blue.9 at alpha 0.2 (dark override) is 3.96 over the page, and lower over the outline button’s light rest fill, below 4.5. (The light figure, 1.47 on opaque #0969da, is misread: that bg has sibling alpha: 0.1.)",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonKeybindingHint.danger.fgColor.rest` on `buttonKeybindingHint.danger.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "buttonKeybindingHint.danger.fgColor.rest (via default.fgColor.rest) → fgColor.muted → neutral.9 #9198a1 on neutral.5 #2a313c in dark and dark-dimmed: 4.498, just under 4.5 (shown rounded as 4.50); a keybinding hint is text on its own chip.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonKeybindingHint.default.fgColor.rest` on `buttonKeybindingHint.default.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "buttonKeybindingHint.default.fgColor.rest → fgColor.muted → neutral.9 #9198a1 on neutral.5 #2a313c in dark and dark-dimmed: 4.498, just under 4.5 (shown rounded as 4.50); a keybinding hint is text on its own chip.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `buttonKeybindingHint.invisible.fgColor.rest` on `buttonKeybindingHint.invisible.bgColor.rest` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "buttonKeybindingHint.invisible.fgColor.rest → fgColor.muted → neutral.9 #9198a1 on neutral.5 #2a313c in dark and dark-dimmed: 4.498, just under 4.5 (shown rounded as 4.50); a keybinding hint is text on its own chip.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `codeMirror.gutterMarker.fgColor.default` on `bgColor.default` (text)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "component/codeMirror.json5 sets codeMirror.gutterMarker.fgColor.default to {bgColor.default} itself in every theme: a marker hidden by default on purpose (gutterMarker.fgColor.muted is the visible one), not text meant to be read.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `codeMirror.syntax.fgColor.comment` on `bgColor.default` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "codeMirror.bgColor is {bgColor.default}, and comment text is base.color.neutral.8 #656c76 in dark themes: 3.57 on #0d1117 (dark), 2.81 on #212830 (dark-dimmed), 3.87 on #010409 (dark-high-contrast, below 7).",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `color.prettylights.syntax.carriage.return.text` on `color.prettylights.syntax.carriage.return.bg` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.prettylights.syntax.carriage.return.* are deprecated aliases of prettylights.syntax.* (functional/color/syntax.json5), still published; the text/bg pair resolves to neutral.12 #f0f6fc on red.6 #ff4445 in dark-high-contrast: 3.13, below 7.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `color.prettylights.syntax.invalid.illegal.text` on `color.prettylights.syntax.invalid.illegal.bg` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.prettylights.syntax.invalid.illegal.* are deprecated aliases of prettylights.syntax.* (functional/color/syntax.json5), still published; the text/bg pair resolves to fgColor.danger #e5534b on bgColor.danger.muted (#e5534b at 10%) over #212830 in dark-dimmed: 3.64, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `color.prettylights.syntax.markup.changed.text` on `color.prettylights.syntax.markup.changed.bg` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.prettylights.syntax.markup.changed.* are deprecated aliases of prettylights.syntax.* (functional/color/syntax.json5), still published; the text/bg pair resolves to orange.0 #ffe1b4 on orange.8 #a74c00 in dark-high-contrast (4.54) and orange.6 #702c00 on orange.1 #ffc67b in light-high-contrast (6.64), both below 7.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `color.prettylights.syntax.markup.deleted.text` on `color.prettylights.syntax.markup.deleted.bg` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.prettylights.syntax.markup.deleted.* are deprecated aliases of prettylights.syntax.* (functional/color/syntax.json5), still published; the text/bg pair resolves to red.0 #ffdedb on red.8 #cc1421 in dark-high-contrast: 4.53, below 7.",
+      "at": "2026-11-18"
+    },
+    "contrast-text · `color.prettylights.syntax.markup.ignored.text` on `color.prettylights.syntax.markup.ignored.bg` (text)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "color.prettylights.syntax.markup.ignored.* are deprecated aliases of prettylights.syntax.* (functional/color/syntax.json5), still published; the text/bg pair resolves to neutral.12 #f0f6fc on blue.6 #318bf8 in dark-high-contrast: 3.12, below 7.",
+      "at": "2026-11-18"
+    },
+    "contrast-ui · `button.invisible.iconColor.hover` on `button.invisible.bgColor.hover` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "button.invisible.iconColor.hover on button.invisible.bgColor.hover: in light the bg is neutral.8 with sibling alpha: 0.1, so fgColor.muted #59636e is about 5.5:1 on it, not 1.77 on opaque #818b98. The tint’s alpha is written beside “$value” (Primer’s own key, flagged by token-has-children), and DTsanity dropped it in this theme while honouring alphas inside overrides, so a translucent tint was read as an opaque fill.",
+      "at": "2026-11-18"
+    },
+    "contrast-ui · `button.star.iconColor` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.star.iconColor is “Star icon color for the starred/filled state of the star button” (component/button.json5): yellow.2 #eac54f on white is 1.67 in light and #d5a824 is 2.22 in light-high-contrast, so the starred state icon is below 3:1.",
+      "at": "2026-11-18"
+    },
+    "contrast-ui · `treeViewItem.leadingVisual.iconColor.rest` on `bgColor.default` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "treeViewItem.leadingVisual.iconColor.rest is base.color.blue.3 in light themes (component/treeView.json5): #54aeff on #ffffff is 2.37, an icon in the file tree on the default canvas, below 3:1.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `button.danger.fgColor.active` on `button.danger.bgColor.active` drops below its contrast level with Deuteranopia (green-blind) (dark, dark-dimmed and dark-high-contrast) and Tritanopia (blue-blind) (dark and dark-high-contrast).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Danger button pressed, white label on bgColor.active (#da3633 in dark): simulated deuteranopia 3.87 and tritanopia 4.41 in dark, deuteranopia 4.30 in dark-dimmed, 6.30/6.50 in dark-high-contrast (level 7); a label on its own fill.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `button.danger.fgColor.hover` on `button.danger.bgColor.hover` drops below its contrast level with Deuteranopia (green-blind) (dark-high-contrast, light and light-high-contrast) and Tritanopia (blue-blind) (dark-high-contrast).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Danger button hover, white on red (#cf222e in light): simulated deuteranopia 4.46 in light, 6.90 in light-high-contrast and 6.30 (tritanopia 6.50) in dark-high-contrast, each below its level.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `button.danger.iconColor.rest` on `button.danger.bgColor.rest` drops below its contrast level with Protanopia (red-blind) (dark-dimmed).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.danger.iconColor.rest → fgColor.rest (#ea5c53 in dark-dimmed) on control.bgColor.rest #2a313c: 3.84 typical, 2.91 with simulated protanopia, below the 3:1 for an icon.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `button.primary.fgColor.rest` on `button.primary.bgColor.rest` drops below its contrast level with Protanopia (red-blind) (dark and light).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Primary button label fgColor.white on bgColor.success.emphasis (#1f883d light, #238636 dark): 4.52/4.63 typical, 4.22/4.33 with simulated protanopia, below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `codeMirror.syntax.fgColor.keyword` on `bgColor.default` drops below its contrast level with Protanopia (red-blind) (dark-dimmed) and Deuteranopia (green-blind) (light and light-high-contrast).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Code keyword text on the editor bg (codeMirror.bgColor = bgColor.default): red.3 #f47067 on #212830 is 4.12 with simulated protanopia in dark-dimmed; red.5 on white is 4.46 (deuteranopia) in light and 6.90 in light-high-contrast (level 7).",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `codeMirror.syntax.fgColor.storage` on `bgColor.default` drops below its contrast level with Protanopia (red-blind) (dark-dimmed) and Deuteranopia (green-blind) (light and light-high-contrast).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "codeMirror.syntax.fgColor.storage has the same values as keyword (red.5 / dark red.3): 4.12 protanopia in dark-dimmed, 4.46 and 6.90 deuteranopia in light and light-high-contrast, below level.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `control.checked.fgColor.rest` on `control.checked.bgColor.rest` drops below its contrast level with Protanopia (red-blind) (dark, dark-dimmed, dark-high-contrast, light and light-high-contrast) and Tritanopia (blue-blind) (dark, dark-dimmed, dark-high-contrast, light and light-high-contrast).": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "control.checked is “Colors for checked/selected state of checkboxes, radio buttons, and toggle switches” (functional/color/control.json5): its fgColor is the checkmark or dot, a graphic held to 3:1, not text. Read as text (4.5, or 7 in high contrast); at 3:1 the pair passes under every simulation (lowest about 3.9, dark tritanopia).",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `control.danger.fgColor.hover` on `control.danger.bgColor.hover` drops below its contrast level with Protanopia (red-blind) (dark-dimmed), Deuteranopia (green-blind) (dark-high-contrast, light and light-high-contrast) and Tritanopia (blue-blind) (dark-dimmed, dark-high-contrast and light).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Danger control label on its hover fill (“destructive actions like delete buttons”): fgColor.danger #d1242f on red.0 #ffebe9 is 3.86 with simulated deuteranopia in light; white on #a0111f is 6.90 in light-high-contrast; red.3 on 10% red.4 is 3.73 protanopia in dark-dimmed.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `diffBlob.deletionWord.fgColor` on `diffBlob.deletionWord.bgColor` drops below its contrast level with Deuteranopia (green-blind) (dark-high-contrast and light-high-contrast) and Tritanopia (blue-blind) (dark-high-contrast).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Deleted-word text on its highlight: white on red #a0111f / #ad0116 in the high-contrast themes is 6.90 / 6.30 with simulated deuteranopia (6.50 tritanopia in dark-high-contrast), below 7.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `diffBlob.hunkLine.fgColor` on `diffBlob.hunkLine.bgColor` drops below its contrast level with Protanopia (red-blind) (dark-dimmed) and Tritanopia (blue-blind) (dark-dimmed).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Diff hunk header text fgColor.muted #9198a1 on blue.4 at 10% over #212830 in dark-dimmed: 4.51 typical, 4.45 protanopia and 4.49 tritanopia, just below 4.5.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `diffBlob.hunkNum.fgColor.hover` on `diffBlob.hunkNum.bgColor.hover` drops below its contrast level with Protanopia (red-blind) (dark, dark-dimmed, dark-high-contrast, light and light-high-contrast) and Tritanopia (blue-blind) (dark, dark-dimmed, dark-high-contrast, light and light-high-contrast).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Hunk number on hover, white on bgColor.accent.emphasis (#1f6feb dark): simulated protanopia 4.01 and tritanopia 3.90 in dark, likewise in dark-dimmed and against 7 in the high-contrast themes.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `display.coral.borderColor.emphasis` on `bgColor.default` drops below its contrast level with Protanopia (red-blind) (dark-dimmed).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "display.coral.borderColor.emphasis is #eb3342 on #212830 in dark-dimmed (functional/color/display.json5 → base display palette): 3.6 typical, 2.47 with simulated protanopia, below the 3:1 for a border.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `display.orange.borderColor.emphasis` on `bgColor.default` drops below its contrast level with Protanopia (red-blind) (dark-dimmed).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "display.orange.borderColor.emphasis is #c46212 on #212830 in dark-dimmed (functional/color/display.json5 → base display palette): 3.6 typical, 2.93 with simulated protanopia, below the 3:1 for a border.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `display.pink.borderColor.emphasis` on `bgColor.default` drops below its contrast level with Protanopia (red-blind) (dark-dimmed).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "display.pink.borderColor.emphasis is #d34591 on #212830 in dark-dimmed (functional/color/display.json5 → base display palette): 3.6 typical, 2.80 with simulated protanopia, below the 3:1 for a border.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `display.red.borderColor.emphasis` on `bgColor.default` drops below its contrast level with Protanopia (red-blind) (dark-dimmed).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "display.red.borderColor.emphasis is #eb3342 on #212830 in dark-dimmed (functional/color/display.json5 → base display palette): 3.6 typical, 2.47 with simulated protanopia, below the 3:1 for a border.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `bgColor.success.emphasis`, `bgColor.attention.emphasis`, `bgColor.danger.emphasis` (`bg.color.*.emphasis`) are too close to tell apart in dark with Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.030); in dark-dimmed with Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.030); in dark-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.026); in light with Protanopia (red-blind) (0.062), Deuteranopia (green-blind) (0.016); in light-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.024); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "bgColor.{success,attention,danger}.emphasis (#1f883d, #9a6700, #cf222e in light) are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.015 with deuteranopia and 0.063 with protanopia in light, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `bgColor.success.muted`, `bgColor.attention.muted`, `bgColor.danger.muted` (`bg.color.*.muted`) are too close to tell apart in dark with Protanopia (red-blind) (0.051), Deuteranopia (green-blind) (0.037); in dark-dimmed with Protanopia (red-blind) (0.049), Deuteranopia (green-blind) (0.035); in dark-high-contrast with Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.053), Tritanopia (blue-blind) (0.086); in light with typical vision (0.053), Protanopia (red-blind) (0.032), Deuteranopia (green-blind) (0.009), Tritanopia (blue-blind) (0.020); in light-high-contrast with typical vision (0.057), Protanopia (red-blind) (0.036), Deuteranopia (green-blind) (0.021), Tritanopia (blue-blind) (0.011); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "bgColor.{success,attention,danger}.muted (#dafbe1, #fff8c5, #ffebe9 in light) are the success/attention(warning)/danger status siblings; recomputed with the same simulation, they are 0.053 apart even with typical vision in light and 0.009 with deuteranopia, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `border.success.emphasis`, `border.attention.emphasis`, `border.danger.emphasis` (`border.*.emphasis`) are too close to tell apart in dark with Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.030); in dark-dimmed with Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.030); in dark-high-contrast with Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.053); in light with Protanopia (red-blind) (0.038), Deuteranopia (green-blind) (0.016); in light-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.024); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.{success,attention,danger}.emphasis (wrapping borderColor.*.emphasis) are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.015 deuteranopia in light and 0.016 protanopia in dark-high-contrast, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `border.success.muted`, `border.attention.muted`, `border.danger.muted` (`border.*.muted`) are too close to tell apart in dark with Protanopia (red-blind) (0.051), Deuteranopia (green-blind) (0.037); in dark-dimmed with Protanopia (red-blind) (0.049), Deuteranopia (green-blind) (0.035); in dark-high-contrast with Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.053), Tritanopia (blue-blind) (0.086); in light with Protanopia (red-blind) (0.061), Deuteranopia (green-blind) (0.031), Tritanopia (blue-blind) (0.090); in light-high-contrast with Protanopia (red-blind) (0.049), Deuteranopia (green-blind) (0.051); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "border.{success,attention,danger}.muted (wrapping borderColor.*.muted) are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.026 (dark) and 0.022 (dark-dimmed) with deuteranopia (closer still in light once their sibling alpha 0.4 is applied), under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `borderColor.success.emphasis`, `borderColor.attention.emphasis`, `borderColor.danger.emphasis` (`border.color.*.emphasis`) are too close to tell apart in dark with Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.030); in dark-dimmed with Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.030); in dark-high-contrast with Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.053); in light with Protanopia (red-blind) (0.038), Deuteranopia (green-blind) (0.016); in light-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.024); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "borderColor.{success,attention,danger}.emphasis are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.015 deuteranopia in light and 0.016 protanopia in dark-high-contrast, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `borderColor.success.muted`, `borderColor.attention.muted`, `borderColor.danger.muted` (`border.color.*.muted`) are too close to tell apart in dark with Protanopia (red-blind) (0.051), Deuteranopia (green-blind) (0.037); in dark-dimmed with Protanopia (red-blind) (0.049), Deuteranopia (green-blind) (0.035); in dark-high-contrast with Protanopia (red-blind) (0.025), Deuteranopia (green-blind) (0.053), Tritanopia (blue-blind) (0.086); in light with Protanopia (red-blind) (0.061), Deuteranopia (green-blind) (0.031), Tritanopia (blue-blind) (0.090); in light-high-contrast with Protanopia (red-blind) (0.049), Deuteranopia (green-blind) (0.051); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "borderColor.{success,attention,danger}.muted are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.026 (dark) and 0.022 (dark-dimmed) with deuteranopia (closer still in light once their sibling alpha 0.4 is applied), under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `control.borderColor.success`, `control.borderColor.warning`, `control.borderColor.danger` (`control.border.color.*`) are too close to tell apart in dark with Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.030); in dark-dimmed with Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.030); in dark-high-contrast with Protanopia (red-blind) (0.017), Deuteranopia (green-blind) (0.053); in light with Protanopia (red-blind) (0.038), Deuteranopia (green-blind) (0.016); in light-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.024); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "control.borderColor.{success,warning,danger} (input validation borders) are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.015 deuteranopia in light, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `fgColor.success`, `fgColor.attention`, `fgColor.danger` (`fg.color.*`) are too close to tell apart in dark with Protanopia (red-blind) (0.051), Deuteranopia (green-blind) (0.023); in dark-dimmed with Protanopia (red-blind) (0.054), Deuteranopia (green-blind) (0.029); in dark-high-contrast with Protanopia (red-blind) (0.042), Deuteranopia (green-blind) (0.055), Tritanopia (blue-blind) (0.069); in light with Protanopia (red-blind) (0.038), Deuteranopia (green-blind) (0.017); in light-high-contrast with Protanopia (red-blind) (0.032), Deuteranopia (green-blind) (0.031); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "fgColor.{success,attention,danger} (status text) are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.017 deuteranopia in light and 0.022 in dark, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `progressBar.bgColor.success`, `progressBar.bgColor.attention`, `progressBar.bgColor.danger` (`progress.bar.bg.color.*`) are too close to tell apart in dark with Protanopia (red-blind) (0.044), Deuteranopia (green-blind) (0.030); in dark-dimmed with Protanopia (red-blind) (0.041), Deuteranopia (green-blind) (0.030); in dark-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.026); in light with Protanopia (red-blind) (0.062), Deuteranopia (green-blind) (0.016); in light-high-contrast with Protanopia (red-blind) (0.039), Deuteranopia (green-blind) (0.024); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "progressBar.bgColor.{success,attention,danger} are the success/attention(warning)/danger status siblings; recomputed with the same simulation, the closest pair is 0.015 deuteranopia in light, under the 0.1 needed in every theme named.",
+      "at": "2026-11-18"
+    },
+    "duplicate-key · base/color/dark/dark.dimmed.json5 (dark-dimmed only) · base.color.blue.0.$extensions, base.color.blue.1.$extensions, base.color.blue.2.$extensions, base.color.blue.3.$extensions, base.color.blue.4.$extensions, base.color.blue.5.$extensions, base.color.blue.6.$extensions, base.color.blue.7.$extensions, base.color.blue.8.$extensions, base.color.blue.9.$extensions, base.color.coral.0.$extensions, base.color.coral.1.$extensions, base.color.coral.2.$extensions, base.color.coral.3.$extensions, base.color.coral.4.$extensions, base.color.coral.5.$extensions, base.color.coral.6.$extensions, base.color.coral.7.$extensions, base.color.coral.8.$extensions, base.color.coral.9.$extensions, base.color.green.0.$extensions, base.color.green.1.$extensions, base.color.green.2.$extensions, base.color.green.3.$extensions, base.color.green.4.$extensions, base.color.green.5.$extensions, base.color.green.6.$extensions, base.color.green.7.$extensions, base.color.green.8.$extensions, base.color.green.9.$extensions, base.color.orange.0.$extensions, base.color.orange.1.$extensions, base.color.orange.2.$extensions, base.color.orange.3.$extensions, base.color.orange.4.$extensions, base.color.orange.5.$extensions, base.color.orange.6.$extensions, base.color.orange.7.$extensions, base.color.orange.8.$extensions, base.color.orange.9.$extensions, base.color.pink.0.$extensions, base.color.pink.1.$extensions, base.color.pink.2.$extensions, base.color.pink.3.$extensions, base.color.pink.4.$extensions, base.color.pink.5.$extensions, base.color.pink.6.$extensions, base.color.pink.7.$extensions, base.color.pink.8.$extensions, base.color.pink.9.$extensions, base.color.purple.0.$extensions, base.color.purple.1.$extensions, base.color.purple.2.$extensions, base.color.purple.3.$extensions, base.color.purple.4.$extensions, base.color.purple.5.$extensions, base.color.purple.6.$extensions, base.color.purple.7.$extensions, base.color.purple.8.$extensions, base.color.purple.9.$extensions, base.color.red.0.$extensions, base.color.red.1.$extensions, base.color.red.2.$extensions, base.color.red.3.$extensions, base.color.red.4.$extensions, base.color.red.5.$extensions, base.color.red.6.$extensions, base.color.red.7.$extensions, base.color.red.8.$extensions, base.color.red.9.$extensions, base.color.yellow.0.$extensions, base.color.yellow.1.$extensions, base.color.yellow.2.$extensions, base.color.yellow.3.$extensions, base.color.yellow.4.$extensions, base.color.yellow.5.$extensions, base.color.yellow.6.$extensions, base.color.yellow.7.$extensions, base.color.yellow.8.$extensions, base.color.yellow.9.$extensions": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "base/color/dark/dark.dimmed.json5 writes “$extensions” twice in each palette step (e.g. base.color.blue.0), in identical copies, so one is dropped by any JSON parser.",
+      "at": "2026-11-18"
+    },
+    "duplicate-path · functional/size/size-fine.json5 · control.minTarget.auto, controlStack.large.gap.auto, controlStack.medium.gap.auto, controlStack.small.gap.auto": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "size-coarse.json5 and size-fine.json5 are alternatives for pointer type, not one set: their descriptions say “for coarse pointer devices (touch screens) … Do NOT use for fine pointer (mouse) contexts” and “for fine pointer devices (mouse) … Do NOT use for touch/mobile contexts”; loading both together is not how the system is used.",
+      "at": "2026-11-18"
+    },
+    "embedded-reference · functional/size/border.json5 · boxShadow.thick, boxShadow.thicker, boxShadow.thin": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "boxShadow.thin/thick/thicker are “inset 0 0 0 {borderWidth.thin}” etc. (functional/size/border.json5): the reference sits inside a longer string, which DTCG does not resolve.",
+      "at": "2026-11-18"
+    },
+    "embedded-reference · functional/size/viewport.json5 · viewportRange.narrow, viewportRange.narrowLandscape, viewportRange.regular, viewportRange.wide": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "viewportRange.narrow/narrowLandscape/regular/wide embed {breakpoint.*} inside media-query strings such as “(min-width: {breakpoint.medium})” (functional/size/viewport.json5).",
+      "at": "2026-11-18"
+    },
+    "invalid-value · component/avatar.json5 › `avatar.shadow`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "avatar.shadow’s $value[0] has an “alpha” key beside color/offsetX/… (component/avatar.json5), which the DTCG shadow type doesn’t define.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · component/button.json5 · button.danger.shadow.selected, button.default.shadow.resting, button.outline.shadow.selected, button.primary.shadow.selected": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The four button shadows put “alpha” inside the shadow object (e.g. button.outline.shadow.selected: color {base.color.blue.9}, alpha: 0.2), not a DTCG shadow property.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/motion/motion.json5 · motion.transition.enter, motion.transition.exit, motion.transition.hover, motion.transition.stateChange": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "motion.transition.hover/stateChange/enter/exit hold only duration and timingFunction (functional/motion/motion.json5); DTCG transition also requires delay.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/shadow/shadow.json5 · shadow.floating.large, shadow.floating.xlarge, shadow.resting.medium, shadow.resting.small": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each layer of shadow.resting.small/medium and shadow.floating.large/xlarge carries an “alpha” key (functional/shadow/shadow.json5), not a DTCG shadow property.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/shadow/shadow.json5 · shadow.inset, shadow.resting.xsmall": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "shadow.inset and shadow.resting.xsmall have an “alpha” key in their shadow $value (functional/shadow/shadow.json5).",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/shadow/shadow.json5 › `shadow.floating.medium`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "All five layers of shadow.floating.medium carry “alpha” in the shadow object (functional/shadow/shadow.json5).",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/shadow/shadow.json5 › `shadow.floating.small`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "All three layers of shadow.floating.small carry “alpha” in the shadow object (functional/shadow/shadow.json5).",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/typography/typography.json5 · text.body.shorthand.large, text.body.shorthand.medium, text.body.shorthand.small, text.caption.shorthand, text.codeBlock.shorthand, text.display.shorthand, text.subtitle.shorthand, text.title.shorthand.large, text.title.shorthand.medium, text.title.shorthand.small": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The text.*.shorthand typography values give fontWeight, fontSize, lineHeight and fontFamily only (e.g. text.display.shorthand, functional/typography/typography.json5); DTCG typography also requires letterSpacing.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/typography/typography.json5 › `text.codeInline.shorthand`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "text.codeInline.shorthand has only fontWeight, fontSize and fontFamily; DTCG typography requires letterSpacing and lineHeight too.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · functional/typography/typography.json5 › `text.codeInline.size`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "text.codeInline.size is {value: 0.9285, unit: 'em'}; a DTCG dimension allows only px or rem (its description confirms em is meant, to inherit from the parent).",
+      "at": "2026-11-18"
+    },
+    "legacy-value · component/reactionButton.json5 › `reactionButton.selected.bgColor.hover` (light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The light-high-contrast override of reactionButton.selected.bgColor.hover is the CSS string '#c7e9ff' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/control.json5 › `control.checked.bgColor.active` (dark only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark override of control.checked.bgColor.active is the CSS string '#3685F3' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/control.json5 › `control.checked.bgColor.hover` (dark only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark override of control.checked.bgColor.hover is the CSS string '#2A7AEF' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.accent` (dark only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark override of fgColor.accent is the CSS string '#4493F8' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.accent` (dark-dimmed only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark-dimmed override of fgColor.accent is the CSS string '#478be6' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.accent` (dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark-high-contrast override of fgColor.accent is the CSS string '#74B9FF' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.danger` (light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The light-high-contrast override of fgColor.danger is the CSS string '#960d1e' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.done` (dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark-high-contrast override of fgColor.done is the CSS string '#D3ABFF' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.done` (light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The light-high-contrast override of fgColor.done is the CSS string '#5e2bb4' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.sponsors` (dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark-high-contrast override of fgColor.sponsors is the CSS string '#FF90C8' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.success` (dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark-high-contrast override of fgColor.success is the CSS string '#2BD853' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/fgColor.json5 › `fgColor.success` (light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The light-high-contrast override of fgColor.success is the CSS string '#04591f' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/syntax.json5 › `ansi.cyan` (dark, dark-dimmed, dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark override of ansi.cyan is the CSS string '#39c5cf' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/color/syntax.json5 › `ansi.cyanBright` (dark, dark-dimmed, dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The dark override of ansi.cyanBright is the CSS string '#56d4dd' (org.primer.overrides), not a DTCG color object like the file’s other values.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/typography/font-stack.json5 · fontStack.sansSerif, fontStack.sansSerifDisplay, fontStack.system": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "fontStack.system/sansSerif/sansSerifDisplay are one comma-separated string (“'Mona Sans VF', -apple-system, …, sans-serif, …”) with $type fontFamily; DTCG reads a string as one family name and wants a list for a stack.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · functional/typography/font-stack.json5 › `fontStack.monospace`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "fontStack.monospace is the single string “ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace”, a stack written as one font name.",
+      "at": "2026-11-18"
+    },
+    "scale-hue-drift · `base.color.orange`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "In dark.json5, base.color.orange.0 #ffdfb6 has OKLCH hue about 73.7° and orange.8 #5a1e02 about 41.8°, a 32° drift across the scale; the files give no reason for it.",
+      "at": "2026-11-18"
+    },
+    "scale-missing-steps · `base.color.neutral`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "base.color.neutral.0 exists in every theme: it is a reference ({base.color.white} in light.json5, {base.color.black} in dark.json5), as is neutral.13; the scale was read without its aliased end steps, so a step that is there was reported missing.",
+      "at": "2026-11-18"
+    },
+    "scale-near-duplicate · `base.color.neutral`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "In dark.json5, neutral.3 #212830 and neutral.4 #262c36 are ΔE(OKLab) 0.018 apart; both are separate surface steps (control.bgColor.rest and control.bgColor.hover in dark).",
+      "at": "2026-11-18"
+    },
+    "scale-uneven-lightness · `base.color.neutral`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "In dark.json5, neutral.8 #656c76 → neutral.9 #9198a1 jumps OKLab L 52.9 → 67.7 (ΔL 14.8), while steps 3→7 move by about 2–5.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · base/color/dark/dark.json5 › `base.color.neutral.13` (dark, dark-dimmed, dark-high-contrast only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (dark.json5 base.color.neutral.13 is {base.color.white}), but by design: Primer defines the palette’s end step as its named black/white in every base file (neutral.0 and neutral.13 point at base.color.black/white, inset at the end step), so base tokens referencing base tokens within the palette is its structure, not an accident.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · base/color/dark/dark.json5 (dark, dark-dimmed, dark-high-contrast only) · base.color.inset, base.color.neutral.0": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (dark.json5 base.color.inset is {base.color.black} and neutral.0 is {base.color.black}), but by design: Primer defines the palette’s end step as its named black/white in every base file (neutral.0 and neutral.13 point at base.color.black/white, inset at the end step), so base tokens referencing base tokens within the palette is its structure, not an accident.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · base/color/light/light.json5 › `base.color.neutral.13` (light, light-high-contrast only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (light.json5 base.color.neutral.13 is {base.color.black}), but by design: Primer defines the palette’s end step as its named black/white in every base file (neutral.0 and neutral.13 point at base.color.black/white, inset at the end step), so base tokens referencing base tokens within the palette is its structure, not an accident.",
+      "at": "2026-11-18"
+    },
+    "tier-base-reference · base/color/light/light.json5 (light, light-high-contrast only) · base.color.inset, base.color.neutral.0": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (light.json5 base.color.inset is {base.color.neutral.0} and neutral.0 is {base.color.white}), but by design: Primer defines the palette’s end step as its named black/white in every base file (neutral.0 and neutral.13 point at base.color.black/white, inset at the end step), so base tokens referencing base tokens within the palette is its structure, not an accident.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/button.json5 · button.primary.bgColor.active, button.primary.bgColor.disabled, button.primary.bgColor.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.primary.bgColor.hover/active/disabled hold hsl objects (e.g. components [137.2, 64.3, 30.8]) as $value in component/button.json5, not references.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/button.json5 › `button.danger.fgColor.rest` (dark, dark-dimmed only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.danger.fgColor.rest’s dark and dark-dimmed overrides are raw hsl objects (#FA5E55, #ea5c53), while other themes reference fgColor.danger.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/button.json5 › `button.outline.bgColor.active` (light, light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.outline.bgColor.active’s $value is a raw hsl object (#0757ba) and its light-high-contrast override is raw #033f9d.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/button.json5 › `button.primary.borderColor.disabled` (dark, dark-dimmed, light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "button.primary.borderColor.disabled is raw in its dark, dark-dimmed and light-high-contrast overrides (component/button.json5), though it references in other themes.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/button.json5 › `buttonCounter.danger.fgColor.rest` (light only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "buttonCounter.danger.fgColor.rest’s $value is a raw hsl object (#c21c2c), used in light, while other themes reference fgColor.danger.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/button.json5 (dark-dimmed only) · button.danger.fgColor.active, button.danger.fgColor.hover, button.outline.fgColor.disabled, button.primary.fgColor.rest, button.primary.iconColor.rest": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "These five button tokens reference tokens in general but carry raw hsl objects in their dark-dimmed overrides (component/button.json5).",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/focus.json5 · focus.outline-offset, focus.outline-width": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "focus.outline-width is a raw {value: 2, unit: px} though base.size.2 and borderWidth.thick hold 2px; focus.outline-offset is a raw -2px (component/focus.json5).",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · component/reactionButton.json5 › `reactionButton.selected.bgColor.hover`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "reactionButton.selected.bgColor.hover’s $value is a raw hsl object (#caecff) and its overrides are raw too (#3a8cfd, #4285e5, #c7e9ff…).",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/bgColor.json5 › `bgColor.success.emphasis` (light only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "bgColor.success.emphasis’s $value is a raw hsl object (#1f883d), used in light; no override replaces it there.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/control.json5 · control.checked.bgColor.active, control.checked.bgColor.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "control.checked.bgColor.hover/active have raw values (hsl $value and dark overrides '#2A7AEF'/'#3685F3') in functional/color/control.json5.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/control.json5 › `control.borderColor.rest` (dark-dimmed only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "control.borderColor.rest’s dark-dimmed override is a raw hsl object, while other themes reference borderColor.default.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/control.json5 › `control.danger.bgColor.active` (dark-high-contrast, light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "control.danger.bgColor.active is raw in its dark-high-contrast and light-high-contrast overrides.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/control.json5 (dark-dimmed, light-high-contrast only) · control.checked.borderColor.active, control.checked.borderColor.hover": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "control.checked.borderColor.hover/active carry raw hsl values in their dark-dimmed and light-high-contrast overrides.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/fgColor.json5 › `fgColor.accent` (dark, dark-dimmed, dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "fgColor.accent’s dark, dark-dimmed and dark-high-contrast overrides are raw hex strings (#4493F8, #478be6, #74B9FF); unlike the high-contrast status colors, no comment says they stand alone on purpose.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/fgColor.json5 › `fgColor.danger` (light, light-high-contrast only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (light $value is a raw hsl #d1242f, light-high-contrast override '#960d1e'), but deliberate: fgColor.json5 says of the latter “Custom hex between red.5 and red.6: level 5 fails 7:1 vs bgColor-muted, level 6 is too dark to visually differentiate status colors”, so the value is meant to sit between scale steps.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/fgColor.json5 › `fgColor.sponsors` (dark-high-contrast only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (dark-high-contrast override '#FF90C8'), but deliberate: fgColor.json5’s high-contrast status overrides are documented as custom hexes between scale steps, “Same approach as dark HC overrides (PR #1190)”, which this one is.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/fgColor.json5 (dark-high-contrast, light-high-contrast only) · fgColor.done, fgColor.success": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True ('#2BD853', '#04591f', '#D3ABFF', '#5e2bb4'), but deliberate: fgColor.json5 comments these high-contrast overrides as “Custom hex between green.5 and green.6 … level 6 is too dark to visually differentiate status colors. Same approach as dark HC overrides (PR #1190)”, values that sit between scale steps on purpose.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/color/syntax.json5 · ansi.cyan, ansi.cyanBright": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (ansi.cyan #1b7c83 / dark '#39c5cf', cyanBright #3192aa / '#56d4dd' are raw), but they stand alone: the base palette has no cyan, and no step of the display cyan scale matches; ANSI terminal colors are their own set.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/size/border.json5 · borderWidth.thick, borderWidth.thicker, borderWidth.thin, boxShadow.thick, boxShadow.thicker, boxShadow.thin": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "Tier read from the folder: borderWidth.thin/thick/thicker describe themselves as “Scale token: 1px border width. Use when selecting an explicit size from the border-width scale” (borderWidth.default is the semantic one pointing at them), so they are the base scale; and boxShadow.* do reference borderWidth.* (embedded, “inset 0 0 0 {borderWidth.thin}”), so they aren’t raw values.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · functional/size/breakpoints.json5 · breakpoint.large, breakpoint.medium, breakpoint.small, breakpoint.xlarge, breakpoint.xsmall, breakpoint.xxlarge": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (breakpoint.xsmall…xxlarge are raw px: 320, 544, 768, 1012, 1280, 1400), but there is no base tier for breakpoints to point at (base/size has none of these values); breakpoint.* is itself the scale that viewportRange.* points at.",
+      "at": "2026-11-18"
+    },
+    "tier-name-mismatch · functional/typography/font-stack.json5 › `fontStack.system`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "fontStack.system/sansSerif/sansSerifDisplay/monospace (functional/typography/font-stack.json5) hold raw stack strings that text.*.shorthand point at, as a palette does, though the folder is “functional”.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/button.json5 · button.danger.iconColor.disabled, button.danger.iconColor.rest, button.default.borderColor.hover, button.outline.borderColor.active, button.primary.borderColor.active, button.primary.borderColor.hover, button.primary.iconColor.disabled, buttonKeybindingHint.danger.bgColor.disabled, buttonKeybindingHint.danger.bgColor.rest, buttonKeybindingHint.danger.borderColor.active, buttonKeybindingHint.danger.borderColor.disabled, buttonKeybindingHint.danger.borderColor.rest, buttonKeybindingHint.danger.fgColor.disabled, buttonKeybindingHint.danger.fgColor.rest, buttonKeybindingHint.default.bgColor.disabled, buttonKeybindingHint.inactive.fgColor, buttonKeybindingHint.invisible.bgColor.disabled, buttonKeybindingHint.invisible.bgColor.rest, buttonKeybindingHint.primary.bgColor.disabled, buttonKeybindingHint.primary.bgColor.rest, buttonKeybindingHint.primary.fgColor.disabled": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (e.g. button.default.borderColor.hover → {button.default.borderColor.rest}, buttonKeybindingHint.primary.bgColor.rest → {buttonCounter.primary.bgColor.rest}), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/button.json5 › `button.danger.borderColor.active` (dark, dark-dimmed, light, light-high-contrast only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (button.danger.borderColor.active → {button.danger.borderColor.hover}), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/button.json5 › `button.danger.borderColor.hover` (dark, dark-dimmed, light only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (button.danger.borderColor.hover → {button.primary.borderColor.rest} in those themes), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/button.json5 › `buttonKeybindingHint.primary.borderColor.rest` (dark, dark-dimmed only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (buttonKeybindingHint.primary.borderColor.rest → {buttonCounter.primary.bgColor.rest}), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/button.json5 (dark, dark-dimmed, dark-high-contrast only) · button.default.borderColor.active, button.outline.borderColor.hover": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (button.default.borderColor.active → {button.default.borderColor.rest}, button.outline.borderColor.hover → {button.default.borderColor.hover}), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/button.json5 (light only) · button.outline.borderColor.hover, button.primary.borderColor.disabled": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (button.primary.borderColor.disabled → {button.primary.bgColor.disabled}, button.outline.borderColor.hover → {button.primary.borderColor.hover}), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/contribution.json5 · contribution.default.borderColor.1, contribution.default.borderColor.2, contribution.default.borderColor.3, contribution.default.borderColor.4": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (contribution.default.borderColor.1–4 → {contribution.default.borderColor.0}), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/focus.json5 · focus.outline, focus.outlineColor, outline.focus.offset, outline.focus.width": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (focus.outline is a border composite of {focus.outline-color} and {focus.outline-width}; focus.outlineColor and outline.focus.* are deprecated aliases of them), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/label.json5 (dark-high-contrast, light-high-contrast only) · label.auburn.borderColor, label.blue.borderColor, label.brown.borderColor, label.coral.borderColor, label.cyan.borderColor, label.gray.borderColor, label.green.borderColor, label.indigo.borderColor, label.lemon.borderColor, label.lime.borderColor, label.olive.borderColor, label.orange.borderColor, label.pine.borderColor, label.pink.borderColor, label.plum.borderColor, label.purple.borderColor, label.red.borderColor, label.teal.borderColor, label.yellow.borderColor": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (label.*.borderColor → {label.*.fgColor.rest} in the high-contrast themes, a border in the label’s text color), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · component/progressBar.json5 › `progressBar.track.borderColor` (dark-high-contrast only)": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (progressBar.track.borderColor → {progressBar.track.bgColor} in dark-high-contrast), but by design: Primer chains component tokens to the same component’s other tokens throughout component/ (states to the rest state, a label’s border to its text, a composite to its parts), so later states follow the first; component→component within a component is its structure.",
+      "at": "2026-11-18"
+    },
+    "tier-reference · functional/shadow/shadow.json5 · shadow.floating.large, shadow.floating.medium, shadow.floating.small, shadow.floating.xlarge": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "shadow.floating.small/medium/large/xlarge use color {overlay.borderColor}, a token of component/overlay.json5, from the functional (semantic) shadow file: a semantic token depending on a component one.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · base/color/dark/dark.json5 › `base.color.transparent.alpha` (dark, dark-dimmed, dark-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "base.color.transparent in dark.json5 (alpha: 0) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · base/color/light/light.json5 › `base.color.transparent.alpha` (light, light-high-contrast only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "base.color.transparent in light.json5 (alpha: 0) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · component/button.json5 · button.danger.fgColor.disabled.alpha, button.outline.fgColor.disabled.alpha, button.primary.fgColor.disabled.alpha, buttonCounter.danger.bgColor.disabled.alpha, buttonCounter.danger.bgColor.hover.alpha, buttonCounter.danger.bgColor.rest.alpha, buttonCounter.danger.fgColor.disabled.alpha, buttonCounter.outline.bgColor.disabled.alpha, buttonCounter.outline.bgColor.hover.alpha, buttonCounter.outline.bgColor.rest.alpha, buttonCounter.outline.fgColor.disabled.alpha, buttonCounter.primary.bgColor.rest.alpha, buttonKeybindingHint.danger.bgColor.active.alpha, buttonKeybindingHint.danger.bgColor.hover.alpha, buttonKeybindingHint.primary.bgColor.disabled.alpha": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each of these button tokens (e.g. buttonCounter.primary.bgColor.rest, alpha: 0.2) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · component/contribution.json5 › `contribution.default.borderColor.0.alpha`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "contribution.default.borderColor.0 (alpha: 0.05) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · component/header.json5 › `header.fgColor.default.alpha`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "header.fgColor.default (alpha: 0.7) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · component/overlay.json5 · overlay.backdrop.bgColor.alpha, overlay.borderColor.alpha": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "overlay.borderColor (alpha: 0.5) and overlay.backdrop.bgColor has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · component/skeletonLoader.json5 › `skeletonLoader.bgColor.alpha`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "skeletonLoader.bgColor (alpha: 0.1) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · functional/color/borderColor.json5 · borderColor.accent.muted.alpha, borderColor.attention.muted.alpha, borderColor.danger.muted.alpha, borderColor.disabled.alpha, borderColor.done.muted.alpha, borderColor.muted.alpha, borderColor.severe.muted.alpha, borderColor.sponsors.muted.alpha, borderColor.success.muted.alpha, borderColor.translucent.alpha": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Each of these borderColor tokens (e.g. borderColor.muted alpha: 0.7, borderColor.accent.muted alpha: 0.4) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · functional/color/control.json5 · control.transparent.bgColor.active.alpha, control.transparent.bgColor.hover.alpha, control.transparent.bgColor.selected.alpha": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "control.transparent.bgColor.hover/active/selected (alpha 0.1/0.15/0.15) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "token-has-children · functional/color/selection.json5 › `selection.bgColor.alpha`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "selection.bgColor (alpha: 0.2) has an “alpha” key beside “$value” (Primer’s way of writing an alpha), which DTCG reads as a child token inside a token.",
+      "at": "2026-11-18"
+    },
+    "type-close · text.body.shorthand.small (12px) and text.caption.shorthand (12px) are less than 10% apart in size, with the same family and weight": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "True (both 12px, same family and weight), but they differ on purpose in a way the tokens do show: body.small has lineHeight relaxed (“Line-height matches Body (medium) at 20px”, for helper text) and caption has lineHeight tight (“smaller line height of 16px … for single-line scenarios”).",
+      "at": "2026-11-18"
+    },
+    "unknown-type · functional/size/border.json5 · boxShadow.thick, boxShadow.thicker, boxShadow.thin": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "boxShadow.thin/thick/thicker have $type 'custom-string' (functional/size/border.json5), not a DTCG type.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · functional/size/viewport.json5 · viewportRange.landscape, viewportRange.narrow, viewportRange.narrowLandscape, viewportRange.portrait, viewportRange.regular, viewportRange.wide": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The six viewportRange tokens have $type 'custom-viewportRange' (functional/size/viewport.json5), not a DTCG type.",
+      "at": "2026-11-18"
+    },
+    "unsupported-format · functional/shadow/shadow.json5": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "Every one of the 8 tokens in functional/shadow/shadow.json5 (inset, resting.xsmall/small/medium, floating.small/medium/large/xlarge) carries “alpha” inside its shadow value, so none reads as a valid DTCG shadow.",
+      "at": "2026-11-18"
+    },
+    "unsupported-format · functional/size/viewport.json5": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "All 6 tokens in functional/size/viewport.json5 have $type 'custom-viewportRange', so none can be read as DTCG.",
+      "at": "2026-11-18"
+    }
+  },
+  "misses": []
+}

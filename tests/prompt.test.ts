@@ -173,6 +173,6 @@ describe('findings report', () => {
     addFiles([loadText(JSON.stringify({ color: { $type: 'color', $description: 'Base', white: { ...ok(1, 0, 0), $description: 'White' } } }), 'primitives.tokens.json')]);
     const p = fixPrompt(store.get());
     if (p.count + p.more) console.log(p.text);
-    expect(p).toEqual({ text: '', count: 0, more: 0 });
+    expect(p).toEqual({ text: '', count: 0, more: 0, entries: [] });
   });
 });

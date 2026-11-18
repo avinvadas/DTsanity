@@ -1,0 +1,205 @@
+{
+  "set": "carbon",
+  "verdicts": {
+    "contrast-border · `border-subtle-00` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-00` is described as \"Use for low-contrast borders on page background\": Carbon makes subtle borders low-contrast on purpose and keeps `border-strong-*` for \"high-contrast borders that need clear definition\", so this is a decorative divider, not the edge that shows a component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle-01` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-01` is marked layer-set \"01\" in com.ibm.carbon (\"Use for low-contrast borders on first layer surfaces\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle-02` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-02` is marked layer-set \"02\" in com.ibm.carbon (\"Use for low-contrast borders on second layer surfaces\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle-03` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-03` is marked layer-set \"03\" in com.ibm.carbon (\"Use for low-contrast borders on third layer surfaces\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle-selected-01` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-selected-01` is marked layer-set \"01\" in com.ibm.carbon (\"Subtle border for selected items on layer 01\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle-selected-02` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-selected-02` is marked layer-set \"02\" in com.ibm.carbon (\"Subtle border for selected items on layer 02\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-subtle-selected-03` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-subtle-selected-03` is marked layer-set \"03\" in com.ibm.carbon (\"Subtle border for selected items on layer 03\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-tile-01` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-tile-01` is marked layer-set \"01\" in com.ibm.carbon (\"Border color for tiles on layer 01\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-tile-02` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-tile-02` is marked layer-set \"02\" in com.ibm.carbon (\"Border color for tiles on layer 02\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `border-tile-03` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`border-tile-03` is marked layer-set \"03\" in com.ibm.carbon (\"Border color for tiles on layer 03\"), while `background` is layer-set \"base\", so it is not drawn on the page background; paired across layer sets.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `button-separator` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`button-separator` is \"Border color for button separators in button groups or split buttons ... to visually divide adjacent buttons\" (button.tokens.json): a divider drawn between button fills, not a component outline on the page background.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `chat-prompt-border-end` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`chat-prompt-border-end` is gray.10/gray.90 at alpha 0, \"End color for chat prompt border gradient. Creates fade effect at edge of input area\": a fully transparent gradient stop of a fade, read as a solid border.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `chat-prompt-border-start` on `background` (UI part)": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "`chat-prompt-border-start` is the opaque stop of the same fade (`chat-prompt-border-end` is the same gray at alpha 0) and equals `background` in g10 and g90 (gray.10, gray.90): a fade from the surface color, not an outline that shows the component.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `tag-border-blue` on `background` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`tag-border-blue` (blue.40, tag.tokens.json) \"Provides visual definition and contrast for blue tag variants\", so it outlines the tag, whose fill `tag-background-blue` (blue.20) is lighter still; 2.35 on white and 2.14 on gray.10 as reported.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `tag-border-cool-gray` on `background` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`tag-border-cool-gray` (coolGray.40) \"Provides visual definition and contrast for cool gray tag variants\": the tag's outline, 2.38 on white and 2.16 on gray.10 as reported.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `tag-border-cyan` on `background` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`tag-border-cyan` (cyan.40) \"Provides visual definition and contrast for cyan tag variants\": the tag's outline, 2.37 on white and 2.15 on gray.10 as reported.",
+      "at": "2026-11-18"
+    },
+    "contrast-border · `tag-border-gray` on `background` (UI part)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`tag-border-gray` (gray.40) \"Provides visual definition and contrast for gray tag variants\": the tag's outline, 2.38 on white and 2.16 on gray.10 as reported.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `ai-border-strong` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10) and Tritanopia (blue-blind) (white and g10).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`ai-border-strong` is \"Strong border color for AI elements ... high-emphasis AI borders that need clear definition\"; blue.50 on white is 3.35, and under Machado protanopia/tritanopia it drops to 2.97 (white) and 2.70 (g10), below 3, recomputed independently.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `link-inverse-visited` on `background-inverse` drops below its contrast level with Protanopia (red-blind) (g90 and g100), Deuteranopia (green-blind) (g90 and g100) and Tritanopia (blue-blind) (g90 and g100).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`link-inverse-visited` is \"Visited link color for dark backgrounds. Use for previously clicked links on inverse surfaces\"; in g90/g100 purple.60 on `background-inverse` (gray.10) is 4.55 and drops to 3.98/4.23/4.23 under protan/deutan/tritan, recomputed.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `link-inverse` on `background-inverse` drops below its contrast level with Protanopia (red-blind) (g90 and g100), Deuteranopia (green-blind) (g90 and g100) and Tritanopia (blue-blind) (g90 and g100).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`link-inverse` is \"Link color for dark backgrounds. Use for links on inverse or dark surfaces\"; in g90/g100 blue.60 on `background-inverse` (gray.10) is 4.55 and drops to 3.65/4.48/3.62 under protan/deutan/tritan, recomputed.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `link-primary` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10), Deuteranopia (green-blind) (g10) and Tritanopia (blue-blind) (white and g10).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`link-primary` (blue.60) is \"Use for standard hyperlinks\" on the page; on white it is 5.00 and drops to 4.01 (protan) and 3.98 (tritan), on g10 4.55 to 3.65/4.48/3.62, recomputed.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `link-visited` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10), Deuteranopia (green-blind) (g10) and Tritanopia (blue-blind) (g10).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`link-visited` (purple.60) \"Use to indicate previously clicked links\" on the page; on white 5.00 drops to 4.37 (protan), on g10 4.55 drops to 3.98/4.23/4.23, recomputed.",
+      "at": "2026-11-18"
+    },
+    "cvd-pair · `text-error` on `background` drops below its contrast level with Deuteranopia (green-blind) (white and g10) and Tritanopia (blue-blind) (white and g10).": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`text-error` (red.60, properties text) is error message text on the page; on white 5.00 drops to 4.13 (deutan) and 4.42 (tritan), on g10 4.55 to 3.75/4.02, recomputed.",
+      "at": "2026-11-18"
+    },
+    "cvd-siblings · Status colors `notification-background-error`, `notification-background-info`, `notification-background-success`, `notification-background-warning` (`notification.background.*`) are too close to tell apart in white with typical vision (0.027), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.013), Tritanopia (blue-blind) (0.007); in g10 with typical vision (0.027), Protanopia (red-blind) (0.018), Deuteranopia (green-blind) (0.013), Tritanopia (blue-blind) (0.007); in g90 with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in g100 with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); the distance needed is 0.1 (ΔE OKLab).": {
+      "verdict": "depends",
+      "by": "agent",
+      "why": "The notification backgrounds are tinted surfaces, not the status signal: in g90 and g100 all four are the same `gray.80`, and status has its own `support-error`/`support-success`/`support-warning`/`support-info` tokens, so Carbon shows status another way by design.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/g10/button.tokens.json › `button-danger-hover` (g10 only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`button-danger-hover` in g10 button.tokens.json is a raw #b81921 (srgb components), while its siblings reference the palette (`button-primary-hover` → {blue.60Hover}) and the palette has red.60Hover = #b81922.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/g10/theme.tokens.json (g10 only) · ai-popover-caret-bottom-background, ai-popover-caret-bottom-background-actions, ai-popover-caret-center": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`ai-popover-caret-center`, `-bottom-background`, `-bottom-background-actions` in g10 theme.tokens.json hold raw srgb values (#a0c3ff, #eaf1ff, #e9effa) found nowhere in colors.tokens.json, while neighbours such as `ai-popover-caret-bottom` reference {blue.40}.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/g100/button.tokens.json › `button-danger-hover` (g100 only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`button-danger-hover` in g100 button.tokens.json is a raw #b81921, while the other hover tokens reference palette *Hover steps and the palette has red.60Hover = #b81922.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/g100/theme.tokens.json (g100 only) · ai-popover-caret-bottom-background, ai-popover-caret-bottom-background-actions, ai-popover-caret-center": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The three ai-popover-caret tokens in g100 theme.tokens.json hold raw srgb values (#4870b5, #202d45, #1e283a) not in colors.tokens.json, while the rest of the AI group references palette tokens.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/g90/button.tokens.json › `button-danger-hover` (g90 only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`button-danger-hover` in g90 button.tokens.json is a raw #b81921, while the other hover tokens reference palette *Hover steps and the palette has red.60Hover = #b81922.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/g90/theme.tokens.json (g90 only) · ai-popover-caret-bottom-background, ai-popover-caret-bottom-background-actions, ai-popover-caret-center": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The three ai-popover-caret tokens in g90 theme.tokens.json hold raw srgb values (#4870b5, #202d45, #1e283a) not in colors.tokens.json, while the rest of the AI group references palette tokens.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/white/button.tokens.json › `button-danger-hover` (white only)": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "`button-danger-hover` in white button.tokens.json is a raw #b81921, while the other hover tokens reference palette *Hover steps and the palette has red.60Hover = #b81922.",
+      "at": "2026-11-18"
+    },
+    "tier-hardcoded · themes/tokens/themes/white/theme.tokens.json (white only) · ai-popover-caret-bottom-background, ai-popover-caret-bottom-background-actions, ai-popover-caret-center": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "The three ai-popover-caret tokens in white theme.tokens.json hold raw srgb values (#a0c3ff, #eaf1ff, #e9effa) not in colors.tokens.json, while `ai-popover-caret-bottom` references {blue.40}.",
+      "at": "2026-11-18"
+    }
+  },
+  "misses": [
+    {
+      "rule": "contrast-text",
+      "what": "`text-placeholder` on the field backgrounds isn't checked: placeholder text sits in inputs (`field-01`: \"Use for input fields, text areas, and selects\"), and gray.100 at alpha 0.4 on `field-01` is 2.52 in white (#f4f4f4) and 3.08 in g90 (gray.80), below 4.5.",
+      "by": "agent",
+      "at": "2026-11-18"
+    }
+  ]
+}

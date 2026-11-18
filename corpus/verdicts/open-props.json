@@ -1,0 +1,390 @@
+{
+  "set": "open-props",
+  "verdicts": {
+    "invalid-value · open-props.tokens.json · --size-content-1, --size-header-1, --size-relative-14": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-relative-14 “20ch”, --size-header-1 “20ch”, --size-content-1 “20ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-content-2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-content-2 “45ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-content-3`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-content-3 “60ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-1`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-1 “clamp(.5rem, 1vw, 1rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-10`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-10 “clamp(20rem, 40vw, 30rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-2 “clamp(1rem, 2vw, 1.5rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-3`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-3 “clamp(1.5rem, 3vw, 2rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-4`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-4 “clamp(2rem, 4vw, 3rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-5`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-5 “clamp(4rem, 5vw, 5rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-6`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-6 “clamp(5rem, 7vw, 7.5rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-7`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-7 “clamp(7.5rem, 10vw, 10rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-8`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-8 “clamp(10rem, 20vw, 15rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-fluid-9`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-fluid-9 “clamp(15rem, 30vw, 20rem)” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-header-2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-header-2 “25ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-header-3`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-header-3 “35ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-relative-00`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-relative-00 “-.25ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-relative-000`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-relative-000 “-.5ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-relative-1`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-relative-1 “.25ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-relative-10`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-relative-10 “5ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "invalid-value · open-props.tokens.json › `--size-relative-11`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "$type “dimension” with --size-relative-11 “7.5ch” in open-props.tokens.json; a DTCG dimension has only px or rem units, so ch and clamp() values don't fit.",
+      "at": "2026-11-18"
+    },
+    "legacy-conversion · tokens-studio/open-props.figma-tokens.json · borderRadius.--radius-blob-1, borderRadius.--radius-blob-2, borderRadius.--radius-blob-3, borderRadius.--radius-blob-4, borderRadius.--radius-blob-5, borderRadius.--radius-conditional-1, borderRadius.--radius-conditional-2, borderRadius.--radius-conditional-3, borderRadius.--radius-conditional-4, borderRadius.--radius-conditional-5, borderRadius.--radius-conditional-6, borderRadius.--radius-drawn-1, borderRadius.--radius-drawn-2, borderRadius.--radius-drawn-3, borderRadius.--radius-drawn-4, borderRadius.--radius-drawn-5, borderRadius.--radius-drawn-6, sizing.--size-content-1, sizing.--size-content-2, sizing.--size-content-3, sizing.--size-fluid-1, sizing.--size-fluid-10, sizing.--size-fluid-2, sizing.--size-fluid-3, sizing.--size-fluid-4, sizing.--size-fluid-5, sizing.--size-fluid-6, sizing.--size-fluid-7, sizing.--size-fluid-8, sizing.--size-fluid-9, sizing.--size-header-1, sizing.--size-header-2, sizing.--size-header-3, sizing.--size-relative-00, sizing.--size-relative-000, sizing.--size-relative-1, sizing.--size-relative-10, sizing.--size-relative-11, sizing.--size-relative-12, sizing.--size-relative-13, sizing.--size-relative-14, sizing.--size-relative-15, sizing.--size-relative-2, sizing.--size-relative-3, sizing.--size-relative-4, sizing.--size-relative-5, sizing.--size-relative-6, sizing.--size-relative-7, sizing.--size-relative-8, sizing.--size-relative-9": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "In tokens-studio/open-props.figma-tokens.json the borderRadius values are clamp()/calc() expressions, percentages and multi-value radii (“49% 51% 48% 52% / 57% 44% 56% 43%”), which no single px/rem DTCG dimension can express.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json · --sand-0, --stone-0": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--stone-0 “#f8fafb” ($type color), --sand-0 “#f8fafb” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json · --sand-11, --stone-11": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--stone-11 “#252521” ($type color), --sand-11 “#252521” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json · --sand-12, --stone-12": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--stone-12 “#121210” ($type color), --sand-12 “#121210” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json · --size-px-13, --size-xxs": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--size-xxs “240px” ($type dimension), --size-px-13 “240px” ($type dimension): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json · --size-px-15, --size-sm": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--size-sm “480px” ($type dimension), --size-px-15 “480px” ($type dimension): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-0`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-0 “#e7f5ff” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-1`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-1 “#d0ebff” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-10`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-10 “#145591” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-11`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-11 “#114678” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-12`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-12 “#0d375e” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-2 “#a5d8ff” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-3`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-3 “#74c0fc” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-4`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-4 “#4dabf7” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-5`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-5 “#339af0” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-6`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-6 “#228be6” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-7`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-7 “#1c7ed6” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-8`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-8 “#1971c2” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--blue-9`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--blue-9 “#1864ab” ($type color): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--border-size-1`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--border-size-1 “1px” ($type dimension): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "legacy-value · open-props.tokens.json › `--border-size-2`": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--border-size-2 “2px” ($type dimension): a string value, where DTCG 2025.10 writes colors and dimensions as objects.",
+      "at": "2026-11-18"
+    },
+    "missing-type · open-props.tokens.json · --gradient-1, --gradient-10, --gradient-11, --gradient-12, --gradient-13, --gradient-14, --gradient-15, --gradient-16, --gradient-17, --gradient-18, --gradient-19, --gradient-2, --gradient-20, --gradient-21, --gradient-22, --gradient-23, --gradient-24, --gradient-25, --gradient-26, --gradient-27, --gradient-28, --gradient-29, --gradient-3, --gradient-30, --gradient-4, --gradient-5, --gradient-6, --gradient-7, --gradient-8, --gradient-9, --gradient-space, --noise-1, --noise-2, --noise-3, --noise-4, --noise-5, --noise-filter-1, --noise-filter-2, --noise-filter-3, --noise-filter-4, --noise-filter-5, --radius-blob-1, --radius-blob-2, --radius-blob-3, --radius-blob-4, --radius-blob-5, --radius-conditional-1, --radius-conditional-2, --radius-conditional-3, --radius-conditional-4, --radius-conditional-5, --radius-conditional-6, --radius-drawn-1, --radius-drawn-2, --radius-drawn-3, --radius-drawn-4, --radius-drawn-5, --radius-drawn-6, --ratio-golden, --ratio-landscape, --ratio-portrait, --ratio-square, --ratio-ultrawide, --ratio-widescreen": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--radius-conditional-6, --radius-conditional-5, --radius-conditional-4… in open-props.tokens.json have only $value (e.g. --radius-conditional-6: “clamp(0px, calc(100vw - 100%) * 1e5, var(--radius-6))”), no $type, and the file has no groups to inherit one from.",
+      "at": "2026-11-18"
+    },
+    "missing-type · open-props.tokens.json · --layer-1, --layer-2, --layer-3, --layer-4, --layer-5, --layer-important": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--layer-important, --layer-5, --layer-4… in open-props.tokens.json have only $value (e.g. --layer-important: “2147483647”), no $type, and the file has no groups to inherit one from.",
+      "at": "2026-11-18"
+    },
+    "missing-type · open-props.tokens.json · --radius-1, --radius-2, --radius-3, --radius-4, --radius-5, --radius-6, --radius-round": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--radius-round, --radius-6, --radius-5… in open-props.tokens.json have only $value (e.g. --radius-round: “1e5px”), no $type, and the file has no groups to inherit one from.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.blue`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The blue steps are numbered: --blue-0 to --blue-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.brown`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The brown steps are numbered: --brown-0 to --brown-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.camo`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The camo steps are numbered: --camo-0 to --camo-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.choco`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The choco steps are numbered: --choco-0 to --choco-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.cyan`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The cyan steps are numbered: --cyan-0 to --cyan-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.gray`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The gray steps are numbered: --gray-0 to --gray-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.green`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The green steps are numbered: --green-0 to --green-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.indigo`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The indigo steps are numbered: --indigo-0 to --indigo-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.jungle`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The jungle steps are numbered: --jungle-0 to --jungle-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.lime`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The lime steps are numbered: --lime-0 to --lime-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.orange`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The orange steps are numbered: --orange-0 to --orange-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.pink`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The pink steps are numbered: --pink-0 to --pink-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.purple`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The purple steps are numbered: --purple-0 to --purple-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.red`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The red steps are numbered: --red-0 to --red-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.teal`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The teal steps are numbered: --teal-0 to --teal-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.violet`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The violet steps are numbered: --violet-0 to --violet-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "scale-unordered · `color.yellow`": {
+      "verdict": "misreading",
+      "by": "agent",
+      "why": "The yellow steps are numbered: --yellow-0 to --yellow-12 (13 steps, written from 12 down to 0), a numeric order the done-when itself names; DTsanity didn't read the number at the end of the flat CSS-custom-property names.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · open-props.tokens.json · --ease-1, --ease-2, --ease-3, --ease-4, --ease-5, --ease-circ-in, --ease-circ-in-out, --ease-circ-out, --ease-cubic-in, --ease-cubic-in-out, --ease-cubic-out, --ease-elastic-in-1, --ease-elastic-in-2, --ease-elastic-in-3, --ease-elastic-in-4, --ease-elastic-in-5, --ease-elastic-in-out-1, --ease-elastic-in-out-2, --ease-elastic-in-out-3, --ease-elastic-in-out-4, --ease-elastic-in-out-5, --ease-elastic-out-1, --ease-elastic-out-2, --ease-elastic-out-3, --ease-elastic-out-4, --ease-elastic-out-5, --ease-expo-in, --ease-expo-in-out, --ease-expo-out, --ease-in-1, --ease-in-2, --ease-in-3, --ease-in-4, --ease-in-5, --ease-in-out-1, --ease-in-out-2, --ease-in-out-3, --ease-in-out-4, --ease-in-out-5, --ease-out-1, --ease-out-2, --ease-out-3, --ease-out-4, --ease-out-5, --ease-quad-in, --ease-quad-in-out, --ease-quad-out, --ease-quart-in, --ease-quart-in-out, --ease-quart-out, --ease-quint-in, --ease-quint-in-out, --ease-quint-out, --ease-sine-in, --ease-sine-in-out, --ease-sine-out": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--ease-* tokens have “$type”: “cubic-bezier”, which isn't a DTCG type (DTCG names it cubicBezier, with an array of four numbers, not the CSS string “cubic-bezier(.39,.575,.565,1)”).",
+      "at": "2026-11-18"
+    },
+    "unknown-type · open-props.tokens.json · --ease-bounce-1, --ease-bounce-2, --ease-bounce-3, --ease-bounce-4, --ease-bounce-5, --ease-elastic-1, --ease-elastic-2, --ease-elastic-3, --ease-elastic-4, --ease-elastic-5, --ease-spring-1, --ease-spring-2, --ease-spring-3, --ease-spring-4, --ease-spring-5, --ease-squish-1, --ease-squish-2, --ease-squish-3, --ease-squish-4, --ease-squish-5, --ease-step-1, --ease-step-2, --ease-step-3, --ease-step-4, --ease-step-5": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "--ease-bounce-*, -spring-*, -squish-*, -elastic-* and -step-* have “$type”: “cubic-bezier” (not a DTCG type) and linear()/steps() values that no cubicBezier array can hold.",
+      "at": "2026-11-18"
+    },
+    "unknown-type · tokens-studio/open-props.figma-tokens.json · other.--ease-1, other.--ease-2, other.--ease-3, other.--ease-4, other.--ease-5, other.--ease-bounce-1, other.--ease-bounce-2, other.--ease-bounce-3, other.--ease-bounce-4, other.--ease-bounce-5, other.--ease-circ-in, other.--ease-circ-in-out, other.--ease-circ-out, other.--ease-cubic-in, other.--ease-cubic-in-out, other.--ease-cubic-out, other.--ease-elastic-1, other.--ease-elastic-2, other.--ease-elastic-3, other.--ease-elastic-4, other.--ease-elastic-5, other.--ease-elastic-in-1, other.--ease-elastic-in-2, other.--ease-elastic-in-3, other.--ease-elastic-in-4, other.--ease-elastic-in-5, other.--ease-elastic-in-out-1, other.--ease-elastic-in-out-2, other.--ease-elastic-in-out-3, other.--ease-elastic-in-out-4, other.--ease-elastic-in-out-5, other.--ease-elastic-out-1, other.--ease-elastic-out-2, other.--ease-elastic-out-3, other.--ease-elastic-out-4, other.--ease-elastic-out-5, other.--ease-expo-in, other.--ease-expo-in-out, other.--ease-expo-out, other.--ease-in-1, other.--ease-in-2, other.--ease-in-3, other.--ease-in-4, other.--ease-in-5, other.--ease-in-out-1, other.--ease-in-out-2, other.--ease-in-out-3, other.--ease-in-out-4, other.--ease-in-out-5, other.--ease-out-1, other.--ease-out-2, other.--ease-out-3, other.--ease-out-4, other.--ease-out-5, other.--ease-quad-in, other.--ease-quad-in-out, other.--ease-quad-out, other.--ease-quart-in, other.--ease-quart-in-out, other.--ease-quart-out, other.--ease-quint-in, other.--ease-quint-in-out, other.--ease-quint-out, other.--ease-sine-in, other.--ease-sine-in-out, other.--ease-sine-out, other.--ease-spring-1, other.--ease-spring-2, other.--ease-spring-3, other.--ease-spring-4, other.--ease-spring-5, other.--ease-squish-1, other.--ease-squish-2, other.--ease-squish-3, other.--ease-squish-4, other.--ease-squish-5, other.--ease-step-1, other.--ease-step-2, other.--ease-step-3, other.--ease-step-4, other.--ease-step-5, other.--gradient-1, other.--gradient-10, other.--gradient-11, other.--gradient-12, other.--gradient-13, other.--gradient-14, other.--gradient-15, other.--gradient-16, other.--gradient-17, other.--gradient-18, other.--gradient-19, other.--gradient-2, other.--gradient-20, other.--gradient-21, other.--gradient-22, other.--gradient-23, other.--gradient-24, other.--gradient-25, other.--gradient-26, other.--gradient-27, other.--gradient-28, other.--gradient-29, other.--gradient-3, other.--gradient-30, other.--gradient-4, other.--gradient-5, other.--gradient-6, other.--gradient-7, other.--gradient-8, other.--gradient-9, other.--gradient-space, other.--layer-1, other.--layer-2, other.--layer-3, other.--layer-4, other.--layer-5, other.--layer-important, other.--noise-1, other.--noise-2, other.--noise-3, other.--noise-4, other.--noise-5, other.--noise-filter-1, other.--noise-filter-2, other.--noise-filter-3, other.--noise-filter-4, other.--noise-filter-5, other.--ratio-golden, other.--ratio-landscape, other.--ratio-portrait, other.--ratio-square, other.--ratio-ultrawide, other.--ratio-widescreen": {
+      "verdict": "right",
+      "by": "agent",
+      "why": "tokens-studio/open-props.figma-tokens.json types the noise, gradient and other tokens “type”: “other”, a Tokens Studio catch-all with no DTCG type.",
+      "at": "2026-11-18"
+    }
+  },
+  "misses": []
+}

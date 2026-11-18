@@ -10,17 +10,20 @@ import { contrastRule } from '../state/pairs';
 /**
  * DTsanity's check, offline, for a folder of token files:
  *
- *   node dtsanity-check.mjs [folder] [--summary] [--rules a,b]
+ *   node dtsanity-check.mjs [folder] [--summary | --json] [--rules a,b]
  *
  * Prints the report a fresh DTsanity tab gives for those files: the same
  * findings, numbered the same way. With --summary, only the counts by rule;
- * with --rules, only those rules' findings, as a group's findings report has them.
+ * with --rules, only those rules' findings, as a group's findings report has them;
+ * with --json, each finding as data (rule, the report's line, how many places,
+ * whether it is counted), numbered as the report numbers them.
  * Reads the files and writes nothing; nothing is sent anywhere. Legacy formats
  * are accepted, as in the round tests.
  */
 
 const args = process.argv.slice(2);
 const summary = args.includes('--summary');
+const json = args.includes('--json');
 const rulesAt = args.indexOf('--rules');
 const rules = rulesAt >= 0 ? (args[rulesAt + 1] ?? '').split(',').filter(Boolean) : [];
 const dir = resolve(args.find((a, i) => !a.startsWith('--') && (rulesAt < 0 || i !== rulesAt + 1)) ?? 'files');
@@ -61,6 +64,7 @@ addFiles(files, unreadable);
 const p = fixPrompt(store.get(), scope);
 const byRule = [...p.text.matchAll(/^## .+ \[([a-z0-9-]+)\] \((\d+)\)$/gm)].map((m) => `${m[1]} ${m[2]}`);
 
-if (summary) console.log(`${p.count} counted + ${p.more} others\n${byRule.join('\n') || 'nothing found'}`);
+if (json) console.log(JSON.stringify({ build: __VERSION__, count: p.count, more: p.more, findings: p.entries.map((e, i) => ({ no: i + 1, ...e })) }, null, 2));
+else if (summary) console.log(`${p.count} counted + ${p.more} others\n${byRule.join('\n') || 'nothing found'}`);
 else console.log(p.text);
 process.exitCode = p.count ? 1 : 0;

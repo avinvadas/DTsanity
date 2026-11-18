@@ -62,3 +62,23 @@ describe('offline check', () => {
     expect(out).not.toContain('missing-type');
   });
 });
+
+describe('the maturity record', () => {
+  it('lists each finding as data with --json, numbered as the report numbers them', () => {
+    const out = JSON.parse(run(join(SAMPLES, 'backpack'), '--json').stdout);
+    expect(out.findings.length).toBeGreaterThan(0);
+    expect(out.findings[0]).toMatchObject({ no: 1, rule: expect.any(String), line: expect.any(String), n: expect.any(Number), counted: expect.any(Boolean) });
+    expect(out.count).toBe(out.findings.filter((f: { counted: boolean }) => f.counted).reduce((n: number, f: { n: number }) => n + f.n, 0));
+  });
+
+  it('names a finding by its rule and subject, not its line, values or wording', async () => {
+    // @ts-expect-error: a plain .mjs script
+    const { keyOf } = await import('../scripts/corpus-key.mjs');
+    const a = keyOf('contrast-border', '`border-subtle-01` on `background` (UI part): below AA large text & UI (3) in white (has 1.71, #c6c6c6 on #ffffff). References: white: `border-subtle-01` → `gray.30`.');
+    const b = keyOf('contrast-border', '`border-subtle-01` on `background` (UI part): under the UI level in white (has 2.10, #aaaaaa on #ffffff). References: white: `border-subtle-01` → `gray.40`.');
+    expect(a).toBe('contrast-border · `border-subtle-01` on `background` (UI part)');
+    expect(b).toBe(a);
+    const c = keyOf('tier-hardcoded', 'themes/white/button.tokens.json:59 › `button-danger-hover` (white only): Component token with a raw value.');
+    expect(c).toBe(keyOf('tier-hardcoded', 'themes/white/button.tokens.json:61 › `button-danger-hover` (white only): A component token with a raw value; point it at a base token.'));
+  });
+});
