@@ -42,7 +42,7 @@ const VIEWS: ViewDef[] = [
 /** How many views come before the separator: the results, then the file management views. */
 const RESULT_VIEWS = 5;
 
-/** Views outside the sidebar: privacy and how DTsanity fixes (from the footer), and the severity policy (the cog by the appearance switch). */
+/** Views outside the sidebar: privacy and how DTsanity works (from the footer), and the severity policy (the cog by the appearance switch). */
 const isView = (v: string): v is ViewId => VIEWS.some((d) => d.id === v) || v === 'privacy' || v === 'policy' || v === 'principles';
 
 /** Pages shown on their own: the header and footer stay, the sidebar goes. */

@@ -1,22 +1,49 @@
-/**
- * How DTsanity fixes: the principles behind its one-click fixes and the
- * guidance in the findings report. One source for the "How DTsanity fixes" page,
- * the findings report's rules and docs/features.md, so the three never disagree.
- *
- * The short version: DTsanity changes the format, never the design. What is
- * mechanical it fixes itself; what needs a design decision it leaves to you
- * (or to the assistant you give the findings report to), with guidance.
- */
-
-export const PRINCIPLE = 'DTsanity changes the format, never the design.';
-
-export const PRINCIPLE_ABOUT =
-  'What is mechanical, DTsanity fixes itself. What needs a design decision is left to you, or to the AI assistant you give the findings report to, with guidance on how to make it.';
-
 export interface Principle {
   title: string;
   text: string;
 }
+
+/**
+ * How DTsanity works: findings are flags for the user's own environment, and
+ * the user's design system prevails; the one-click fixes change the format,
+ * never the design. One source for the "How DTsanity works" page, the
+ * findings report's framing and rules, and docs/features.md, so they never
+ * disagree.
+ */
+
+export const PRINCIPLE = 'DTsanity flags. Your design system decides.';
+
+export const PRINCIPLE_ABOUT =
+  'DTsanity checks your token files against the DTCG format, contrast (WCAG 2.2 or APCA), color blindness and common token conventions, and reports what it finds as flags. You use them where you work: with your AI assistant, your own tooling or a ticket. Nothing in them overrides how your system is built.';
+
+/** The findings report's framing, said once at its top. */
+export const FLAGS =
+  '**These findings are flags, not instructions.** Your design system’s own rules, conventions and decisions come first. Where a finding conflicts with them, leave it as it is and say which rule prevails. A finding is closed when its check passes, or when you decline it with your reason.';
+
+/** What a finding is, and what it isn't. */
+export const FLAG_PRINCIPLES: readonly Principle[] = [
+  {
+    title: 'Your system comes first',
+    text: 'Your design system’s rules, conventions and decisions prevail. Where a finding conflicts with them, keep yours and decline the finding, naming the rule that prevails.',
+  },
+  {
+    title: 'Required, or advice',
+    text: 'Required findings come from a standard (DTCG 2025.10, WCAG 2.2, JSON); advice comes from common conventions. Either can be declined for a reason. Declining a required one names your rule and the standard it departs from.',
+  },
+  {
+    title: 'What, not how',
+    text: 'Each finding gives the problem, the evidence and what must be true when it is done. How to get there is for your system to decide: its tiers, scales, naming and generators. If your files are generated, the change belongs where they are produced.',
+  },
+  {
+    title: 'Closed by a fresh check',
+    text: 'A finding is closed when its check passes on a fresh run, or when you decline it with your reason. DTsanity keeps no record of your files or your decisions: each check starts from the files as they are.',
+  },
+  {
+    title: 'Used where you work',
+    text: 'Copy the findings as a prompt for your AI assistant, run the offline check in your own scripts, or file them as tickets. The changes are made in your environment, by your rules.',
+  },
+];
+
 
 /** What every one-click fix holds to. */
 export const FIX_PRINCIPLES: readonly Principle[] = [

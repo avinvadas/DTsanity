@@ -1328,8 +1328,9 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 .landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-sm); line-height: 1.55; color: var(--muted); text-align: center; text-wrap: balance; }
 /* The credit closes every scrolled view, desktop and phone alike: centered, 4rem below the content. */
 .page-foot { max-width: var(--content-w); margin: 4rem auto 0; text-align: center; text-wrap: balance; font-size: var(--font-sm); color: var(--subtle); }
-/* The privacy line, on its own line above the credit. */
+/* The privacy line, on its own line above the credit; phones show the credit line only. */
 .foot-privacy { margin: 0 0 var(--space-1); }
+.m-body .foot-privacy { display: none; }
 /* The phone's body already spaces its parts; the foot makes up the rest of the 4rem. */
 .m-body > .page-foot { margin: calc(4rem - var(--space-5)) 0 0; }
 /* The credit reads as part of the footer: quiet text, the name underlined as a link. */
@@ -1338,7 +1339,7 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 .page-foot .foot-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
 .page-foot .foot-link:hover { color: var(--text); }
 
-/* How DTsanity fixes: each principle a bold title over its text. */
+/* How DTsanity works: each principle a bold title over its text. */
 .principles-page h2 { margin: var(--space-4) 0 0; font-size: var(--font-md); }
 .principles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
 .principles li { display: flex; flex-direction: column; gap: 2px; }
@@ -1453,6 +1454,8 @@ tt-mobile { display: none; }
 .m-load .dropzone { --zone: min(calc(var(--header-h) * 4.236), calc(100vw - 2 * var(--space-4))); }
 .m-load .url-form { gap: var(--grid-3); }
 .m-load .zone-ring { display: none; }
+/* Phones: the file icon a third larger than the circle's proportion (the circle's border keeps its weight). */
+.m-load .dropzone > .icon { width: calc(var(--zone) * var(--icon-k) * 1.33); }
 .m-load .url-form { width: 100%; }
 .m-load .url-form input { min-height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming in */
 .m-load .url-form button { min-height: 44px; }

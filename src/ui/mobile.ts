@@ -79,7 +79,7 @@ export class TTMobile extends HTMLElement {
   private built = false;
   /**
    * A page shown in place of the findings: the severity policy (the cog in the
-   * top bar) or how DTsanity fixes (the footer link). The arrow closes it; the cog toggles the policy.
+   * top bar) or how DTsanity works (the footer link). The arrow closes it; the cog toggles the policy.
    */
   private page: 'policy' | 'principles' | null = null;
   private scrollBefore = 0;

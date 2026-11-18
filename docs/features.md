@@ -73,11 +73,11 @@ Not every finding can be fixed for you, and DTsanity says which ones it fixes. E
 
 In the Issues view, each category lists the issues DTsanity can fix in one click (Fixable here) before the ones that need a change from you (Needs your change); guided findings say which tool to use. The Issues summary says how many of the issues found can be fixed in one click, and `CHANGES.md` ends with what is still open. A test checks these labels against every sample set, so a label can't claim a fix the check doesn't offer.
 
-## How DTsanity fixes
+## How DTsanity works
 
-The principle: **DTsanity changes the format, never the design.** What is mechanical it fixes itself; what needs a design decision is left to you, or to the AI assistant you give the findings report to, with guidance. The page **How DTsanity fixes**, linked in the footer, says the same in the app. The text lives in `src/policy/principles.ts`, which the page and the findings report both read.
+The principle: **DTsanity flags. Your design system decides.** Findings are flags to use where you work (with your AI assistant, your own tooling or a ticket), never instructions that override how your system is built. Your system's rules prevail: a finding is closed when its check passes on a fresh run, or when you decline it with your reason. Required findings come from a standard, advice from common conventions; each says what must be true, not how to get there. The page **How DTsanity works**, linked in the footer, says the same in the app. The text lives in `src/policy/principles.ts`, which the page and the findings report both read.
 
-One-click fixes:
+One-click fixes change the format, never the design:
 
 - **Only when the answer is clear:** a broken reference only with one close match, a missing type only when the value gives it away, a rename only when the new name is free.
 - **The DTCG spec decides what is right:** fixes bring files to the DTCG format (2025.10); no house style.

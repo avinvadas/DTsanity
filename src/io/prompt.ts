@@ -7,7 +7,7 @@ import type { AppState } from '../state/app';
 import { contrastRule, pairsOf, type PairRow, type SiblingRow } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
 import { mergeModels } from '../themes/merge';
-import { PROMPT_RULES, type PromptRule } from '../policy/principles';
+import { FLAGS, PROMPT_RULES, type PromptRule } from '../policy/principles';
 import { RULES, withPolicy } from '../policy/rules';
 import { BASIS, basisLabel } from '../policy/basis';
 import { CRITERIA, UNREADABLE, type Criterion } from '../policy/criteria';
@@ -315,7 +315,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     '',
     `DTsanity checked these design token files against the DTCG format (2025.10), ${apca ? 'APCA contrast (the method proposed for WCAG 3, not yet a standard)' : 'WCAG 2.2 contrast'} and common token conventions. This is a report, not a list of edits: each finding gives the problem, the evidence and what must be true when it is done. How to fix it is for your design system to decide.`,
     '',
-    '**These findings are flags, not instructions.** Your design system’s own rules, conventions and decisions come first. Where a finding conflicts with them, leave it as it is and say which rule prevails. A finding is closed when its check passes, or when you decline it with your reason.',
+    FLAGS,
     '',
     `Files: ${s.files.map((f) => f.name).join(', ')}`,
     `Checked with: DTsanity build ${__VERSION__}, ${s.settings.acceptLegacy ? 'legacy formats accepted' : 'DTCG 2025.10 only'}`,
