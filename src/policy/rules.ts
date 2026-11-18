@@ -114,7 +114,7 @@ export const RULES: readonly RuleDef[] = [
   rule('Contrast', 'contrast-text', 'error', 'guided', 'A text pair below the selected contrast level.', 'Low text contrast'),
   rule('Contrast', 'contrast-ui', 'warning', 'guided', 'An icon or other UI part below the non-text level.', 'Low UI contrast'),
   rule('Contrast', 'contrast-border', 'warning', 'guided', 'A border or outline below the non-text level on the background around it. WCAG 1.4.11 asks for it where the border is what shows the component or its state; a decorative one is exempt.', 'Low border contrast'),
-  rule('Contrast', 'contrast-inactive', 'info', 'guided', 'A disabled or inactive pair below its level. WCAG (1.4.3, 1.4.11) doesn’t require contrast of components nobody can use, so it is listed, not counted.', 'Low contrast, inactive'),
+  rule('Contrast', 'contrast-inactive', 'info', 'guided', 'A disabled or inactive pair, or a subtle, muted or decorative line (a divider, a separator), below its level. WCAG (1.4.3, 1.4.11) doesn’t require contrast of components nobody can use, or of lines that don’t show a component, so it is listed, not counted.', 'Low contrast, exempt'),
 
   rule('Color blindness', 'cvd-pair', 'warning', 'guided', 'A pair that passes with typical vision but not with a color-vision deficiency.', 'Fails with color blindness'),
   rule('Color blindness', 'cvd-siblings', 'warning', 'guided', 'Status colors (danger, warning, success…) too close to tell apart.', 'Status colors too close'),

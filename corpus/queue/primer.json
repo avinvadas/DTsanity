@@ -1,0 +1,71 @@
+{
+  "set": "primer",
+  "build": "7cecc59+changes (offline check)",
+  "waiting": [
+    {
+      "key": "contrast-border · `border.sponsors.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.sponsors.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.94, #ae4c82 on #212830). References: `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `border.success.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.success.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.93, #347d39 on #212830). References: `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `border.transparent` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.transparent` on `bgColor.default` (UI part): below AA large text & UI (3) in dark (has 1.11, #000000 on #0d1117), dark-dimmed (has 1.41, #000000 on #212830) and dark-high-contrast (has 1.02, #000000 on #010409). References: dark: `bgColor.default` → `base.color.neutral.1` | dark-dimmed: `bgColor.default` → `base.color.neutral.3` | dark-high-contrast: `bgColor.default` → `base.color.neutral.0` → `base.color.black`."
+    },
+    {
+      "key": "contrast-border · `border.upsell.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.upsell.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.96, #8256d0 on #212830). References: `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `borderColor.accent.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`borderColor.accent.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.95, #316dca on #212830). References: `borderColor.accent.emphasis` → `base.color.blue.5`; `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `borderColor.attention.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`borderColor.attention.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.97, #966600 on #212830). References: `borderColor.attention.emphasis` → `base.color.yellow.5`; `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `borderColor.closed.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`borderColor.closed.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.97, #c93c37 on #212830). References: `borderColor.closed.emphasis` → `borderColor.danger.emphasis` → `base.color.red.5`; `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `borderColor.danger.emphasis` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`borderColor.danger.emphasis` on `bgColor.default` (UI part): below AA large text & UI (3) in dark-dimmed (has 2.97, #c93c37 on #212830). References: `borderColor.danger.emphasis` → `base.color.red.5`; `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-border · `borderColor.default` on `bgColor.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`borderColor.default` on `bgColor.default` (UI part): below AA large text & UI (3) in dark (has 1.92, #3d444d on #0d1117), dark-dimmed (has 1.51, #3d444d on #212830) and light (has 1.43, #d1d9e0 on #ffffff). References: dark: `borderColor.default` → `base.color.neutral.7`; `bgColor.default` → `base.color.neutral.1` | dark-dimmed: `borderColor.default` → `base.color.neutral.7`; `bgColor.default` → `base.color.neutral.3` | light: `borderColor.default` → `base.color.neutral.6`; `bgColor.default` → `base.color.neutral.0` → `base.color.white`."
+    },
+    {
+      "key": "contrast-text · `color.prettylights.syntax.markup.inserted.text` on `color.prettylights.syntax.markup.inserted.bg` (text)",
+      "rule": "contrast-text",
+      "line": "`color.prettylights.syntax.markup.inserted.text` on `color.prettylights.syntax.markup.inserted.bg` (text): below AAA text (7) in dark-high-contrast (has 4.57, #acf7b6 on #007728). References: `color.prettylights.syntax.markup.inserted.text` → `prettylights.syntax.markup.inserted.text` → `base.color.green.0`; `color.prettylights.syntax.markup.inserted.bg` → `prettylights.syntax.markup.inserted.bg` → `base.color.green.8`."
+    },
+    {
+      "key": "contrast-text · `control.danger.fgColor.rest` on `bgColor.default` (text)",
+      "rule": "contrast-text",
+      "line": "`control.danger.fgColor.rest` on `bgColor.default` (text): below AA text (4.5) in dark-dimmed (has 4.02, #e5534b on #212830). References: `control.danger.fgColor.rest` → `fgColor.danger` → `base.color.red.4`; `bgColor.default` → `base.color.neutral.3`."
+    },
+    {
+      "key": "contrast-text · `controlTrack.fgColor.rest` on `controlTrack.bgColor.rest` (text)",
+      "rule": "contrast-text",
+      "line": "`controlTrack.fgColor.rest` on `controlTrack.bgColor.rest` (text): below AAA text (7) in light-high-contrast (has 4.60, #59636e on #dae0e7). References: `controlTrack.fgColor.rest` → `base.color.neutral.9`; `controlTrack.bgColor.rest` → `base.color.neutral.5`."
+    },
+    {
+      "key": "duplicate-path · functional/size/size.json5 · controlStack.large.gap.auto, controlStack.medium.gap.auto, controlStack.small.gap.auto",
+      "rule": "duplicate-path",
+      "line": "functional/size/size.json5: In functional/size/size-fine.json5 and functional/size/size.json5; functional/size/size.json5 wins. In 3 places: `controlStack.small.gap.auto` (line 507), `controlStack.medium.gap.auto` (line 541), `controlStack.large.gap.auto` (line 575)."
+    }
+  ]
+}

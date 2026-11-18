@@ -1,0 +1,21 @@
+{
+  "set": "backpack",
+  "build": "7cecc59+changes (offline check)",
+  "waiting": [
+    {
+      "key": "contrast-text · `props.TEXT_TERTIARY_DARK_COLOR` on `props.BACKGROUND_TERTIARY_DARK_COLOR` (text)",
+      "rule": "contrast-text",
+      "line": "`props.TEXT_TERTIARY_DARK_COLOR` on `props.BACKGROUND_TERTIARY_DARK_COLOR` (text): below AA text (4.5): has 4.28, #8e8e93 on #2c2c2e."
+    },
+    {
+      "key": "cvd-siblings · Status colors `props.STATUS_SUCCESS_FILL_DAY`, `props.STATUS_WARNING_FILL_DAY`, `props.STATUS_DANGER_FILL_DAY` (`props.status.*.fill.day`) are too close to tell apart with typical vision (0.063), Protanopia (red-blind) (0.045), Deuteranopia (green-blind) (0.015), Tritanopia (blue-blind) (0.020); the distance needed is 0.1 (ΔE OKLab).",
+      "rule": "cvd-siblings",
+      "line": "Status colors `props.STATUS_SUCCESS_FILL_DAY`, `props.STATUS_WARNING_FILL_DAY`, `props.STATUS_DANGER_FILL_DAY` (`props.status.*.fill.day`) are too close to tell apart with typical vision (0.063), Protanopia (red-blind) (0.045), Deuteranopia (green-blind) (0.015), Tritanopia (blue-blind) (0.020); the distance needed is 0.1 (ΔE OKLab)."
+    },
+    {
+      "key": "cvd-siblings · Status colors `props.STATUS_SUCCESS_FILL_NIGHT`, `props.STATUS_WARNING_FILL_NIGHT`, `props.STATUS_DANGER_FILL_NIGHT` (`props.status.*.fill.night`) are too close to tell apart with typical vision (0.094), Protanopia (red-blind) (0.056), Deuteranopia (green-blind) (0.048), Tritanopia (blue-blind) (0.079); the distance needed is 0.1 (ΔE OKLab).",
+      "rule": "cvd-siblings",
+      "line": "Status colors `props.STATUS_SUCCESS_FILL_NIGHT`, `props.STATUS_WARNING_FILL_NIGHT`, `props.STATUS_DANGER_FILL_NIGHT` (`props.status.*.fill.night`) are too close to tell apart with typical vision (0.094), Protanopia (red-blind) (0.056), Deuteranopia (green-blind) (0.048), Tritanopia (blue-blind) (0.079); the distance needed is 0.1 (ΔE OKLab)."
+    }
+  ]
+}

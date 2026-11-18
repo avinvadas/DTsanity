@@ -1,0 +1,11 @@
+{
+  "set": "open-props",
+  "build": "7cecc59+changes (offline check)",
+  "waiting": [
+    {
+      "key": "scale-near-duplicate · `color.gray`",
+      "rule": "scale-near-duplicate",
+      "line": "`color.gray`: --gray-1 and --gray-0 are nearly identical (ΔE 0.019)."
+    }
+  ]
+}

@@ -73,7 +73,9 @@ export function pairsOf(s: AppState): PairsResult {
   if (cache && cache.key.every((k, i) => k === key[i])) return cache.result;
   const models = allModels(s);
   const colorIds = colorTokenIds(models);
-  const pairs = applyPairEdits(detectPairs(colorIds, describedBackgrounds(models)), s.pairEdits);
+  const descriptions = new Map<string, string>();
+  for (const m of models) for (const t of m.tokens.values()) if (t.description && !descriptions.has(t.id)) descriptions.set(t.id, t.description);
+  const pairs = applyPairEdits(detectPairs(colorIds, describedBackgrounds(models), descriptions), s.pairEdits);
   const page = pageBackground(colorIds);
   const tiers = models.map(tiersOf);
   const isComponent = (id: string) => tiers.some((t) => t.get(id) === 'component');

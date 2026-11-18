@@ -239,9 +239,9 @@ export const CRITERIA: Record<string, Criterion> = {
     decline: 'the border is decorative (a divider), or the component is shown some other way that passes (its fill, its text, an icon). Say which.',
   },
   'contrast-inactive': {
-    problem: 'A disabled or inactive state below its contrast level. WCAG 2.2 exempts inactive components, so this is listed, not required.',
+    problem: 'A disabled or inactive state, or a line named subtle, muted or decorative (a divider, a separator), below its contrast level. WCAG 2.2 exempts inactive components and lines that don’t show a component, so this is listed, not required.',
     done: 'The pair reaches the level named for it in every theme named.',
-    decline: 'the state is disabled or inactive. Say so.',
+    decline: 'the state is disabled or inactive, or the line is decorative. Say so.',
   },
   // Color blindness
   'cvd-pair': {

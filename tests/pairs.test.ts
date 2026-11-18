@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { colorInfo } from '../src/color/format';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
-import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, detectPairs, glyphOf, isInactive, NO_PAIR_EDITS, over, pageBackground, pairId, pointColor, realias } from '../src/semantic/pairs';
+import { aliasCandidates, applyPairEdits, checkPair, colorTokenIds, describedSurface, detectPairs, glyphOf, isInactive, NO_PAIR_EDITS, over, pageBackground, pairId, pointColor, realias } from '../src/semantic/pairs';
 import { analyze } from '../src/validate';
 import { loadText } from './helpers';
 
@@ -203,5 +203,61 @@ describe('glyphOf', () => {
     expect(glyphOf({ fg: 'color.text.danger', kind: 'text' })).toBe('text');
     // Set to text by hand: drawn as text.
     expect(glyphOf({ fg: 'color.border.danger', kind: 'text' })).toBe('text');
+  });
+});
+
+/**
+ * What the reviewed sample systems taught pairing (corpus/README.md): a pair
+ * is checked only where the system shows it is seen together.
+ */
+describe('pairing needs evidence of use', () => {
+  it('reads the surface a description puts a token on', () => {
+    expect(describedSurface('Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color.')).toEqual([['subtle', 'blue', 'accent']]);
+    expect(describedSurface('Use for links on inverse or dark surfaces.')).toEqual([['inverse'], ['dark']]);
+    expect(describedSurface('Border color for tiles on layer 01')).toEqual([['layer', '01']]);
+    expect(describedSurface('Used for the label text color on a dark background color.')).toEqual([['dark']]);
+    // What it isn't on, or no surface at all: nothing to require.
+    expect(describedSurface('Use for blue borders on non-bold backgrounds.')).toBeUndefined();
+    expect(describedSurface('Use for links in a default or hovered state.')).toBeUndefined();
+  });
+
+  it('pairs a foreground only with a background of the surface its description names', () => {
+    const tokens = ['color.background.accent.blue.bolder', 'color.background.accent.blue.subtle', 'color.text.accent.blue.bolder', 'color.text.accent.blue.subtle'];
+    const subtle = new Map([['color.text.accent.blue.bolder', 'Use for blue text on subtle blue accent backgrounds.']]);
+    // By name alone, "bolder" text goes with the "bolder" background; its description says otherwise.
+    expect(ids(detectPairs(tokens))).toContain('color.text.accent.blue.bolder on color.background.accent.blue.bolder');
+    expect(ids(detectPairs(tokens, new Set(), subtle))).not.toContain('color.text.accent.blue.bolder on color.background.accent.blue.bolder');
+    // Described for a surface that isn't among its candidates: not checked at all.
+    const dark = new Map([['label.dark.text.color', 'Used for the label text color on a dark background color.']]);
+    expect(ids(detectPairs(['background.color.default', 'label.dark.text.color'], new Set(), dark))).toEqual([]);
+    // A described surface the background does have keeps the pair.
+    const inverse = new Map([['link-inverse', 'Use for links on inverse or dark surfaces.']]);
+    expect(ids(detectPairs(['background-inverse', 'link-inverse'], new Set(), inverse))).toEqual(['link-inverse on background-inverse']);
+  });
+
+  it('lists subtle, muted and decorative lines as exempt, not required (WCAG 1.4.11)', () => {
+    expect(isInactive({ fg: 'border.muted', bg: 'bgColor.default' })).toBe(true);
+    expect(isInactive({ fg: 'color.accent.border-subtle', bg: 'background-default' })).toBe(true);
+    expect(isInactive({ fg: 'button-separator', bg: 'background' })).toBe(true);
+    expect(isInactive({ fg: 'border.emphasis', bg: 'bgColor.default' })).toBe(false);
+    // Subtle text is still text: only lines are exempt this way.
+    expect(isInactive({ fg: 'text.subtle', bg: 'bg.default' })).toBe(false);
+  });
+
+  it('doesn’t check what can’t be seen: a transparent color, or a color the same as its background', () => {
+    const c = (r: number, g: number, b: number, alpha?: number) => ({ $value: { colorSpace: 'srgb', components: [r, g, b], ...(alpha === undefined ? {} : { alpha }) } });
+    const doc = {
+      $type: 'color',
+      bg: { default: c(1, 1, 1), clear: c(1, 1, 1, 0) },
+      border: { gone: c(0.9, 0.9, 0.9, 0), faint: c(0.9, 0.9, 0.9) },
+      text: { hidden: c(1, 1, 1), clear: c(0, 0, 0) },
+    };
+    const model = analyze([loadText(JSON.stringify(doc))], DEFAULT_SETTINGS);
+    const pair = (fg: string, bg: string) => ({ id: pairId(fg, bg), fg, bg, kind: 'ui' as const, source: 'name' as const });
+    expect(checkPair(pair('border.gone', 'bg.default'), model, ['wcag'])).toBeUndefined();
+    expect(checkPair(pair('text.clear', 'bg.clear'), model, ['wcag'])).toBeUndefined();
+    expect(checkPair(pair('text.hidden', 'bg.default'), model, ['wcag'])).toBeUndefined();
+    // A visible border is still measured.
+    expect(checkPair(pair('border.faint', 'bg.default'), model, ['wcag'])!.pass).toBe(false);
   });
 });

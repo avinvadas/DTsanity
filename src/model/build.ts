@@ -1,3 +1,4 @@
+import { LEGACY_EXT } from '../legacy/types';
 import { entry, toJS, type JNode, type JObject, type Pos } from '../json/cst';
 import { DEFAULT_SETTINGS } from './defaults';
 import { closest } from './suggest';
@@ -242,6 +243,11 @@ function addToken(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPat
   if (description !== undefined) t.description = description;
   const extensions = obj(entry(node, '$extensions')?.value);
   if (extensions) t.extensions = extensions;
+  // A legacy format's own description (a Figma export's attributes.description), kept with the converted token.
+  if (t.description === undefined) {
+    const legacy = extensions?.[LEGACY_EXT] as { attributes?: { description?: unknown } } | undefined;
+    if (typeof legacy?.attributes?.description === 'string') t.description = legacy.attributes.description;
+  }
   const deprecated = deprecation(entry(node, '$deprecated')?.value);
   if (deprecated !== undefined) t.deprecated = deprecated;
   const alias = parseAlias(rawValue);

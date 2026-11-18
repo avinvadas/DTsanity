@@ -125,8 +125,8 @@ describe('pairs', () => {
     expect(detectPairs(ids, new Set(['content-switcher-selected'])).map((p) => `${p.fg} on ${p.bg}`)).not.toContain('content-switcher-selected on background');
   });
 
-  it('checks separators and dividers as borders (advice), not as required UI parts', () => {
+  it('lists separators and dividers as exempt lines, not required UI parts (WCAG 1.4.11)', () => {
     const [pair] = detectPairs(['background', 'button-separator']);
-    expect(contrastRule(pair!)).toBe('contrast-border');
+    expect(contrastRule(pair!)).toBe('contrast-inactive');
   });
 });

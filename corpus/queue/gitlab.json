@@ -1,0 +1,111 @@
+{
+  "set": "gitlab",
+  "build": "7cecc59+changes (offline check)",
+  "waiting": [
+    {
+      "key": "contrast-border · `alert.info.border.color` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`alert.info.border.color` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.75, #9dc8f2 on #ffffff). References: `alert.info.border.color` → `feedback.info.border.color` → `color.blue.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `alert.neutral.border.color` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`alert.neutral.border.color` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.83, #c1bfbe on #ffffff) and dark (has 2.91, #646163 on #18171d). References: default: `alert.neutral.border.color` → `feedback.neutral.border.color` → `color.neutral.200`; `background.color.default` → `color.neutral.0` | dark: `alert.neutral.border.color` → `feedback.neutral.border.color` → `color.neutral.600`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `alert.success.border.color` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`alert.success.border.color` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.74, #84d4b6 on #ffffff). References: `alert.success.border.color` → `feedback.success.border.color` → `color.green.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `alert.warning.border.color` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`alert.warning.border.color` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.75, #f7b951 on #ffffff). References: `alert.warning.border.color` → `feedback.warning.border.color` → `color.orange.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `avatar.border.color.default` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`avatar.border.color.default` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.19, #05050614 on #ffffff, shown as #ebebeb) and dark (has 1.24, #ffffff14 on #18171d, shown as #2a2a2f). References: default: `avatar.border.color.default` → `color.alpha.dark.8`; `background.color.default` → `color.neutral.0` | dark: `avatar.border.color.default` → `color.alpha.light.8`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `avatar.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`avatar.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.76, #0505063d on #ffffff, shown as #c3c3c3) and dark (has 2.18, #ffffff3d on #18171d, shown as #4f4f53). References: default: `avatar.border.color.hover` → `color.alpha.dark.24`; `background.color.default` → `color.neutral.0` | dark: `avatar.border.color.hover` → `color.alpha.light.24`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `badge.danger.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`badge.danger.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.74, #ffafb8 on #ffffff). References: `badge.danger.border.color.hover` → `color.red.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `badge.info.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`badge.info.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.75, #9dc8f2 on #ffffff). References: `badge.info.border.color.hover` → `color.blue.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `badge.neutral.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`badge.neutral.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.83, #c1bfbe on #ffffff). References: `badge.neutral.border.color.hover` → `color.neutral.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `badge.success.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`badge.success.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.74, #84d4b6 on #ffffff). References: `badge.success.border.color.hover` → `color.green.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `badge.tier.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`badge.tier.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.74, #c9beef on #ffffff). References: `badge.tier.border.color.hover` → `color.purple.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `badge.warning.border.color.hover` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`badge.warning.border.color.hover` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.75, #f7b951 on #ffffff). References: `badge.warning.border.color.hover` → `color.orange.200`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `banner.intro.border.color` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`banner.intro.border.color` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.75, #9dc8f2 on #ffffff) and dark (has 2.56, #27599f on #18171d). References: default: `banner.intro.border.color` → `color.blue.200`; `background.color.default` → `color.neutral.0` | dark: `banner.intro.border.color` → `color.blue.700`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `banner.promo.border.color` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`banner.promo.border.color` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.74, #c9beef on #ffffff) and dark (has 2.56, #5b46b8 on #18171d). References: default: `banner.promo.border.color` → `color.purple.200`; `background.color.default` → `color.neutral.0` | dark: `banner.promo.border.color` → `color.purple.700`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `border.color.default` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.color.default` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.38, #dcdbd9 on #ffffff) and dark (has 2.06, #4d4b4e on #18171d). References: default: `border.color.default` → `color.neutral.100`; `background.color.default` → `color.neutral.0` | dark: `border.color.default` → `color.neutral.700`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `border.color.section` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.color.section` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.38, #dcdbd9 on #ffffff). References: `border.color.section` → `border.color.default` → `color.neutral.100`; `background.color.default` → `color.neutral.0`."
+    },
+    {
+      "key": "contrast-border · `border.color.strong` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`border.color.strong` on `background.color.default` (UI part): below AA large text & UI (3) in default (has 1.83, #c1bfbe on #ffffff) and dark (has 2.91, #646163 on #18171d). References: default: `border.color.strong` → `color.neutral.200`; `background.color.default` → `color.neutral.0` | dark: `border.color.strong` → `color.neutral.600`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `broadcast.banner.border.color.blue` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`broadcast.banner.border.color.blue` on `background.color.default` (UI part): below AA large text & UI (3) in dark (has 1.16, #0b2640 on #18171d). References: `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `broadcast.banner.border.color.dark` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`broadcast.banner.border.color.dark` on `background.color.default` (UI part): below AA large text & UI (3) in dark (has 2.06, #4d4b4e on #18171d). References: `broadcast.banner.border.color.dark` → `color.neutral.700`; `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "contrast-border · `broadcast.banner.border.color.green` on `background.color.default` (UI part)",
+      "rule": "contrast-border",
+      "line": "`broadcast.banner.border.color.green` on `background.color.default` (UI part): below AA large text & UI (3) in dark (has 1.57, #0e4328 on #18171d). References: `background.color.default` → `color.neutral.950`."
+    },
+    {
+      "key": "cvd-siblings · Status colors `alert.info.border.top.color`, `alert.success.border.top.color`, `alert.warning.border.top.color`, `alert.danger.border.top.color` (`alert.*.border.top.color`) are too close to tell apart in default with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in dark with typical vision (0.084), Protanopia (red-blind) (0.091), Deuteranopia (green-blind) (0.063), Tritanopia (blue-blind) (0.019); the distance needed is 0.1 (ΔE OKLab).",
+      "rule": "cvd-siblings",
+      "line": "Status colors `alert.info.border.top.color`, `alert.success.border.top.color`, `alert.warning.border.top.color`, `alert.danger.border.top.color` (`alert.*.border.top.color`) are too close to tell apart in default with typical vision (0.000), Protanopia (red-blind) (0.000), Deuteranopia (green-blind) (0.000), Tritanopia (blue-blind) (0.000); in dark with typical vision (0.084), Protanopia (red-blind) (0.091), Deuteranopia (green-blind) (0.063), Tritanopia (blue-blind) (0.019); the distance needed is 0.1 (ΔE OKLab)."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import { simulate, type Vision } from '../color/cvd';
-import { colorInfo, infoFrom, mapped, type ColorInfo } from '../color/format';
+import { colorInfo, formatColor, infoFrom, mapped, type ColorInfo } from '../color/format';
 import { levelById, type ContrastTarget, type Level, type Metric } from '../contrast/levels';
 import { contrast } from '../contrast/metrics';
 import type { JPath } from '../json/cst';
@@ -64,7 +64,7 @@ export const words = (id: string) =>
     .map((w) => w.toLowerCase())
     .filter(Boolean);
 
-interface Parsed {
+export interface Parsed {
   id: string;
   role: 'bg' | 'fg' | 'none';
   kind: PairKind;
@@ -89,8 +89,17 @@ export const glyphOf = (pair: Pick<Pair, 'fg' | 'kind'>): PairGlyph =>
 
 /** Words for a component nobody can use right now: WCAG 1.4.3 and 1.4.11 don't ask it for contrast. */
 const INACTIVE = new Set(['disabled', 'inactive']);
-/** Whether a pair is a disabled or inactive state. */
-export const isInactive = (pair: Pick<Pair, 'fg' | 'bg'>) => [...words(pair.fg), ...words(pair.bg)].some((w) => INACTIVE.has(w));
+/**
+ * Words that make a line low-emphasis or decorative by design: a subtle or
+ * muted border, a divider, a separator. WCAG 1.4.11 asks contrast only of a
+ * border that shows a component; one a system names this way usually
+ * doesn't, so it is listed, not required. (Seen in Carbon, Primer,
+ * Designsystemet and Atlassian.)
+ */
+const LOW_EMPHASIS = new Set(['subtle', 'subtler', 'subtlest', 'muted', 'faint', 'decorative', 'divider', 'dividers', 'separator', 'separators']);
+/** Whether a pair is exempt from WCAG's contrast levels: a disabled or inactive state, or a low-emphasis line. */
+export const isInactive = (pair: Pick<Pair, 'fg' | 'bg'>) =>
+  [...words(pair.fg), ...words(pair.bg)].some((w) => INACTIVE.has(w)) || (words(pair.fg).some((w) => EDGE.has(w)) && words(pair.fg).some((w) => LOW_EMPHASIS.has(w)));
 
 /** Whether a name has a background or foreground role word: true for `text.danger`, false for `red.500`. */
 export const hasRole = (ws: readonly string[]) => ws.some((w) => BG.has(w) || TEXT.has(w) || UI.has(w));
@@ -109,7 +118,7 @@ function roleAt(ws: readonly string[]): number {
   return -1;
 }
 
-function parse(id: string): Parsed {
+export function parse(id: string): Parsed {
   const ws = words(id);
   const on = ws.includes('on');
   const at = roleAt(ws);
@@ -130,8 +139,41 @@ function shape(id: string): string {
   return ws.map((w, i) => (i === at ? '*' : w)).join('.');
 }
 
-/** Pairs inferred from the names of `ids` (color tokens), in the order of their foregrounds. `backgrounds` are tokens whose own description calls them a background, whatever their name says. */
-export function detectPairs(ids: readonly string[], backgrounds: ReadonlySet<string> = new Set()): Pair[] {
+/**
+ * The surface a token's description puts it on, as the words that surface
+ * must have: "Use for text on subtle blue accent backgrounds" gives
+ * [["subtle", "blue", "accent"]], "links on inverse or dark surfaces" gives
+ * [["inverse"], ["dark"]] (either), "tiles on layer 01" gives
+ * [["layer", "01"]]. Undefined when it names none. A description says how a
+ * token is used, so it wins over what its name suggests. (Seen in Atlassian,
+ * GitLab and Carbon.)
+ */
+export function describedSurface(description: string | undefined): string[][] | undefined {
+  if (!description) return undefined;
+  const d = description.toLowerCase();
+  const layer = d.match(/\bon (?:the )?layer[- ]?(\d+)\b/);
+  if (layer) return [['layer', layer[1]!.padStart(2, '0')]];
+  const m = d.match(/\bon (?:a |an |the )?((?:[a-z0-9-]+ ){0,4}?)(?:backgrounds?|surfaces?|fills?)\b/);
+  if (!m) return undefined;
+  const skip = new Set(['a', 'an', 'the', 'color', 'colour', 'colors', 'any', 'all', 'default']);
+  const options = m[1]!
+    .trim()
+    .split(/\s+or\s+/)
+    .map((o) => o.split(/\s+/).filter((w) => w && !skip.has(w)));
+  // "non-bold backgrounds" says what it isn't on; nothing to require.
+  if (options.some((o) => o.some((w) => w.startsWith('non-')))) return undefined;
+  const real = options.filter((o) => o.length);
+  return real.length ? real : undefined;
+}
+
+/** Whether a background fits the surface a description names: it has every word of one of its options, in its name or its own description. */
+const fits = (surface: string[][], bg: string, bgDescription?: string) => {
+  const ws = new Set([...words(bg), ...(bgDescription ? bgDescription.toLowerCase().split(/[^a-z0-9]+/) : [])]);
+  return surface.some((o) => o.every((w) => ws.has(w)));
+};
+
+/** Pairs inferred from the names of `ids` (color tokens), in the order of their foregrounds. `backgrounds` are tokens whose own description calls them a background, whatever their name says; `descriptions` are the tokens' descriptions, whose stated surface wins over the name. */
+export function detectPairs(ids: readonly string[], backgrounds: ReadonlySet<string> = new Set(), descriptions: ReadonlyMap<string, string> = new Map()): Pair[] {
   const parsed = ids.map(parse).map((p) => (backgrounds.has(p.id) && p.role === 'fg' ? { ...p, role: 'bg' as const, kind: 'text' as const, on: false, edge: false } : p));
   const bgs = parsed.filter((p) => p.role === 'bg');
   const byKey = (list: Parsed[], key: string) => list.filter((p) => p.key === key);
@@ -162,6 +204,10 @@ export function detectPairs(ids: readonly string[], backgrounds: ReadonlySet<str
     // color.bg, color.fg.default with color.bg.default, not across.
     const same = match.filter((bg) => shape(bg.id) === shape(fg.id));
     if (same.length) match = same;
+    // A description that puts the foreground on a surface keeps only backgrounds of that surface;
+    // with none of them, the pair isn't one DTsanity can tell, so it isn't checked.
+    const surface = describedSurface(descriptions.get(fg.id));
+    if (surface) match = match.filter((bg) => fits(surface, bg.id, descriptions.get(bg.id)));
     for (const bg of match) {
       if (bg.id === fg.id) continue;
       const id = pairId(fg.id, bg.id);
@@ -221,6 +267,9 @@ export interface PairCheck {
   /** A translucent background as written, and the page it was blended over: `bg` is then the blend. */
   under?: { bg: ColorInfo; page: ColorInfo };
 }
+
+/** Whether two colors are the same, as a screen shows them. */
+const sameColor = (a: ColorInfo, b: ColorInfo) => formatColor(a, 'hex').text === formatColor(b, 'hex').text;
 
 /** A translucent foreground blended over its (opaque) background, in sRGB as a screen does. */
 export function over(fg: ColorInfo, bg: ColorInfo): ColorInfo {
@@ -317,6 +366,12 @@ export function checkPair(pair: Pair, model: Model, targets: readonly ContrastTa
   const fg = colorOf(model, pair.fg);
   const raw = colorOf(model, pair.bg);
   if (!fg || !raw) return undefined;
+  // Nothing to see: a fully transparent foreground draws nothing, and a fully transparent background
+  // shows whatever is under the component, which the files don't say. (GitLab, Carbon.)
+  if (fg.oklch.alpha === 0 || raw.oklch.alpha === 0) return undefined;
+  // The same color as its background in this theme: hidden on purpose, or two roles that share a
+  // color, not a mark meant to be read on it. (Primer, Backpack.)
+  if (sameColor(fg, raw)) return undefined;
   // A translucent background shows the page through it: measure the blend, as a screen shows it.
   const under = raw.oklch.alpha < 1 && page && page !== pair.bg ? colorOf(model, page) : undefined;
   const blended = under && under.oklch.alpha >= 1;

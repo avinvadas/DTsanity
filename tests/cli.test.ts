@@ -41,7 +41,7 @@ describe('offline check', () => {
   });
 
   it('counts by rule with --summary', () => {
-    expect(run(join(SAMPLES, 'backpack'), '--summary').stdout).toMatch(/^155 counted \+ \d+ others\nlegacy-conversion \d+/);
+    expect(run(join(SAMPLES, 'backpack'), '--summary').stdout).toMatch(/^153 counted \+ \d+ others\nlegacy-conversion \d+/);
   });
 
   it('reports a file that is not JSON as a finding, and passes a clean folder', () => {
@@ -58,7 +58,7 @@ describe('offline check', () => {
   it('keeps only the named rules with --rules, as a group prompt does', () => {
     const out = run(join(SAMPLES, 'backpack'), '--summary', '--rules', 'contrast-text').stdout;
     // A pair comes with its color-vision finding, as in the round builder.
-    expect(out).toMatch(/^7 counted \+ 0 others\ncontrast-text 6\ncvd-pair 1$/m);
+    expect(out).toMatch(/^5 counted \+ 0 others\ncontrast-text 4\ncvd-pair 1$/m);
     expect(out).not.toContain('missing-type');
   });
 });

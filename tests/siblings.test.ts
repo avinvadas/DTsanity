@@ -45,9 +45,8 @@ describe('checks with color-vision deficiencies', () => {
     expect(at('deutan').closest).toEqual(['color.bg.danger', 'color.bg.success']);
   });
 
-  it('checks pair contrast on the simulated colors', () => {
+  it('doesn’t measure a color on itself, in any vision: it is hidden on purpose, not a pair', () => {
     const pair = detectPairs(['color.bg.danger', 'color.text.danger', 'color.bg.default']).find((p) => p.fg === 'color.text.danger')!;
-    // Same color on same color: 1:1 whatever the vision.
-    for (const v of ['normal', 'protan', 'achroma'] as const) expect(checkPair(pair, model, ['wcag'], v)!.values.wcag).toBeCloseTo(1, 3);
+    for (const v of ['normal', 'protan', 'achroma'] as const) expect(checkPair(pair, model, ['wcag'], v)).toBeUndefined();
   });
 });

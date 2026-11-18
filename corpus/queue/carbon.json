@@ -1,0 +1,66 @@
+{
+  "set": "carbon",
+  "build": "7cecc59+changes (offline check)",
+  "waiting": [
+    {
+      "key": "contrast-border · `ai-border-end` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`ai-border-end` on `background` (UI part): below AA large text & UI (3) in white (has 2.35, #78a9ff on #ffffff) and g10 (has 2.14, #78a9ff on #f4f4f4). References: white: `ai-border-end` → `blue.40`; `background` → `white` | g10: `ai-border-end` → `blue.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-border · `ai-border-start` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`ai-border-start` on `background` (UI part): below AA large text & UI (3) in white (has 1.39, #a6c8ffa3 on #ffffff, shown as #c6dcff), g10 (has 1.32, #a6c8ffa3 on #f4f4f4, shown as #c2d8fb), g90 (has 2.39, #a6c8ff5c on #262626, shown as #546074) and g100 (has 2.44, #a6c8ff5c on #161616, shown as #4a566a). References: white: `background` → `white` | g10: `background` → `gray.10` | g90: `background` → `gray.90` | g100: `background` → `gray.100`."
+    },
+    {
+      "key": "contrast-border · `chat-bubble-border` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`chat-bubble-border` on `background` (UI part): below AA large text & UI (3) in white (has 1.32, #e0e0e0 on #ffffff), g10 (has 1.20, #e0e0e0 on #f4f4f4), g90 (has 1.94, #525252 on #262626) and g100 (has 2.32, #525252 on #161616). References: white: `chat-bubble-border` → `gray.20`; `background` → `white` | g10: `chat-bubble-border` → `gray.20`; `background` → `gray.10` | g90: `chat-bubble-border` → `gray.70`; `background` → `gray.90` | g100: `chat-bubble-border` → `gray.70`; `background` → `gray.100`."
+    },
+    {
+      "key": "contrast-border · `tag-border-green` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`tag-border-green` on `background` (UI part): below AA large text & UI (3) in white (has 2.39, #42be65 on #ffffff) and g10 (has 2.17, #42be65 on #f4f4f4). References: white: `tag-border-green` → `green.40`; `background` → `white` | g10: `tag-border-green` → `green.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-border · `tag-border-magenta` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`tag-border-magenta` on `background` (UI part): below AA large text & UI (3) in white (has 2.36, #ff7eb6 on #ffffff) and g10 (has 2.14, #ff7eb6 on #f4f4f4). References: white: `tag-border-magenta` → `magenta.40`; `background` → `white` | g10: `tag-border-magenta` → `magenta.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-border · `tag-border-purple` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`tag-border-purple` on `background` (UI part): below AA large text & UI (3) in white (has 2.35, #be95ff on #ffffff) and g10 (has 2.14, #be95ff on #f4f4f4). References: white: `tag-border-purple` → `purple.40`; `background` → `white` | g10: `tag-border-purple` → `purple.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-border · `tag-border-red` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`tag-border-red` on `background` (UI part): below AA large text & UI (3) in white (has 2.37, #ff8389 on #ffffff) and g10 (has 2.15, #ff8389 on #f4f4f4). References: white: `tag-border-red` → `red.40`; `background` → `white` | g10: `tag-border-red` → `red.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-border · `tag-border-teal` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`tag-border-teal` on `background` (UI part): below AA large text & UI (3) in white (has 2.33, #08bdba on #ffffff) and g10 (has 2.12, #08bdba on #f4f4f4). References: white: `tag-border-teal` → `teal.40`; `background` → `white` | g10: `tag-border-teal` → `teal.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-border · `tag-border-warm-gray` on `background` (UI part)",
+      "rule": "contrast-border",
+      "line": "`tag-border-warm-gray` on `background` (UI part): below AA large text & UI (3) in white (has 2.35, #ada8a8 on #ffffff) and g10 (has 2.13, #ada8a8 on #f4f4f4). References: white: `tag-border-warm-gray` → `warmGray.40`; `background` → `white` | g10: `tag-border-warm-gray` → `warmGray.40`; `background` → `gray.10`."
+    },
+    {
+      "key": "contrast-text · `text-placeholder` on `background` (text)",
+      "rule": "contrast-text",
+      "line": "`text-placeholder` on `background` (text): below AA text (4.5) in white (has 2.56, #16161666 on #ffffff, shown as #a2a2a2), g10 (has 2.52, #16161666 on #f4f4f4, shown as #9b9b9b), g90 (has 3.45, #f4f4f466 on #262626, shown as #787878) and g100 (has 3.59, #f4f4f466 on #161616, shown as #6f6f6f). References: white: `background` → `white` | g10: `background` → `gray.10` | g90: `background` → `gray.90` | g100: `background` → `gray.100`."
+    },
+    {
+      "key": "cvd-pair · `syntax-label-name` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10), Deuteranopia (green-blind) (g10) and Tritanopia (blue-blind) (white and g10).",
+      "rule": "cvd-pair",
+      "line": "`syntax-label-name` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10), Deuteranopia (green-blind) (g10) and Tritanopia (blue-blind) (white and g10)."
+    },
+    {
+      "key": "cvd-pair · `syntax-link` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10), Deuteranopia (green-blind) (g10 and g90) and Tritanopia (blue-blind) (white and g10).",
+      "rule": "cvd-pair",
+      "line": "`syntax-link` on `background` drops below its contrast level with Protanopia (red-blind) (white and g10), Deuteranopia (green-blind) (g10 and g90) and Tritanopia (blue-blind) (white and g10)."
+    }
+  ]
+}

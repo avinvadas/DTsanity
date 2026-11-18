@@ -1,0 +1,1036 @@
+{
+  "build": "7cecc59+changes (offline check)",
+  "systems": 10,
+  "checks": 62,
+  "grades": [
+    {
+      "rule": "legacy-value",
+      "systems": 4,
+      "foundIn": 4,
+      "found": 550,
+      "reviewed": 76,
+      "right": 76,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Beta"
+    },
+    {
+      "rule": "cvd-siblings",
+      "systems": 3,
+      "foundIn": 6,
+      "found": 112,
+      "reviewed": 60,
+      "right": 32,
+      "misreading": 16,
+      "depends": 12,
+      "contested": 0.2,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.7298245614035088,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "invalid-value",
+      "systems": 5,
+      "foundIn": 5,
+      "found": 108,
+      "reviewed": 49,
+      "right": 49,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Beta"
+    },
+    {
+      "rule": "tier-hardcoded",
+      "systems": 7,
+      "foundIn": 8,
+      "found": 53,
+      "reviewed": 48,
+      "right": 27,
+      "misreading": 15,
+      "depends": 6,
+      "contested": 0.125,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.41904761904761906,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "cvd-pair",
+      "systems": 5,
+      "foundIn": 5,
+      "found": 32,
+      "reviewed": 30,
+      "right": 28,
+      "misreading": 2,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.8866666666666667,
+      "grade": "Beta"
+    },
+    {
+      "rule": "contrast-text",
+      "systems": 4,
+      "foundIn": 5,
+      "found": 119,
+      "reviewed": 25,
+      "right": 20,
+      "misreading": 5,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 1,
+      "precision": 0.7622549019607843,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "value-per-mode",
+      "systems": 3,
+      "foundIn": 3,
+      "found": 34,
+      "reviewed": 24,
+      "right": 24,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "tier-reference",
+      "systems": 1,
+      "foundIn": 3,
+      "found": 24,
+      "reviewed": 24,
+      "right": 1,
+      "misreading": 0,
+      "depends": 23,
+      "contested": 0.9583333333333334,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "unknown-type",
+      "systems": 6,
+      "foundIn": 6,
+      "found": 22,
+      "reviewed": 22,
+      "right": 22,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "missing-type",
+      "systems": 5,
+      "foundIn": 5,
+      "found": 17,
+      "reviewed": 17,
+      "right": 17,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 1,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "scale-unordered",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 17,
+      "reviewed": 17,
+      "right": 0,
+      "misreading": 17,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "contrast-border",
+      "systems": 2,
+      "foundIn": 3,
+      "found": 146,
+      "reviewed": 16,
+      "right": 15,
+      "misreading": 1,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.9,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "unsupported-format",
+      "systems": 6,
+      "foundIn": 6,
+      "found": 16,
+      "reviewed": 16,
+      "right": 16,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "tier-base-reference",
+      "systems": 2,
+      "foundIn": 4,
+      "found": 12,
+      "reviewed": 12,
+      "right": 2,
+      "misreading": 3,
+      "depends": 7,
+      "contested": 0.5833333333333334,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.5,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "scale-near-duplicate",
+      "systems": 2,
+      "foundIn": 4,
+      "found": 12,
+      "reviewed": 11,
+      "right": 1,
+      "misreading": 2,
+      "depends": 8,
+      "contested": 0.7272727272727273,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.5,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "type-same",
+      "systems": 1,
+      "foundIn": 2,
+      "found": 11,
+      "reviewed": 11,
+      "right": 0,
+      "misreading": 5,
+      "depends": 6,
+      "contested": 0.5454545454545454,
+      "human": 0,
+      "misses": 0,
+      "precision": 0,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "token-has-children",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 10,
+      "reviewed": 10,
+      "right": 10,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "scale-uneven-lightness",
+      "systems": 2,
+      "foundIn": 2,
+      "found": 9,
+      "reviewed": 9,
+      "right": 1,
+      "misreading": 8,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.5,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "legacy-conversion",
+      "systems": 3,
+      "foundIn": 3,
+      "found": 8,
+      "reviewed": 8,
+      "right": 8,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "scale-inversion",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 8,
+      "reviewed": 8,
+      "right": 0,
+      "misreading": 8,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "alias-type-mismatch",
+      "systems": 2,
+      "foundIn": 2,
+      "found": 5,
+      "reviewed": 5,
+      "right": 5,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "contrast-ui",
+      "systems": 2,
+      "foundIn": 2,
+      "found": 4,
+      "reviewed": 4,
+      "right": 3,
+      "misreading": 1,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.8333333333333333,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "embedded-reference",
+      "systems": 2,
+      "foundIn": 2,
+      "found": 4,
+      "reviewed": 4,
+      "right": 4,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "empty-group",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 4,
+      "reviewed": 4,
+      "right": 4,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "font-fallback",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 4,
+      "reviewed": 4,
+      "right": 0,
+      "misreading": 4,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "invalid-name",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 4,
+      "reviewed": 4,
+      "right": 4,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "invalid-node",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 4,
+      "reviewed": 4,
+      "right": 4,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "scale-hue-drift",
+      "systems": 2,
+      "foundIn": 2,
+      "found": 4,
+      "reviewed": 4,
+      "right": 3,
+      "misreading": 0,
+      "depends": 1,
+      "contested": 0.25,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "type-close",
+      "systems": 2,
+      "foundIn": 3,
+      "found": 4,
+      "reviewed": 4,
+      "right": 3,
+      "misreading": 0,
+      "depends": 1,
+      "contested": 0.25,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "tier-name-mismatch",
+      "systems": 2,
+      "foundIn": 2,
+      "found": 3,
+      "reviewed": 3,
+      "right": 1,
+      "misreading": 2,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0.5,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "unknown-property",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 3,
+      "reviewed": 3,
+      "right": 3,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "deprecated-reference",
+      "systems": 0,
+      "foundIn": 1,
+      "found": 2,
+      "reviewed": 2,
+      "right": 0,
+      "misreading": 0,
+      "depends": 2,
+      "contested": 1,
+      "human": 0,
+      "misses": 0,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "duplicate-path",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 2,
+      "reviewed": 1,
+      "right": 0,
+      "misreading": 1,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "duplicate-key",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 1,
+      "reviewed": 1,
+      "right": 1,
+      "misreading": 0,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 1,
+      "grade": "Experimental"
+    },
+    {
+      "rule": "scale-missing-steps",
+      "systems": 1,
+      "foundIn": 1,
+      "found": 1,
+      "reviewed": 1,
+      "right": 0,
+      "misreading": 1,
+      "depends": 0,
+      "contested": 0,
+      "human": 0,
+      "misses": 0,
+      "precision": 0,
+      "grade": "Experimental"
+    }
+  ],
+  "sets": [
+    {
+      "set": "atlassian",
+      "findings": 95,
+      "reviewed": 47,
+      "waiting": 10
+    },
+    {
+      "set": "backpack",
+      "findings": 22,
+      "reviewed": 19,
+      "waiting": 3
+    },
+    {
+      "set": "carbon",
+      "findings": 32,
+      "reviewed": 20,
+      "waiting": 12
+    },
+    {
+      "set": "cloudscape",
+      "findings": 6,
+      "reviewed": 6,
+      "waiting": 0
+    },
+    {
+      "set": "designsystemet",
+      "findings": 282,
+      "reviewed": 78,
+      "waiting": 0
+    },
+    {
+      "set": "gitlab",
+      "findings": 174,
+      "reviewed": 110,
+      "waiting": 21
+    },
+    {
+      "set": "open-props",
+      "findings": 392,
+      "reviewed": 64,
+      "waiting": 1
+    },
+    {
+      "set": "primer",
+      "findings": 309,
+      "reviewed": 140,
+      "waiting": 13
+    },
+    {
+      "set": "sap-horizon",
+      "findings": 40,
+      "reviewed": 40,
+      "waiting": 0
+    },
+    {
+      "set": "spectrum",
+      "findings": 17,
+      "reviewed": 17,
+      "waiting": 0
+    }
+  ],
+  "regressions": [],
+  "fixed": [
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.blue.bolder` on `tokens.Dark increased-contrast/color.background.accent.blue.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.gray.bolder` on `tokens.Dark increased-contrast/color.background.accent.gray.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.green.bolder` on `tokens.Dark increased-contrast/color.background.accent.green.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.lime.bolder` on `tokens.Dark increased-contrast/color.background.accent.lime.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.magenta.bolder` on `tokens.Dark increased-contrast/color.background.accent.magenta.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.orange.bolder` on `tokens.Dark increased-contrast/color.background.accent.orange.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.purple.bolder` on `tokens.Dark increased-contrast/color.background.accent.purple.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.red.bolder` on `tokens.Dark increased-contrast/color.background.accent.red.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.teal.bolder` on `tokens.Dark increased-contrast/color.background.accent.teal.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark increased-contrast/color.text.accent.yellow.bolder` on `tokens.Dark increased-contrast/color.background.accent.yellow.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.blue.bolder` on `tokens.Dark/color.background.accent.blue.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.gray.bolder` on `tokens.Dark/color.background.accent.gray.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.green.bolder` on `tokens.Dark/color.background.accent.green.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.lime.bolder` on `tokens.Dark/color.background.accent.lime.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.magenta.bolder` on `tokens.Dark/color.background.accent.magenta.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.orange.bolder` on `tokens.Dark/color.background.accent.orange.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.purple.bolder` on `tokens.Dark/color.background.accent.purple.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.red.bolder` on `tokens.Dark/color.background.accent.red.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "atlassian",
+      "key": "contrast-text · `tokens.Dark/color.text.accent.teal.bolder` on `tokens.Dark/color.background.accent.teal.bolder` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "backpack",
+      "key": "contrast-text · `props.TEXT_HERO_DAY` on `props.SURFACE_HERO_DAY` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "backpack",
+      "key": "contrast-text · `props.TEXT_HERO_NIGHT` on `props.SURFACE_HERO_NIGHT` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-00` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-01` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-02` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-03` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-selected-01` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-selected-02` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-subtle-selected-03` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-tile-01` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-tile-02` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `border-tile-03` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `button-separator` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "carbon",
+      "key": "contrast-border · `chat-prompt-border-end` on `background` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.accent.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.accent.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.brand1.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.brand1.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.brand2.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.brand2.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.danger.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.danger.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.info.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.info.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.neutral.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.neutral.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.success.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.success.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.warning.border-subtle` on `background-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "designsystemet",
+      "key": "contrast-border · `color.warning.border-subtle` on `surface-default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.confirm.border.color.active` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.confirm.border.color.default` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.confirm.border.color.focus` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.confirm.border.color.hover` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.danger.border.color.active` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.danger.border.color.default` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.danger.border.color.focus` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.danger.border.color.hover` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.neutral.border.color.active` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.neutral.border.color.default` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.neutral.border.color.focus` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.neutral.border.color.hover` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.confirm.border.color.active` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.confirm.border.color.default` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.confirm.border.color.focus` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.confirm.border.color.hover` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.neutral.border.color.active` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.neutral.border.color.default` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.neutral.border.color.focus` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-border · `action.strong.neutral.border.color.hover` on `background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-ui · `label.dark.button.icon.color.default` on `label.dark.button.background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-ui · `label.light.button.icon.color.default` on `label.light.button.background.color.default` (UI part)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-text · `datepicker.date.text.color.selected` on `background.color.default` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-text · `label.dark.text.color` on `background.color.default` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "gitlab",
+      "key": "contrast-text · `label.light.text.color` on `background.color.default` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.accent.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.attention.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.closed.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.danger.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.done.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.draft.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.neutral.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-border · `border.open.muted` on `bgColor.default` (UI part)",
+      "verdict": "depends"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-text · `buttonCounter.danger.fgColor.hover` on `buttonCounter.danger.bgColor.hover` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-text · `buttonCounter.outline.fgColor.hover` on `buttonCounter.outline.bgColor.hover` (text)",
+      "verdict": "misreading"
+    },
+    {
+      "set": "primer",
+      "key": "contrast-text · `codeMirror.gutterMarker.fgColor.default` on `bgColor.default` (text)",
+      "verdict": "misreading"
+    }
+  ]
+}

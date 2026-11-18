@@ -89,7 +89,7 @@ export const BASIS: Record<string, Basis> = {
   'contrast-ui': wcag('1.4.11 Non-text Contrast'),
   // 1.4.11 asks for it only where the border is what shows the component or its state: DTsanity can't tell from the files.
   'contrast-border': wcag('1.4.11 Non-text Contrast, where the border is what identifies the component or its state', 'advice'),
-  'contrast-inactive': wcag('1.4.3 and 1.4.11 exempt inactive components', 'advice'),
+  'contrast-inactive': wcag('1.4.3 and 1.4.11 exempt inactive components and decorative lines', 'advice'),
   // Color blindness
   'cvd-pair': convention('simulated color-vision deficiencies (see WCAG 1.4.1 Use of Color)'),
   'cvd-siblings': convention('status colors told apart under simulated color-vision deficiencies (see WCAG 1.4.1 Use of Color)'),

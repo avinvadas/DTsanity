@@ -1,0 +1,56 @@
+{
+  "set": "atlassian",
+  "build": "7cecc59+changes (offline check)",
+  "waiting": [
+    {
+      "key": "contrast-text · `tokens.Dark/color.text.code.gutter` on `tokens.Dark/color.background.code.gutter` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Dark/color.text.code.gutter` on `tokens.Dark/color.background.code.gutter` (text): below AAA text (7) in dark-increased-contrast (has 5.36, #96999e on #242528)."
+    },
+    {
+      "key": "contrast-text · `tokens.Dark/color.text.danger` on `tokens.Dark/color.background.danger` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Dark/color.text.danger` on `tokens.Dark/color.background.danger` (text): below AAA text (7) in dark-increased-contrast (has 6.81, #fd9891 on #42221f)."
+    },
+    {
+      "key": "contrast-text · `tokens.Dark/color.text.discovery` on `tokens.Dark/color.background.discovery` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Dark/color.text.discovery` on `tokens.Dark/color.background.discovery` (text): below AAA text (7) in dark-increased-contrast (has 6.98, #d8a0f7 on #35243f)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light increased-contrast/color.text.code.gutter` on `tokens.Light increased-contrast/color.background.code.gutter` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light increased-contrast/color.text.code.gutter` on `tokens.Light increased-contrast/color.background.code.gutter` (text): below AAA text (7) in light-increased-contrast (has 4.51, #6b6e76 on #f0f1f2)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light/color.text.code.gutter` on `tokens.Light/color.background.code.gutter` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light/color.text.code.gutter` on `tokens.Light/color.background.code.gutter` (text): below AAA text (7) in light-increased-contrast (has 4.51, #6b6e76 on #f0f1f2)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light/color.text.danger` on `tokens.Light/color.background.danger` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light/color.text.danger` on `tokens.Light/color.background.danger` (text): below AAA text (7) in light-increased-contrast (has 5.74, #ae2e24 on #ffeceb)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light/color.text.discovery` on `tokens.Light/color.background.discovery` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light/color.text.discovery` on `tokens.Light/color.background.discovery` (text): below AAA text (7) in light-increased-contrast (has 5.88, #803fa5 on #f8eefe)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light/color.text.information` on `tokens.Light/color.background.information` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light/color.text.information` on `tokens.Light/color.background.information` (text): below AAA text (7) in light-increased-contrast (has 5.90, #1558bc on #e9f2fe)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light/color.text.success` on `tokens.Light/color.background.success` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light/color.text.success` on `tokens.Light/color.background.success` (text): below AAA text (7) in light-increased-contrast (has 5.82, #4c6b1f on #efffd6)."
+    },
+    {
+      "key": "contrast-text · `tokens.Light/color.text.warning` on `tokens.Light/color.background.warning` (text)",
+      "rule": "contrast-text",
+      "line": "`tokens.Light/color.text.warning` on `tokens.Light/color.background.warning` (text): below AAA text (7) in light-increased-contrast (has 5.54, #9e4c00 on #fff5db)."
+    }
+  ]
+}
