@@ -23,6 +23,8 @@ export interface LoadError {
   col?: number;
   /** A few lines of source around the error, for parse errors. */
   excerpt?: string;
+  /** Not a token file (a CSS module, a script): set aside with a note, not an error. */
+  skipped?: boolean;
 }
 
 /** One undoable step: the documents it changed, before and after. */
@@ -62,6 +64,8 @@ export interface AppState {
   /** The model for the active theme (all themes merged for ALL_THEMES; the whole file set without themes). */
   model: Model;
   loadErrors: LoadError[];
+  /** Files from the last load that aren't token files (by their name), set aside unread. Not findings. */
+  setAside: string[];
   busy: boolean;
   past: Command[];
   future: Command[];
@@ -89,6 +93,7 @@ const initial = (settings: Settings): AppState => ({
   themeModels: [],
   model: analyze([], settings),
   loadErrors: [],
+  setAside: [],
   busy: false,
   past: [],
   future: [],
@@ -139,7 +144,7 @@ function activeModel(themeModels: ThemeModel[], active: string): Model {
 export const allModels = (s: AppState): Model[] => (s.themeModels.length ? s.themeModels.map((m) => m.model) : [s.model]);
 
 /** Add or replace (by name) loaded files. Loading is not an undoable edit. */
-export function addFiles(added: SourceFile[], errors: LoadError[] = []) {
+export function addFiles(added: SourceFile[], errors: LoadError[] = [], setAside: string[] = []) {
   store.set((s) => {
     const names = new Set(added.map((f) => f.name));
     const replaced = new Set(s.files.filter((f) => names.has(f.name)).map((f) => f.id));
@@ -153,7 +158,7 @@ export function addFiles(added: SourceFile[], errors: LoadError[] = []) {
       const fresh = added.filter((f) => !reloaded.has(f.id)).map((f) => f.id);
       edited = s.themes.map((t) => ({ ...t, fileIds: [...t.fileIds.map((id) => successor.get(id) ?? id), ...fresh] }));
     }
-    return { ...derive(s, files, s.settings, edited), loadErrors: errors, ...dropHistory(s, replaced) };
+    return { ...derive(s, files, s.settings, edited), loadErrors: errors, setAside, ...dropHistory(s, replaced) };
   });
 }
 

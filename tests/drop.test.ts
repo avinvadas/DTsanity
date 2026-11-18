@@ -17,4 +17,13 @@ describe('dropped files', () => {
     expect(out.map((r) => r.name)).toEqual(['a.json', '2 dropped items']);
     expect('message' in out[1]!).toBe(true);
   });
+
+  it('sets aside a file that isn’t a token file, without reading it as broken JSON', async () => {
+    const css = new File([':root { --x: red; }'], 'Alert.module.css', { type: 'text/css' });
+    const files = [file('a.json'), css, file('package.json')];
+    const out = await readDropped({ items: files.map(item), files } as unknown as DataTransfer);
+    expect(out[0]).toMatchObject({ name: 'a.json', text: expect.any(String) });
+    expect(out[1]).toMatchObject({ name: 'Alert.module.css', skipped: true });
+    expect(out[2]).toMatchObject({ name: 'package.json', skipped: true });
+  });
 });

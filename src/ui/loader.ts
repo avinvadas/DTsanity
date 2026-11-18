@@ -39,9 +39,10 @@ export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
   try {
     const files: SourceFile[] = [];
     const errors: LoadError[] = [];
+    const setAside: string[] = [];
     for (const r of await pending) {
       const parsed = 'text' in r ? parseSource(r, store.get().settings) : r;
-      if (isLoadError(parsed)) errors.push(parsed);
+      if (isLoadError(parsed)) (parsed.skipped ? setAside.push(parsed.name) : errors.push(parsed));
       else files.push(parsed);
     }
     // A file named like a loaded one replaces it; if that one has edits not yet downloaded, ask first.
@@ -53,7 +54,7 @@ export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
     const adding = keep ? files : files.filter((f) => !edited.has(f.name));
     if (ring) await ring;
     if (view && adding.length) await fadeOut(view);
-    if (adding.length || errors.length) addFiles(adding, errors);
+    if (adding.length || errors.length || setAside.length) addFiles(adding, errors, setAside);
   } finally {
     zone?.classList.remove('loading');
     view?.classList.remove('fade-out');
@@ -259,8 +260,10 @@ export class TTLoader extends HTMLElement {
     );
 
     const errors = masked(h('div', { class: 'load-errors', role: 'alert' }));
+    // Files that aren't token files: a quiet note, not an error, and not a finding.
+    const aside = masked(h('p', { class: 'set-aside', role: 'status' }));
 
-    this.replaceChildren(h('div', { class: 'loader' }, input, zone, form), errors);
+    this.replaceChildren(h('div', { class: 'loader' }, input, zone, form), errors, aside);
 
     this.unsubs.push(
       // Before any file is loaded, the Files view is a centered landing.
@@ -274,6 +277,15 @@ export class TTLoader extends HTMLElement {
           this.toggleAttribute('aria-busy', busy);
           submit.disabled = busy;
           submit.textContent = busy ? 'Loading…' : 'Load';
+        },
+      ),
+      store.select(
+        (s) => s.setAside,
+        (names) => {
+          aside.hidden = !names.length;
+          aside.textContent = names.length
+            ? `Set aside, not ${names.length === 1 ? 'a token file' : 'token files'}: ${names.join(', ')}. DTsanity reads .json, .json5, .jsonc and .tokens files.`
+            : '';
         },
       ),
       store.select(

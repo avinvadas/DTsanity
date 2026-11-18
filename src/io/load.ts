@@ -111,6 +111,8 @@ const reason = (err: unknown) =>
 
 /** `path` names the file inside a folder that was dropped or chosen ("carbon/themes/white/theme.tokens.json"). */
 async function readFile(file: File, handle?: FileSystemFileHandle, path = file.name): Promise<RawSource | LoadError> {
+  // A file that isn't a token file by its name (a CSS module, a script, a README) is set aside, not read as broken JSON.
+  if (!isTokenName(path.split('/').at(-1)!)) return { name: path, message: NOT_A_TOKEN_FILE, skipped: true };
   if (file.size > MAX_BYTES) return { name: path, message: `The file is ${(file.size / 1024 / 1024).toFixed(0)} MB; the limit is 50 MB.` };
   try {
     const raw: RawSource = { name: path, text: await file.text(), origin: 'file', blob: file };
@@ -145,6 +147,10 @@ const NOT_TOKENS = /^(package(-lock)?\.json|tsconfig(\..*)?\.json|jsconfig\.json
 const SKIP_DIR = /^(node_modules|\..*)$/;
 /** Enough for any token set; a folder past this is probably not one. */
 const MAX_FILES = 2000;
+
+/** Whether a file's name makes it one DTsanity reads: a token file type, and not a package manifest or tool config. */
+const isTokenName = (name: string) => TOKEN_FILE.test(name) && !NOT_TOKENS.test(name);
+const NOT_A_TOKEN_FILE = 'Not a token file: DTsanity reads .json, .json5, .jsonc and .tokens files.';
 
 const isTokenPath = (path: string) => {
   const parts = path.split('/');

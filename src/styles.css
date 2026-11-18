@@ -635,6 +635,9 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
 .url-form input { flex: 1; }
 .url-form .hint { color: var(--subtle); font-size: var(--font-sm); }
 .url-form .hint:empty { display: none; }
+/* Files set aside because they aren't token files: a quiet note, not an error. */
+.set-aside { margin: var(--space-2) 0 0; color: var(--text-soft); font-size: var(--font-sm); text-align: center; text-wrap: balance; }
+.set-aside[hidden] { display: none; }
 
 .load-errors:empty { display: none; }
 .load-errors { margin-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
