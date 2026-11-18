@@ -1,0 +1,1062 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Carbon Design System theme tokens for the Gray 100 theme.",
+  "$extensions": {
+    "com.ibm.carbon": {
+      "color-scheme": "dark",
+      "contextual": [
+        "layer",
+        "layer-active",
+        "layer-hover",
+        "layer-selected",
+        "layer-selected-hover",
+        "layer-accent",
+        "layer-accent-hover",
+        "layer-accent-active",
+        "field",
+        "field-hover",
+        "border-subtle",
+        "border-subtle-selected",
+        "border-strong",
+        "border-tile"
+      ]
+    }
+  },
+  "background": {
+    "$type": "color",
+    "$value": "{gray.100}",
+    "$description": "Default page background color. Use as the base surface for the entire application or page.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ],
+        "layer-set": "base"
+      }
+    }
+  },
+  "background-active": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/50/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/50/$value/components"
+      },
+      "alpha": 0.4
+    },
+    "$description": "Background color for active/pressed state. Use when user clicks or presses interactive elements.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ],
+        "state": "active"
+      }
+    }
+  },
+  "background-selected": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/50/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/50/$value/components"
+      },
+      "alpha": 0.24
+    },
+    "$description": "Background color for selected state. Use to highlight currently selected items or active states.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ],
+        "state": "selected",
+        "layer-set": "base"
+      }
+    }
+  },
+  "background-selected-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/50/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/50/$value/components"
+      },
+      "alpha": 0.32
+    },
+    "$description": "Hover state for selected backgrounds. Use when user hovers over already-selected items.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ],
+        "state": "hover",
+        "layer-set": "base"
+      }
+    }
+  },
+  "background-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/50/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/50/$value/components"
+      },
+      "alpha": 0.16
+    },
+    "$description": "Background color for hover state. Use when user hovers over interactive elements to provide visual feedback.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ],
+        "state": "hover",
+        "layer-set": "base"
+      }
+    }
+  },
+  "background-brand": {
+    "$type": "color",
+    "$value": "{blue.60}",
+    "$description": "Brand color for backgrounds. Use for branded sections, headers, or promotional areas.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ]
+      }
+    }
+  },
+  "background-inverse": {
+    "$type": "color",
+    "$value": "{gray.10}",
+    "$description": "Inverse background color for dark UI elements. Use for tooltips, inverse buttons, or dark-themed sections.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ]
+      }
+    }
+  },
+  "background-inverse-hover": {
+    "$type": "color",
+    "$value": "{gray.10Hover}",
+    "$description": "Hover state for inverse backgrounds. Use when user hovers over dark UI elements.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Background",
+        "properties": [
+          "background"
+        ],
+        "state": "hover"
+      }
+    }
+  },
+  "layer-01": {
+    "$type": "color",
+    "$value": "{gray.90}",
+    "$description": "Primary layer background",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "layer-set": "01"
+      }
+    }
+  },
+  "layer-active-01": {
+    "$type": "color",
+    "$value": "{gray.70}",
+    "$description": "Active state for layer 01",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "state": "active",
+        "layer-set": "01"
+      }
+    }
+  },
+  "layer-hover-01": {
+    "$type": "color",
+    "$value": "{gray.90Hover}",
+    "$description": "Hover state for layer 01",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "state": "hover",
+        "layer-set": "01"
+      }
+    }
+  },
+  "layer-selected-01": {
+    "$type": "color",
+    "$value": "{gray.80}",
+    "$description": "Selected state for layer 01",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "state": "selected"
+      }
+    }
+  },
+  "layer-02": {
+    "$type": "color",
+    "$value": "{gray.80}",
+    "$description": "Secondary layer background",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "layer-set": "02"
+      }
+    }
+  },
+  "layer-active-02": {
+    "$type": "color",
+    "$value": "{gray.60}",
+    "$description": "Active state for layer 02",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "state": "active",
+        "layer-set": "02"
+      }
+    }
+  },
+  "layer-hover-02": {
+    "$type": "color",
+    "$value": "{gray.80Hover}",
+    "$description": "Hover state for layer 02",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "state": "hover",
+        "layer-set": "02"
+      }
+    }
+  },
+  "layer-selected-02": {
+    "$type": "color",
+    "$value": "{gray.70}",
+    "$description": "Selected state for layer 02",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Layer",
+        "properties": [
+          "background"
+        ],
+        "state": "selected"
+      }
+    }
+  },
+  "field-01": {
+    "$type": "color",
+    "$value": "{gray.90}",
+    "$description": "Background color for form fields on layer 01. Use for input fields, text areas, and selects on first layer.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Field",
+        "properties": [
+          "background"
+        ],
+        "layer-set": "01"
+      }
+    }
+  },
+  "field-hover-01": {
+    "$type": "color",
+    "$value": "{gray.90Hover}",
+    "$description": "Hover background for fields on layer 01. Use when user hovers over input fields on first layer.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Field",
+        "properties": [
+          "background"
+        ],
+        "state": "hover",
+        "layer-set": "01"
+      }
+    }
+  },
+  "field-02": {
+    "$type": "color",
+    "$value": "{gray.80}",
+    "$description": "Background color for form fields on layer 02. Use for input fields on second layer surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Field",
+        "properties": [
+          "background"
+        ],
+        "layer-set": "02"
+      }
+    }
+  },
+  "field-hover-02": {
+    "$type": "color",
+    "$value": "{gray.80Hover}",
+    "$description": "Hover background for fields on layer 02. Use when user hovers over input fields on second layer.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Field",
+        "properties": [
+          "background"
+        ],
+        "state": "hover",
+        "layer-set": "02"
+      }
+    }
+  },
+  "interactive": {
+    "$type": "color",
+    "$value": "{blue.50}",
+    "$description": "Interactive element color. Use for clickable elements, links, and actionable items.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "properties": [
+          "background",
+          "text"
+        ]
+      }
+    }
+  },
+  "border-subtle-01": {
+    "$type": "color",
+    "$value": "{gray.70}",
+    "$description": "Subtle border color for layer 01. Use for low-contrast borders on first layer surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ],
+        "layer-set": "01"
+      }
+    }
+  },
+  "border-subtle-02": {
+    "$type": "color",
+    "$value": "{gray.60}",
+    "$description": "Subtle border color for layer 02. Use for low-contrast borders on second layer surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ],
+        "layer-set": "02"
+      }
+    }
+  },
+  "border-strong-01": {
+    "$type": "color",
+    "$value": "{gray.60}",
+    "$description": "Strong border color for layer 01. Use for high-contrast borders that need clear definition on first layer.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ],
+        "layer-set": "01"
+      }
+    }
+  },
+  "border-strong-02": {
+    "$type": "color",
+    "$value": "{gray.50}",
+    "$description": "Strong border color for layer 02. Use for high-contrast borders on second layer surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ],
+        "layer-set": "02"
+      }
+    }
+  },
+  "border-inverse": {
+    "$type": "color",
+    "$value": "{gray.10}",
+    "$description": "Border color for inverse/dark UI elements. Use for borders on dark backgrounds or inverse components.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ]
+      }
+    }
+  },
+  "border-interactive": {
+    "$type": "color",
+    "$value": "{blue.50}",
+    "$description": "Border color for interactive elements. Use for focused inputs, active selections, or clickable borders.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ]
+      }
+    }
+  },
+  "border-disabled": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/50/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/50/$value/components"
+      },
+      "alpha": 0.5
+    },
+    "$description": "Border color for disabled elements. Use when borders need to indicate unavailable or inactive state.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Borders",
+        "properties": [
+          "border"
+        ],
+        "state": "disabled"
+      }
+    }
+  },
+  "text-primary": {
+    "$type": "color",
+    "$value": "{gray.10}",
+    "$description": "Primary. Token for primary in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-secondary": {
+    "$type": "color",
+    "$value": "{gray.30}",
+    "$description": "Secondary. Token for secondary in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-placeholder": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/10/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/10/$value/components"
+      },
+      "alpha": 0.4
+    },
+    "$description": "Placeholder. Token for placeholder in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-helper": {
+    "$type": "color",
+    "$value": "{gray.40}",
+    "$description": "Helper. Token for helper in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-error": {
+    "$type": "color",
+    "$value": "{red.40}",
+    "$description": "Error. Token for error in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-inverse": {
+    "$type": "color",
+    "$value": "{gray.100}",
+    "$description": "Inverse. Token for inverse in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-on-color": {
+    "$type": "color",
+    "$value": "{white}",
+    "$description": "Color. Token for color in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "text-on-color-disabled": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/white/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/white/$value/components"
+      },
+      "alpha": 0.25
+    },
+    "$description": "Disabled. Token for disabled in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ],
+        "state": "disabled"
+      }
+    }
+  },
+  "text-disabled": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/10/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/10/$value/components"
+      },
+      "alpha": 0.25
+    },
+    "$description": "Disabled. Token for disabled in the design system.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Text",
+        "properties": [
+          "text"
+        ],
+        "state": "disabled"
+      }
+    }
+  },
+  "link-primary": {
+    "$type": "color",
+    "$value": "{blue.40}",
+    "$description": "Primary link color. Use for standard hyperlinks and navigation links.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "link-primary-hover": {
+    "$type": "color",
+    "$value": "{blue.30}",
+    "$description": "Hover color for primary links. Use when user hovers over standard links.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ],
+        "state": "hover"
+      }
+    }
+  },
+  "link-secondary": {
+    "$type": "color",
+    "$value": "{blue.30}",
+    "$description": "Secondary link color. Use for less prominent links or alternative link styles.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "link-inverse-visited": {
+    "$type": "color",
+    "$value": "{purple.60}",
+    "$description": "Visited link color for dark backgrounds. Use for previously clicked links on inverse surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ],
+        "state": "visited"
+      }
+    }
+  },
+  "link-visited": {
+    "$type": "color",
+    "$value": "{purple.40}",
+    "$description": "Color for visited links. Use to indicate previously clicked links.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "link-inverse": {
+    "$type": "color",
+    "$value": "{blue.60}",
+    "$description": "Link color for dark backgrounds. Use for links on inverse or dark surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "link-inverse-active": {
+    "$type": "color",
+    "$value": "{gray.100}",
+    "$description": "Active state for inverse links. Use when user clicks links on dark backgrounds.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "link-inverse-hover": {
+    "$type": "color",
+    "$value": "{blue.70}",
+    "$description": "Hover state for inverse links. Use when hovering over links on dark backgrounds.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Link",
+        "properties": [
+          "text"
+        ]
+      }
+    }
+  },
+  "icon-primary": {
+    "$type": "color",
+    "$value": "{gray.10}",
+    "$description": "Primary icon color. Use for main icons with highest visual priority and emphasis.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "icon-secondary": {
+    "$type": "color",
+    "$value": "{gray.30}",
+    "$description": "Secondary icon color. Use for supporting icons with less emphasis than primary.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "icon-inverse": {
+    "$type": "color",
+    "$value": "{gray.100}",
+    "$description": "Icon color for inverse/dark backgrounds. Use for icons on dark surfaces or inverse components.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "icon-on-color": {
+    "$type": "color",
+    "$value": "{white}",
+    "$description": "Icon color for colored backgrounds. Use for icons on brand colors, buttons, or colored surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "icon-on-color-disabled": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/white/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/white/$value/components"
+      },
+      "alpha": 0.25
+    },
+    "$description": "Disabled icon color on colored backgrounds. Use when icons on colored surfaces are inactive.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ],
+        "state": "disabled"
+      }
+    }
+  },
+  "icon-disabled": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/gray/10/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/gray/10/$value/components"
+      },
+      "alpha": 0.25
+    },
+    "$description": "Icon color for disabled state. Use when icons need to indicate unavailable or inactive functionality.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ],
+        "state": "disabled"
+      }
+    }
+  },
+  "icon-interactive": {
+    "$type": "color",
+    "$value": "{white}",
+    "$description": "Icon color for interactive elements. Use for clickable icons, buttons, and actionable items.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Icons",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-error": {
+    "$type": "color",
+    "$value": "{red.50}",
+    "$description": "Error color for critical states. Use for error messages, failed validations, and critical alerts.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-success": {
+    "$type": "color",
+    "$value": "{green.40}",
+    "$description": "Success color for positive states. Use for success messages, completed actions, and confirmations.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-warning": {
+    "$type": "color",
+    "$value": "{yellow.30}",
+    "$description": "Warning color for caution states. Use for warnings, potential issues, and items needing attention.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-info": {
+    "$type": "color",
+    "$value": "{blue.50}",
+    "$description": "Info color for informational states. Use for helpful tips, neutral information, and guidance.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-error-inverse": {
+    "$type": "color",
+    "$value": "{red.60}",
+    "$description": "Error color for dark backgrounds. Use for error indicators on inverse surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-success-inverse": {
+    "$type": "color",
+    "$value": "{green.50}",
+    "$description": "Success color for dark backgrounds. Use for success indicators on inverse surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-warning-inverse": {
+    "$type": "color",
+    "$value": "{yellow.30}",
+    "$description": "Warning color for dark backgrounds. Use for warning indicators on inverse surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-info-inverse": {
+    "$type": "color",
+    "$value": "{blue.70}",
+    "$description": "Info color for dark backgrounds. Use for info indicators on inverse surfaces.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-caution-major": {
+    "$type": "color",
+    "$value": "{orange.40}",
+    "$description": "Major caution color. Use for high-severity warnings or significant issues.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-caution-minor": {
+    "$type": "color",
+    "$value": "{yellow.30}",
+    "$description": "Minor caution color. Use for low-severity warnings or minor issues.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "support-caution-undefined": {
+    "$type": "color",
+    "$value": "{purple.50}",
+    "$description": "Undefined caution color. Use for unknown or indeterminate caution states.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Support",
+        "properties": [
+          "background",
+          "fill",
+          "stroke"
+        ]
+      }
+    }
+  },
+  "highlight": {
+    "$type": "color",
+    "$value": "{blue.90}",
+    "$description": "Highlight color for selected text or emphasized content. Use for text selection or search result highlighting."
+  },
+  "overlay": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": {
+        "$ref": "#/black/$value/colorSpace"
+      },
+      "components": {
+        "$ref": "#/black/$value/components"
+      },
+      "alpha": 0.6
+    },
+    "$description": "Overlay color for modal backgrounds. Use to dim content behind dialogs and modals.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "properties": [
+          "background"
+        ]
+      }
+    }
+  },
+  "focus": {
+    "$type": "color",
+    "$value": "{white}",
+    "$description": "Focus indicator color. Use for focus rings and outlines on interactive elements for keyboard navigation.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Focus",
+        "properties": [
+          "border"
+        ]
+      }
+    }
+  },
+  "focus-inset": {
+    "$type": "color",
+    "$value": "{gray.100}",
+    "$description": "Inset focus indicator color. Use for inner focus rings on elements with colored backgrounds.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Focus",
+        "properties": [
+          "border"
+        ]
+      }
+    }
+  },
+  "focus-inverse": {
+    "$type": "color",
+    "$value": "{blue.60}",
+    "$description": "Focus indicator for inverse/dark elements. Use for focus rings on dark backgrounds.",
+    "$extensions": {
+      "com.ibm.carbon": {
+        "group": "Focus",
+        "properties": [
+          "border"
+        ]
+      }
+    }
+  }
+}

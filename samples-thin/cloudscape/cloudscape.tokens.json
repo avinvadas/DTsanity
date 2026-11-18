@@ -1,0 +1,3398 @@
+{
+  "tokens": {
+    "color-background-notification-severity-critical": {
+      "$value": {
+        "light": "#870303",
+        "dark": "#d63f38"
+      },
+      "$description": "Background color in a notification to represent a critical error or a critically high-level of severity. For example: \"Sev-1\""
+    },
+    "color-background-notification-severity-high": {
+      "$value": {
+        "light": "#ce3311",
+        "dark": "#fe6e73"
+      },
+      "$description": "Background color in a notification to represent an error status or a high-level of severity. For example: \"Failed\" or \"Sev-2\""
+    },
+    "color-background-notification-severity-medium": {
+      "$value": {
+        "light": "#f89256",
+        "dark": "#f89256"
+      },
+      "$description": "Background color in a notification to represent a medium-level of severity. For example: \"Sev-3\""
+    },
+    "color-background-notification-severity-low": {
+      "$value": {
+        "light": "#f2cd54",
+        "dark": "#f2cd54"
+      },
+      "$description": "Background color in a notification to represent a warning or a low-level of severity. For example: \"Warning\" or \"Sev-4\""
+    },
+    "color-background-notification-severity-neutral": {
+      "$value": {
+        "light": "#656871",
+        "dark": "#656871"
+      },
+      "$description": "Background color in a notification to represent a neutral status, a severity level of no impact, or the lowest-level of severity. For example: \"Pending\" or \"Sev-5\""
+    },
+    "color-text-notification-severity-critical": {
+      "$value": {
+        "light": "#f9f9fa",
+        "dark": "#000000"
+      },
+      "$description": "Text color in a notification to represent a critical error or a critically high-level of severity. For example: \"Sev-1\""
+    },
+    "color-text-notification-severity-high": {
+      "$value": {
+        "light": "#f9f9fa",
+        "dark": "#0f141a"
+      },
+      "$description": "Text color in a notification to represent an error status or a high-level of severity. For example: \"Failed\" or \"Sev-2\""
+    },
+    "color-text-notification-severity-medium": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#0f141a"
+      },
+      "$description": "Text color in a notification to represent a medium-level of severity. For example: \"Sev-3\""
+    },
+    "color-text-notification-severity-low": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#0f141a"
+      },
+      "$description": "Text color in a notification to represent a warning or a low-level of severity. For example: \"Warning\" or \"Sev-4\""
+    },
+    "color-text-notification-severity-neutral": {
+      "$value": {
+        "light": "#f9f9fa",
+        "dark": "#f9f9fa"
+      },
+      "$description": "Text color in a notification to represent a neutral status, a severity level of no impact, or the lowest-level of severity. For example: \"Pending\" or \"Sev-5\""
+    },
+    "color-background-button-link-active": {
+      "$value": {
+        "light": "#d1f1ff",
+        "dark": "#333843"
+      },
+      "$description": "The background color of link buttons in active state."
+    },
+    "color-background-button-link-default": {
+      "$value": {
+        "light": "transparent",
+        "dark": "transparent"
+      },
+      "$description": "The background color of link buttons in default state."
+    },
+    "color-background-button-link-disabled": {
+      "$value": {
+        "light": "transparent",
+        "dark": "transparent"
+      },
+      "$description": "The background color of link buttons in disabled state."
+    },
+    "color-background-button-link-hover": {
+      "$value": {
+        "light": "#f0fbff",
+        "dark": "#1b232d"
+      },
+      "$description": "The background color of link buttons in hover state."
+    },
+    "color-background-button-normal-active": {
+      "$value": {
+        "light": "#d1f1ff",
+        "dark": "#333843"
+      },
+      "$description": "The background color of normal buttons in active state."
+    },
+    "color-background-button-normal-default": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The default background color of normal buttons."
+    },
+    "color-background-button-normal-disabled": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of normal buttons in disabled state."
+    },
+    "color-background-button-normal-hover": {
+      "$value": {
+        "light": "#f0fbff",
+        "dark": "#1b232d"
+      },
+      "$description": "The background color of normal buttons in hover state."
+    },
+    "color-background-button-primary-active": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#42b4ff"
+      },
+      "$description": "The background color of primary buttons in active state."
+    },
+    "color-background-button-primary-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default background color of primary buttons."
+    },
+    "color-background-button-primary-disabled": {
+      "$value": {
+        "light": "#ebebf0",
+        "dark": "#232b37"
+      },
+      "$description": "The background color of primary buttons in disabled state."
+    },
+    "color-background-button-primary-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The background color of primary buttons in hover state."
+    },
+    "color-background-container-content": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of container main content areas. For example: content areas of form sections, containers, tables, and cards."
+    },
+    "color-background-container-header": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of container headers. For example: headers of form sections, containers, tables, and card collections."
+    },
+    "color-background-control-checked": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The background color of a checked form control. For example: background fill of a selected radio button, checked checkbox, and toggle that is switched on."
+    },
+    "color-background-control-default": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The default background color of form controls. For example: radio buttons and checkboxes default background fill color."
+    },
+    "color-background-control-disabled": {
+      "$value": {
+        "light": "#dedee3",
+        "dark": "#333843"
+      },
+      "$description": "The background color of a disabled form control. For example: background fill of a disabled radio button and checkbox."
+    },
+    "color-background-dropdown-item-default": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#1b232d"
+      },
+      "$description": "The default background color of dropdown items. For example: select, multiselect, autosuggest, and datepicker dropdown backgrounds."
+    },
+    "color-background-dropdown-item-filter-match": {
+      "$value": {
+        "light": "#f0fbff",
+        "dark": "#333843"
+      },
+      "$description": "The background color of text that matches a user's query. For example: the background of text matching a query entered into a table filter, select, multiselect, or autosuggest."
+    },
+    "color-background-dropdown-item-hover": {
+      "$value": {
+        "light": "#f3f3f7",
+        "dark": "#131920"
+      },
+      "$description": "The background color of dropdown items on hover. For example: background of hovered items in select, multiselect, autosuggest, and datepicker dropdowns."
+    },
+    "color-background-dropdown-item-selected": {
+      "$value": {
+        "light": "#f0fbff",
+        "dark": "#001129"
+      },
+      "$description": "The background color of selected dropdown items. For example: background of selected items in select, multiselect, autosuggest, and datepicker dropdowns."
+    },
+    "color-background-home-header": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#0f141a"
+      },
+      "$description": "The background color of the home header, displayed on the Service's home page."
+    },
+    "color-background-input-default": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The default background color of form inputs. For example: background fill of an input, textarea, autosuggest, and trigger of a select and multiselect."
+    },
+    "color-background-input-disabled": {
+      "$value": {
+        "light": "#ebebf0",
+        "dark": "#1b232d"
+      },
+      "$description": "The background color of a disabled form input. For example: background fill of a disabled input, textarea, autosuggest, and trigger of a select and multiselect."
+    },
+    "color-background-item-selected": {
+      "$value": {
+        "light": "#f0fbff",
+        "dark": "#001129"
+      },
+      "$description": "The background color of a selected item. For example: tokens, selected table rows, cards, and tile backgrounds."
+    },
+    "color-background-layout-main": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of the main content area on a page. For example: content area in app layout."
+    },
+    "color-background-layout-panel": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of the selected (active) drawer panel in the app layout. Use this token to theme the background of the open drawer."
+    },
+    "color-background-layout-panel-content": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of app layout panel content area. For example: The side navigation and tools panel content background color."
+    },
+    "color-background-layout-toolbar": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The background color of the app layout's toolbar. For example: The toolbar bar containing breadcrumbs and toggle buttons."
+    },
+    "color-background-layout-toggle-active": {
+      "$value": {
+        "light": "#424650",
+        "dark": "#424650"
+      },
+      "$description": "The background color of the app layout toggle button when it's active."
+    },
+    "color-background-layout-toggle-default": {
+      "$value": {
+        "light": "#424650",
+        "dark": "#424650"
+      },
+      "$description": "The default background color of the app layout toggle button."
+    },
+    "color-background-layout-toggle-hover": {
+      "$value": {
+        "light": "#656871",
+        "dark": "#656871"
+      },
+      "$description": "The background color of the app layout toggle button on hover."
+    },
+    "color-background-layout-toggle-selected-active": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The background color of the app layout toggle button when it's selected and active."
+    },
+    "color-background-layout-toggle-selected-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default background color of the app layout toggle button when it's selected."
+    },
+    "color-background-layout-toggle-selected-hover": {
+      "$value": {
+        "light": "#004a9e",
+        "dark": "#75cfff"
+      },
+      "$description": "The background color of the app layout toggle button on hover when it's selected."
+    },
+    "color-background-notification-blue": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#006ce0"
+      },
+      "$description": "Background color for blue notifications. For example: blue badges and info flash messages."
+    },
+    "color-background-notification-green": {
+      "$value": {
+        "light": "#00802f",
+        "dark": "#00802f"
+      },
+      "$description": "Background color for green notifications. For example: green badges and success flash messages."
+    },
+    "color-background-notification-grey": {
+      "$value": {
+        "light": "#424650",
+        "dark": "#656871"
+      },
+      "$description": "Background color for grey notifications. For example: grey badges."
+    },
+    "color-background-notification-red": {
+      "$value": {
+        "light": "#db0000",
+        "dark": "#db0000"
+      },
+      "$description": "Background color for red notifications. For example: red badges and error flash messages."
+    },
+    "color-background-notification-yellow": {
+      "$value": {
+        "light": "#ffe347",
+        "dark": "#ffe347"
+      },
+      "$description": "Background color for yellow notifications. For example: yellow badges and warning flash messages."
+    },
+    "color-background-status-error": {
+      "$value": {
+        "light": "#fff5f5",
+        "dark": "#1f0000"
+      },
+      "$description": "The background color of an item in error state. For example: error alerts."
+    },
+    "color-background-status-info": {
+      "$value": {
+        "light": "#f0fbff",
+        "dark": "#001129"
+      },
+      "$description": "The background color of an informational item. For example: information alerts."
+    },
+    "color-background-status-success": {
+      "$value": {
+        "light": "#effff1",
+        "dark": "#001401"
+      },
+      "$description": "The background color of an item in success state. For example: success alerts."
+    },
+    "color-background-status-warning": {
+      "$value": {
+        "light": "#fffef0",
+        "dark": "#191100"
+      },
+      "$description": "The background color of an item in warning state. For example: warning alerts."
+    },
+    "color-border-button-link-disabled": {
+      "$value": {
+        "light": "transparent",
+        "dark": "transparent"
+      },
+      "$description": "The border color of link buttons in disabled state."
+    },
+    "color-border-button-normal-active": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The border color of normal buttons in active state."
+    },
+    "color-border-button-normal-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The border color of normal buttons."
+    },
+    "color-border-button-normal-disabled": {
+      "$value": {
+        "light": "#b4b4bb",
+        "dark": "#656871"
+      },
+      "$description": "The border color of normal buttons in disabled state."
+    },
+    "color-text-button-normal-disabled": {
+      "$value": {
+        "light": "#8c8c94",
+        "dark": "#8c8c94"
+      },
+      "$description": "The text color of normal buttons in disabled state."
+    },
+    "color-border-button-normal-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The border color of normal buttons in hover state."
+    },
+    "color-text-button-icon-disabled": {
+      "$value": {
+        "light": "#8c8c94",
+        "dark": "#8c8c94"
+      },
+      "$description": "The color of icon buttons in disabled state."
+    },
+    "color-border-button-primary-active": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#42b4ff"
+      },
+      "$description": "The border color of primary buttons in active state."
+    },
+    "color-border-button-primary-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The border color of primary buttons."
+    },
+    "color-border-button-primary-disabled": {
+      "$value": {
+        "light": "#ebebf0",
+        "dark": "#232b37"
+      },
+      "$description": "The border color of primary buttons in disabled state."
+    },
+    "color-border-button-primary-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The border color of primary buttons in hover state."
+    },
+    "color-text-button-primary-disabled": {
+      "$value": {
+        "light": "#8c8c94",
+        "dark": "#8c8c94"
+      },
+      "$description": "The text color of primary buttons in disabled state."
+    },
+    "color-border-container-top": {
+      "$value": {
+        "light": "transparent",
+        "dark": "transparent"
+      },
+      "$description": "The top border color for containers and first item in dropdowns. For example: the top border of a card, dropdown, and table."
+    },
+    "color-border-control-default": {
+      "$value": {
+        "light": "#8c8c94",
+        "dark": "#8c8c94"
+      },
+      "$description": "The default border color of form controls. For example: radio buttons and checkboxes."
+    },
+    "color-border-divider-default": {
+      "$value": {
+        "light": "#c6c6cd",
+        "dark": "#424650"
+      },
+      "$description": "The default color for dividers. For example: dividers in column layout, expanding sections, side nav, help panel, between table rows and dropdown items, and inside containers."
+    },
+    "color-border-divider-secondary": {
+      "$value": {
+        "light": "#ebebf0",
+        "dark": "#232b37"
+      },
+      "$description": "The border color for row dividers. For example: row dividers for table and collection preferences."
+    },
+    "color-border-dropdown-container": {
+      "$value": {
+        "light": "#b4b4bb",
+        "dark": "#656871"
+      },
+      "$description": "The border color of the dropdown container. For example: border color of the dropdown container in button dropdown, select, and multi-select."
+    },
+    "color-border-dropdown-item-hover": {
+      "$value": {
+        "light": "#8c8c94",
+        "dark": "#656871"
+      },
+      "$description": "The border color of dropdown items on hover. For example: border of hovered items in select, multiselect, autosuggest, and hovered days in datepicker."
+    },
+    "color-border-input-default": {
+      "$value": {
+        "light": "#8c8c94",
+        "dark": "#656871"
+      },
+      "$description": "The default border color of form inputs. For example: input, textarea, autosuggest, datepicker, select, and multiselect."
+    },
+    "color-border-input-focused": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The color of focus states for form inputs. For example: input, textarea, autosuggest, datepicker, select, and multiselect."
+    },
+    "color-border-item-focused": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The color of focus states. For example: the focus ring around interactive elements."
+    },
+    "color-border-dropdown-item-focused": {
+      "$value": {
+        "light": "#424650",
+        "dark": "#dedee3"
+      },
+      "$description": "The color of focus states for dropdown items. For example: the focus ring around selectable elements in the dropdown of button dropdown, select, and multi-select."
+    },
+    "color-border-item-selected": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The border color of a selected item. For example: tokens, selected table rows, selected cards, and selected tile borders."
+    },
+    "color-border-layout-side-navigation": {
+      "$value": {
+        "light": "#c6c6cd",
+        "dark": "#424650"
+      },
+      "$description": "The border color of the side navigation divider in the app layout."
+    },
+    "color-border-status-error": {
+      "$value": {
+        "light": "#db0000",
+        "dark": "#ff7a7a"
+      },
+      "$description": "The border color of an item in error state. For example: error alerts."
+    },
+    "color-border-status-info": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The border color of an informational item. For example: information alerts."
+    },
+    "color-border-status-success": {
+      "$value": {
+        "light": "#00802f",
+        "dark": "#2bb534"
+      },
+      "$description": "The border color of an item in success state. For example: success alerts."
+    },
+    "color-border-status-warning": {
+      "$value": {
+        "light": "#855900",
+        "dark": "#fbd332"
+      },
+      "$description": "The border color of an item in warning state. For example: warning alerts."
+    },
+    "color-text-body-default": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#c6c6cd"
+      },
+      "$description": "The default color of non-heading text and body content. For example: text in a paragraph tag, table cell data, form field labels and values."
+    },
+    "color-text-body-secondary": {
+      "$value": {
+        "light": "#424650",
+        "dark": "#c6c6cd"
+      },
+      "$description": "The color of text that is secondary to base text. For example: text in the navigation and tools panels."
+    },
+    "color-text-button-inline-icon-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default color of inline button icons."
+    },
+    "color-text-button-inline-icon-disabled": {
+      "$value": {
+        "light": "#b4b4bb",
+        "dark": "#656871"
+      },
+      "$description": "The color of inline button icons in disabled state."
+    },
+    "color-text-button-inline-icon-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The color of inline button icons in hover state."
+    },
+    "color-text-button-normal-active": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The active text color of normal buttons. For example: Active text color in normal and link buttons."
+    },
+    "color-text-button-normal-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default text color of normal buttons."
+    },
+    "color-text-button-normal-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The hover text color of normal buttons."
+    },
+    "color-text-button-link-active": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The text color of link buttons in active state."
+    },
+    "color-text-button-link-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default text color of link buttons."
+    },
+    "color-text-button-link-disabled": {
+      "$value": {
+        "light": "#b4b4bb",
+        "dark": "#656871"
+      },
+      "$description": "The text color of link buttons in disabled state."
+    },
+    "color-text-button-link-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The text color of link buttons in hover state."
+    },
+    "color-text-button-primary-active": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#0f141a"
+      },
+      "$description": "The active text color of primary buttons."
+    },
+    "color-text-button-primary-default": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#0f141a"
+      },
+      "$description": "The default text color of primary buttons."
+    },
+    "color-text-button-primary-hover": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#0f141a"
+      },
+      "$description": "The hover text color of primary buttons."
+    },
+    "color-text-dropdown-item-default": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#dedee3"
+      },
+      "$description": "The default text color of dropdown items. For example: label and label tag text color for autosuggest, select, and multiselect."
+    },
+    "color-text-dropdown-item-disabled": {
+      "$value": {
+        "light": "#b4b4bb",
+        "dark": "#656871"
+      },
+      "$description": "The text color of disabled dropdown items. For example: label, label tag, description, and tag text color of a disabled item in a select, multiselect, and autosuggest."
+    },
+    "color-text-dropdown-item-filter-match": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#75cfff"
+      },
+      "$description": "The color of text matching a user's query. For example: the text matching a query entered into a table filter, select, multiselect, or autosuggest."
+    },
+    "color-text-dropdown-item-highlighted": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#ebebf0"
+      },
+      "$description": "The text color of hovered or selected dropdown items. For example: label text color of the item on hover in a select, multiselect, and autosuggest."
+    },
+    "color-text-dropdown-item-secondary": {
+      "$value": {
+        "light": "#656871",
+        "dark": "#a4a4ad"
+      },
+      "$description": "The text color of secondary information in dropdown items. For example: descriptions and tags text color in a select, multiselect, and autosuggest."
+    },
+    "color-text-heading-default": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#ebebf0"
+      },
+      "$description": "The default color for headings 2-5. For example: headings in containers, form sections, forms, and app layout panels."
+    },
+    "color-text-heading-secondary": {
+      "$value": {
+        "light": "#424650",
+        "dark": "#a4a4ad"
+      },
+      "$description": "The default color for secondary heading text such as page and container descriptions. For example: descriptions in containers such as form sections, tables, and card collections, as well as form page descriptions."
+    },
+    "color-text-home-header-default": {
+      "$value": {
+        "light": "#ebebf0",
+        "dark": "#ebebf0"
+      },
+      "$description": "The color of the home header's text, displayed on the Service's home page."
+    },
+    "color-text-home-header-secondary": {
+      "$value": {
+        "light": "#c6c6cd",
+        "dark": "#c6c6cd"
+      },
+      "$description": "The color of the home header's secondary text, displayed on the Service's home page."
+    },
+    "color-text-input-disabled": {
+      "$value": {
+        "light": "#b4b4bb",
+        "dark": "#656871"
+      },
+      "$description": "The color of the text value in a disabled input. For example: text in a disabled input, autosuggest, datepicker, and the trigger of a select and multiselect."
+    },
+    "color-text-input-placeholder": {
+      "$value": {
+        "light": "#656871",
+        "dark": "#a4a4ad"
+      },
+      "$description": "The color of placeholder text in an input. For example: placeholder text in an input, autosuggest, datepicker, and the trigger of a select and multiselect."
+    },
+    "color-text-layout-toggle": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#ffffff"
+      },
+      "$description": "The default color of the app layout toggle."
+    },
+    "color-text-layout-toggle-active": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#161d26"
+      },
+      "$description": "The color of the app layout toggle button when it's active."
+    },
+    "color-text-layout-toggle-hover": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The color of the app layout toggle button on hover."
+    },
+    "color-text-layout-toggle-selected": {
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#0f141a"
+      },
+      "$description": "The color of the app layout toggle button when it's selected."
+    },
+    "color-text-link-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default color for links. For example: text in an anchor tag, info links, breadcrumb links, and icon links."
+    },
+    "color-text-link-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The hover color for links. For example: text in an anchor tag, info links, breadcrumb links, and icon links."
+    },
+    "color-text-link-decoration-default": {
+      "$value": {
+        "light": "currentColor",
+        "dark": "currentColor"
+      },
+      "$description": "The default color of the text decoration (underline) of links. Defaults to the link text color."
+    },
+    "color-text-link-decoration-hover": {
+      "$value": {
+        "light": "currentColor",
+        "dark": "currentColor"
+      },
+      "$description": "The hover color of the text decoration (underline) of links. Defaults to the link hover text color."
+    },
+    "color-text-link-secondary-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default color for secondary links. For example: links with lower visual emphasis or supplementary content."
+    },
+    "color-text-link-secondary-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The hover color for secondary links. For example: links with lower visual emphasis or supplementary content."
+    },
+    "color-text-link-info-default": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The default color for info links."
+    },
+    "color-text-link-info-hover": {
+      "$value": {
+        "light": "#002b66",
+        "dark": "#75cfff"
+      },
+      "$description": "The hover color for info links."
+    },
+    "color-text-notification-default": {
+      "$value": {
+        "light": "#f9f9fa",
+        "dark": "#f9f9fa"
+      },
+      "$description": "Default text color for notifications. For example: the text on badges and flashes."
+    },
+    "color-text-notification-yellow": {
+      "$value": {
+        "light": "#0f141a",
+        "dark": "#0f141a"
+      },
+      "$description": "The text and foreground color used on warning flash messages (yellow notification surface)."
+    },
+    "color-text-status-error": {
+      "$value": {
+        "light": "#db0000",
+        "dark": "#ff7a7a"
+      },
+      "$description": "The color of error text and icons. For example: form field error text and error status indicators."
+    },
+    "color-text-status-inactive": {
+      "$value": {
+        "light": "#656871",
+        "dark": "#a4a4ad"
+      },
+      "$description": "The color of inactive and loading text and icons. For example: table and card collection loading states icon and text and inactive and pending status indicators."
+    },
+    "color-text-status-info": {
+      "$value": {
+        "light": "#006ce0",
+        "dark": "#42b4ff"
+      },
+      "$description": "The color of info text and icons. For example: info status indicators and info alert icon."
+    },
+    "color-text-status-success": {
+      "$value": {
+        "light": "#00802f",
+        "dark": "#2bb534"
+      },
+      "$description": "The color of success text and icons. For example: success status indicators and success alert icon."
+    },
+    "color-text-status-warning": {
+      "$value": {
+        "light": "#855900",
+        "dark": "#fbd332"
+      },
+      "$description": "The color of warning icons."
+    },
+    "font-family-base": {
+      "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+      "$description": "The default font family that will be applied globally to the product interface."
+    },
+    "font-family-display": {
+      "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+      "$description": "The font family for display text. Defaults to the base font family."
+    },
+    "font-family-heading": {
+      "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+      "$description": "The font family for headings and component headers. Defaults to the base font family."
+    },
+    "font-family-monospace": {
+      "$value": "Monaco, Menlo, Consolas, 'Courier Prime', Courier, 'Courier New', monospace",
+      "$description": "The monospace font family that will be applied globally to the product interface."
+    },
+    "font-size-body-m": {
+      "$value": "14px",
+      "$description": "The default font size for regular body text. For example, <p> tags in text content, or button text."
+    },
+    "font-size-body-s": {
+      "$value": "12px",
+      "$description": "The default font size for small body text. For example, form field descriptions, or badge text."
+    },
+    "font-size-display-l": {
+      "$value": "42px",
+      "$description": "The default font size for large display text."
+    },
+    "font-size-display-xl": {
+      "$value": "64px",
+      "$description": "The default font size for extra large display text."
+    },
+    "font-size-heading-l": {
+      "$value": "20px",
+      "$description": "The default font size for h2s."
+    },
+    "font-size-heading-m": {
+      "$value": "18px",
+      "$description": "The default font size for h3s."
+    },
+    "font-size-heading-s": {
+      "$value": "16px",
+      "$description": "The default font size for h4s."
+    },
+    "font-size-heading-xl": {
+      "$value": "24px",
+      "$description": "The default font size for h1s."
+    },
+    "font-size-heading-xs": {
+      "$value": "14px",
+      "$description": "The default font size for h5s."
+    },
+    "font-size-tabs": {
+      "$value": "16px",
+      "$description": "The default font size for tabs."
+    },
+    "font-weight-alert-header": {
+      "$value": "700",
+      "$description": "The default font weight for alert header text."
+    },
+    "font-weight-bold": {
+      "$value": "700",
+      "$description": "The default bold font weight for body text. For example, <strong> and <b> tags in text content."
+    },
+    "font-weight-button": {
+      "$value": "700",
+      "$description": "The default font weight for button text."
+    },
+    "font-weight-display-l": {
+      "$value": "700",
+      "$description": "The default font weight for large display text."
+    },
+    "font-weight-display-xl": {
+      "$value": "400",
+      "$description": "The default font weight for extra large display text."
+    },
+    "font-weight-flashbar-header": {
+      "$value": "700",
+      "$description": "The default font weight for flashbar header text."
+    },
+    "font-weight-heading-l": {
+      "$value": "700",
+      "$description": "The default font weight for h2s."
+    },
+    "font-weight-heading-m": {
+      "$value": "700",
+      "$description": "The default font weight for h3s."
+    },
+    "font-weight-heading-s": {
+      "$value": "700",
+      "$description": "The default font weight for h4s."
+    },
+    "font-weight-heading-xl": {
+      "$value": "700",
+      "$description": "The default font weight for h1s."
+    },
+    "font-weight-heading-xs": {
+      "$value": "700",
+      "$description": "The default font weight for h5s."
+    },
+    "font-weight-heavy": {
+      "$value": "700",
+      "$description": "The default heavy font weight."
+    },
+    "font-weight-lighter": {
+      "$value": "300",
+      "$description": "The default lighter font weight."
+    },
+    "font-weight-normal": {
+      "$value": "400",
+      "$description": "The default normal font weight."
+    },
+    "font-weight-tabs": {
+      "$value": "700",
+      "$description": "The default font weight for tabs."
+    },
+    "font-weight-tabs-disabled": {
+      "$value": "700",
+      "$description": "The default font weight for disabled tabs."
+    },
+    "line-height-body-m": {
+      "$value": "20px",
+      "$description": "The default line height for regular body text."
+    },
+    "line-height-body-s": {
+      "$value": "16px",
+      "$description": "The default line height for small body text."
+    },
+    "line-height-display-l": {
+      "$value": "48px",
+      "$description": "The default line height for large display text."
+    },
+    "line-height-display-xl": {
+      "$value": "72px",
+      "$description": "The default line height for extra large display text."
+    },
+    "line-height-heading-l": {
+      "$value": "24px",
+      "$description": "The default line height for h2s."
+    },
+    "line-height-heading-m": {
+      "$value": "22px",
+      "$description": "The default line height for h3s."
+    },
+    "line-height-heading-s": {
+      "$value": "20px",
+      "$description": "The default line height for h4s."
+    },
+    "line-height-heading-xl": {
+      "$value": "30px",
+      "$description": "The default line height for h1s."
+    },
+    "line-height-heading-xs": {
+      "$value": "18px",
+      "$description": "The default line height for h5s."
+    },
+    "line-height-tabs": {
+      "$value": "20px",
+      "$description": "The default line height for tabs."
+    },
+    "border-radius-alert": {
+      "$value": "12px",
+      "$description": "The border radius of alerts."
+    },
+    "border-radius-button": {
+      "$value": "20px",
+      "$description": "The border radius of buttons and segmented control's segments."
+    },
+    "border-radius-container": {
+      "$value": "16px",
+      "$description": "The border radius of containers. Also used in container-based components like table, cards, expandable section, and modal."
+    },
+    "border-radius-input": {
+      "$value": "8px",
+      "$description": "The border radius of form controls. For example: input, select."
+    },
+    "space-static-xxxs": {
+      "$value": {
+        "comfortable": "2px",
+        "compact": "2px"
+      },
+      "$description": "The static XXXS spacing unit."
+    },
+    "space-static-xxs": {
+      "$value": {
+        "comfortable": "4px",
+        "compact": "4px"
+      },
+      "$description": "The static XXS spacing unit."
+    },
+    "space-static-xs": {
+      "$value": {
+        "comfortable": "8px",
+        "compact": "8px"
+      },
+      "$description": "The static XS spacing unit."
+    },
+    "space-static-s": {
+      "$value": {
+        "comfortable": "12px",
+        "compact": "12px"
+      },
+      "$description": "The static S spacing unit."
+    },
+    "space-static-m": {
+      "$value": {
+        "comfortable": "16px",
+        "compact": "16px"
+      },
+      "$description": "The static M spacing unit."
+    },
+    "space-static-l": {
+      "$value": {
+        "comfortable": "20px",
+        "compact": "20px"
+      },
+      "$description": "The static L spacing unit."
+    },
+    "space-static-xl": {
+      "$value": {
+        "comfortable": "24px",
+        "compact": "24px"
+      },
+      "$description": "The static XL spacing unit."
+    },
+    "space-static-xxl": {
+      "$value": {
+        "comfortable": "32px",
+        "compact": "32px"
+      },
+      "$description": "The static XXL spacing unit."
+    },
+    "space-static-xxxl": {
+      "$value": {
+        "comfortable": "40px",
+        "compact": "40px"
+      },
+      "$description": "The static XXXL spacing unit."
+    }
+  },
+  "contexts": {
+    "header": {
+      "tokens": {
+        "color-background-notification-severity-critical": {
+          "$value": {
+            "light": "#870303",
+            "dark": "#d63f38"
+          },
+          "$description": "Background color in a notification to represent a critical error or a critically high-level of severity. For example: \"Sev-1\""
+        },
+        "color-background-notification-severity-high": {
+          "$value": {
+            "light": "#ce3311",
+            "dark": "#fe6e73"
+          },
+          "$description": "Background color in a notification to represent an error status or a high-level of severity. For example: \"Failed\" or \"Sev-2\""
+        },
+        "color-background-notification-severity-medium": {
+          "$value": {
+            "light": "#f89256",
+            "dark": "#f89256"
+          },
+          "$description": "Background color in a notification to represent a medium-level of severity. For example: \"Sev-3\""
+        },
+        "color-background-notification-severity-low": {
+          "$value": {
+            "light": "#f2cd54",
+            "dark": "#f2cd54"
+          },
+          "$description": "Background color in a notification to represent a warning or a low-level of severity. For example: \"Warning\" or \"Sev-4\""
+        },
+        "color-background-notification-severity-neutral": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "Background color in a notification to represent a neutral status, a severity level of no impact, or the lowest-level of severity. For example: \"Pending\" or \"Sev-5\""
+        },
+        "color-text-notification-severity-critical": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#000000"
+          },
+          "$description": "Text color in a notification to represent a critical error or a critically high-level of severity. For example: \"Sev-1\""
+        },
+        "color-text-notification-severity-high": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#0f141a"
+          },
+          "$description": "Text color in a notification to represent an error status or a high-level of severity. For example: \"Failed\" or \"Sev-2\""
+        },
+        "color-text-notification-severity-medium": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "Text color in a notification to represent a medium-level of severity. For example: \"Sev-3\""
+        },
+        "color-text-notification-severity-low": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "Text color in a notification to represent a warning or a low-level of severity. For example: \"Warning\" or \"Sev-4\""
+        },
+        "color-text-notification-severity-neutral": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#f9f9fa"
+          },
+          "$description": "Text color in a notification to represent a neutral status, a severity level of no impact, or the lowest-level of severity. For example: \"Pending\" or \"Sev-5\""
+        },
+        "color-background-button-link-active": {
+          "$value": {
+            "light": "#333843",
+            "dark": "#333843"
+          },
+          "$description": "The background color of link buttons in active state."
+        },
+        "color-background-button-link-default": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The background color of link buttons in default state."
+        },
+        "color-background-button-link-disabled": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The background color of link buttons in disabled state."
+        },
+        "color-background-button-link-hover": {
+          "$value": {
+            "light": "#1b232d",
+            "dark": "#1b232d"
+          },
+          "$description": "The background color of link buttons in hover state."
+        },
+        "color-background-button-normal-active": {
+          "$value": {
+            "light": "#333843",
+            "dark": "#333843"
+          },
+          "$description": "The background color of normal buttons in active state."
+        },
+        "color-background-button-normal-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The default background color of normal buttons."
+        },
+        "color-background-button-normal-disabled": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The background color of normal buttons in disabled state."
+        },
+        "color-background-button-normal-hover": {
+          "$value": {
+            "light": "#1b232d",
+            "dark": "#1b232d"
+          },
+          "$description": "The background color of normal buttons in hover state."
+        },
+        "color-background-button-primary-active": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The background color of primary buttons in active state."
+        },
+        "color-background-button-primary-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default background color of primary buttons."
+        },
+        "color-background-button-primary-disabled": {
+          "$value": {
+            "light": "#232b37",
+            "dark": "#232b37"
+          },
+          "$description": "The background color of primary buttons in disabled state."
+        },
+        "color-background-button-primary-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The background color of primary buttons in hover state."
+        },
+        "color-background-container-content": {
+          "$value": {
+            "light": "#161d26",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of container main content areas. For example: content areas of form sections, containers, tables, and cards."
+        },
+        "color-background-container-header": {
+          "$value": {
+            "light": "#161d26",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of container headers. For example: headers of form sections, containers, tables, and card collections."
+        },
+        "color-background-control-checked": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The background color of a checked form control. For example: background fill of a selected radio button, checked checkbox, and toggle that is switched on."
+        },
+        "color-background-control-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The default background color of form controls. For example: radio buttons and checkboxes default background fill color."
+        },
+        "color-background-control-disabled": {
+          "$value": {
+            "light": "#333843",
+            "dark": "#333843"
+          },
+          "$description": "The background color of a disabled form control. For example: background fill of a disabled radio button and checkbox."
+        },
+        "color-background-dropdown-item-default": {
+          "$value": {
+            "light": "#1b232d",
+            "dark": "#1b232d"
+          },
+          "$description": "The default background color of dropdown items. For example: select, multiselect, autosuggest, and datepicker dropdown backgrounds."
+        },
+        "color-background-dropdown-item-filter-match": {
+          "$value": {
+            "light": "#333843",
+            "dark": "#333843"
+          },
+          "$description": "The background color of text that matches a user's query. For example: the background of text matching a query entered into a table filter, select, multiselect, or autosuggest."
+        },
+        "color-background-dropdown-item-hover": {
+          "$value": {
+            "light": "#131920",
+            "dark": "#131920"
+          },
+          "$description": "The background color of dropdown items on hover. For example: background of hovered items in select, multiselect, autosuggest, and datepicker dropdowns."
+        },
+        "color-background-dropdown-item-selected": {
+          "$value": {
+            "light": "#001129",
+            "dark": "#001129"
+          },
+          "$description": "The background color of selected dropdown items. For example: background of selected items in select, multiselect, autosuggest, and datepicker dropdowns."
+        },
+        "color-background-home-header": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The background color of the home header, displayed on the Service's home page."
+        },
+        "color-background-input-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The default background color of form inputs. For example: background fill of an input, textarea, autosuggest, and trigger of a select and multiselect."
+        },
+        "color-background-input-disabled": {
+          "$value": {
+            "light": "#1b232d",
+            "dark": "#1b232d"
+          },
+          "$description": "The background color of a disabled form input. For example: background fill of a disabled input, textarea, autosuggest, and trigger of a select and multiselect."
+        },
+        "color-background-item-selected": {
+          "$value": {
+            "light": "#001129",
+            "dark": "#001129"
+          },
+          "$description": "The background color of a selected item. For example: tokens, selected table rows, cards, and tile backgrounds."
+        },
+        "color-background-layout-main": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The background color of the main content area on a page. For example: content area in app layout."
+        },
+        "color-background-layout-panel": {
+          "$value": {
+            "light": "#161d26",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of the selected (active) drawer panel in the app layout. Use this token to theme the background of the open drawer."
+        },
+        "color-background-layout-panel-content": {
+          "$value": {
+            "light": "#161d26",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of app layout panel content area. For example: The side navigation and tools panel content background color."
+        },
+        "color-background-layout-toolbar": {
+          "$value": {
+            "light": "#161d26",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of the app layout's toolbar. For example: The toolbar bar containing breadcrumbs and toggle buttons."
+        },
+        "color-background-layout-toggle-active": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#424650"
+          },
+          "$description": "The background color of the app layout toggle button when it's active."
+        },
+        "color-background-layout-toggle-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#424650"
+          },
+          "$description": "The default background color of the app layout toggle button."
+        },
+        "color-background-layout-toggle-hover": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The background color of the app layout toggle button on hover."
+        },
+        "color-background-layout-toggle-selected-active": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The background color of the app layout toggle button when it's selected and active."
+        },
+        "color-background-layout-toggle-selected-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default background color of the app layout toggle button when it's selected."
+        },
+        "color-background-layout-toggle-selected-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The background color of the app layout toggle button on hover when it's selected."
+        },
+        "color-background-notification-blue": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#006ce0"
+          },
+          "$description": "Background color for blue notifications. For example: blue badges and info flash messages."
+        },
+        "color-background-notification-green": {
+          "$value": {
+            "light": "#00802f",
+            "dark": "#00802f"
+          },
+          "$description": "Background color for green notifications. For example: green badges and success flash messages."
+        },
+        "color-background-notification-grey": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "Background color for grey notifications. For example: grey badges."
+        },
+        "color-background-notification-red": {
+          "$value": {
+            "light": "#db0000",
+            "dark": "#db0000"
+          },
+          "$description": "Background color for red notifications. For example: red badges and error flash messages."
+        },
+        "color-background-notification-yellow": {
+          "$value": {
+            "light": "#ffe347",
+            "dark": "#ffe347"
+          },
+          "$description": "Background color for yellow notifications. For example: yellow badges and warning flash messages."
+        },
+        "color-background-status-error": {
+          "$value": {
+            "light": "#1f0000",
+            "dark": "#1f0000"
+          },
+          "$description": "The background color of an item in error state. For example: error alerts."
+        },
+        "color-background-status-info": {
+          "$value": {
+            "light": "#001129",
+            "dark": "#001129"
+          },
+          "$description": "The background color of an informational item. For example: information alerts."
+        },
+        "color-background-status-success": {
+          "$value": {
+            "light": "#001401",
+            "dark": "#001401"
+          },
+          "$description": "The background color of an item in success state. For example: success alerts."
+        },
+        "color-background-status-warning": {
+          "$value": {
+            "light": "#191100",
+            "dark": "#191100"
+          },
+          "$description": "The background color of an item in warning state. For example: warning alerts."
+        },
+        "color-border-button-link-disabled": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The border color of link buttons in disabled state."
+        },
+        "color-border-button-normal-active": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The border color of normal buttons in active state."
+        },
+        "color-border-button-normal-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of normal buttons."
+        },
+        "color-border-button-normal-disabled": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The border color of normal buttons in disabled state."
+        },
+        "color-text-button-normal-disabled": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The text color of normal buttons in disabled state."
+        },
+        "color-border-button-normal-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The border color of normal buttons in hover state."
+        },
+        "color-text-button-icon-disabled": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The color of icon buttons in disabled state."
+        },
+        "color-border-button-primary-active": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of primary buttons in active state."
+        },
+        "color-border-button-primary-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of primary buttons."
+        },
+        "color-border-button-primary-disabled": {
+          "$value": {
+            "light": "#232b37",
+            "dark": "#232b37"
+          },
+          "$description": "The border color of primary buttons in disabled state."
+        },
+        "color-border-button-primary-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The border color of primary buttons in hover state."
+        },
+        "color-text-button-primary-disabled": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The text color of primary buttons in disabled state."
+        },
+        "color-border-container-top": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The top border color for containers and first item in dropdowns. For example: the top border of a card, dropdown, and table."
+        },
+        "color-border-control-default": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The default border color of form controls. For example: radio buttons and checkboxes."
+        },
+        "color-border-divider-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#424650"
+          },
+          "$description": "The default color for dividers. For example: dividers in column layout, expanding sections, side nav, help panel, between table rows and dropdown items, and inside containers."
+        },
+        "color-border-divider-secondary": {
+          "$value": {
+            "light": "#232b37",
+            "dark": "#232b37"
+          },
+          "$description": "The border color for row dividers. For example: row dividers for table and collection preferences."
+        },
+        "color-border-dropdown-container": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The border color of the dropdown container. For example: border color of the dropdown container in button dropdown, select, and multi-select."
+        },
+        "color-border-dropdown-item-hover": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The border color of dropdown items on hover. For example: border of hovered items in select, multiselect, autosuggest, and hovered days in datepicker."
+        },
+        "color-border-input-default": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The default border color of form inputs. For example: input, textarea, autosuggest, datepicker, select, and multiselect."
+        },
+        "color-border-input-focused": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of focus states for form inputs. For example: input, textarea, autosuggest, datepicker, select, and multiselect."
+        },
+        "color-border-item-focused": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of focus states. For example: the focus ring around interactive elements."
+        },
+        "color-border-dropdown-item-focused": {
+          "$value": {
+            "light": "#dedee3",
+            "dark": "#dedee3"
+          },
+          "$description": "The color of focus states for dropdown items. For example: the focus ring around selectable elements in the dropdown of button dropdown, select, and multi-select."
+        },
+        "color-border-item-selected": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of a selected item. For example: tokens, selected table rows, selected cards, and selected tile borders."
+        },
+        "color-border-layout-side-navigation": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#424650"
+          },
+          "$description": "The border color of the side navigation divider in the app layout."
+        },
+        "color-border-status-error": {
+          "$value": {
+            "light": "#ff7a7a",
+            "dark": "#ff7a7a"
+          },
+          "$description": "The border color of an item in error state. For example: error alerts."
+        },
+        "color-border-status-info": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of an informational item. For example: information alerts."
+        },
+        "color-border-status-success": {
+          "$value": {
+            "light": "#2bb534",
+            "dark": "#2bb534"
+          },
+          "$description": "The border color of an item in success state. For example: success alerts."
+        },
+        "color-border-status-warning": {
+          "$value": {
+            "light": "#fbd332",
+            "dark": "#fbd332"
+          },
+          "$description": "The border color of an item in warning state. For example: warning alerts."
+        },
+        "color-text-body-default": {
+          "$value": {
+            "light": "#c6c6cd",
+            "dark": "#c6c6cd"
+          },
+          "$description": "The default color of non-heading text and body content. For example: text in a paragraph tag, table cell data, form field labels and values."
+        },
+        "color-text-body-secondary": {
+          "$value": {
+            "light": "#c6c6cd",
+            "dark": "#c6c6cd"
+          },
+          "$description": "The color of text that is secondary to base text. For example: text in the navigation and tools panels."
+        },
+        "color-text-button-inline-icon-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color of inline button icons."
+        },
+        "color-text-button-inline-icon-disabled": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The color of inline button icons in disabled state."
+        },
+        "color-text-button-inline-icon-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The color of inline button icons in hover state."
+        },
+        "color-text-button-normal-active": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The active text color of normal buttons. For example: Active text color in normal and link buttons."
+        },
+        "color-text-button-normal-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default text color of normal buttons."
+        },
+        "color-text-button-normal-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover text color of normal buttons."
+        },
+        "color-text-button-link-active": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The text color of link buttons in active state."
+        },
+        "color-text-button-link-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default text color of link buttons."
+        },
+        "color-text-button-link-disabled": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The text color of link buttons in disabled state."
+        },
+        "color-text-button-link-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The text color of link buttons in hover state."
+        },
+        "color-text-button-primary-active": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The active text color of primary buttons."
+        },
+        "color-text-button-primary-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The default text color of primary buttons."
+        },
+        "color-text-button-primary-hover": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The hover text color of primary buttons."
+        },
+        "color-text-dropdown-item-default": {
+          "$value": {
+            "light": "#dedee3",
+            "dark": "#dedee3"
+          },
+          "$description": "The default text color of dropdown items. For example: label and label tag text color for autosuggest, select, and multiselect."
+        },
+        "color-text-dropdown-item-disabled": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The text color of disabled dropdown items. For example: label, label tag, description, and tag text color of a disabled item in a select, multiselect, and autosuggest."
+        },
+        "color-text-dropdown-item-filter-match": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The color of text matching a user's query. For example: the text matching a query entered into a table filter, select, multiselect, or autosuggest."
+        },
+        "color-text-dropdown-item-highlighted": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#ebebf0"
+          },
+          "$description": "The text color of hovered or selected dropdown items. For example: label text color of the item on hover in a select, multiselect, and autosuggest."
+        },
+        "color-text-dropdown-item-secondary": {
+          "$value": {
+            "light": "#a4a4ad",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The text color of secondary information in dropdown items. For example: descriptions and tags text color in a select, multiselect, and autosuggest."
+        },
+        "color-text-heading-default": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#ebebf0"
+          },
+          "$description": "The default color for headings 2-5. For example: headings in containers, form sections, forms, and app layout panels."
+        },
+        "color-text-heading-secondary": {
+          "$value": {
+            "light": "#a4a4ad",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The default color for secondary heading text such as page and container descriptions. For example: descriptions in containers such as form sections, tables, and card collections, as well as form page descriptions."
+        },
+        "color-text-home-header-default": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#ebebf0"
+          },
+          "$description": "The color of the home header's text, displayed on the Service's home page."
+        },
+        "color-text-home-header-secondary": {
+          "$value": {
+            "light": "#c6c6cd",
+            "dark": "#c6c6cd"
+          },
+          "$description": "The color of the home header's secondary text, displayed on the Service's home page."
+        },
+        "color-text-input-disabled": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The color of the text value in a disabled input. For example: text in a disabled input, autosuggest, datepicker, and the trigger of a select and multiselect."
+        },
+        "color-text-input-placeholder": {
+          "$value": {
+            "light": "#a4a4ad",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The color of placeholder text in an input. For example: placeholder text in an input, autosuggest, datepicker, and the trigger of a select and multiselect."
+        },
+        "color-text-layout-toggle": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#ffffff"
+          },
+          "$description": "The default color of the app layout toggle."
+        },
+        "color-text-layout-toggle-active": {
+          "$value": {
+            "light": "#161d26",
+            "dark": "#161d26"
+          },
+          "$description": "The color of the app layout toggle button when it's active."
+        },
+        "color-text-layout-toggle-hover": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of the app layout toggle button on hover."
+        },
+        "color-text-layout-toggle-selected": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The color of the app layout toggle button when it's selected."
+        },
+        "color-text-link-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color for links. For example: text in an anchor tag, info links, breadcrumb links, and icon links."
+        },
+        "color-text-link-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover color for links. For example: text in an anchor tag, info links, breadcrumb links, and icon links."
+        },
+        "color-text-link-decoration-default": {
+          "$value": {
+            "light": "currentColor",
+            "dark": "currentColor"
+          },
+          "$description": "The default color of the text decoration (underline) of links. Defaults to the link text color."
+        },
+        "color-text-link-decoration-hover": {
+          "$value": {
+            "light": "currentColor",
+            "dark": "currentColor"
+          },
+          "$description": "The hover color of the text decoration (underline) of links. Defaults to the link hover text color."
+        },
+        "color-text-link-secondary-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color for secondary links. For example: links with lower visual emphasis or supplementary content."
+        },
+        "color-text-link-secondary-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover color for secondary links. For example: links with lower visual emphasis or supplementary content."
+        },
+        "color-text-link-info-default": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color for info links."
+        },
+        "color-text-link-info-hover": {
+          "$value": {
+            "light": "#75cfff",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover color for info links."
+        },
+        "color-text-notification-default": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#f9f9fa"
+          },
+          "$description": "Default text color for notifications. For example: the text on badges and flashes."
+        },
+        "color-text-notification-yellow": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The text and foreground color used on warning flash messages (yellow notification surface)."
+        },
+        "color-text-status-error": {
+          "$value": {
+            "light": "#ff7a7a",
+            "dark": "#ff7a7a"
+          },
+          "$description": "The color of error text and icons. For example: form field error text and error status indicators."
+        },
+        "color-text-status-inactive": {
+          "$value": {
+            "light": "#a4a4ad",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The color of inactive and loading text and icons. For example: table and card collection loading states icon and text and inactive and pending status indicators."
+        },
+        "color-text-status-info": {
+          "$value": {
+            "light": "#42b4ff",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of info text and icons. For example: info status indicators and info alert icon."
+        },
+        "color-text-status-success": {
+          "$value": {
+            "light": "#2bb534",
+            "dark": "#2bb534"
+          },
+          "$description": "The color of success text and icons. For example: success status indicators and success alert icon."
+        },
+        "color-text-status-warning": {
+          "$value": {
+            "light": "#fbd332",
+            "dark": "#fbd332"
+          },
+          "$description": "The color of warning icons."
+        },
+        "font-family-base": {
+          "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+          "$description": "The default font family that will be applied globally to the product interface."
+        },
+        "font-family-display": {
+          "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+          "$description": "The font family for display text. Defaults to the base font family."
+        },
+        "font-family-heading": {
+          "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+          "$description": "The font family for headings and component headers. Defaults to the base font family."
+        },
+        "font-family-monospace": {
+          "$value": "Monaco, Menlo, Consolas, 'Courier Prime', Courier, 'Courier New', monospace",
+          "$description": "The monospace font family that will be applied globally to the product interface."
+        },
+        "font-size-body-m": {
+          "$value": "14px",
+          "$description": "The default font size for regular body text. For example, <p> tags in text content, or button text."
+        },
+        "font-size-body-s": {
+          "$value": "12px",
+          "$description": "The default font size for small body text. For example, form field descriptions, or badge text."
+        },
+        "font-size-display-l": {
+          "$value": "42px",
+          "$description": "The default font size for large display text."
+        },
+        "font-size-display-xl": {
+          "$value": "64px",
+          "$description": "The default font size for extra large display text."
+        },
+        "font-size-heading-l": {
+          "$value": "20px",
+          "$description": "The default font size for h2s."
+        },
+        "font-size-heading-m": {
+          "$value": "18px",
+          "$description": "The default font size for h3s."
+        },
+        "font-size-heading-s": {
+          "$value": "16px",
+          "$description": "The default font size for h4s."
+        },
+        "font-size-heading-xl": {
+          "$value": "24px",
+          "$description": "The default font size for h1s."
+        },
+        "font-size-heading-xs": {
+          "$value": "14px",
+          "$description": "The default font size for h5s."
+        },
+        "font-size-tabs": {
+          "$value": "16px",
+          "$description": "The default font size for tabs."
+        },
+        "font-weight-alert-header": {
+          "$value": "700",
+          "$description": "The default font weight for alert header text."
+        },
+        "font-weight-bold": {
+          "$value": "700",
+          "$description": "The default bold font weight for body text. For example, <strong> and <b> tags in text content."
+        },
+        "font-weight-button": {
+          "$value": "700",
+          "$description": "The default font weight for button text."
+        },
+        "font-weight-display-l": {
+          "$value": "700",
+          "$description": "The default font weight for large display text."
+        },
+        "font-weight-display-xl": {
+          "$value": "400",
+          "$description": "The default font weight for extra large display text."
+        },
+        "font-weight-flashbar-header": {
+          "$value": "700",
+          "$description": "The default font weight for flashbar header text."
+        },
+        "font-weight-heading-l": {
+          "$value": "700",
+          "$description": "The default font weight for h2s."
+        },
+        "font-weight-heading-m": {
+          "$value": "700",
+          "$description": "The default font weight for h3s."
+        },
+        "font-weight-heading-s": {
+          "$value": "700",
+          "$description": "The default font weight for h4s."
+        },
+        "font-weight-heading-xl": {
+          "$value": "700",
+          "$description": "The default font weight for h1s."
+        },
+        "font-weight-heading-xs": {
+          "$value": "700",
+          "$description": "The default font weight for h5s."
+        },
+        "font-weight-heavy": {
+          "$value": "700",
+          "$description": "The default heavy font weight."
+        },
+        "font-weight-lighter": {
+          "$value": "300",
+          "$description": "The default lighter font weight."
+        },
+        "font-weight-normal": {
+          "$value": "400",
+          "$description": "The default normal font weight."
+        },
+        "font-weight-tabs": {
+          "$value": "700",
+          "$description": "The default font weight for tabs."
+        },
+        "font-weight-tabs-disabled": {
+          "$value": "700",
+          "$description": "The default font weight for disabled tabs."
+        },
+        "line-height-body-m": {
+          "$value": "20px",
+          "$description": "The default line height for regular body text."
+        },
+        "line-height-body-s": {
+          "$value": "16px",
+          "$description": "The default line height for small body text."
+        },
+        "line-height-display-l": {
+          "$value": "48px",
+          "$description": "The default line height for large display text."
+        },
+        "line-height-display-xl": {
+          "$value": "72px",
+          "$description": "The default line height for extra large display text."
+        },
+        "line-height-heading-l": {
+          "$value": "24px",
+          "$description": "The default line height for h2s."
+        },
+        "line-height-heading-m": {
+          "$value": "22px",
+          "$description": "The default line height for h3s."
+        },
+        "line-height-heading-s": {
+          "$value": "20px",
+          "$description": "The default line height for h4s."
+        },
+        "line-height-heading-xl": {
+          "$value": "30px",
+          "$description": "The default line height for h1s."
+        },
+        "line-height-heading-xs": {
+          "$value": "18px",
+          "$description": "The default line height for h5s."
+        },
+        "line-height-tabs": {
+          "$value": "20px",
+          "$description": "The default line height for tabs."
+        },
+        "border-radius-alert": {
+          "$value": "12px",
+          "$description": "The border radius of alerts."
+        },
+        "border-radius-button": {
+          "$value": "20px",
+          "$description": "The border radius of buttons and segmented control's segments."
+        },
+        "border-radius-container": {
+          "$value": "16px",
+          "$description": "The border radius of containers. Also used in container-based components like table, cards, expandable section, and modal."
+        },
+        "border-radius-input": {
+          "$value": "8px",
+          "$description": "The border radius of form controls. For example: input, select."
+        },
+        "space-static-xxxs": {
+          "$value": {
+            "comfortable": "2px",
+            "compact": "2px"
+          },
+          "$description": "The static XXXS spacing unit."
+        },
+        "space-static-xxs": {
+          "$value": {
+            "comfortable": "4px",
+            "compact": "4px"
+          },
+          "$description": "The static XXS spacing unit."
+        },
+        "space-static-xs": {
+          "$value": {
+            "comfortable": "8px",
+            "compact": "8px"
+          },
+          "$description": "The static XS spacing unit."
+        },
+        "space-static-s": {
+          "$value": {
+            "comfortable": "12px",
+            "compact": "12px"
+          },
+          "$description": "The static S spacing unit."
+        },
+        "space-static-m": {
+          "$value": {
+            "comfortable": "16px",
+            "compact": "16px"
+          },
+          "$description": "The static M spacing unit."
+        },
+        "space-static-l": {
+          "$value": {
+            "comfortable": "20px",
+            "compact": "20px"
+          },
+          "$description": "The static L spacing unit."
+        },
+        "space-static-xl": {
+          "$value": {
+            "comfortable": "24px",
+            "compact": "24px"
+          },
+          "$description": "The static XL spacing unit."
+        },
+        "space-static-xxl": {
+          "$value": {
+            "comfortable": "32px",
+            "compact": "32px"
+          },
+          "$description": "The static XXL spacing unit."
+        },
+        "space-static-xxxl": {
+          "$value": {
+            "comfortable": "40px",
+            "compact": "40px"
+          },
+          "$description": "The static XXXL spacing unit."
+        }
+      }
+    },
+    "alert": {
+      "tokens": {
+        "color-background-notification-severity-critical": {
+          "$value": {
+            "light": "#870303",
+            "dark": "#d63f38"
+          },
+          "$description": "Background color in a notification to represent a critical error or a critically high-level of severity. For example: \"Sev-1\""
+        },
+        "color-background-notification-severity-high": {
+          "$value": {
+            "light": "#ce3311",
+            "dark": "#fe6e73"
+          },
+          "$description": "Background color in a notification to represent an error status or a high-level of severity. For example: \"Failed\" or \"Sev-2\""
+        },
+        "color-background-notification-severity-medium": {
+          "$value": {
+            "light": "#f89256",
+            "dark": "#f89256"
+          },
+          "$description": "Background color in a notification to represent a medium-level of severity. For example: \"Sev-3\""
+        },
+        "color-background-notification-severity-low": {
+          "$value": {
+            "light": "#f2cd54",
+            "dark": "#f2cd54"
+          },
+          "$description": "Background color in a notification to represent a warning or a low-level of severity. For example: \"Warning\" or \"Sev-4\""
+        },
+        "color-background-notification-severity-neutral": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "Background color in a notification to represent a neutral status, a severity level of no impact, or the lowest-level of severity. For example: \"Pending\" or \"Sev-5\""
+        },
+        "color-text-notification-severity-critical": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#000000"
+          },
+          "$description": "Text color in a notification to represent a critical error or a critically high-level of severity. For example: \"Sev-1\""
+        },
+        "color-text-notification-severity-high": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#0f141a"
+          },
+          "$description": "Text color in a notification to represent an error status or a high-level of severity. For example: \"Failed\" or \"Sev-2\""
+        },
+        "color-text-notification-severity-medium": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "Text color in a notification to represent a medium-level of severity. For example: \"Sev-3\""
+        },
+        "color-text-notification-severity-low": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "Text color in a notification to represent a warning or a low-level of severity. For example: \"Warning\" or \"Sev-4\""
+        },
+        "color-text-notification-severity-neutral": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#f9f9fa"
+          },
+          "$description": "Text color in a notification to represent a neutral status, a severity level of no impact, or the lowest-level of severity. For example: \"Pending\" or \"Sev-5\""
+        },
+        "color-background-button-link-active": {
+          "$value": {
+            "light": "#d1f1ff",
+            "dark": "#333843"
+          },
+          "$description": "The background color of link buttons in active state."
+        },
+        "color-background-button-link-default": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The background color of link buttons in default state."
+        },
+        "color-background-button-link-disabled": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The background color of link buttons in disabled state."
+        },
+        "color-background-button-link-hover": {
+          "$value": {
+            "light": "#f0fbff",
+            "dark": "#1b232d"
+          },
+          "$description": "The background color of link buttons in hover state."
+        },
+        "color-background-button-normal-active": {
+          "$value": {
+            "light": "rgba(0, 7, 22, 0.1)",
+            "dark": "rgba(255, 255, 255, 0.15)"
+          },
+          "$description": "The background color of normal buttons in active state."
+        },
+        "color-background-button-normal-default": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The default background color of normal buttons."
+        },
+        "color-background-button-normal-disabled": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of normal buttons in disabled state."
+        },
+        "color-background-button-normal-hover": {
+          "$value": {
+            "light": "rgba(0, 7, 22, 0.05)",
+            "dark": "rgba(255, 255, 255, 0.1)"
+          },
+          "$description": "The background color of normal buttons in hover state."
+        },
+        "color-background-button-primary-active": {
+          "$value": {
+            "light": "#002b66",
+            "dark": "#42b4ff"
+          },
+          "$description": "The background color of primary buttons in active state."
+        },
+        "color-background-button-primary-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The default background color of primary buttons."
+        },
+        "color-background-button-primary-disabled": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#232b37"
+          },
+          "$description": "The background color of primary buttons in disabled state."
+        },
+        "color-background-button-primary-hover": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The background color of primary buttons in hover state."
+        },
+        "color-background-container-content": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of container main content areas. For example: content areas of form sections, containers, tables, and cards."
+        },
+        "color-background-container-header": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of container headers. For example: headers of form sections, containers, tables, and card collections."
+        },
+        "color-background-control-checked": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The background color of a checked form control. For example: background fill of a selected radio button, checked checkbox, and toggle that is switched on."
+        },
+        "color-background-control-default": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The default background color of form controls. For example: radio buttons and checkboxes default background fill color."
+        },
+        "color-background-control-disabled": {
+          "$value": {
+            "light": "#dedee3",
+            "dark": "#333843"
+          },
+          "$description": "The background color of a disabled form control. For example: background fill of a disabled radio button and checkbox."
+        },
+        "color-background-dropdown-item-default": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#1b232d"
+          },
+          "$description": "The default background color of dropdown items. For example: select, multiselect, autosuggest, and datepicker dropdown backgrounds."
+        },
+        "color-background-dropdown-item-filter-match": {
+          "$value": {
+            "light": "#f0fbff",
+            "dark": "#333843"
+          },
+          "$description": "The background color of text that matches a user's query. For example: the background of text matching a query entered into a table filter, select, multiselect, or autosuggest."
+        },
+        "color-background-dropdown-item-hover": {
+          "$value": {
+            "light": "#f3f3f7",
+            "dark": "#131920"
+          },
+          "$description": "The background color of dropdown items on hover. For example: background of hovered items in select, multiselect, autosuggest, and datepicker dropdowns."
+        },
+        "color-background-dropdown-item-selected": {
+          "$value": {
+            "light": "#f0fbff",
+            "dark": "#001129"
+          },
+          "$description": "The background color of selected dropdown items. For example: background of selected items in select, multiselect, autosuggest, and datepicker dropdowns."
+        },
+        "color-background-home-header": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The background color of the home header, displayed on the Service's home page."
+        },
+        "color-background-input-default": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The default background color of form inputs. For example: background fill of an input, textarea, autosuggest, and trigger of a select and multiselect."
+        },
+        "color-background-input-disabled": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#1b232d"
+          },
+          "$description": "The background color of a disabled form input. For example: background fill of a disabled input, textarea, autosuggest, and trigger of a select and multiselect."
+        },
+        "color-background-item-selected": {
+          "$value": {
+            "light": "#f0fbff",
+            "dark": "#001129"
+          },
+          "$description": "The background color of a selected item. For example: tokens, selected table rows, cards, and tile backgrounds."
+        },
+        "color-background-layout-main": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of the main content area on a page. For example: content area in app layout."
+        },
+        "color-background-layout-panel": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of the selected (active) drawer panel in the app layout. Use this token to theme the background of the open drawer."
+        },
+        "color-background-layout-panel-content": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of app layout panel content area. For example: The side navigation and tools panel content background color."
+        },
+        "color-background-layout-toolbar": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The background color of the app layout's toolbar. For example: The toolbar bar containing breadcrumbs and toggle buttons."
+        },
+        "color-background-layout-toggle-active": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#424650"
+          },
+          "$description": "The background color of the app layout toggle button when it's active."
+        },
+        "color-background-layout-toggle-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#424650"
+          },
+          "$description": "The default background color of the app layout toggle button."
+        },
+        "color-background-layout-toggle-hover": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#656871"
+          },
+          "$description": "The background color of the app layout toggle button on hover."
+        },
+        "color-background-layout-toggle-selected-active": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The background color of the app layout toggle button when it's selected and active."
+        },
+        "color-background-layout-toggle-selected-default": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default background color of the app layout toggle button when it's selected."
+        },
+        "color-background-layout-toggle-selected-hover": {
+          "$value": {
+            "light": "#004a9e",
+            "dark": "#75cfff"
+          },
+          "$description": "The background color of the app layout toggle button on hover when it's selected."
+        },
+        "color-background-notification-blue": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#006ce0"
+          },
+          "$description": "Background color for blue notifications. For example: blue badges and info flash messages."
+        },
+        "color-background-notification-green": {
+          "$value": {
+            "light": "#00802f",
+            "dark": "#00802f"
+          },
+          "$description": "Background color for green notifications. For example: green badges and success flash messages."
+        },
+        "color-background-notification-grey": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#656871"
+          },
+          "$description": "Background color for grey notifications. For example: grey badges."
+        },
+        "color-background-notification-red": {
+          "$value": {
+            "light": "#db0000",
+            "dark": "#db0000"
+          },
+          "$description": "Background color for red notifications. For example: red badges and error flash messages."
+        },
+        "color-background-notification-yellow": {
+          "$value": {
+            "light": "#ffe347",
+            "dark": "#ffe347"
+          },
+          "$description": "Background color for yellow notifications. For example: yellow badges and warning flash messages."
+        },
+        "color-background-status-error": {
+          "$value": {
+            "light": "#fff5f5",
+            "dark": "#1f0000"
+          },
+          "$description": "The background color of an item in error state. For example: error alerts."
+        },
+        "color-background-status-info": {
+          "$value": {
+            "light": "#f0fbff",
+            "dark": "#001129"
+          },
+          "$description": "The background color of an informational item. For example: information alerts."
+        },
+        "color-background-status-success": {
+          "$value": {
+            "light": "#effff1",
+            "dark": "#001401"
+          },
+          "$description": "The background color of an item in success state. For example: success alerts."
+        },
+        "color-background-status-warning": {
+          "$value": {
+            "light": "#fffef0",
+            "dark": "#191100"
+          },
+          "$description": "The background color of an item in warning state. For example: warning alerts."
+        },
+        "color-border-button-link-disabled": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The border color of link buttons in disabled state."
+        },
+        "color-border-button-normal-active": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The border color of normal buttons in active state."
+        },
+        "color-border-button-normal-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The border color of normal buttons."
+        },
+        "color-border-button-normal-disabled": {
+          "$value": {
+            "light": "#b4b4bb",
+            "dark": "#656871"
+          },
+          "$description": "The border color of normal buttons in disabled state."
+        },
+        "color-text-button-normal-disabled": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The text color of normal buttons in disabled state."
+        },
+        "color-border-button-normal-hover": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The border color of normal buttons in hover state."
+        },
+        "color-text-button-icon-disabled": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The color of icon buttons in disabled state."
+        },
+        "color-border-button-primary-active": {
+          "$value": {
+            "light": "#002b66",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of primary buttons in active state."
+        },
+        "color-border-button-primary-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The border color of primary buttons."
+        },
+        "color-border-button-primary-disabled": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#232b37"
+          },
+          "$description": "The border color of primary buttons in disabled state."
+        },
+        "color-border-button-primary-hover": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The border color of primary buttons in hover state."
+        },
+        "color-text-button-primary-disabled": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The text color of primary buttons in disabled state."
+        },
+        "color-border-container-top": {
+          "$value": {
+            "light": "transparent",
+            "dark": "transparent"
+          },
+          "$description": "The top border color for containers and first item in dropdowns. For example: the top border of a card, dropdown, and table."
+        },
+        "color-border-control-default": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#8c8c94"
+          },
+          "$description": "The default border color of form controls. For example: radio buttons and checkboxes."
+        },
+        "color-border-divider-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The default color for dividers. For example: dividers in column layout, expanding sections, side nav, help panel, between table rows and dropdown items, and inside containers."
+        },
+        "color-border-divider-secondary": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#232b37"
+          },
+          "$description": "The border color for row dividers. For example: row dividers for table and collection preferences."
+        },
+        "color-border-dropdown-container": {
+          "$value": {
+            "light": "#b4b4bb",
+            "dark": "#656871"
+          },
+          "$description": "The border color of the dropdown container. For example: border color of the dropdown container in button dropdown, select, and multi-select."
+        },
+        "color-border-dropdown-item-hover": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#656871"
+          },
+          "$description": "The border color of dropdown items on hover. For example: border of hovered items in select, multiselect, autosuggest, and hovered days in datepicker."
+        },
+        "color-border-input-default": {
+          "$value": {
+            "light": "#8c8c94",
+            "dark": "#656871"
+          },
+          "$description": "The default border color of form inputs. For example: input, textarea, autosuggest, datepicker, select, and multiselect."
+        },
+        "color-border-input-focused": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of focus states for form inputs. For example: input, textarea, autosuggest, datepicker, select, and multiselect."
+        },
+        "color-border-item-focused": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#f9f9fa"
+          },
+          "$description": "The color of focus states. For example: the focus ring around interactive elements."
+        },
+        "color-border-dropdown-item-focused": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The color of focus states for dropdown items. For example: the focus ring around selectable elements in the dropdown of button dropdown, select, and multi-select."
+        },
+        "color-border-item-selected": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of a selected item. For example: tokens, selected table rows, selected cards, and selected tile borders."
+        },
+        "color-border-layout-side-navigation": {
+          "$value": {
+            "light": "#c6c6cd",
+            "dark": "#424650"
+          },
+          "$description": "The border color of the side navigation divider in the app layout."
+        },
+        "color-border-status-error": {
+          "$value": {
+            "light": "#db0000",
+            "dark": "#ff7a7a"
+          },
+          "$description": "The border color of an item in error state. For example: error alerts."
+        },
+        "color-border-status-info": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The border color of an informational item. For example: information alerts."
+        },
+        "color-border-status-success": {
+          "$value": {
+            "light": "#00802f",
+            "dark": "#2bb534"
+          },
+          "$description": "The border color of an item in success state. For example: success alerts."
+        },
+        "color-border-status-warning": {
+          "$value": {
+            "light": "#855900",
+            "dark": "#fbd332"
+          },
+          "$description": "The border color of an item in warning state. For example: warning alerts."
+        },
+        "color-text-body-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#c6c6cd"
+          },
+          "$description": "The default color of non-heading text and body content. For example: text in a paragraph tag, table cell data, form field labels and values."
+        },
+        "color-text-body-secondary": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#c6c6cd"
+          },
+          "$description": "The color of text that is secondary to base text. For example: text in the navigation and tools panels."
+        },
+        "color-text-button-inline-icon-default": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color of inline button icons."
+        },
+        "color-text-button-inline-icon-disabled": {
+          "$value": {
+            "light": "#b4b4bb",
+            "dark": "#656871"
+          },
+          "$description": "The color of inline button icons in disabled state."
+        },
+        "color-text-button-inline-icon-hover": {
+          "$value": {
+            "light": "#002b66",
+            "dark": "#75cfff"
+          },
+          "$description": "The color of inline button icons in hover state."
+        },
+        "color-text-button-normal-active": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The active text color of normal buttons. For example: Active text color in normal and link buttons."
+        },
+        "color-text-button-normal-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The default text color of normal buttons."
+        },
+        "color-text-button-normal-hover": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The hover text color of normal buttons."
+        },
+        "color-text-button-link-active": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The text color of link buttons in active state."
+        },
+        "color-text-button-link-default": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#dedee3"
+          },
+          "$description": "The default text color of link buttons."
+        },
+        "color-text-button-link-disabled": {
+          "$value": {
+            "light": "#b4b4bb",
+            "dark": "#656871"
+          },
+          "$description": "The text color of link buttons in disabled state."
+        },
+        "color-text-button-link-hover": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ffffff"
+          },
+          "$description": "The text color of link buttons in hover state."
+        },
+        "color-text-button-primary-active": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#0f141a"
+          },
+          "$description": "The active text color of primary buttons."
+        },
+        "color-text-button-primary-default": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#0f141a"
+          },
+          "$description": "The default text color of primary buttons."
+        },
+        "color-text-button-primary-hover": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#0f141a"
+          },
+          "$description": "The hover text color of primary buttons."
+        },
+        "color-text-dropdown-item-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#dedee3"
+          },
+          "$description": "The default text color of dropdown items. For example: label and label tag text color for autosuggest, select, and multiselect."
+        },
+        "color-text-dropdown-item-disabled": {
+          "$value": {
+            "light": "#b4b4bb",
+            "dark": "#656871"
+          },
+          "$description": "The text color of disabled dropdown items. For example: label, label tag, description, and tag text color of a disabled item in a select, multiselect, and autosuggest."
+        },
+        "color-text-dropdown-item-filter-match": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#75cfff"
+          },
+          "$description": "The color of text matching a user's query. For example: the text matching a query entered into a table filter, select, multiselect, or autosuggest."
+        },
+        "color-text-dropdown-item-highlighted": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ebebf0"
+          },
+          "$description": "The text color of hovered or selected dropdown items. For example: label text color of the item on hover in a select, multiselect, and autosuggest."
+        },
+        "color-text-dropdown-item-secondary": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The text color of secondary information in dropdown items. For example: descriptions and tags text color in a select, multiselect, and autosuggest."
+        },
+        "color-text-heading-default": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#ebebf0"
+          },
+          "$description": "The default color for headings 2-5. For example: headings in containers, form sections, forms, and app layout panels."
+        },
+        "color-text-heading-secondary": {
+          "$value": {
+            "light": "#424650",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The default color for secondary heading text such as page and container descriptions. For example: descriptions in containers such as form sections, tables, and card collections, as well as form page descriptions."
+        },
+        "color-text-home-header-default": {
+          "$value": {
+            "light": "#ebebf0",
+            "dark": "#ebebf0"
+          },
+          "$description": "The color of the home header's text, displayed on the Service's home page."
+        },
+        "color-text-home-header-secondary": {
+          "$value": {
+            "light": "#c6c6cd",
+            "dark": "#c6c6cd"
+          },
+          "$description": "The color of the home header's secondary text, displayed on the Service's home page."
+        },
+        "color-text-input-disabled": {
+          "$value": {
+            "light": "#b4b4bb",
+            "dark": "#656871"
+          },
+          "$description": "The color of the text value in a disabled input. For example: text in a disabled input, autosuggest, datepicker, and the trigger of a select and multiselect."
+        },
+        "color-text-input-placeholder": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The color of placeholder text in an input. For example: placeholder text in an input, autosuggest, datepicker, and the trigger of a select and multiselect."
+        },
+        "color-text-layout-toggle": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#ffffff"
+          },
+          "$description": "The default color of the app layout toggle."
+        },
+        "color-text-layout-toggle-active": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#161d26"
+          },
+          "$description": "The color of the app layout toggle button when it's active."
+        },
+        "color-text-layout-toggle-hover": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of the app layout toggle button on hover."
+        },
+        "color-text-layout-toggle-selected": {
+          "$value": {
+            "light": "#ffffff",
+            "dark": "#0f141a"
+          },
+          "$description": "The color of the app layout toggle button when it's selected."
+        },
+        "color-text-link-default": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color for links. For example: text in an anchor tag, info links, breadcrumb links, and icon links."
+        },
+        "color-text-link-hover": {
+          "$value": {
+            "light": "#002b66",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover color for links. For example: text in an anchor tag, info links, breadcrumb links, and icon links."
+        },
+        "color-text-link-decoration-default": {
+          "$value": {
+            "light": "currentColor",
+            "dark": "currentColor"
+          },
+          "$description": "The default color of the text decoration (underline) of links. Defaults to the link text color."
+        },
+        "color-text-link-decoration-hover": {
+          "$value": {
+            "light": "currentColor",
+            "dark": "currentColor"
+          },
+          "$description": "The hover color of the text decoration (underline) of links. Defaults to the link hover text color."
+        },
+        "color-text-link-secondary-default": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color for secondary links. For example: links with lower visual emphasis or supplementary content."
+        },
+        "color-text-link-secondary-hover": {
+          "$value": {
+            "light": "#002b66",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover color for secondary links. For example: links with lower visual emphasis or supplementary content."
+        },
+        "color-text-link-info-default": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The default color for info links."
+        },
+        "color-text-link-info-hover": {
+          "$value": {
+            "light": "#002b66",
+            "dark": "#75cfff"
+          },
+          "$description": "The hover color for info links."
+        },
+        "color-text-notification-default": {
+          "$value": {
+            "light": "#f9f9fa",
+            "dark": "#f9f9fa"
+          },
+          "$description": "Default text color for notifications. For example: the text on badges and flashes."
+        },
+        "color-text-notification-yellow": {
+          "$value": {
+            "light": "#0f141a",
+            "dark": "#0f141a"
+          },
+          "$description": "The text and foreground color used on warning flash messages (yellow notification surface)."
+        },
+        "color-text-status-error": {
+          "$value": {
+            "light": "#db0000",
+            "dark": "#ff7a7a"
+          },
+          "$description": "The color of error text and icons. For example: form field error text and error status indicators."
+        },
+        "color-text-status-inactive": {
+          "$value": {
+            "light": "#656871",
+            "dark": "#a4a4ad"
+          },
+          "$description": "The color of inactive and loading text and icons. For example: table and card collection loading states icon and text and inactive and pending status indicators."
+        },
+        "color-text-status-info": {
+          "$value": {
+            "light": "#006ce0",
+            "dark": "#42b4ff"
+          },
+          "$description": "The color of info text and icons. For example: info status indicators and info alert icon."
+        },
+        "color-text-status-success": {
+          "$value": {
+            "light": "#00802f",
+            "dark": "#2bb534"
+          },
+          "$description": "The color of success text and icons. For example: success status indicators and success alert icon."
+        },
+        "color-text-status-warning": {
+          "$value": {
+            "light": "#855900",
+            "dark": "#fbd332"
+          },
+          "$description": "The color of warning icons."
+        },
+        "font-family-base": {
+          "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+          "$description": "The default font family that will be applied globally to the product interface."
+        },
+        "font-family-display": {
+          "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+          "$description": "The font family for display text. Defaults to the base font family."
+        },
+        "font-family-heading": {
+          "$value": "'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif",
+          "$description": "The font family for headings and component headers. Defaults to the base font family."
+        },
+        "font-family-monospace": {
+          "$value": "Monaco, Menlo, Consolas, 'Courier Prime', Courier, 'Courier New', monospace",
+          "$description": "The monospace font family that will be applied globally to the product interface."
+        },
+        "font-size-body-m": {
+          "$value": "14px",
+          "$description": "The default font size for regular body text. For example, <p> tags in text content, or button text."
+        },
+        "font-size-body-s": {
+          "$value": "12px",
+          "$description": "The default font size for small body text. For example, form field descriptions, or badge text."
+        },
+        "font-size-display-l": {
+          "$value": "42px",
+          "$description": "The default font size for large display text."
+        },
+        "font-size-display-xl": {
+          "$value": "64px",
+          "$description": "The default font size for extra large display text."
+        },
+        "font-size-heading-l": {
+          "$value": "20px",
+          "$description": "The default font size for h2s."
+        },
+        "font-size-heading-m": {
+          "$value": "18px",
+          "$description": "The default font size for h3s."
+        },
+        "font-size-heading-s": {
+          "$value": "16px",
+          "$description": "The default font size for h4s."
+        },
+        "font-size-heading-xl": {
+          "$value": "24px",
+          "$description": "The default font size for h1s."
+        },
+        "font-size-heading-xs": {
+          "$value": "14px",
+          "$description": "The default font size for h5s."
+        },
+        "font-size-tabs": {
+          "$value": "16px",
+          "$description": "The default font size for tabs."
+        },
+        "font-weight-alert-header": {
+          "$value": "700",
+          "$description": "The default font weight for alert header text."
+        },
+        "font-weight-bold": {
+          "$value": "700",
+          "$description": "The default bold font weight for body text. For example, <strong> and <b> tags in text content."
+        },
+        "font-weight-button": {
+          "$value": "700",
+          "$description": "The default font weight for button text."
+        },
+        "font-weight-display-l": {
+          "$value": "700",
+          "$description": "The default font weight for large display text."
+        },
+        "font-weight-display-xl": {
+          "$value": "400",
+          "$description": "The default font weight for extra large display text."
+        },
+        "font-weight-flashbar-header": {
+          "$value": "700",
+          "$description": "The default font weight for flashbar header text."
+        },
+        "font-weight-heading-l": {
+          "$value": "700",
+          "$description": "The default font weight for h2s."
+        },
+        "font-weight-heading-m": {
+          "$value": "700",
+          "$description": "The default font weight for h3s."
+        },
+        "font-weight-heading-s": {
+          "$value": "700",
+          "$description": "The default font weight for h4s."
+        },
+        "font-weight-heading-xl": {
+          "$value": "700",
+          "$description": "The default font weight for h1s."
+        },
+        "font-weight-heading-xs": {
+          "$value": "700",
+          "$description": "The default font weight for h5s."
+        },
+        "font-weight-heavy": {
+          "$value": "700",
+          "$description": "The default heavy font weight."
+        },
+        "font-weight-lighter": {
+          "$value": "300",
+          "$description": "The default lighter font weight."
+        },
+        "font-weight-normal": {
+          "$value": "400",
+          "$description": "The default normal font weight."
+        },
+        "font-weight-tabs": {
+          "$value": "700",
+          "$description": "The default font weight for tabs."
+        },
+        "font-weight-tabs-disabled": {
+          "$value": "700",
+          "$description": "The default font weight for disabled tabs."
+        },
+        "line-height-body-m": {
+          "$value": "20px",
+          "$description": "The default line height for regular body text."
+        },
+        "line-height-body-s": {
+          "$value": "16px",
+          "$description": "The default line height for small body text."
+        },
+        "line-height-display-l": {
+          "$value": "48px",
+          "$description": "The default line height for large display text."
+        },
+        "line-height-display-xl": {
+          "$value": "72px",
+          "$description": "The default line height for extra large display text."
+        },
+        "line-height-heading-l": {
+          "$value": "24px",
+          "$description": "The default line height for h2s."
+        },
+        "line-height-heading-m": {
+          "$value": "22px",
+          "$description": "The default line height for h3s."
+        },
+        "line-height-heading-s": {
+          "$value": "20px",
+          "$description": "The default line height for h4s."
+        },
+        "line-height-heading-xl": {
+          "$value": "30px",
+          "$description": "The default line height for h1s."
+        },
+        "line-height-heading-xs": {
+          "$value": "18px",
+          "$description": "The default line height for h5s."
+        },
+        "line-height-tabs": {
+          "$value": "20px",
+          "$description": "The default line height for tabs."
+        },
+        "border-radius-alert": {
+          "$value": "12px",
+          "$description": "The border radius of alerts."
+        },
+        "border-radius-button": {
+          "$value": "20px",
+          "$description": "The border radius of buttons and segmented control's segments."
+        },
+        "border-radius-container": {
+          "$value": "16px",
+          "$description": "The border radius of containers. Also used in container-based components like table, cards, expandable section, and modal."
+        },
+        "border-radius-input": {
+          "$value": "8px",
+          "$description": "The border radius of form controls. For example: input, select."
+        },
+        "space-static-xxxs": {
+          "$value": {
+            "comfortable": "2px",
+            "compact": "2px"
+          },
+          "$description": "The static XXXS spacing unit."
+        },
+        "space-static-xxs": {
+          "$value": {
+            "comfortable": "4px",
+            "compact": "4px"
+          },
+          "$description": "The static XXS spacing unit."
+        },
+        "space-static-xs": {
+          "$value": {
+            "comfortable": "8px",
+            "compact": "8px"
+          },
+          "$description": "The static XS spacing unit."
+        },
+        "space-static-s": {
+          "$value": {
+            "comfortable": "12px",
+            "compact": "12px"
+          },
+          "$description": "The static S spacing unit."
+        },
+        "space-static-m": {
+          "$value": {
+            "comfortable": "16px",
+            "compact": "16px"
+          },
+          "$description": "The static M spacing unit."
+        },
+        "space-static-l": {
+          "$value": {
+            "comfortable": "20px",
+            "compact": "20px"
+          },
+          "$description": "The static L spacing unit."
+        },
+        "space-static-xl": {
+          "$value": {
+            "comfortable": "24px",
+            "compact": "24px"
+          },
+          "$description": "The static XL spacing unit."
+        },
+        "space-static-xxl": {
+          "$value": {
+            "comfortable": "32px",
+            "compact": "32px"
+          },
+          "$description": "The static XXL spacing unit."
+        },
+        "space-static-xxxl": {
+          "$value": {
+            "comfortable": "40px",
+            "compact": "40px"
+          },
+          "$description": "The static XXXL spacing unit."
+        }
+      }
+    }
+  }
+}
