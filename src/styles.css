@@ -601,7 +601,8 @@ body.dragging .dropzone {
 .view[data-empty] .url-form { width: min(var(--grid-zone), 100%); gap: var(--grid-3); }
 .view[data-empty] .url-form .row { gap: var(--grid-3); }
 .view[data-empty] .url-form input, .view[data-empty] .url-form button { height: var(--grid-1); min-height: var(--grid-1); }
-.view[data-empty] tt-settings { width: min(var(--grid-zone), 100%); padding-top: var(--grid-2); }
+/* On the landing the line closes the form instead: under the legacy switch, above the footer text. */
+.view[data-empty] tt-settings { width: min(var(--grid-zone), 100%); padding-top: 0; padding-bottom: var(--grid-2); border-top: 0; border-bottom: 1px solid var(--border); }
 /* Idle: a soft light travels slowly around the circle's border, in the same slowly cycling hue as the icon's point. */
 @property --glint { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 .view[data-empty] .dropzone::before, .m-load .dropzone::before {
