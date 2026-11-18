@@ -117,7 +117,5 @@ document.addEventListener('keydown', (e) => {
   else undo();
 });
 
-// Which build this is, for telling a hosted copy from a newer one.
+// Which build this is, for telling a hosted copy from a newer one: in the console and the page source (tt-version), not on the page.
 console.info(`DTsanity build ${__VERSION__}`);
-const footBuild = document.getElementById('foot-build');
-if (footBuild) footBuild.textContent = `Build ${__VERSION__}`;
