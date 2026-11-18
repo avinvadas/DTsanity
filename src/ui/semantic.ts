@@ -64,7 +64,9 @@ export class TTSemantic extends HTMLElement {
 
   private unsub?: () => void;
   private reload = viewControls();
-  private onlyFailing = false;
+  /** Failing pairs only. Undefined until the user picks: then failing ones first, when there are any. */
+  private onlyFailingChoice: boolean | undefined;
+  private onlyFailing = true;
   /** The component filter text. */
   private query = '';
   /** A re-alias popover to open again after the pick that re-rendered the view. */
@@ -111,6 +113,7 @@ export class TTSemantic extends HTMLElement {
     const failSiblings = siblings.filter((g) => siblingFails(g)).length;
     // Failing: with typical vision, or only with a deficiency.
     const anyFail = rows.filter((r) => !r.pass || r.cvdFails.length);
+    this.onlyFailing = this.onlyFailingChoice ?? anyFail.length > 0;
     const shown = this.onlyFailing ? anyFail : rows;
     const targets = v.settings.contrast;
     const themeNames = v.themeModels.length ? v.themeModels.map((m) => m.theme.name) : [null];
@@ -145,8 +148,8 @@ export class TTSemantic extends HTMLElement {
               'div',
               { class: 'segmented', role: 'radiogroup', 'aria-label': 'Pairs shown' },
               [
-                [false, 'All'],
                 [true, `Failing (${anyFail.length})`],
+                [false, `All (${rows.length})`],
               ].map(([value, label]) =>
                 h(
                   'button',
@@ -156,7 +159,7 @@ export class TTSemantic extends HTMLElement {
                     class: this.onlyFailing === value ? 'on' : '',
                     'aria-checked': String(this.onlyFailing === value),
                     onclick: () => {
-                      this.onlyFailing = value as boolean;
+                      this.onlyFailingChoice = value as boolean;
                       this.render(store.get());
                     },
                   },
@@ -697,7 +700,7 @@ export class TTSemantic extends HTMLElement {
   /** Bring a pair's row into view and highlight it, with focus on its first picker. */
   private openPair(r: PairRow) {
     if (this.onlyFailing && r.pass && !r.cvdFails.length) {
-      this.onlyFailing = false;
+      this.onlyFailingChoice = false;
       this.render(store.get());
     }
     let row = this.rowEls.get(r.pair.id);

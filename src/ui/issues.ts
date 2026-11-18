@@ -1,5 +1,6 @@
 import { VISIONS } from '../color/cvd';
 import { formatContrast } from '../contrast/metrics';
+import { RULE_TITLE } from '../model/rules';
 import type { Category, Fix, Issue, Severity } from '../model/types';
 import { noFixNote, remedyOf } from '../policy/rules';
 import { applyFixes, store, undo, type AppState } from '../state/app';
@@ -19,6 +20,12 @@ const TIER_VIEW = { semantic: { view: 'semantic', label: 'Semantic tier' }, comp
 
 const SEVERITIES: Severity[] = ['error', 'warning', 'info'];
 const SEVERITY_LABEL: Record<Severity, string> = { error: 'Error', warning: 'Warning', info: 'Info' };
+/** The most severe of some tones; undefined for none. */
+const worstOf = (tones: readonly (Severity | undefined)[]): Severity | undefined => SEVERITIES.find((s) => tones.includes(s));
+/** A section's worst severity, shown while it is closed (the list says it once open). */
+const sevMark = (sev: Severity) => h('span', { class: `sev group-sev ${sev}`, role: 'img', 'aria-label': `Worst: ${SEVERITY_LABEL[sev]}`, 'data-tip': SEVERITY_TIP[sev] }, severityIcon(sev));
+/** The most severe of some issues. */
+const worst = (issues: readonly Issue[]): Severity => SEVERITIES.find((s) => issues.some((i) => i.severity === s)) ?? 'info';
 const CATEGORIES: Category[] = ['format', 'structure', 'references', 'types', 'values', 'metadata'];
 const CATEGORY_LABEL: Record<Category, string> = {
   format: 'File format',
@@ -77,27 +84,62 @@ export class TTIssues extends HTMLElement {
 
   /**
    * A section of this page, collapsible like the tier views' sections: its
-   * heading (with a count, and any actions), then its list, or a line saying
-   * it passes. Open unless the user closed it.
+   * heading (with a count, its worst severity while closed, and any
+   * actions), then its list, or a line saying it passes. Closed until
+   * opened (by its heading or its card), except Format, which starts open.
    */
-  private group(id: string, title: string, tip: string | undefined, n: number, actions: (Node | null)[], list: HTMLElement | null, clear: string) {
+  private group(id: string, title: string, tip: string | undefined, n: number, actions: (Node | null)[], list: HTMLElement | null, clear: string, sev?: Severity, open = false) {
     return collapsible({
       key: `issues:${id}`,
-      open: true,
+      open,
       variant: 'row',
       class: 'issue-group',
       attrs: { id },
       summary: [
-        h('h3', { tabindex: '-1', 'data-tip': tip }, title, n ? h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(n)) : null),
+        h('h3', { tabindex: '-1', 'data-tip': tip }, title, n ? h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(n)) : null, sev && n ? sevMark(sev) : null),
         h('span', { class: 'group-actions' }, actions),
       ],
       content: list ?? h('p', { class: 'empty' }, clear),
     });
   }
 
-  /** A category inside Format, collapsible the same way. */
-  private subgroup(id: string, title: Child, actions: Node | null, list: HTMLElement) {
-    return collapsible({ key: `issues:${id}`, open: true, class: 'issue-subgroup', attrs: { id }, summary: [title, h('span', { class: 'group-actions' }, actions)], content: list });
+  /** A category inside Format, collapsed until opened: its summary carries the worst severity, the count and any fixes. */
+  private subgroup(id: string, title: Child, actions: Node | null, list: Child | (() => Child)) {
+    return collapsible({ key: `issues:${id}`, open: false, class: 'issue-subgroup', attrs: { id }, summary: [title, h('span', { class: 'group-actions' }, actions)], content: list });
+  }
+
+  /**
+   * A category's issues, one collapsed line per check: its worst severity, its
+   * name, how many, and its fixes when it has any. Opening a line shows its list.
+   */
+  private byRule(category: string, issues: Issue[], where: (i: Issue) => string, fixAll: (fixes: Fix[], what: string) => Node | null) {
+    const rules = new Map<string, Issue[]>();
+    for (const i of issues) rules.set(i.code, [...(rules.get(i.code) ?? []), i]);
+    return h(
+      'div',
+      { class: 'issue-rules' },
+      [...rules].map(([code, list]) => {
+        const sev = worst(list);
+        const fixes = list.map((i) => i.fix).filter((x): x is Fix => !!x);
+        return collapsible({
+          key: `issues:${category}:${code}`,
+          open: false,
+          class: 'issue-rule',
+          summary: [
+            h('span', { class: `sev ${sev}`, role: 'img', 'aria-label': SEVERITY_LABEL[sev], 'data-tip': SEVERITY_TIP[sev] }, severityIcon(sev)),
+            h('span', { class: 'rule-title' }, RULE_TITLE[code] ?? code),
+            h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(list.length)),
+            h('span', { class: 'group-actions' }, fixes.length === 1 ? this.fixOne(fixes[0]!) : fixAll(fixes, (RULE_TITLE[code] ?? code).toLowerCase())),
+          ],
+          content: () => this.clusters(list, where),
+        });
+      }),
+    );
+  }
+
+  /** One fix, as a button on a check's line. */
+  private fixOne(fix: Fix) {
+    return h('button', { type: 'button', class: 'small fix-all', 'data-tip': TIP.fix, onclick: () => this.apply([fix]) }, 'Apply fix', icon('tool'));
   }
 
   /** Links to the tier views where these pairs are worked on, one per tier they're in. */
@@ -152,6 +194,7 @@ export class TTIssues extends HTMLElement {
         [...this.tierLinks(f.contrast.map((r) => r.tier)), f.contrast.length ? promptButton(pairsScope(f.contrast)) : null],
         f.contrast.length ? h('div', null, h('p', { class: 'group-note' }, noFixNote('contrast-text')), masked(h('ul', { class: 'issue-list' }, f.contrast.map(contrastRow)))) : null,
         'Every pair passes.',
+        worstOf(f.contrast.map((r) => r.tone)),
       ),
       this.group(
         'issues-vision',
@@ -161,6 +204,7 @@ export class TTIssues extends HTMLElement {
         [...this.tierLinks([...f.vision.map((r) => r.tier), ...f.groups.map((g) => g.tier)], true), f.vision.length + f.groups.length ? promptButton(pairsScope(f.vision, f.groups)) : null],
         vision.length ? h('div', null, h('p', { class: 'group-note' }, noFixNote(f.vision.length ? 'cvd-pair' : 'cvd-siblings')), masked(h('ul', { class: 'issue-list' }, vision))) : null,
         'Pairs and status colors stay apart.',
+        worstOf([...f.vision.map((r) => r.cvdTone), ...f.groups.map((g) => g.tone ?? 'warning')]),
       ),
     ];
   }
@@ -232,17 +276,28 @@ export class TTIssues extends HTMLElement {
             ? h(
                 'div',
                 { class: 'issue-subgroups' },
-                groups.map(({ category, issues }) =>
-                  this.subgroup(
-                    `issues-${category}`,
-                    h('h5', { 'data-tip': CATEGORY_TIP[category] }, CATEGORY_LABEL[category], h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length))),
+                groups.map(({ category, issues }) => {
+                  const sev = worst(issues);
+                  return this.subgroup(
+                    // Its own id: the “format” category would otherwise share the Format section's.
+                    `issues-cat-${category}`,
+                    h(
+                      'h5',
+                      { 'data-tip': CATEGORY_TIP[category] },
+                      CATEGORY_LABEL[category],
+                      h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(issues.length)),
+                      sevMark(sev),
+                    ),
                     fixAll(fixesOf(issues), CATEGORY_LABEL[category].toLowerCase()),
-                    this.clusters(issues, where),
-                  ),
-                ),
+                    () => this.byRule(category, issues, where, fixAll),
+                  );
+                }),
               )
             : null,
           v.model.files.length ? 'The files follow the DTCG format.' : '',
+          formatCount ? worst(groups.flatMap((g) => g.issues)) : undefined,
+          // Format starts open, showing its sections, each closed until clicked.
+          true,
         ),
         this.group(
           'issues-tiers',
@@ -252,6 +307,7 @@ export class TTIssues extends HTMLElement {
           [fixAll(fixesOf(tierIssues), 'tier')],
           tierIssues.length ? this.clusters(tierIssues, where) : null,
           'Each tier points the right way.',
+          tierIssues.length ? worst(tierIssues) : undefined,
         ),
         ...this.pairGroups(f, themes, v.settings.cvdDistance),
         infoIssues.length
@@ -268,6 +324,7 @@ export class TTIssues extends HTMLElement {
                 this.clusters(infoIssues, where, true),
               ),
               '',
+              'info',
             )
           : null,
       ),
