@@ -623,6 +623,20 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
   .view[data-empty] .dropzone::before, .m-load .dropzone::before { animation: none; }
 }
 .view[data-empty] .url-form { align-items: center; }
+/*
+ * The landing only: a quiet grid of small dots on the page below the header, under everything.
+ * The circle and the link field are opaque, so the grid never shows through them: the circle's
+ * tint is laid over the page color instead of over the grid.
+ */
+:root { --landing-dot: color-mix(in oklch, var(--text) 13%, transparent); }
+body:not(.has-files) main.workspace, body:not(.has-files) main.m-body {
+  background-image: radial-gradient(circle, var(--landing-dot) 0.8px, transparent 1.3px);
+  background-size: 18px 18px;
+  background-position: center 9px;
+}
+.view[data-empty] .dropzone, .m-load .dropzone { background: linear-gradient(var(--zone-fill), var(--zone-fill)), var(--bg); }
+body.dragging .view[data-empty] .dropzone, .view[data-empty] .dropzone.loading,
+body.dragging .m-load .dropzone, .m-load .dropzone.loading { background: linear-gradient(var(--zone-fill-active), var(--zone-fill-active)), var(--bg); }
 /* The landing circle: a 2rem shadow at 33%, pressed in on desktop, lifted on phones. */
 .view[data-empty] .dropzone { box-shadow: inset 0 0 2rem var(--zone-shadow-ink); }
 .m-load .dropzone { box-shadow: 0 0 2rem var(--zone-shadow-ink); }
