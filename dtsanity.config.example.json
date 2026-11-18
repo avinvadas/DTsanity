@@ -1,0 +1,12 @@
+{
+  "contrast": "wcag",
+  "cvdDistance": 0.1,
+  "acceptLegacy": true,
+  "gamut": "srgb",
+  "colorFormat": "oklch",
+  "policy": {
+    "tier-reference": "info",
+    "scale-hue-drift": "off",
+    "contrast-border": "error"
+  }
+}

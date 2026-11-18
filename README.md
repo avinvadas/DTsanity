@@ -30,7 +30,7 @@ npm install
 npm run dev            # http://localhost:5173
 npm test
 npm run build          # hosted build: dist/index.html, one self-contained file
-npm run build:strict   # strict build: no usability recording, runs offline from disk
+npm run build:strict   # strict build: the offline edition, runs from disk
 npm run build:cli      # offline check: dist-cli/dtsanity-check.mjs, one file
 npm run serve          # serve the strict build at http://127.0.0.1:4173, this machine only
 ```
@@ -43,8 +43,21 @@ The offline check prints the same report as the page's findings report, for a fo
 node dist-cli/dtsanity-check.mjs path/to/tokens --summary
 ```
 
+## How it gets better
+
+DTsanity is tested against the token files of open-source design systems. Every finding on them gets a reviewed verdict (right, misreading, or a convention a system may reject), and each check earns a grade from how often it is right. The aim is not to find every issue, but to report the right ones with very high probability, from a few general rules that hold across systems.
+
+- [The maturity record](corpus/README.md): how verdicts and grades work, and when a rule may be added
+- [The current grades](corpus/report.md), and [the decisions](corpus/decisions.md) behind each change
+- `npm run corpus` re-checks every sample system and refreshes the grades
+
+## Make it yours
+
+[How DTsanity reads a token system](docs/how-dtsanity-reads.md) walks through every decision it makes, from reading the files to the findings report: the evidence each step uses, where it lives in the code, and what you can tune. Teams can keep their settings in a `dtsanity.config.json` beside their tokens ([example](dtsanity.config.example.json)); forks can change the word lists and thresholds each step uses.
+
 ## More
 
+- [How DTsanity reads a token system](docs/how-dtsanity-reads.md)
 - [Features in detail](docs/features.md)
 - [Development: project layout](docs/development.md)
 - [Plan](PLAN.md)

@@ -55,6 +55,21 @@ describe('offline check', () => {
     expect(r.status).toBe(0);
   });
 
+  it('takes its settings from a configuration file: --config, or dtsanity.config.json in the folder', () => {
+    const contrast = (out: string) => Number(out.match(/^contrast-text (\d+)$/m)?.[1] ?? 0);
+    const plain = run(join(SAMPLES, 'backpack'), '--summary').stdout;
+    expect(contrast(plain)).toBeGreaterThan(0);
+    // A check turned off in the configuration isn't reported.
+    const cfg = join(mkdtempSync(join(tmpdir(), 'dtsanity-cfg-')), 'team.json');
+    writeFileSync(cfg, JSON.stringify({ policy: { 'contrast-text': 'off' } }));
+    expect(contrast(run(join(SAMPLES, 'backpack'), '--summary', '--config', cfg).stdout)).toBe(0);
+    // Beside the tokens, it is found on its own, and isn't read as a token file.
+    const folder = mkdtempSync(join(tmpdir(), 'dtsanity-folder-'));
+    writeFileSync(join(folder, 'tokens.json'), JSON.stringify({ space: { $type: 'dimension', sm: { $value: { value: 4, unit: 'px' } } } }));
+    writeFileSync(join(folder, 'dtsanity.config.json'), JSON.stringify({ acceptLegacy: false }));
+    expect(run(folder, '--summary').stdout).toMatch(/^0 counted \+ 0 others/);
+  });
+
   it('keeps only the named rules with --rules, as a group prompt does', () => {
     const out = run(join(SAMPLES, 'backpack'), '--summary', '--rules', 'contrast-text').stdout;
     // A pair comes with its color-vision finding, as in the round builder.

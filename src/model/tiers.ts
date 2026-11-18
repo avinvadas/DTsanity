@@ -3,15 +3,14 @@ import { LEGACY_EXT } from '../legacy/types';
 import type { Model, SourceFile, Token } from './types';
 
 /**
- * Token tiers, read from names:
+ * Token tiers:
  *  - base (primitives): raw values such as `color.blue.500`;
  *  - semantic: what a value is for, such as `color.text.danger`;
  *  - component: one component's use of it, such as `button.primary.bg`.
  *
- * In order of precedence: a layer name in the top groups, then in the file
- * name (`primitives`, `semantic`, `components`…); then a component name
- * before any role word (`button.bg`); then a numbered step without a role word
- * (`blue.500`) is base; otherwise a literal value is base and a reference semantic.
+ * Read from the names a token sits under (its groups, file and folders) and
+ * from what it does (a raw value, a reference, a component word); see `read`
+ * below and docs/how-dtsanity-reads.md, step 6.
  *
  * Allowed references: base tokens hold values only; semantic tokens point
  * at base or other semantic tokens; component tokens at semantic or base.

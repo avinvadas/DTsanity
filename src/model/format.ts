@@ -35,5 +35,8 @@ export const isStudioMetaFile = (f: { name: string }) => /(^|\/)\$(themes|metada
 export const isResolverFile = (f: { name: string; doc?: JDoc }) =>
   /\.resolver\.json5?$/i.test(f.name) || (f.doc?.root.kind === 'object' && f.doc.root.entries.some((e) => e.key === 'resolutionOrder'));
 
-/** Files that describe the set rather than hold tokens: Tokens Studio metadata and DTCG resolver documents. */
-export const isMetaFile = (f: { name: string; doc?: JDoc }) => isStudioMetaFile(f) || isResolverFile(f);
+/** DTsanity's own configuration file, kept beside the tokens for the offline check (docs/how-dtsanity-reads.md). */
+export const isConfigFile = (f: { name: string }) => /(^|\/)dtsanity\.config\.json$/.test(f.name);
+
+/** Files that describe the set rather than hold tokens: Tokens Studio metadata, DTCG resolver documents and DTsanity's configuration. */
+export const isMetaFile = (f: { name: string; doc?: JDoc }) => isStudioMetaFile(f) || isResolverFile(f) || isConfigFile(f);

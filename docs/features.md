@@ -38,6 +38,8 @@
 ## Semantic and component tiers: pairs
 
 - Foreground and background pairs found by name (`text`, `icon`, `border`, `on-*` with `bg`, `surface`, `container`…), checked in every theme: text against AA, AAA or APCA text levels; icons and borders against the UI level.
+- A pair is checked only where the system shows it is seen together. A token whose description puts it on a surface (“text on subtle accent backgrounds”, “on layer 01”) is paired only with backgrounds of that surface, or not at all. A fully transparent color, or a color the same as its background, isn't measured: nothing is there to read.
+- Disabled and inactive states, and lines named subtle, muted or decorative (dividers, separators), are listed as “Low contrast, exempt” rather than counted: WCAG asks no contrast of them. How these were decided, and on which design systems, is in [corpus/decisions.md](../corpus/decisions.md).
 - Borders are drawn as a line around the background; text as "Aa"; icons as a mark.
 - **Re-alias** any token to another existing one, theme by theme, without editing values.
 - The component tier is grouped by component, with search and expand/collapse all.
