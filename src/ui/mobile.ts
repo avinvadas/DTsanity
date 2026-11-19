@@ -14,7 +14,6 @@ import { fileStatusLine, ingest } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon, xButton } from './dom';
 import { homeLink } from './logo';
-import { issuesScope, pairsScope, promptButton } from './prompt-link';
 import { themeToggle } from './theme';
 
 /**
@@ -22,9 +21,9 @@ import { themeToggle } from './theme';
  * one page. Cards for the four kinds of findings on top, each a link to its
  * section, under the files' status, which opens the file list (and Add files); then every finding
  * in one flat list grouped by kind (format, tiers, contrast, color
- * blindness); a card with a fix has its button, and each group needing a
- * change has a button that copies its findings report. Copy as prompt (the main
- * action) and Get fixed files stay in a fixed footer. The tools for fine
+ * blindness); a card with a fix has its button. Copying lives only in the
+ * fixed footer, Copy as prompt (the main action), beside Get fixed files;
+ * the per-group copy buttons are desktop's. The tools for fine
  * control (curve editor, palette grid, re-aliasing, themes matrix) stay on
  * larger screens, as the note under the list says.
  *
@@ -179,7 +178,7 @@ export class TTMobile extends HTMLElement {
     this.loadSection.hidden = has;
     this.bar.hidden = !has;
     const found = has ? findings(s) : undefined;
-    const cards = found ? findingCards(found, (k) => document.getElementById(`m-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), (k) => `#m-${k}`) : null;
+    const cards = found ? findingCards(found, (k) => document.getElementById(`m-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), (k) => `#m-${k}`, false) : null;
     // The target every contrast finding is measured against, on the line that counts them.
     const title = cards?.querySelector('.findings-title');
     if (title) {
@@ -238,7 +237,7 @@ export class TTMobile extends HTMLElement {
       const head = (title: string, action?: Node) => h('h3', { class: 'm-cluster' }, h('span', { class: 'cluster-title' }, title), action ?? null);
       return [
         ...(fixable.length ? [head(counted(fixable, 'can be fixed here', 'can be fixed here')), ...fixable.map((i) => this.issueCard(i, s))] : []),
-        ...(manual.length ? [head(counted(manual, 'needs your change', 'need your change'), promptButton(issuesScope(manual))), ...manual.map((i) => this.issueCard(i, s))] : []),
+        ...(manual.length ? [head(counted(manual, 'needs your change', 'need your change')), ...manual.map((i) => this.issueCard(i, s))] : []),
       ];
     };
     const section = (id: string, title: string, cards: HTMLElement[], clear: string, n = cards.length, action?: Node) =>
@@ -258,14 +257,13 @@ export class TTMobile extends HTMLElement {
       f.fixable.length ? h('button', { type: 'button', class: 'm-fixall', onclick: () => this.fixAll(f.fixable) }, icon('tool'), `Fix ${plural(f.fixable.length, 'safe issue')}`) : null,
       section('m-format', 'Format', clustered(f.format), 'Follows the DTCG format.', f.format.length),
       section('m-tiers', 'Tiers', clustered(f.tiers), 'Each tier points the right way.', f.tiers.length),
-      section('m-contrast', 'Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.', f.contrast.length, promptButton(pairsScope(f.contrast))),
+      section('m-contrast', 'Contrast', f.contrast.map((r) => this.pairCard(r, themes, gamut)), 'Every pair passes.', f.contrast.length),
       section(
         'm-vision',
         'Color blindness',
         [...f.vision.map((r) => this.visionCard(r, themes)), ...f.groups.map((g) => this.groupCard(g, themes, s.settings.cvdDistance))],
         'Pairs and status colors stay apart.',
         f.vision.length + f.groups.length,
-        promptButton(pairsScope(f.vision, f.groups)),
       ),
       h('p', { class: 'm-note' }, 'Palette curves, re-aliasing and themes are available on a larger screen.'),
     ];

@@ -79,16 +79,17 @@ export function openLines(f: Findings): string[] {
 }
 
 /** What DTsanity can fix of the issues found, and what is left to the user, with the findings report for the rest. */
-export function fixableLine(withFix: number, total: number): HTMLElement {
+export function fixableLine(withFix: number, total: number, copy = true): HTMLElement {
   if (withFix === total) return h('p', { class: 'findings-fixable' }, total === 1 ? 'It has a one-click fix here.' : 'Each has a one-click fix here.');
   // The ones counted without a fix: issues with none, and the contrast, color-vision and scale findings (info notes aside).
   const scope = { issue: (i: Issue) => !i.fix && i.severity !== 'info', pair: (r: PairRow) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g: SiblingRow) => g.tone !== 'info', scales: true, typography: true, files: true };
   const text = withFix ? `${withFix} can be fixed here in one click. For the other ${total - withFix}, a file update is needed.` : 'None has a one-click fix here: a file update is needed.';
-  return promptRow(text, scope, 'findings-fixable');
+  // Phones copy only from their footer: the line alone there.
+  return copy ? promptRow(text, scope, 'findings-fixable') : h('p', { class: 'findings-fixable' }, text);
 }
 
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
-export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string) {
+export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string, copy = true) {
   const vision = f.vision.length + f.groups.length;
   const tone = findingTones(f);
   const kinds: [FindingKind, string, number, Severity][] = [
@@ -112,7 +113,7 @@ export function findingCards(f: Findings, go: (kind: FindingKind) => void, href:
     total
       ? h('h2', { class: 'findings-title' }, `${plural(total, 'issue')} found:`)
       : h('h2', { class: 'findings-title all-clear' }, h('span', { class: 'finding-ok', 'aria-hidden': 'true' }, icon('check')), 'No issues found'),
-    total ? fixableLine(f.withFix, total) : null,
+    total ? fixableLine(f.withFix, total, copy) : null,
     h('nav', { class: 'finding-cards', 'aria-label': 'Findings' }, kinds.map(card)),
   );
 }

@@ -282,7 +282,8 @@ export class TTLoader extends HTMLElement {
         (list) =>
           errors.replaceChildren(
             // The unread files are a group too: their findings report asks to make them valid first.
-            list.length ? h('div', { class: 'prompt-row' }, h('span', { class: 'prompt-row-text' }, `${plural(list.length, 'file')} couldn't be read`), promptButton({ files: true })) : '',
+            // Phones copy only from the footer.
+            list.length ? h('div', { class: 'prompt-row' }, h('span', { class: 'prompt-row-text' }, `${plural(list.length, 'file')} couldn't be read`), phone ? null : promptButton({ files: true })) : '',
             ...list.map((e) =>
               h(
                 'div',
