@@ -40,7 +40,7 @@ export class TTMobile extends HTMLElement {
   private undoable = false;
   private media = matchMedia(NARROW);
   // A fixed skeleton; renders update only its parts, so the loader (and a half-typed link) is never rebuilt.
-  private lede = h('p', { class: 'm-lede' }, 'Check your design tokens DTCG format compliance and accessibility issues');
+  private lede = h('p', { class: 'm-lede' }, 'Check your design tokens files ', h('a', { href: 'https://www.designtokens.org/', target: '_blank', rel: 'noopener' }, 'DTCG JSON format'), ' compliance and accessibility.');
   private navSlot = h('div', null);
   private fileSlot = h('div', null);
   private loadSection = h('section', { class: 'm-load' }, document.createElement('tt-loader'));

@@ -254,7 +254,7 @@ export class TTLoader extends HTMLElement {
           if (url.value.trim()) void ingest(fetchSource(url.value).then((r) => [r]));
         },
       },
-      h('label', { for: 'tt-url' }, 'Or load from a link (GitHub, etc.)'),
+      h('label', { for: 'tt-url' }, 'Load files from a link (GitHub, etc.)'),
       h('div', { class: 'row' }, url, submit),
       hint,
     );

@@ -17,7 +17,7 @@ export class TTSettings extends HTMLElement {
           'label',
           { for: 'tt-legacy' },
           h('strong', null, 'Accept legacy formats'),
-          h('span', null, 'Converts Tokens Studio and Style Dictionary v3 files to DTCG.'),
+          h('span', null, 'Converts files in older formats (Tokens Studio, Style Dictionary v3 and similar) to DTCG.'),
         ),
       ),
     );

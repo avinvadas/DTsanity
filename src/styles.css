@@ -640,7 +640,7 @@ body.dragging .m-load .dropzone, .m-load .dropzone.loading { background: linear-
 /* The landing circle: a 2rem shadow at 33%, pressed in on desktop, lifted on phones. */
 .view[data-empty] .dropzone { box-shadow: inset 0 0 2rem var(--zone-shadow-ink); }
 .m-load .dropzone { box-shadow: 0 0 2rem var(--zone-shadow-ink); }
-/* "Or load from a link" labels the field: it sits at the field's start, in the field label's style, not as a heading. */
+/* "Load files from a link" labels the field: it sits at the field's start, in the field label's style, not as a heading. */
 .url-form label { align-self: flex-start; font-weight: 400; font-size: var(--font-sm); color: var(--text-soft); }
 .view[data-empty] .setting { text-align: left; }
 
@@ -1352,6 +1352,8 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
 /* Under the subtitle: what it checks, in about 12 words a line. Plain page text, so search engines read it too. */
+.landing-intro a, .m-lede a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.landing-intro a:hover, .m-lede a:hover { color: var(--text); }
 .landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-sm); line-height: 1.55; color: var(--muted); text-align: center; text-wrap: balance; }
 /* The credit closes every scrolled view, desktop and phone alike: centered, 4rem below the content. */
 .page-foot { max-width: var(--content-w); margin: 4rem auto 0; text-align: center; text-wrap: balance; font-size: var(--font-sm); color: var(--subtle); }
