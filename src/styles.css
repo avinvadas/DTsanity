@@ -1566,8 +1566,8 @@ tt-mobile .finding-cards { grid-template-columns: 1fr 1fr; }
 /* Add files is a regular secondary button (outline, hover tint), at touch height. */
 .m-add-file { min-height: 40px; font-family: var(--sans); }
 .m-add-file .icon { width: 18px; height: 18px; }
-/* The status is the handle, so it reads as a control; the file names under it are quieter. */
-tt-mobile .m-files-toggle .files-status { color: var(--text); font-size: var(--font-base); font-weight: 600; }
+/* The status is the handle: regular text, so the issue count below stays the page's title; the chevron says it opens. */
+tt-mobile .m-files-toggle .files-status { color: var(--text-soft); font-size: var(--font-sm); font-weight: 400; }
 .m-files-panel .m-filelist li > span:first-child { color: var(--muted); }
 /* The phone files bar starts right under the header (in place of the body's top padding), its separator then the usual gap to the findings. */
 tt-mobile .files-bar { display: block; box-sizing: border-box; margin-top: calc(-1 * var(--space-4)); }
