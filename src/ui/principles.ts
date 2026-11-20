@@ -28,7 +28,7 @@ export class TTPrinciples extends HTMLElement {
         items(FIX_PRINCIPLES),
 
         h('h2', null, 'What DTsanity does about each check'),
-        h('p', null, 'Each check is labelled on the severity policy page (the cog at the top). An issue without a fix is listed under “Needs your change”.'),
+        h('p', null, 'Each check is labelled on the What to check page (the cog at the top). An issue without a fix is listed under “Needs your change”.'),
         h(
           'ul',
           { class: 'principles remedies' },

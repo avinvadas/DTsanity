@@ -48,7 +48,7 @@ document.body.append(
     { class: 'desk-corner' },
     // While the policy is open, an arrow back to the view it was opened from (the cog does the same).
     h('button', { type: 'button', class: 'corner-btn', 'data-only-on': 'policy principles', hidden: true, 'aria-label': 'Back', 'data-tip': TIP.policyBack, onclick: goBack }, icon('arrow-left')),
-    h('button', { type: 'button', class: 'corner-btn', 'data-nav-to': 'policy', 'aria-label': 'Severity policy', 'aria-pressed': 'false', 'data-tip': TIP.policy, onclick: togglePolicy }, icon('settings')),
+    h('button', { type: 'button', class: 'corner-btn', 'data-nav-to': 'policy', 'aria-label': 'What to check', 'aria-pressed': 'false', 'data-tip': TIP.policy, onclick: togglePolicy }, icon('settings')),
     themeToggle(),
   ),
 );

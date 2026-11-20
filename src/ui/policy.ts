@@ -62,7 +62,7 @@ export class TTPolicy extends HTMLElement {
     this.rows = RULES.map((r) => this.row(r));
     this.sections = [];
     this.replaceChildren(
-      viewHead('Severity policy', { summary: this.summary }),
+      viewHead('What to check', { summary: this.summary }),
       h('p', { class: 'meta policy-intro' }, 'Turn a whole section off to work on one kind of finding at a time. Changes apply right away to every file and are kept in this browser.'),
       h('div', { class: 'policy' }, SECTIONS.map((s) => this.section(s))),
       h('div', { class: 'policy-foot' }, this.reset),

@@ -58,10 +58,10 @@
 - Theme, group and tier names show exactly as the files write them.
 - `$ref` pointers (`#/gray/50/$value/components`) resolve against all of a theme's files together, as a resolver merges them; a value built from pointers is checked as it resolves. A file the resolver names that isn't loaded is reported.
 
-## Severity policy
+## What to check
 
 - Every check reports at a level: **error** (breaks the DTCG format, or text fails contrast), **warning** (valid but likely wrong, or a non-text accessibility failure) or **info** (a suggestion, listed apart and not counted).
-- The cog beside the appearance switch opens the policy, on desktop and on phones: one line per check (55 in all), with a switch to turn it off and its level. While it's open, a back arrow appears beside the cog; either one returns to where you were. Changes apply right away to every file and view, including the findings report, and are kept in this browser with the other preferences. Reset to defaults, at the bottom, brings back the built-in levels.
+- The cog beside the appearance switch opens **What to check**, on desktop and on phones. Its sections follow the findings (Format, Tiers, Contrast, Color blindness, Base color scales, Typography); each is collapsed, with a switch that turns all its checks off or back on, to work on one kind of finding at a time. Open a section for one line per check, with a switch to turn it off and its level. While it's open, a back arrow appears beside the cog; either one returns to where you were. Changes apply right away to every file and view, including the findings report, and are kept in this browser with the other preferences. Reset to defaults, at the bottom, brings back the built-in levels.
 - Errors are red with a filled triangle, warnings yellow with an outlined one, info gray with a circled “i”. Each color passes WCAG AA (4.5:1) on every surface it sits on, in light and dark mode.
 
 ## What DTsanity fixes, and what it doesn't

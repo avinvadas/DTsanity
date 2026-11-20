@@ -10,7 +10,7 @@ import type { FlagKind, ScaleFlag } from '../palette/checks';
 export const TIP = {
   // Navigation
   navFiles: 'Load token files and download your changes.',
-  policy: 'Severity policy: how each check reports, from error to off.',
+  policy: 'What to check: turn kinds of findings on or off, and set how each check reports.',
   policyReset: 'Set every rule back to its built-in level.',
   policyBack: 'Back to where you were.',
   navThemes: 'Which files each theme reads, such as light and dark.',

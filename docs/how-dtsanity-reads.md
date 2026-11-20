@@ -258,7 +258,7 @@ fails contrast), **warning** (valid but likely wrong, or a non-text
 accessibility failure) or **info** (listed apart, not counted). Each check
 also says what it stands on: **required** (a standard: DTCG, WCAG, JSON) or
 **advice** (a convention). You can change any check's level, or turn it off,
-on the severity policy page or in the configuration file.
+on the What to check page (the cog) or in the configuration file.
 
 *Code: `src/policy/rules.ts` (every check, its level and fix), `src/policy/basis.ts`
 (what it stands on), `src/policy/criteria.ts` (problem, done when, decline if).*

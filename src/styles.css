@@ -1805,10 +1805,13 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
 .token-field.error > select, .token-field.error .ss-button { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
 
 /* ============================================================
-   Severity policy: one line per check, a switch to turn it off and its level.
+   What to check: sections that follow the findings, each with a switch; one line per check inside, with its level.
    ============================================================ */
 .policy-intro { max-width: 70ch; margin: 0 0 var(--space-4); }
-.policy { display: flex; flex-direction: column; max-width: 56rem; }
+.policy { display: flex; flex-direction: column; width: 100%; max-width: 56rem; }
+/* The page keeps its width whether its sections are open or closed: the view takes the full content width, not its content's. */
+.view[data-view='policy'] { width: 100%; box-sizing: border-box; }
+tt-policy { display: block; width: 100%; }
 /* A section per kind of finding: its name and what it covers, then how many checks are on and its switch. */
 .policy-section > .cl-summary .cl-label { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-width: 0; flex-wrap: nowrap; }
 /* Phones: the switch stays beside the heading; the count of checks moves under the description. */
@@ -1858,7 +1861,8 @@ input[type='checkbox'].policy-section-switch:indeterminate { background: radial-
 .level-select .ss-chevron { margin-left: auto; }
 .ss-lead { display: inline-grid; place-items: center; flex: none; }
 .level-select .ss-button:disabled .policy-sev { color: var(--muted); }
-.policy-foot { padding-top: var(--space-2); }
+/* Reset to defaults: centered in a 3rem row of its own, clear of the last section's line. */
+.policy-foot { display: flex; align-items: center; min-height: 3rem; margin-top: var(--space-2); }
 .m-corner { display: flex; align-items: center; gap: var(--space-2); }
 .m-content { display: contents; }
 .m-content[hidden] { display: none; }

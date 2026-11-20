@@ -39,7 +39,7 @@ export class TTMobile extends HTMLElement {
   private undoable = false;
   private media = matchMedia(NARROW);
   // A fixed skeleton; renders update only its parts, so the loader (and a half-typed link) is never rebuilt.
-  private lede = h('p', { class: 'm-lede' }, 'Check your design tokens files ', h('a', { href: 'https://www.designtokens.org/', target: '_blank', rel: 'noopener' }, 'DTCG JSON format'), ' compliance and accessibility.');
+  private lede = h('p', { class: 'm-lede' }, 'DTsanity helps you check your design tokens JSON files for ', h('a', { href: 'https://www.w3.org/community/design-tokens/', target: '_blank', rel: 'noopener' }, 'W3C compliance'), ' and accessibility.');
   private navSlot = h('div', null);
   private fileSlot = h('div', null);
   private loadSection = h('section', { class: 'm-load' }, document.createElement('tt-loader'));
@@ -86,7 +86,7 @@ export class TTMobile extends HTMLElement {
   private policySection = h('section', { class: 'm-policy', hidden: true });
   private principlesSection = h('section', { class: 'm-policy', hidden: true });
   private back = h('button', { type: 'button', class: 'corner-btn', hidden: true, 'aria-label': 'Back', onclick: () => this.setPage(null) }, icon('arrow-left'));
-  private cog = h('button', { type: 'button', class: 'corner-btn', 'aria-label': 'Severity policy', 'aria-pressed': 'false', onclick: () => this.setPage(this.page === 'policy' ? null : 'policy') }, icon('settings'));
+  private cog = h('button', { type: 'button', class: 'corner-btn', 'aria-label': 'What to check', 'aria-pressed': 'false', onclick: () => this.setPage(this.page === 'policy' ? null : 'policy') }, icon('settings'));
   private onHash = () => {
     if (!this.media.matches) return;
     if (location.hash === '#principles') this.setPage('principles');
