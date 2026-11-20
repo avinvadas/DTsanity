@@ -51,8 +51,21 @@ const PAGES: readonly ViewId[] = ['principles'];
 const ASIDE: readonly ViewId[] = ['policy', 'principles'];
 
 function requested(): ViewId {
-  const id = location.hash.slice(1);
+  // "#principles/pairs" opens a page at a place in it: the view is the part before the slash.
+  const id = location.hash.slice(1).split('/')[0]!;
   return isView(id) ? id : 'files';
+}
+
+/**
+ * Scroll to the place a link names after its page (`#principles/pairs` →
+ * `#principles-pairs`), once the page shows. On phones too.
+ */
+export function scrollToPlace() {
+  const [view, place] = location.hash.slice(1).split('/');
+  if (!view || !place) return;
+  requestAnimationFrame(() =>
+    [...document.querySelectorAll<HTMLElement>(`#${CSS.escape(`${view}-${place}`)}`)].find((e) => e.offsetParent)?.scrollIntoView({ block: 'start' }),
+  );
 }
 
 /** The view that can actually be shown for a request, given what is loaded. */
@@ -140,7 +153,10 @@ const severest = (tones: Iterable<string>): Tone | undefined => {
 
 export class TTNav extends HTMLElement {
   private unsub?: () => void;
-  private onHash = () => show(resolve(requested(), store.get().files.length > 0));
+  private onHash = () => {
+    show(resolve(requested(), store.get().files.length > 0));
+    scrollToPlace();
+  };
 
   connectedCallback() {
     window.addEventListener('hashchange', this.onHash);

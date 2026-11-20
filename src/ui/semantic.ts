@@ -130,14 +130,14 @@ export class TTSemantic extends HTMLElement {
         ],
         actions: this.reload.el,
       }),
+      // The short version; the full one, with what is and isn't a pair, is on How DTsanity works.
       h(
         'p',
-        { class: 'meta' },
-        component
-          ? 'Component tokens are one component’s use of a color, such as button.primary.bg. Each foreground (content, text, fg, border…) is checked on the background of the same component and variant. '
-          : 'Pairs are found from token names: a foreground (text, fg, icon, border, on-…) is checked on the background (bg, surface, container…) that shares its other words, such as “danger” or “subtle hover”, or against the default background. ',
-        'Text needs the text level; icons and borders the UI level. The token icon beside a name points it at another token; ⌘Z undoes it.',
-        themeNames.length > 1 ? ' Each pair is checked in every theme and fails if it fails in any.' : '',
+        { class: 'meta tier-intro' },
+        component ? 'Component tokens are one component’s limited scope use. ' : 'Pairs are found from token names. ',
+        'Each pair is checked in every theme and fails if it fails in any.',
+        h('span', { class: 'foot-sep', 'aria-hidden': 'true' }, ' · '),
+        h('a', { href: component ? '#principles/component-pairs' : '#principles/pairs' }, 'How DTsanity works'),
       ),
       targets.length === 0 ? h('p', { class: 'note' }, 'Pick a contrast target in the sidebar to check the pairs.') : '',
       rows.length

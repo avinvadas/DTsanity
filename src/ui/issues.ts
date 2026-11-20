@@ -8,7 +8,7 @@ import type { PairRow, SiblingRow } from '../state/pairs';
 import { collapsible, expand, setAll } from './collapsible';
 import { h, icon, masked, plural, severityIcon, viewHead, type Child } from './dom';
 import { issuesScope, pairsScope, promptButton } from './prompt-link';
-import { findingCards, findings, issuesOf, type FindingKind, type Findings } from './findings';
+import { findingCards, findings, findingTotal, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
 import { goTo } from './nav';
@@ -251,11 +251,12 @@ export class TTIssues extends HTMLElement {
     const fixesOf = (issues: Issue[]) => issues.map((i) => i.fix).filter((x): x is Fix => !!x);
 
     this.replaceChildren(
-      viewHead('Issues', {
+      // The count is the page's title: “Issues” over “N issues found” said it twice.
+      viewHead(findingTotal(f) ? `${plural(findingTotal(f), 'issue')} found` : 'No issues found', {
         summary: SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
         actions: this.reload.el,
       }),
-      findingCards(f, (k) => this.go(k), () => '#issues'),
+      findingCards(f, (k) => this.go(k), () => '#issues', true, false),
       h(
         'div',
         { class: 'toolbar issue-tools' },

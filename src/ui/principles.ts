@@ -1,4 +1,4 @@
-import { FIX_EXCEPTIONS, FIX_PRINCIPLES, FLAG_PRINCIPLES, PRINCIPLE, PRINCIPLE_ABOUT, PROMPT_RULES, PROMPT_WHY, type Principle } from '../policy/principles';
+import { COMPONENT_PAIRS, FIX_EXCEPTIONS, FIX_PRINCIPLES, FLAG_PRINCIPLES, PAIR_PRINCIPLES, PRINCIPLE, PRINCIPLE_ABOUT, PROMPT_RULES, PROMPT_WHY, type Principle } from '../policy/principles';
 import { REMEDY, RULES, type Remedy } from '../policy/rules';
 import { h, plural, viewHead } from './dom';
 
@@ -22,6 +22,12 @@ export class TTPrinciples extends HTMLElement {
 
         h('h2', null, 'Flags, not instructions'),
         items(FLAG_PRINCIPLES),
+
+        // Linked from the Semantic and Component tier pages: #principles/pairs, #principles/component-pairs.
+        h('h2', { id: 'principles-pairs' }, 'Contrast pairs'),
+        items(PAIR_PRINCIPLES),
+        h('h3', { id: 'principles-component-pairs' }, 'Component pairs'),
+        h('p', null, COMPONENT_PAIRS),
 
         h('h2', null, 'One-click fixes'),
         h('p', null, 'Where the right change is only a matter of format, DTsanity offers a fix. It changes the format, never the design, and only when you apply it.'),

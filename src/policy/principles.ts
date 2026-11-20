@@ -45,6 +45,30 @@ export const FLAG_PRINCIPLES: readonly Principle[] = [
 ];
 
 
+/** How contrast pairs are found and checked: the Semantic and Component tier pages link here. */
+export const PAIR_PRINCIPLES: readonly Principle[] = [
+  {
+    title: 'Found from token names',
+    text: 'A foreground (text, fg, icon, border, on-…) is paired with the background (bg, surface, container…) that shares its other words, such as “danger” or “subtle hover”; with none, with the default background. A border is checked against what surrounds its shape, never the fill inside it.',
+  },
+  {
+    title: 'Only where the system shows them together',
+    text: 'A description that puts a token on a surface (“text on subtle accent backgrounds”) wins over its name. A fully transparent color, or a color the same as its background, isn’t measured: nothing is there to read.',
+  },
+  {
+    title: 'At their level, in every theme',
+    text: 'Text needs the text level; icons and borders the UI level. Each pair is checked in every theme and fails if it fails in any. Disabled states and lines named subtle, muted or decorative are listed as exempt, not counted.',
+  },
+  {
+    title: 'Yours to adjust',
+    text: 'The token icon beside a name points it at another token; ⌘Z undoes it. Pairs can be added, removed or changed from text to UI.',
+  },
+];
+
+/** Component pairs: what a component token is, and what its foregrounds are checked on. */
+export const COMPONENT_PAIRS =
+  'Component tokens are one component’s limited scope use of a value, such as button.primary.bg. They are read from a components group, file or folder, or from a name that starts with a component. Each foreground is checked on the background of the same component and variant.';
+
 /** What every one-click fix holds to. */
 export const FIX_PRINCIPLES: readonly Principle[] = [
   {

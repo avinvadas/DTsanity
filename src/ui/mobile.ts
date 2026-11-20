@@ -14,6 +14,7 @@ import { fileStatusLine, ingest } from './loader';
 import { ACCEPT, readFiles } from '../io/load';
 import { h, icon, masked, plural, severityIcon, xButton } from './dom';
 import { homeLink } from './logo';
+import { scrollToPlace } from './nav';
 import { themeToggle } from './theme';
 
 /**
@@ -89,8 +90,10 @@ export class TTMobile extends HTMLElement {
   private cog = h('button', { type: 'button', class: 'corner-btn', 'aria-label': 'What to check', 'aria-pressed': 'false', onclick: () => this.setPage(this.page === 'policy' ? null : 'policy') }, icon('settings'));
   private onHash = () => {
     if (!this.media.matches) return;
-    if (location.hash === '#principles') this.setPage('principles');
-    else if (this.page === 'principles') this.setPage(null);
+    if (location.hash.split('/')[0] === '#principles') {
+      this.setPage('principles');
+      scrollToPlace();
+    } else if (this.page === 'principles') this.setPage(null);
   };
   private unsub?: () => void;
   private onMedia = () => this.render();

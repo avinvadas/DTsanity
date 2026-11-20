@@ -89,7 +89,7 @@ export function fixableLine(withFix: number, total: number, copy = true): HTMLEl
 }
 
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
-export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string, copy = true) {
+export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string, copy = true, title = true) {
   const vision = f.vision.length + f.groups.length;
   const tone = findingTones(f);
   const kinds: [FindingKind, string, number, Severity][] = [
@@ -110,9 +110,12 @@ export function findingCards(f: Findings, go: (kind: FindingKind) => void, href:
     'section',
     { class: 'findings' },
     // A clean set is rewarded right here: green, led by the same check as the cards.
-    total
-      ? h('h2', { class: 'findings-title' }, `${plural(total, 'issue')} found:`)
-      : h('h2', { class: 'findings-title all-clear' }, h('span', { class: 'finding-ok', 'aria-hidden': 'true' }, icon('check')), 'No issues found'),
+    // Where the page's own title already says it (the Issues view), the cards come without one.
+    !title
+      ? null
+      : total
+        ? h('h2', { class: 'findings-title' }, `${plural(total, 'issue')} found:`)
+        : h('h2', { class: 'findings-title all-clear' }, h('span', { class: 'finding-ok', 'aria-hidden': 'true' }, icon('check')), 'No issues found'),
     total ? fixableLine(f.withFix, total, copy) : null,
     h('nav', { class: 'finding-cards', 'aria-label': 'Findings' }, kinds.map(card)),
   );
