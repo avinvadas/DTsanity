@@ -163,6 +163,12 @@
   --radius: var(--ref-size-6);
   --radius-lg: var(--ref-size-8);
   --radius-pill: 999px;
+  /*
+   * For tags whose text can wrap: half a line's height (0.75em at the 1.5 line height) plus a little.
+   * One line reads as a pill; two or more as a frame with round corners, never a stretched pill.
+   * --radius-pill is for things that can't wrap (counts, switches).
+   */
+  --radius-tag: calc(0.75em + 2px);
   --control-h: 28px;
   /* The dropdown chevron for native selects, in --muted (a data URI can't follow the theme by itself). */
   --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23595a59' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E");
@@ -846,7 +852,7 @@ button.fix-all .icon, button.prompt-btn .icon, button.fix-btn .icon, .m-fix .ico
 .preview code { padding: 1px var(--space-1); border-radius: var(--radius-sm); }
 .preview .before { background: var(--error-soft); }
 .preview .after { background: var(--ok-soft); }
-.theme-tag { display: inline-block; font-size: var(--font-xs); font-weight: 600; background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-pill); padding: 0 var(--space-2); margin-right: 6px; }
+.theme-tag { display: inline-block; font-size: var(--font-xs); font-weight: 600; background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-tag); padding: 0 var(--space-2); margin-right: 6px; }
 @media (max-width: 640px) {
   .issue { grid-template-columns: auto 1fr; gap: 2px var(--space-2); }
   .issue .where { grid-column: 2; }
@@ -1311,7 +1317,7 @@ tr:hover .realias-btn, .realias-btn:focus-visible, .realias-btn:hover { color: v
 .realias-pop .swatch-select { display: flex; min-width: 0; }
 .no-pairs p { margin: 0 0 var(--space-1); }
 .no-pairs .token-id { font-family: var(--mono); font-size: var(--font-sm); }
-.tier-tag { display: inline-block; margin-left: var(--space-2); padding: 0 6px; border-radius: var(--radius-pill); background: var(--info-soft); color: var(--info); font-family: var(--sans); font-size: var(--font-2xs); font-weight: 600; vertical-align: 1px; }
+.tier-tag { display: inline-block; margin-left: var(--space-2); padding: 0 6px; border-radius: var(--radius-tag); background: var(--info-soft); color: var(--info); font-family: var(--sans); font-size: var(--font-2xs); font-weight: 600; vertical-align: 1px; }
 .tier-tag.semantic, .tier-tag.base { background: var(--surface-2); color: var(--muted); }
 .tier-tag.component { background: var(--info-soft); color: var(--info); }
 .component-find { min-width: 220px; }
@@ -1361,6 +1367,10 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 .view[data-empty] .vh-row { justify-content: center; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
 /* Under the subtitle: what it checks, in about 12 words a line. Plain page text, so search engines read it too. */
+/* A place a link opens How DTsanity works at: room above it rather than flush with the top. */
+.principles-page [id] { scroll-margin-top: var(--space-6, 2rem); }
+.tier-intro a { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.tier-intro a:hover { color: var(--text); }
 .landing-intro a, .m-lede a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .landing-intro a:hover, .m-lede a:hover { text-decoration-thickness: 2px; }
 .landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-base); line-height: var(--leading); color: var(--text); text-align: center; text-wrap: balance; }
@@ -1817,7 +1827,10 @@ tt-policy { display: block; width: 100%; }
 /* Phones: the switch stays beside the heading; the count of checks moves under the description. */
 @media (max-width: 640px) {
   .policy-section > .cl-summary .cl-label { align-items: flex-start; }
-  .policy-section-toggle { flex-direction: column-reverse; align-items: flex-end; gap: var(--space-1); padding-top: 2px; }
+  /* A fixed column, right-aligned: the switch and its count stay put as the count changes (“41 checks on”, “Off”). */
+  .policy-section .policy-section-toggle { flex-direction: column-reverse; align-items: stretch; gap: var(--space-1); padding-top: 2px; width: 7.5rem; }
+  .policy-section .policy-section-toggle > .policy-section-switch { align-self: flex-end; }
+  .policy-section .policy-section-state { display: block; text-align: right; }
 }
 .policy-section-head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .policy-section-head h2 { margin: 0; font-size: var(--font-md, 1rem); }
@@ -1851,7 +1864,7 @@ input[type='checkbox'].policy-section-switch:indeterminate { background: radial-
 /* What DTsanity does about the check's findings: an outlined tag, filled for the ones it fixes. */
 .remedy { display: inline-block; font-weight: 400; }
 .policy-basis { color: var(--muted); }
-.policy-text .remedy, .principles .remedy { align-self: flex-start; margin-top: 2px; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: 999px; font-size: var(--font-xs, 0.75rem); line-height: 18px; color: var(--muted); }
+.policy-text .remedy, .principles .remedy { align-self: flex-start; margin-top: 2px; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: var(--radius-tag); font-size: var(--font-xs, 0.75rem); line-height: 18px; color: var(--muted); }
 .policy-text .remedy.fix, .policy-text .remedy.sometimes, .principles .remedy.fix, .principles .remedy.sometimes { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
 .policy-row.changed .policy-changed { color: var(--text); font-weight: 500; }
 .policy-level { display: flex; align-items: center; gap: var(--space-2); }
@@ -1889,3 +1902,18 @@ button.corner-btn[hidden] { display: none; }
 .group-sev { display: inline-flex; align-items: center; }
 .group-sev .sev-icon { width: 16px; height: 16px; }
 details.cl[open] > summary .group-sev { display: none; }
+
+/*
+ * Desktop: a row that carries a section's button (Copy these as prompt, Apply N fixes) is 3rem high,
+ * its text and button centered in it, clear of the section's content above and below. Single
+ * findings keep their own compact buttons.
+ */
+@media (min-width: 641px) {
+  .prompt-row, .cluster-head, .type-head-row { min-height: 3rem; margin-block: 0; }
+  .issue-group > .cl-summary { min-height: 3rem; padding-block: 0; }
+  .cl.issue-subgroup > .cl-summary, .cl.issue-rule > .cl-summary { min-height: 3rem; }
+  .issue-subgroup[open] > .cl-summary { margin-bottom: 0; }
+}
+
+/* A tag whose text wraps (marked by script: .multi-line): a padded frame with half the round corners. */
+:is(.theme-tag, .tier-tag, .remedy).multi-line { padding: 0.5rem; border-radius: calc(var(--radius-tag) / 2); }

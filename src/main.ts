@@ -5,6 +5,7 @@ import { TTFiles } from './ui/files';
 import { TTIssues } from './ui/issues';
 import { confirmClearAll, contrastControl, filesBar, ingest, reloadAll, TTLoader } from './ui/loader';
 import { TTSetAside } from './ui/set-aside';
+import { watchWrappingTags } from './ui/wrap-watch';
 import { openFilesDialog } from './ui/files-dialog';
 import { TIP } from './ui/tips';
 import { h, icon } from './ui/dom';
@@ -26,6 +27,7 @@ document.querySelectorAll('[data-logo]').forEach((el) => el.replaceWith(homeLink
 
 customElements.define('tt-loader', TTLoader);
 customElements.define('tt-set-aside', TTSetAside);
+watchWrappingTags();
 customElements.define('tt-files', TTFiles);
 customElements.define('tt-issues', TTIssues);
 customElements.define('tt-tokens', TTTokens);
