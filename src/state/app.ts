@@ -333,6 +333,11 @@ export function setRuleLevel(id: string, level: Level) {
   updateSettings({ policy: cleanPolicy({ ...store.get().settings.policy, [id]: level }) });
 }
 
+/** Set several checks' levels at once (a whole section on or off): one change, one re-check. */
+export function setRuleLevels(levels: Readonly<Record<string, Level>>) {
+  updateSettings({ policy: cleanPolicy({ ...store.get().settings.policy, ...levels }) });
+}
+
 /** Back to the built-in severity policy. */
 export function resetPolicy() {
   updateSettings({ policy: {} });

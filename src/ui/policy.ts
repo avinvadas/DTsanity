@@ -1,7 +1,8 @@
 import { basisLabel } from '../policy/basis';
 import type { Severity } from '../model/types';
-import { levelOf, REMEDY, RULES, type Level, type RuleDef } from '../policy/rules';
-import { resetPolicy, setRuleLevel, store } from '../state/app';
+import { levelOf, REMEDY, RULES, type Level, type RuleDef, type RuleGroup } from '../policy/rules';
+import { resetPolicy, setRuleLevel, setRuleLevels, store } from '../state/app';
+import { collapsible } from './collapsible';
 import { h, plural, severityIcon, viewHead } from './dom';
 import { swatchSelect } from './swatch-select';
 import { TIP } from './tips';
@@ -19,6 +20,29 @@ interface Row {
   changed: HTMLElement;
 }
 
+/**
+ * The page's sections, in the order and by the names the findings use: the
+ * Issues page's Format, Tiers, Contrast and Color blindness, then the checks
+ * shown with the base tier (color scales) and the type styles. Each can be
+ * turned off as a whole, to work on one kind of finding at a time.
+ */
+const SECTIONS: { id: string; title: string; about: string; groups: RuleGroup[] }[] = [
+  { id: 'format', title: 'Format', about: 'The files against the DTCG format: file formats, structure, references, types and values, metadata.', groups: ['Format', 'Structure', 'References', 'Types and values', 'Metadata'] },
+  { id: 'tiers', title: 'Tiers', about: 'Base, semantic and component tokens, and what each may point at.', groups: ['Tiers'] },
+  { id: 'contrast', title: 'Contrast', about: 'Text, UI parts and borders against their background, in every theme.', groups: ['Contrast'] },
+  { id: 'vision', title: 'Color blindness', about: 'Pairs and status colors as people with color-vision deficiencies see them.', groups: ['Color blindness'] },
+  { id: 'scales', title: 'Base color scales', about: 'The order, spacing, hue and gamut of each color scale.', groups: ['Base color scales'] },
+  { id: 'typography', title: 'Typography', about: 'Type styles that look the same, sizes too close or too small, fallback fonts.', groups: ['Typography'] },
+];
+/** A group's name inside its section, where it differs ("Format" is the section). */
+const GROUP_TITLE: Partial<Record<RuleGroup, string>> = { Format: 'File format' };
+
+interface Section {
+  rows: Row[];
+  on: HTMLInputElement;
+  state: HTMLElement;
+}
+
 /** A level in the picker: its severity icon, in its color, then its name. */
 const levelOption = (l: Severity) => ({ value: l, label: LABEL[l], lead: () => h('span', { class: `policy-sev ${l}` }, severityIcon(l)) });
 
@@ -30,20 +54,17 @@ const levelOption = (l: Severity) => ({ value: l, label: LABEL[l], lead: () => h
 export class TTPolicy extends HTMLElement {
   private unsub?: () => void;
   private rows: Row[] = [];
+  private sections: Section[] = [];
   private summary = h('span');
   private reset = h('button', { type: 'button', 'data-tip': TIP.policyReset, onclick: resetPolicy }, 'Reset to defaults');
 
   connectedCallback() {
     this.rows = RULES.map((r) => this.row(r));
-    const groups = [...new Set(RULES.map((r) => r.group))];
+    this.sections = [];
     this.replaceChildren(
       viewHead('Severity policy', { summary: this.summary }),
-      h('p', { class: 'meta policy-intro' }, 'How each check reports: as an error, a warning or info, or not at all. Changes apply right away to every file and are kept in this browser. Each check also says what it stands on: Required when a standard (DTCG, WCAG) asks for it, Advice when it is a DTsanity convention or a standard only recommends it. And what DTsanity does about it: Auto-fix (always a one-click fix), Fix when clear (a fix when the right change is clear), Guided (a tool here to work on it) or Report only (the change is yours).'),
-      h(
-        'div',
-        { class: 'policy' },
-        groups.map((g) => h('section', { class: 'policy-group' }, h('h2', null, g), h('ul', { class: 'policy-list' }, this.rows.filter((x) => x.rule.group === g).map((x) => x.el)))),
-      ),
+      h('p', { class: 'meta policy-intro' }, 'Turn a whole section off to work on one kind of finding at a time. Changes apply right away to every file and are kept in this browser.'),
+      h('div', { class: 'policy' }, SECTIONS.map((s) => this.section(s))),
       h('div', { class: 'policy-foot' }, this.reset),
     );
     this.unsub = store.select((s) => s.settings.policy, () => this.refresh());
@@ -51,6 +72,41 @@ export class TTPolicy extends HTMLElement {
 
   disconnectedCallback() {
     this.unsub?.();
+  }
+
+  /**
+   * A section: its name, how many of its checks are on, and a switch that
+   * turns all of them on (each at its own level) or off. Closed until opened,
+   * where each check can be set on its own.
+   */
+  private section(def: (typeof SECTIONS)[number]) {
+    const rows = this.rows.filter((x) => def.groups.includes(x.rule.group));
+    const id = `policy-section-${def.id}`;
+    const on = h('input', { type: 'checkbox', role: 'switch', id, class: 'policy-section-switch', 'aria-label': `${def.title} checks` });
+    // Turning a section on puts back each check that was off at its default level, and keeps the levels set for the rest.
+    on.addEventListener('change', () =>
+      setRuleLevels(Object.fromEntries(rows.map((x) => [x.rule.id, on.checked ? (levelOf(store.get().settings.policy, x.rule.id) === 'off' ? x.rule.level : levelOf(store.get().settings.policy, x.rule.id)) : 'off']))),
+    );
+    // The switch sits in the section's heading line: using it doesn't open or close the section.
+    on.addEventListener('click', (e) => e.stopPropagation());
+    const state = h('span', { class: 'policy-section-state' });
+    this.sections.push({ rows, on, state });
+    const lists = def.groups.map((g) => {
+      const own = rows.filter((x) => x.rule.group === g);
+      const list = h('ul', { class: 'policy-list' }, own.map((x) => x.el));
+      return def.groups.length > 1 ? h('section', { class: 'policy-group' }, h('h3', null, GROUP_TITLE[g] ?? g), list) : list;
+    });
+    return collapsible({
+      key: `policy:${def.id}`,
+      open: false,
+      variant: 'row',
+      class: 'policy-section',
+      summary: [
+        h('span', { class: 'policy-section-head' }, h('h2', null, def.title), h('span', { class: 'policy-section-about' }, def.about)),
+        h('span', { class: 'policy-section-toggle', onclick: (e: Event) => e.stopPropagation() }, state, on),
+      ],
+      content: h('div', { class: 'policy-section-body' }, lists),
+    });
   }
 
   private row(rule: RuleDef): Row {
@@ -105,6 +161,14 @@ export class TTPolicy extends HTMLElement {
       if (isChanged) edited++;
       x.el.classList.toggle('changed', isChanged);
       x.changed.textContent = isChanged ? `Changed · default: ${LABEL[x.rule.level]}` : '';
+    }
+    for (const s of this.sections) {
+      const n = s.rows.filter((x) => levelOf(policy, x.rule.id) !== 'off').length;
+      // Some on, some off: shown as mixed, and switching it turns the rest on.
+      s.on.checked = n === s.rows.length;
+      s.on.indeterminate = n > 0 && n < s.rows.length;
+      s.state.textContent = n === s.rows.length ? `${plural(n, 'check')} on` : n ? `${n} of ${s.rows.length} on` : 'Off';
+      s.on.closest('.policy-section')?.classList.toggle('off', n === 0);
     }
     this.summary.textContent = `${plural(RULES.length, 'rule')}${edited ? ` · ${edited} changed` : ' · built-in defaults'}`;
     this.reset.disabled = edited === 0;
