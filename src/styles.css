@@ -547,9 +547,16 @@ body.dragging dialog.files-dialog .dropzone::after, body.dragging .view[data-vie
 @media (prefers-reduced-motion: reduce) {
   .dropzone > .icon.token-file-icon, .view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { animation: none; }
 }
-.zone-title { font-size: max(14px, calc(var(--zone) * 0.0374)); font-weight: 500; line-height: 1.2; color: var(--text); }
+/*
+ * The landing's text uses four roles only:
+ *  - body: 16px at the body line height, in the text color (the subtitle, the link field's label);
+ *  - bold: body at 600 (the drop target's call, the setting's name);
+ *  - small: 14px at the body line height, muted (the lines under them, the footer);
+ *  - link: underlined, in the color of the text around it.
+ */
+.zone-title { font-size: var(--font-base); font-weight: 600; line-height: var(--leading); color: var(--text); }
 .zone-text { display: contents; }
-.zone-sub { font-size: max(14px, calc(var(--zone) * 0.0255)); font-weight: 400; line-height: 1.4; color: var(--text-soft); } /* 14px regular at the least, in --text-soft (over 7:1 in both themes) */
+.zone-sub { font-size: var(--font-sm); font-weight: 400; line-height: var(--leading); color: var(--muted); }
 /* The lines sit below the circle's middle, where it is narrower: they break at about two-thirds of its width, evenly. */
 .dropzone :is(.zone-title, .zone-sub) { max-width: 82%; text-wrap: balance; overflow-wrap: break-word; }
 body.dragging .dropzone {
@@ -629,7 +636,8 @@ body.dragging .view[data-empty] .dropzone::before, .view[data-empty] .dropzone.l
  * tint is laid over the page color instead of over the grid.
  */
 :root { --landing-dot: color-mix(in oklch, var(--text) 13%, transparent); }
-body:not(.has-files) main.workspace, body:not(.has-files) main.m-body {
+/* Only while the landing itself shows: not on the settings or How DTsanity works pages opened from it. */
+body:not(.has-files) main.workspace:has(> .view[data-view='files']:not([hidden])), body:not(.has-files) main.m-body:not(:has(> .m-policy:not([hidden]))) {
   background-image: radial-gradient(circle, var(--landing-dot) 0.8px, transparent 1.3px);
   background-size: 18px 18px;
   background-position: center 9px;
@@ -641,14 +649,14 @@ body.dragging .m-load .dropzone, .m-load .dropzone.loading { background: linear-
 .view[data-empty] .dropzone { box-shadow: inset 0 0 2rem var(--zone-shadow-ink); }
 .m-load .dropzone { box-shadow: 0 0 2rem var(--zone-shadow-ink); }
 /* "Load files from a link" labels the field: it sits at the field's start, in the field label's style, not as a heading. */
-.url-form label { align-self: flex-start; font-weight: 400; font-size: var(--font-sm); color: var(--text-soft); }
+.url-form label { align-self: flex-start; font-weight: 400; font-size: var(--font-base); color: var(--text); }
 .view[data-empty] .setting { text-align: left; }
 
 /* Under the drop zone: choosing a whole folder instead of files. */
 .url-form { display: flex; flex-direction: column; gap: var(--space-2); justify-content: center; width: min(440px, 100%); }
 .url-form .row { display: flex; gap: var(--space-2); align-self: stretch; }
 .url-form input { flex: 1; }
-.url-form .hint { color: var(--subtle); font-size: var(--font-sm); }
+.url-form .hint { color: var(--muted); font-size: var(--font-sm); }
 .url-form .hint:empty { display: none; }
 /* Files set aside at loading: a closable note at the top of the page, not an error. */
 tt-set-aside { display: block; margin: var(--space-3) var(--space-4) 0; }
@@ -670,7 +678,8 @@ tt-set-aside[hidden] { display: none; }
 tt-settings { display: block; padding-top: var(--space-3); border-top: 1px solid var(--border); }
 .setting { display: flex; gap: var(--space-2); align-items: flex-start; }
 .setting input { margin: 1px 3px 3px; width: 18px; height: 18px; flex: none; }
-.setting label { display: flex; flex-direction: column; cursor: pointer; }
+.setting label { display: flex; flex-direction: column; cursor: pointer; line-height: var(--leading); }
+.setting label strong { font-weight: 600; }
 .setting label span { color: var(--muted); font-size: var(--font-sm); }
 
 tt-files { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -1353,10 +1362,10 @@ body.has-files .workspace .vh-actions .reload-status:empty { display: none; }
 .view[data-empty] .vh-summary { max-width: 60ch; justify-content: center; }
 /* Under the subtitle: what it checks, in about 12 words a line. Plain page text, so search engines read it too. */
 .landing-intro a, .m-lede a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-.landing-intro a:hover, .m-lede a:hover { color: var(--text); }
-.landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-sm); line-height: 1.55; color: var(--muted); text-align: center; text-wrap: balance; }
+.landing-intro a:hover, .m-lede a:hover { text-decoration-thickness: 2px; }
+.landing-intro { margin: var(--space-1) 0 0; max-width: 80ch; font-size: var(--font-base); line-height: var(--leading); color: var(--text); text-align: center; text-wrap: balance; }
 /* The credit closes every scrolled view, desktop and phone alike: centered, 4rem below the content. */
-.page-foot { max-width: var(--content-w); margin: 4rem auto 0; text-align: center; text-wrap: balance; font-size: var(--font-sm); color: var(--subtle); }
+.page-foot { max-width: var(--content-w); margin: 4rem auto 0; text-align: center; text-wrap: balance; font-size: var(--font-sm); line-height: var(--leading); color: var(--muted); }
 /* The privacy line, on its own line above the credit; phones show the credit line only. */
 .foot-privacy { margin: 0 0 var(--space-1); }
 .m-body .foot-privacy { display: none; }
@@ -1470,7 +1479,7 @@ tt-mobile { display: none; }
 }
 .m-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); box-sizing: border-box; padding: 0 var(--space-4); background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 600; }
 .m-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-4) var(--space-4) calc(88px + 0.5rem + env(safe-area-inset-bottom)); }
-.m-lede { margin: 0; color: var(--muted); font-size: var(--font-md); }
+.m-lede { margin: 0; color: var(--text); font-size: var(--font-base); line-height: var(--leading); }
 .m-note { margin: 0; color: var(--muted); font-size: var(--font-sm); }
 .m-empty { color: var(--muted); }
 
@@ -1799,8 +1808,34 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
    Severity policy: one line per check, a switch to turn it off and its level.
    ============================================================ */
 .policy-intro { max-width: 70ch; margin: 0 0 var(--space-4); }
-.policy { display: flex; flex-direction: column; gap: var(--space-5); max-width: 56rem; }
-.policy-group h2 { margin: 0 0 var(--space-2); font-size: var(--font-md, 1rem); }
+.policy { display: flex; flex-direction: column; max-width: 56rem; }
+/* A section per kind of finding: its name and what it covers, then how many checks are on and its switch. */
+.policy-section > .cl-summary .cl-label { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-width: 0; flex-wrap: nowrap; }
+/* Phones: the switch stays beside the heading; the count of checks moves under the description. */
+@media (max-width: 640px) {
+  .policy-section > .cl-summary .cl-label { align-items: flex-start; }
+  .policy-section-toggle { flex-direction: column-reverse; align-items: flex-end; gap: var(--space-1); padding-top: 2px; }
+}
+.policy-section-head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.policy-section-head h2 { margin: 0; font-size: var(--font-md, 1rem); }
+.policy-section-about { color: var(--muted); font-size: var(--font-sm); font-weight: 400; }
+.policy-section-toggle { display: flex; align-items: center; gap: var(--space-2); flex: none; cursor: default; }
+.policy-section-state { color: var(--muted); font-size: var(--font-sm); white-space: nowrap; }
+.policy-section.off .policy-section-head h2 { color: var(--muted); }
+.policy-section-body { padding: 0 0 var(--space-4); }
+.policy-group h3 { margin: var(--space-4) 0 var(--space-2); font-size: var(--font-sm); font-weight: 600; }
+/* The section switch: a toggle, its knob right when on, left when off, centered when only some checks are on. */
+input[type='checkbox'].policy-section-switch {
+  width: 36px; height: 20px; margin: 0; border-radius: 999px; border: 1.5px solid var(--border-strong);
+  background: radial-gradient(circle, var(--text-soft) 5.5px, transparent 6px) left 1px center / 16px 16px no-repeat;
+  transition: background-position 0.15s ease-out, background-color 0.15s ease-out;
+}
+input[type='checkbox'].policy-section-switch:checked {
+  border-color: var(--accent);
+  background: var(--accent) radial-gradient(circle, var(--on-accent) 5.5px, transparent 6px) right 1px center / 16px 16px no-repeat;
+}
+input[type='checkbox'].policy-section-switch:indeterminate { background: radial-gradient(circle, var(--text-soft) 5.5px, transparent 6px) center / 16px 16px no-repeat; }
+@media (prefers-reduced-motion: reduce) { input[type='checkbox'].policy-section-switch { transition: none; } }
 .policy-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
 .policy-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
 /* The checkbox sits on the title's line (24px: 16px at 1.5), centered on it, not on the whole row. */
