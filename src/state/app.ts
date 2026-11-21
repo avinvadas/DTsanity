@@ -8,7 +8,7 @@ import type { Edit, Fix, Issue, Model, Settings, SourceFile } from '../model/typ
 import { detectThemes, type Theme } from '../themes/detect';
 import { NO_PAIR_EDITS, type ContrastLevel, type PairEdits, type PairKind, pairId } from '../semantic/pairs';
 import { mergeModels, orphanIssues, type ThemeModel } from '../themes/merge';
-import { cleanPolicy, issuesWithPolicy, type Level } from '../policy/rules';
+import { acceptsLegacy, cleanPolicy, issuesWithPolicy, withLegacy, type Level } from '../policy/rules';
 import { analyze } from '../validate';
 import { loadSettings, saveSettings } from './settings';
 import { createStore } from './store';
@@ -319,6 +319,9 @@ export function setLoadErrors(loadErrors: LoadError[]) {
 export function updateSettings(patch: Partial<Settings>) {
   store.set((s) => {
     const settings = { ...s.settings, ...patch };
+    // Legacy formats have one switch, their check: a policy change sets it, and so does accepting them from a finding.
+    if (patch.acceptLegacy !== undefined) settings.policy = withLegacy(settings.policy, settings.acceptLegacy);
+    else if (patch.policy) settings.acceptLegacy = acceptsLegacy(settings.policy);
     saveSettings(settings);
     if (settings.acceptLegacy === s.settings.acceptLegacy) return { settings, ...derive(s, s.files, settings) };
     const legacy = s.files.filter((f) => f.format === 'legacy');

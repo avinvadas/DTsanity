@@ -60,7 +60,7 @@ const GUIDE: Record<string, string> = {
 const rule = (group: RuleGroup, id: string, level: Severity, remedy: Remedy, about: string, title = RULE_TITLE[id] ?? id): RuleDef => ({ id, group, title, about, level, remedy });
 
 export const RULES: readonly RuleDef[] = [
-  rule('Format', 'legacy-format', 'error', 'fix', 'A Tokens Studio or Style Dictionary file loaded while legacy formats are off.'),
+  rule('Format', 'legacy-format', 'error', 'fix', 'A file in an older format, such as Tokens Studio or Style Dictionary. Turned off, such files are converted to DTCG and checked.'),
   rule('Format', 'legacy-conversion', 'warning', 'none', 'Something in a legacy file that has no exact DTCG equivalent.'),
   rule('Format', 'json5-syntax', 'warning', 'none', 'A .json file that uses JSON5 syntax (comments, trailing commas…), which most JSON tools can’t read.'),
   rule('Format', 'resolver-missing', 'warning', 'none', 'A file the DTCG resolver names for a theme that isn’t loaded, so that theme is checked without it.'),
@@ -155,6 +155,18 @@ export function noFixNote(id: string): string {
 /** The level a rule reports at under `policy`. Rules not in the list keep `fallback`. */
 export function levelOf(policy: Policy | undefined, id: string, fallback?: Severity): Level {
   return policy?.[id] ?? DEFAULTS.get(id) ?? fallback ?? 'warning';
+}
+
+/**
+ * Legacy formats have one switch, their check in What to check: with it on, an older-format file is
+ * reported and left as it is; with it off, the file is converted to DTCG and checked.
+ */
+export const acceptsLegacy = (policy: Policy | undefined): boolean => levelOf(policy, 'legacy-format') === 'off';
+
+/** The policy with legacy formats accepted or not; a level set for the check is kept while it stays on. */
+export function withLegacy(policy: Policy | undefined, accept: boolean): Record<string, Level> {
+  if (accept === acceptsLegacy(policy)) return cleanPolicy(policy);
+  return cleanPolicy({ ...policy, 'legacy-format': accept ? 'off' : DEFAULTS.get('legacy-format') });
 }
 
 /** The severity a check reports at, or undefined when the policy turns it off. */

@@ -684,9 +684,6 @@ tt-set-aside[hidden] { display: none; }
 
 tt-settings { display: block; padding-top: var(--space-3); border-top: 1px solid var(--border); }
 /* On What to check: its own block above the sections. */
-.policy-reading { max-width: 56rem; margin-bottom: var(--space-4); }
-.policy-reading h2 { margin: 0 0 var(--space-2); font-size: var(--font-md, 1rem); }
-.policy-reading tt-settings { padding: var(--space-3) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .setting { display: flex; gap: var(--space-2); align-items: flex-start; }
 .setting input { margin: 1px 0.1875rem 0.1875rem; width: 1.125rem; height: 1.125rem; flex: none; }
 .setting label { display: flex; flex-direction: column; cursor: pointer; line-height: var(--leading); }
