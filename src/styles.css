@@ -1943,3 +1943,64 @@ details.cl[open] > summary .group-sev { display: none; }
 .url-form textarea.is-json { font: var(--font-sm) / 1.5 var(--mono, monospace); }
 .url-form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .url-form .hint.error { color: var(--error); }
+
+/* ============================================================
+   Landing, split (wide desktop windows): the drop circle on the right, everything else in a column
+   on the left. The circle keeps one distance from the top, the right and the bottom of the page
+   below the header; the left column's content is centered in its height. Colors, textures and type
+   stay as they are; the intro reads as the page's title.
+   ============================================================ */
+@media (min-width: 900px) and (orientation: landscape) {
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) {
+    /* The page below the header, the smallest gap around the circle, and the least the left column keeps. */
+    --page-h: calc(100dvh - var(--header-h));
+    --ring-gap: var(--grid-1);
+    --left-min: 24rem;
+    /* As tall as the page allows; narrower when the window is, so the left column keeps its width. */
+    --circle: max(16rem, min(calc(var(--page-h) - 2 * var(--ring-gap)), calc(2 * (100vw - var(--left-min)) - var(--page-h))));
+    /* One distance on three sides: what is left of the height, halved. */
+    --ring-space: calc((var(--page-h) - var(--circle)) / 2);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(var(--circle) + var(--ring-space));
+    grid-template-rows: auto 1fr auto auto auto auto 1fr auto;
+    min-height: var(--page-h); height: auto; padding: 0;
+  }
+  /* The wrappers step aside, so their parts are placed on the grid directly. */
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) :is(.view[data-view='files'], .load-card, tt-loader, .loader) { display: contents; }
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > * { grid-column: 1; }
+  body:not(.has-files) .workspace > tt-set-aside { grid-row: 1; }
+  body:not(.has-files) .view[data-empty] > .vh { grid-column: 1; grid-row: 3; }
+  body:not(.has-files) .view[data-empty] .url-form { grid-column: 1; grid-row: 4; }
+  body:not(.has-files) .view[data-empty] tt-loader > .load-errors { grid-column: 1; grid-row: 5; }
+  body:not(.has-files) .view[data-empty] tt-settings { grid-column: 1; grid-row: 6; }
+  body:not(.has-files) .view[data-empty] tt-files { display: none; }
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { grid-column: 1; grid-row: 8; }
+
+  /* The left column: one measure, left-aligned, inset as the header's logo is. */
+  body:not(.has-files) .view[data-empty] > .vh,
+  body:not(.has-files) .view[data-empty] .url-form,
+  body:not(.has-files) .view[data-empty] tt-loader > .load-errors,
+  body:not(.has-files) .view[data-empty] tt-settings,
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot {
+    justify-self: start; box-sizing: border-box; width: min(calc(100% - var(--space-3) - var(--space-2)), 34rem);
+    margin: 0 0 0 calc(var(--space-3) + var(--space-2)); padding-right: var(--space-5);
+  }
+  body:not(.has-files) .view[data-empty] .url-form { align-items: stretch; margin-top: var(--grid-1); }
+  body:not(.has-files) .view[data-empty] tt-settings { margin-top: var(--grid-2); }
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding-block: var(--grid-2); }
+  body:not(.has-files) .workspace > tt-set-aside { margin: var(--space-3) var(--space-4) 0 calc(var(--space-3) + var(--space-2)); }
+
+  /* The intro is the page's title now: the view title's size and weight. */
+  body:not(.has-files) .view[data-empty] > .vh { align-items: flex-start; }
+  body:not(.has-files) .view[data-empty] .landing-intro {
+    margin: 0; max-width: none; text-align: left; text-wrap: balance;
+    font-size: var(--font-title); line-height: 1.2; font-weight: 600; color: var(--text);
+  }
+
+  /* The circle: right column, the same distance from the top, the right and the bottom. */
+  body:not(.has-files) .view[data-empty] .dropzone {
+    grid-column: 2; grid-row: 1 / -1; align-self: start; justify-self: start;
+    width: var(--circle); height: var(--circle); max-width: none; max-height: none; flex: none;
+    margin: var(--ring-space) var(--ring-space) var(--ring-space) 0;
+  }
+}
