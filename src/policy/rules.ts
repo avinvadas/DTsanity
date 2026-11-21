@@ -89,6 +89,7 @@ export const RULES: readonly RuleDef[] = [
   rule('Types and values', 'font-fallback', 'info', 'none', 'A font family list that doesn’t end with a generic family such as sans-serif.'),
 
   rule('References', 'unresolved-reference', 'error', 'sometimes', 'A reference to a token that doesn’t exist.'),
+  rule('References', 'outside-reference', 'info', 'none', 'In pasted text: references to tokens that weren’t pasted. One note for all of them, not a broken reference each.'),
   rule('References', 'reference-to-group', 'error', 'sometimes', 'A reference to a group instead of a token.'),
   rule('References', 'circular-reference', 'error', 'none', 'References that lead back to themselves.'),
   rule('References', 'invalid-ref', 'error', 'none', 'A “$ref” that isn’t a valid JSON pointer.'),

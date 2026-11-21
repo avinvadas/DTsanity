@@ -14,7 +14,7 @@ import type { LoadError } from '../state/app';
 export interface RawSource {
   name: string;
   text: string;
-  origin: 'file' | 'url';
+  origin: 'file' | 'url' | 'paste';
   url?: string;
   handle?: FileSystemFileHandle;
   blob?: File;
@@ -344,7 +344,34 @@ function unreadable(n: number): LoadError[] {
 }
 
 /** Read a loaded file's source again: refetch its URL or re-read it from disk. */
+/**
+ * Text pasted on the page, as a file: named pasted.json (pasted-2.json and
+ * so on, by the names already taken), so it is checked, fixed and exported
+ * like any other. A bare token (`{"$value": …}`) is put under "pasted", and
+ * a group pasted without its braces (`"color": {…}`) gets them back, so the
+ * snippet reads as DTCG. Read only when pasted; nothing leaves the page.
+ */
+export function pastedSource(text: string, taken: readonly string[] = []): RawSource {
+  let name = 'pasted.json';
+  for (let n = 2; taken.includes(name); n++) name = `pasted-${n}.json`;
+  let body = text.trim();
+  const parses = (t: string) => {
+    try {
+      return JSON.parse(t) as unknown;
+    } catch {
+      return undefined;
+    }
+  };
+  // A group copied out of a larger file, without the braces around it.
+  if (body.startsWith('"') && parses(body) === undefined && parses(`{${body}}`) !== undefined) body = `{\n${body}\n}`;
+  const root = parses(body);
+  if (root && typeof root === 'object' && !Array.isArray(root) && ('$value' in root || 'value' in root)) body = `{\n  "pasted": ${body}\n}`;
+  return { name, text: body, origin: 'paste' };
+}
+
 export async function reloadSource(f: SourceFile): Promise<RawSource | LoadError> {
+  // Pasted text has no source but itself: reloading leaves it as it is.
+  if (f.origin === 'paste') return { name: f.name, text: f.text, origin: 'paste' };
   if (f.origin === 'url' && f.url) {
     return { ...(await fetchSource(f.url)), name: f.name };
   }

@@ -1,5 +1,5 @@
 import './styles.css';
-import { readDropped } from './io/load';
+import { pastedSource, readDropped } from './io/load';
 import { redo, store, undo } from './state/app';
 import { TTFiles } from './ui/files';
 import { TTIssues } from './ui/issues';
@@ -95,6 +95,16 @@ document.addEventListener('dragleave', (e) => {
 document.addEventListener('dragover', (e) => {
   if (hasFiles(e)) e.preventDefault();
 });
+// Pasted JSON, anywhere on the page but a text field: checked as a file (pasted.json), added to what is loaded.
+// Read only from the paste itself, so the browser asks for no clipboard permission, and it stays on the page.
+document.addEventListener('paste', (e) => {
+  if ((e.target as HTMLElement | null)?.closest?.('input, textarea, select, [contenteditable]')) return;
+  const text = e.clipboardData?.getData('text/plain') ?? '';
+  if (!/^\s*[[{"]/.test(text)) return;
+  e.preventDefault();
+  void ingest(Promise.resolve([pastedSource(text, store.get().files.map((f) => f.name))]));
+});
+
 document.addEventListener('drop', (e) => {
   if (!hasFiles(e)) return;
   e.preventDefault();

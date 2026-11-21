@@ -186,6 +186,11 @@ export const CRITERIA: Record<string, Criterion> = {
     done: 'Every reference is the whole value of a token or of a part of a composite value.',
     decline: 'your build computes these values before any DTCG reader sees them. Say which build.',
   },
+  'outside-reference': {
+    problem: 'Pasted text refers to tokens that weren’t pasted with it, so their values can’t be checked.',
+    done: 'Every reference in the pasted text resolves: the tokens it points to are pasted or loaded too.',
+    decline: 'the pasted text is checked on its own on purpose. Say so.',
+  },
   'deprecated-reference': {
     problem: 'A token references a token marked “$deprecated”.',
     done: 'No token references a deprecated token.',

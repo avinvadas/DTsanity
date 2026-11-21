@@ -63,6 +63,7 @@ export const BASIS: Record<string, Basis> = {
   'font-fallback': convention('a generic family last in a font stack'),
   // References
   'unresolved-reference': dtcg('Format 7.2 Reference Resolution'),
+  'outside-reference': dtcg('Format 7.2 Reference Resolution', 'advice'),
   'reference-to-group': dtcg('Format 7.1.1 Curly Brace Syntax (Token References)'),
   'circular-reference': dtcg('Format 7.2.3 Circular References'),
   'invalid-ref': dtcg('Format 7.1.2 JSON Pointer Syntax (Required Support)'),

@@ -6,6 +6,21 @@ import { h, masked, plural, xButton } from './dom';
 import { viewControls } from './loader';
 import { TIP } from './tips';
 
+/** Copy a pasted file's JSON, with any fixes, to paste back where it came from. */
+function copyButton(f: SourceFile) {
+  const b = h('button', { class: 'ghost', 'data-tip': 'Copy this file’s JSON, with your fixes, to paste back where it came from.' }, 'Copy fixed JSON');
+  b.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(exportAs(f).text);
+      b.textContent = 'Copied';
+    } catch {
+      b.textContent = 'Copy failed';
+    }
+    setTimeout(() => (b.textContent = 'Copy fixed JSON'), 2000);
+  });
+  return b;
+}
+
 const LEGACY_LABEL = { 'tokens-studio': 'Tokens Studio', 'style-dictionary': 'Style Dictionary' } as const;
 
 function formatLabel(f: SourceFile): string {
@@ -76,7 +91,7 @@ export class TTFiles extends HTMLElement {
         'li',
         { class: 'file' },
         masked(h('span', { class: 'file-name' }, f.name)),
-        h('span', { class: 'meta', 'data-tip': TIP.fileMeta }, `${formatLabel(f)} · ${plural(counts.get(f.id) ?? 0, 'token')}${f.origin === 'url' ? ' · from URL' : ''}`),
+        h('span', { class: 'meta', 'data-tip': TIP.fileMeta }, `${formatLabel(f)} · ${plural(counts.get(f.id) ?? 0, 'token')}${f.origin === 'url' ? ' · from URL' : f.origin === 'paste' ? ' · pasted' : ''}`),
         h(
           'span',
           {
@@ -91,6 +106,8 @@ export class TTFiles extends HTMLElement {
               h('button', { class: 'ghost', 'data-tip': TIP.downloadLegacy, onclick: () => this.save(f, 'original') }, `Download as ${kind}`),
             ]
           : h('button', { class: 'ghost', 'data-tip': TIP.download, onclick: () => this.save(f, 'dtcg') }, 'Download'),
+        // What came in by pasting goes back out the same way.
+        f.origin === 'paste' ? copyButton(f) : null,
         xButton('Remove file', () => removeFile(f.id), TIP.remove, 'file-remove'),
         notes
           ? masked(

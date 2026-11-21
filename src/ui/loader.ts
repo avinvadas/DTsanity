@@ -1,5 +1,5 @@
 import { isUnchanged } from '../io/export';
-import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
+import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pastedSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
 import type { SourceFile } from '../model/types';
 import { addFiles, clearAll, replaceFiles, setBusy, store, type LoadError, type SetAside } from '../state/app';
 import { createStore } from '../state/store';
@@ -228,34 +228,88 @@ export class TTLoader extends HTMLElement {
         { class: 'zone-text' },
         h('strong', { class: 'zone-title' }, phone ? 'Select design tokens JSON files' : 'Drop your design tokens JSON files or folders here'),
         // On phones the title says it all; desktop adds that a click works too.
-        phone ? null : h('span', { class: 'zone-sub' }, 'or click to select them'),
+        phone ? null : h('span', { class: 'zone-sub' }, 'or click to select them, or paste JSON'),
       ),
     );
 
-    const url = masked(h('input', { type: 'url', id: 'tt-url', placeholder: 'https://…/tokens.json', autocomplete: 'off', spellcheck: 'false', required: true }));
-    // Shown only when it has something to say; the fetch itself is unchanged (no cookies, no referrer).
-    const hint = h('small', { class: 'hint' });
-    url.addEventListener('input', () => {
-      let rewritten = false;
-      try {
-        rewritten = normalizeUrl(url.value).rewritten;
-      } catch {
-        /* not a URL yet */
+    // One field for both: a link to a token file, or token JSON pasted in. What it holds decides what
+    // happens: a link is fetched (without cookies or referrer); JSON is checked as a file, pasted.json.
+    const field = masked(
+      h('textarea', {
+        id: 'tt-load',
+        rows: 1,
+        spellcheck: 'false',
+        autocomplete: 'off',
+        placeholder: 'https://… or { … }',
+        'aria-describedby': 'tt-load-hint',
+      }),
+    );
+    const hint = h('small', { class: 'hint', id: 'tt-load-hint', 'aria-live': 'polite' });
+    const submit = h('button', { type: 'submit', disabled: true }, 'Load');
+    /** What the field holds: nothing yet, JSON (it starts like JSON), or a link. */
+    const kindOf = (v: string): 'empty' | 'json' | 'link' => {
+      const t = v.trim();
+      return !t ? 'empty' : /^[[{"]/.test(t) ? 'json' : 'link';
+    };
+    // One line for a link; it grows with pasted JSON, up to about ten lines, then scrolls.
+    const fit = () => {
+      field.style.height = 'auto';
+      field.style.height = `${Math.min(field.scrollHeight + 2, 240)}px`;
+    };
+    const update = () => {
+      const kind = kindOf(field.value);
+      field.classList.toggle('is-json', kind === 'json');
+      submit.disabled = kind === 'empty';
+      submit.textContent = kind === 'json' ? 'Check' : 'Load';
+      let github = false;
+      if (kind === 'link') {
+        try {
+          github = normalizeUrl(field.value.trim()).rewritten;
+        } catch {
+          /* not a URL yet */
+        }
       }
-      hint.textContent = rewritten ? 'GitHub link: the raw file will be loaded.' : '';
+      hint.classList.remove('error');
+      hint.textContent = kind === 'json' ? 'JSON: checked here as pasted.json. ⌘↩ to check.' : github ? 'GitHub link: the raw file will be loaded.' : '';
+      fit();
+    };
+    field.addEventListener('input', update);
+    update();
+    const go = () => {
+      const kind = kindOf(field.value);
+      if (kind === 'link') return void ingest(fetchSource(field.value.trim()).then((r) => [r]));
+      if (kind !== 'json') return;
+      const raw = pastedSource(field.value, store.get().files.map((f) => f.name));
+      const parsed = parseSource(raw, store.get().settings);
+      // An error in pasted JSON is said right here, under the text to correct.
+      if (isLoadError(parsed)) {
+        hint.classList.add('error');
+        hint.textContent = parsed.skipped ? 'No design tokens in it.' : `${parsed.line ? `Line ${parsed.line}, column ${parsed.col}: ` : ''}${parsed.message}`;
+        return;
+      }
+      field.value = '';
+      update();
+      void ingest(Promise.resolve([raw]));
+    };
+    // Enter loads a link; in JSON it starts a new line, and ⌘/Ctrl+Enter checks it.
+    field.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' || e.shiftKey) return;
+      if (kindOf(field.value) === 'link' || e.metaKey || e.ctrlKey) {
+        e.preventDefault();
+        go();
+      }
     });
-    const submit = h('button', { type: 'submit' }, 'Load');
     const form = h(
       'form',
       {
         class: 'url-form',
         onsubmit: (e: Event) => {
           e.preventDefault();
-          if (url.value.trim()) void ingest(fetchSource(url.value).then((r) => [r]));
+          go();
         },
       },
-      h('label', { for: 'tt-url' }, 'Load files from a link (GitHub, etc.)'),
-      h('div', { class: 'row' }, url, submit),
+      h('label', { for: 'tt-load' }, 'Load files from a link, or paste JSON'),
+      h('div', { class: 'row' }, field, submit),
       hint,
     );
 
@@ -273,7 +327,8 @@ export class TTLoader extends HTMLElement {
         (s) => s.busy,
         (busy) => {
           this.toggleAttribute('aria-busy', busy);
-          submit.disabled = busy;
+          // Loading disables it; an empty field keeps it disabled after.
+          submit.disabled = busy || !field.value.trim();
           submit.textContent = busy ? 'Loading…' : 'Load';
         },
       ),

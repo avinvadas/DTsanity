@@ -615,6 +615,7 @@ body.dragging .dropzone {
 .view[data-empty] .url-form { width: min(var(--grid-zone), 100%); gap: var(--grid-3); }
 .view[data-empty] .url-form .row { gap: var(--grid-3); }
 .view[data-empty] .url-form input, .view[data-empty] .url-form button { height: var(--grid-1); min-height: var(--grid-1); }
+.view[data-empty] .url-form textarea { min-height: var(--grid-1); padding-block: calc((var(--grid-1) - 1.5em - 2px) / 2); }
 /* On the landing the line closes the form instead: under the legacy switch, above the footer text. */
 .view[data-empty] tt-settings { width: min(var(--grid-zone), 100%); padding-top: 0; padding-bottom: var(--grid-2); border-top: 0; border-bottom: 1px solid var(--border); }
 /* Idle: a soft light travels slowly around the circle's border, in the same slowly cycling hue as the icon's point. */
@@ -1506,6 +1507,7 @@ tt-mobile { display: none; }
 .m-load .dropzone > .icon { width: calc(var(--zone) * var(--icon-k) * 1.33); }
 .m-load .url-form { width: 100%; }
 .m-load .url-form input { min-height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming in */
+.m-load .url-form textarea, .m-load .url-form textarea.is-json { min-height: 44px; font-size: 16px; padding-block: calc((44px - 1.5em - 2px) / 2); }
 .m-load .url-form button { min-height: 44px; }
 
 
@@ -1927,3 +1929,17 @@ details.cl[open] > summary .group-sev { display: none; }
 .issue.merged .issue-head .n { color: var(--muted); font-size: var(--font-sm); font-weight: 400; }
 /* A finding about a whole file: the file above its message, muted. */
 .issue-file { margin: 0; color: var(--muted); font-size: var(--font-sm); font-family: var(--mono, monospace); overflow-wrap: anywhere; }
+
+/*
+ * Load from a link or paste JSON: one field. On one line it looks like the other inputs; with JSON in
+ * it, it switches to code type and grows (up to about ten lines). The button stays on its first line.
+ */
+.url-form .row { align-items: flex-start; }
+.url-form textarea {
+  flex: 1; min-width: 0; box-sizing: border-box; height: var(--control-h); min-height: var(--control-h); max-height: 240px; resize: none; overflow-y: auto;
+  padding: calc((var(--control-h) - 1.5em - 2px) / 2) var(--space-2); border: 1px solid var(--control-border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); font: var(--font-base) / 1.5 var(--sans); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.url-form textarea.is-json { font: var(--font-sm) / 1.5 var(--mono, monospace); }
+.url-form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.url-form .hint.error { color: var(--error); }

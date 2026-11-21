@@ -33,7 +33,8 @@ export interface ConversionNote {
 export interface SourceFile {
   id: string;
   name: string;
-  origin: 'file' | 'url';
+  /** Where it came from: a file, a link, or text pasted on the page. */
+  origin: 'file' | 'url' | 'paste';
   url?: string;
   /** Re-readable handle (Chromium File System Access API), used by Reload. */
   handle?: FileSystemFileHandle;

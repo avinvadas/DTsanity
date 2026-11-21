@@ -13,6 +13,26 @@ import { typeAndValueRules } from './values';
 
 const key = (i: Issue) => `${i.fileId}\u0000${(i.keyPath ?? []).join('\u0000')}`;
 
+/**
+ * Pasted text is often part of a set: its references to tokens that weren't
+ * pasted are expected, not broken. They become one note per pasted file,
+ * with how many there are, instead of a broken reference each.
+ */
+function outsidePasted(issues: Issue[], files: SourceFile[]): Issue[] {
+  const pasted = new Set(files.filter((f) => f.origin === 'paste').map((f) => f.id));
+  if (!pasted.size) return issues;
+  const outside = new Map<string, number>();
+  const kept = issues.filter((i) => {
+    if (i.code !== 'unresolved-reference' || !i.fileId || !pasted.has(i.fileId)) return true;
+    outside.set(i.fileId, (outside.get(i.fileId) ?? 0) + 1);
+    return false;
+  });
+  const notes = [...outside].map(([fileId, n]) =>
+    makeIssue('info', 'references', 'outside-reference', `${n === 1 ? '1 reference points' : `${n} references point`} to tokens outside what was pasted. Paste or load those too.`, { fileId }),
+  );
+  return [...kept, ...notes];
+}
+
 /** Build the model and run every rule. The result's `issues` holds model and rule findings together. */
 export function analyze(files: SourceFile[], settings: Settings, scope: ThemeScope = {}): Model {
   const model = buildModel(files, settings, scope);
@@ -44,7 +64,7 @@ export function analyze(files: SourceFile[], settings: Settings, scope: ThemeSco
     const perMode = settings.acceptLegacy ? valuesPerMode(f) : undefined;
     if (perMode) modelIssues.push(perMode);
   }
-  model.issues = issuesWithPolicy([...modelIssues, ...rules], settings.policy);
+  model.issues = issuesWithPolicy(outsidePasted([...modelIssues, ...rules], files), settings.policy);
   return model;
 }
 

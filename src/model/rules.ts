@@ -27,6 +27,7 @@ export const RULE_TITLE: Record<string, string> = {
   'token-group-conflict': 'Token and group clash',
   // References
   'unresolved-reference': 'Broken reference',
+  'outside-reference': 'References outside the snippet',
   'reference-to-group': 'Reference to a group',
   'circular-reference': 'Circular reference',
   'invalid-ref': 'Invalid $ref',
