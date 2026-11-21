@@ -6,6 +6,7 @@ import { severest } from '../policy/rules';
 import type { Severity } from '../model/types';
 import { h, icon, plural, severityIcon } from './dom';
 import { promptRow } from './prompt-link';
+import type { PromptScope } from '../io/prompt';
 
 /**
  * The four kinds of findings (format, tiers, contrast, color blindness) and
@@ -78,18 +79,27 @@ export function openLines(f: Findings): string[] {
   return out;
 }
 
-/** What DTsanity can fix of the issues found, and what is left to the user, with the findings report for the rest. */
-export function fixableLine(withFix: number, total: number, copy = true): HTMLElement {
-  if (withFix === total) return h('p', { class: 'findings-fixable' }, total === 1 ? 'It has a one-click fix here.' : 'Each has a one-click fix here.');
+/**
+ * What DTsanity can fix of the issues found, and what is left to the user:
+ * the sentence, and the findings report's scope for the rest (none when
+ * everything has a fix).
+ */
+export function fixableText(withFix: number, total: number): { text: string; scope?: PromptScope } {
+  if (withFix === total) return { text: total === 1 ? 'It has a one-click fix here.' : 'Each has a one-click fix here.' };
   // The ones counted without a fix: issues with none, and the contrast, color-vision and scale findings (info notes aside).
   const scope = { issue: (i: Issue) => !i.fix && i.severity !== 'info', pair: (r: PairRow) => r.tone !== 'info' || r.cvdTone !== 'info', sibling: (g: SiblingRow) => g.tone !== 'info', scales: true, typography: true, files: true };
-  const text = withFix ? `${withFix} can be fixed here in one click. For the other ${total - withFix}, a file update is needed.` : 'None has a one-click fix here: a file update is needed.';
+  return { text: withFix ? `${withFix} can be fixed here in one click. For the other ${total - withFix}, a file update is needed.` : 'None has a one-click fix here: a file update is needed.', scope };
+}
+
+/** The same as a line of its own, with the findings report for the rest. */
+export function fixableLine(withFix: number, total: number, copy = true): HTMLElement {
+  const { text, scope } = fixableText(withFix, total);
   // Phones copy only from their footer: the line alone there.
-  return copy ? promptRow(text, scope, 'findings-fixable') : h('p', { class: 'findings-fixable' }, text);
+  return copy && scope ? promptRow(text, scope, 'findings-fixable') : h('p', { class: 'findings-fixable' }, text);
 }
 
 /** "N issues found:" over a card per kind; `go` takes the reader to that kind's findings, `href` names it for the link. */
-export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string, copy = true, title = true) {
+export function findingCards(f: Findings, go: (kind: FindingKind) => void, href: (kind: FindingKind) => string, copy = true, title = true, fixable = true) {
   const vision = f.vision.length + f.groups.length;
   const tone = findingTones(f);
   const kinds: [FindingKind, string, number, Severity][] = [
@@ -116,7 +126,8 @@ export function findingCards(f: Findings, go: (kind: FindingKind) => void, href:
       : total
         ? h('h2', { class: 'findings-title' }, `${plural(total, 'issue')} found:`)
         : h('h2', { class: 'findings-title all-clear' }, h('span', { class: 'finding-ok', 'aria-hidden': 'true' }, icon('check')), 'No issues found'),
-    total ? fixableLine(f.withFix, total, copy) : null,
+    // Where the page's summary line says it (the Issues view), not again here.
+    total && fixable ? fixableLine(f.withFix, total, copy) : null,
     h('nav', { class: 'finding-cards', 'aria-label': 'Findings' }, kinds.map(card)),
   );
 }

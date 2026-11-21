@@ -8,7 +8,7 @@ import type { PairRow, SiblingRow } from '../state/pairs';
 import { collapsible, expand, setAll } from './collapsible';
 import { h, icon, masked, plural, severityIcon, viewHead, type Child } from './dom';
 import { issuesScope, pairsScope, promptButton } from './prompt-link';
-import { findingCards, findings, findingTotal, issuesOf, type FindingKind, type Findings } from './findings';
+import { findingCards, findings, findingTotal, fixableText, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
 import { goTo } from './nav';
@@ -254,10 +254,15 @@ export class TTIssues extends HTMLElement {
     this.replaceChildren(
       // The count is the page's title: “Issues” over “N issues found” said it twice.
       viewHead(findingTotal(f) ? `${plural(findingTotal(f), 'issue')} found` : 'No issues found', {
-        summary: SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
+        // As the tier views lead with their count: what can be fixed here, then the severities, then the report for the rest.
+        summary: [
+          findingTotal(f) ? h('span', null, fixableText(f.withFix, findingTotal(f)).text) : null,
+          ...SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
+          findingTotal(f) && fixableText(f.withFix, findingTotal(f)).scope ? h('span', { class: 'vh-summary-end' }, promptButton(fixableText(f.withFix, findingTotal(f)).scope)) : null,
+        ],
         actions: this.reload.el,
       }),
-      findingCards(f, (k) => this.go(k), () => '#issues', true, false),
+      findingCards(f, (k) => this.go(k), () => '#issues', true, false, false),
       h(
         'div',
         { class: 'toolbar issue-tools' },
