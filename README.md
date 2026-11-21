@@ -21,7 +21,7 @@
 
 Everything happens on the page: nothing is uploaded or stored. The only request it makes is for a URL you enter. To check, watch the Network tab in your browser's developer tools while you load a file, or run the strict build offline.
 
-## Run it
+## Run it locally
 
 Requires Node.js 20 or later.
 
