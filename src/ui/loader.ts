@@ -165,7 +165,7 @@ let pickCount = 0;
 /**
  * The drop zone's token-file icon: a file with “{ }” and “.JSON” cut out of
  * it, so the circle shows through. Fixed markup, never built from file data.
- * Drawn in the text color at 66%, with no shadow (see .token-file-icon).
+ * Drawn in the text color at 15%, with no shadow (see .token-file-icon).
  */
 function tokenFileIcon(): SVGSVGElement {
   const t = document.createElement('template');

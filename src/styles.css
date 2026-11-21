@@ -538,10 +538,10 @@ dialog.files-dialog .dropzone:hover:not(:disabled)::after, .view[data-view='file
 body.dragging dialog.files-dialog .dropzone::after, body.dragging .view[data-view='files']:not([data-empty]) .dropzone::after { border-color: var(--line-strong); }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
 .dropzone > .icon { width: calc(var(--zone) * var(--icon-k)); height: auto; color: var(--text); }
-/* The token-file icon fades in. No shadow: it is drawn flat, in the text color at 66%, and the circle shows through its cut-outs. */
+/* The token-file icon fades in. No shadow: it is drawn flat, in the text color at 15%, and the circle shows through its cut-outs. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; }
-.token-file-icon > .tf-ink { opacity: 0.66; transition: opacity 0.1s ease-out; }
+.token-file-icon > .tf-ink { opacity: 0.15; transition: opacity 0.1s ease-out; }
 /* Pointing at the target, or dragging files over the page, brings it to full strength. */
 .dropzone:hover:not(:disabled) > .token-file-icon > .tf-ink, body.dragging .dropzone > .token-file-icon > .tf-ink { opacity: 1; }
 @keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
@@ -1942,6 +1942,8 @@ details.cl[open] > summary .group-sev { display: none; }
   background: var(--surface); color: var(--text); font: var(--font-base) / 1.5 var(--sans); white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .url-form textarea.is-json { font: var(--font-sm) / 1.5 var(--mono, monospace); }
+/* The field has the drop target's fill: the same tint over the page color. */
+.url-form textarea { background: linear-gradient(var(--zone-fill), var(--zone-fill)), var(--bg); }
 .url-form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .url-form .hint.error { color: var(--error); }
 
@@ -1998,12 +2000,12 @@ details.cl[open] > summary .group-sev { display: none; }
   body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding: 0; margin-top: var(--grid-1); }
   body:not(.has-files) .workspace > tt-set-aside { margin: var(--space-3) var(--space-4) 0 calc(var(--space-3) + var(--space-2)); }
 
-  /* The intro is the page's title now: the view title's weight, a step larger. */
+  /* The intro is the page's title now: an h1's size, the view title's weight. */
   body:not(.has-files) .view[data-empty] > .vh { align-items: flex-start; }
   body:not(.has-files) .view[data-empty] .landing-intro {
     margin: 0; max-width: none; text-align: left; text-wrap: balance;
-    /* One step above the view titles: this is the page's own title. */
-    font-size: var(--font-2xl); line-height: 1.2; font-weight: 600; color: var(--text);
+    /* The size of an h1 (2em, 32px), with a little more line height: this is the page's own title. */
+    font-size: 2rem; line-height: 1.35; font-weight: 600; color: var(--text);
   }
 
   /* The circle: right column, the same distance from the top, the right and the bottom. */
