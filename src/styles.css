@@ -543,7 +543,8 @@ body.dragging dialog.files-dialog .dropzone::after, body.dragging .view[data-vie
 .dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; }
 .token-file-icon > .tf-ink { opacity: 0.15; transition: opacity 0.1s ease-out; }
 /* Pointing at the target, or dragging files over the page, brings it to full strength. */
-.dropzone:hover:not(:disabled) > .token-file-icon > .tf-ink, body.dragging .dropzone > .token-file-icon > .tf-ink { opacity: 1; }
+.dropzone:hover:not(:disabled) > .token-file-icon > .tf-ink { opacity: 0.33; }
+body.dragging .dropzone > .token-file-icon > .tf-ink { opacity: 1; }
 @keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
 @media (prefers-reduced-motion: reduce) {
@@ -1969,7 +1970,8 @@ details.cl[open] > summary .group-sev { display: none; }
      * one gap from each side, and the left column's content, footer included, is centered in the height.
      */
     --page-h: calc(100dvh - var(--header-h));
-    --ring-gap: var(--grid-1);
+    /* The header's height: above and below the circle, and at least that between it and the left column. */
+    --ring-gap: var(--header-h);
     --square: min(var(--page-h), calc(100vw / 1.618));
     --circle: calc(var(--square) - 2 * var(--ring-gap));
     display: grid;
