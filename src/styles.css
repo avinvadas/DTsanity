@@ -1952,18 +1952,23 @@ details.cl[open] > summary .group-sev { display: none; }
    ============================================================ */
 @media (min-width: 900px) and (orientation: landscape) {
   body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) {
-    /* The page below the header, the smallest gap around the circle, and the least the left column keeps. */
+    /*
+     * Golden proportions: the right part is a square of side --square, the left column --square ÷ φ.
+     * Together they are --square × φ wide, so the square is the largest that fits the page's height
+     * and the window's width ÷ φ. The two are centered in the window; the circle sits in the square
+     * one gap from each side, and the left column ends level with the circle's bottom.
+     */
     --page-h: calc(100dvh - var(--header-h));
     --ring-gap: var(--grid-1);
-    --left-min: 24rem;
-    /* As tall as the page allows; narrower when the window is, so the left column keeps its width. */
-    --circle: max(16rem, min(calc(var(--page-h) - 2 * var(--ring-gap)), calc(2 * (100vw - var(--left-min)) - var(--page-h))));
-    /* One distance on three sides: what is left of the height, halved. */
-    --ring-space: calc((var(--page-h) - var(--circle)) / 2);
+    --square: min(var(--page-h), calc(100vw / 1.618));
+    --circle: calc(var(--square) - 2 * var(--ring-gap));
     display: grid;
-    grid-template-columns: minmax(0, 1fr) calc(var(--circle) + var(--ring-space));
+    grid-template-columns: calc(var(--square) / 1.618) var(--square);
     grid-template-rows: auto 1fr auto auto auto auto 1fr auto;
-    min-height: var(--page-h); height: auto; padding: 0;
+    justify-content: center;
+    /* The page keeps its full height (and its dot grid); the layout is the square's height, centered in it. */
+    box-sizing: border-box; height: var(--page-h); min-height: 0;
+    padding: calc((var(--page-h) - var(--square)) / 2) 0;
   }
   /* The wrappers step aside, so their parts are placed on the grid directly. */
   body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) :is(.view[data-view='files'], .load-card, tt-loader, .loader) { display: contents; }
@@ -1987,7 +1992,8 @@ details.cl[open] > summary .group-sev { display: none; }
   }
   body:not(.has-files) .view[data-empty] .url-form { align-items: stretch; margin-top: var(--grid-1); }
   body:not(.has-files) .view[data-empty] tt-settings { margin-top: var(--grid-2); }
-  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding-block: var(--grid-2); }
+  /* The footer's last line ends level with the circle's bottom: one gap above the layout's bottom. */
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding: 0; margin-bottom: var(--ring-gap); align-self: end; }
   body:not(.has-files) .workspace > tt-set-aside { margin: var(--space-3) var(--space-4) 0 calc(var(--space-3) + var(--space-2)); }
 
   /* The intro is the page's title now: the view title's size and weight. */
@@ -2001,6 +2007,6 @@ details.cl[open] > summary .group-sev { display: none; }
   body:not(.has-files) .view[data-empty] .dropzone {
     grid-column: 2; grid-row: 1 / -1; align-self: start; justify-self: start;
     width: var(--circle); height: var(--circle); max-width: none; max-height: none; flex: none;
-    margin: var(--ring-space) var(--ring-space) var(--ring-space) 0;
+    margin: var(--ring-gap);
   }
 }
