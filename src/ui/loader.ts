@@ -228,12 +228,12 @@ export class TTLoader extends HTMLElement {
         { class: 'zone-text' },
         h('strong', { class: 'zone-title' }, phone ? 'Select design tokens JSON files' : 'Drop your design tokens JSON files or folders here'),
         // On phones the title says it all; desktop adds that a click works too.
-        phone ? null : h('span', { class: 'zone-sub' }, 'or click to select them, or paste JSON'),
+        phone ? null : h('span', { class: 'zone-sub' }, 'or click to select them, or paste code'),
       ),
     );
 
-    // One field for both: a link to a token file, or token JSON pasted in. What it holds decides what
-    // happens: a link is fetched (without cookies or referrer); JSON is checked as a file, pasted.json.
+    // One field for both: a link to a token file, or token code pasted in. What it holds decides what
+    // happens: a link is fetched (without cookies or referrer); code is checked as “Pasted code”.
     const field = masked(
       h('textarea', {
         id: 'tt-load',
@@ -270,7 +270,7 @@ export class TTLoader extends HTMLElement {
         }
       }
       hint.classList.remove('error');
-      hint.textContent = kind === 'json' ? 'JSON: checked here as pasted.json. ⌘↩ to check.' : github ? 'GitHub link: the raw file will be loaded.' : '';
+      hint.textContent = kind === 'json' ? 'Code: checked here as pasted code. ⌘↩ to check.' : github ? 'GitHub link: the raw file will be loaded.' : '';
       fit();
     };
     field.addEventListener('input', update);
@@ -308,7 +308,7 @@ export class TTLoader extends HTMLElement {
           go();
         },
       },
-      h('label', { for: 'tt-load' }, 'Load files from a link, or paste JSON'),
+      h('label', { for: 'tt-load' }, 'Load files from a link, or paste code'),
       h('div', { class: 'row' }, field, submit),
       hint,
     );

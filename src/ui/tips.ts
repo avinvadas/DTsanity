@@ -27,7 +27,7 @@ export const TIP = {
   pairFailUi: 'Icon, border and other UI pairs below the non-text level in at least one theme.',
   pairMissing: 'One of the two tokens is not in this theme.',
   pairAdded: 'A pair you added.',
-  pairRemove: 'Stop checking this pair. Nothing changes in your files.',
+  pairRemove: 'Stop checking this pair. Nothing changes in your code.',
   pairOwnValue: 'This token has a raw color value, not a token reference. Pick a token to reference it instead.',
   pairRealiasFile: 'The file the reference is written in. Themes that read the same file change together.',
   pairFailCvd: 'Pairs that pass with typical vision but not with a color-vision deficiency in at least one theme.',
@@ -143,9 +143,9 @@ export const TIP = {
     h: 'ΔH: how far the hue turns from the step before, in degrees. – where a step is too gray for its hue to count.',
   },
   curveFor: {
-    l: 'Edit this row’s lightness curve. The row previews live; nothing changes in your files until you apply.',
-    c: 'Edit this row’s chroma curve. The row previews live; nothing changes in your files until you apply.',
-    h: 'Edit this row’s hue curve. The row previews live; nothing changes in your files until you apply.',
+    l: 'Edit this row’s lightness curve. The row previews live; nothing changes in your code until you apply.',
+    c: 'Edit this row’s chroma curve. The row previews live; nothing changes in your code until you apply.',
+    h: 'Edit this row’s hue curve. The row previews live; nothing changes in your code until you apply.',
   },
   flagWarning: 'Warning: likely a mistake in the scale.',
   flagInfo: 'Note: worth a look, but may be intended.',
@@ -193,10 +193,10 @@ export const CURVE_TIP = {
   shift: 'Turn the hue gradually by this many degrees from the anchor toward the last step.',
   contrast: 'Solve lightness so chosen steps just pass a contrast level on the light and dark ends.',
   solve: 'Set those steps’ lightness so they just pass, then smooth the curve through them.',
-  revert: 'Close the panel and drop this edit. The rows go back to the values in your files; pins stay as set.',
+  revert: 'Close the panel and drop this edit. The rows go back to the values in your code; pins stay as set.',
   reset: 'Go back to the palette’s current values.',
   applyAll: 'Give every other palette the same curves: the same lightness at each step (so a step has the same contrast everywhere), with chroma and hue following each palette’s own anchor.',
-  apply: 'Write the previewed rows to your files as one undoable step.',
+  apply: 'Write the previewed rows to your code as one undoable step.',
 } as const;
 
 /** What each scale check looks for. */

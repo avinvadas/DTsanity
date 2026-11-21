@@ -296,7 +296,7 @@ export class TTIssues extends HTMLElement {
                 }),
               )
             : null,
-          v.model.files.length ? 'The files follow the DTCG format.' : '',
+          v.model.files.length ? 'The code follows the DTCG format.' : '',
           formatCount ? worst(groups.flatMap((g) => g.issues)) : undefined,
           // Format starts open, showing its sections, each closed until clicked.
           true,

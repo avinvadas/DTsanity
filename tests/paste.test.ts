@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { fileNameOf } from '../src/io/export';
 import { isLoadError, parseSource, pastedSource } from '../src/io/load';
 import { DEFAULT_SETTINGS } from '../src/model/defaults';
 import type { SourceFile } from '../src/model/types';
 import { analyze } from '../src/validate';
 
-/** Pasted JSON is checked like a file; references outside it are one note, not broken references. */
+/** Pasted code is checked like a file; references outside it are one note, not broken references. */
 
 const load = (text: string, taken: string[] = []) => {
   const r = parseSource(pastedSource(text, taken), DEFAULT_SETTINGS);
@@ -13,11 +14,12 @@ const load = (text: string, taken: string[] = []) => {
 };
 
 describe('pasted JSON', () => {
-  it('becomes a file named pasted.json, then pasted-2.json and so on', () => {
-    expect(pastedSource('{}').name).toBe('pasted.json');
-    expect(pastedSource('{}', ['pasted.json']).name).toBe('pasted-2.json');
-    expect(pastedSource('{}', ['pasted.json', 'pasted-2.json']).name).toBe('pasted-3.json');
+  it('is named Pasted code, then Pasted code 2 and so on, and downloads as a file', () => {
+    expect(pastedSource('{}').name).toBe('Pasted code');
+    expect(pastedSource('{}', ['Pasted code']).name).toBe('Pasted code 2');
+    expect(pastedSource('{}', ['Pasted code', 'Pasted code 2']).name).toBe('Pasted code 3');
     expect(pastedSource('{}').origin).toBe('paste');
+    expect(fileNameOf(pastedSource('{}', ['Pasted code']))).toBe('pasted-code-2.json');
   });
 
   it('reads a bare token, and a group copied without its braces', () => {

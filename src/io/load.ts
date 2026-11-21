@@ -345,15 +345,15 @@ function unreadable(n: number): LoadError[] {
 
 /** Read a loaded file's source again: refetch its URL or re-read it from disk. */
 /**
- * Text pasted on the page, as a file: named pasted.json (pasted-2.json and
- * so on, by the names already taken), so it is checked, fixed and exported
- * like any other. A bare token (`{"$value": …}`) is put under "pasted", and
+ * Code pasted on the page: “Pasted code” (“Pasted code 2” and so on, by the
+ * names already taken), checked and fixed like a loaded file, and downloaded
+ * as one (pasted-code.json). A bare token (`{"$value": …}`) is put under "pasted", and
  * a group pasted without its braces (`"color": {…}`) gets them back, so the
  * snippet reads as DTCG. Read only when pasted; nothing leaves the page.
  */
 export function pastedSource(text: string, taken: readonly string[] = []): RawSource {
-  let name = 'pasted.json';
-  for (let n = 2; taken.includes(name); n++) name = `pasted-${n}.json`;
+  let name = 'Pasted code';
+  for (let n = 2; taken.includes(name); n++) name = `Pasted code ${n}`;
   let body = text.trim();
   const parses = (t: string) => {
     try {

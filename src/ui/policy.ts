@@ -27,7 +27,7 @@ interface Row {
  * turned off as a whole, to work on one kind of finding at a time.
  */
 const SECTIONS: { id: string; title: string; about: string; groups: RuleGroup[] }[] = [
-  { id: 'format', title: 'Format', about: 'The files against the DTCG format: file formats, structure, references, types and values, metadata.', groups: ['Format', 'Structure', 'References', 'Types and values', 'Metadata'] },
+  { id: 'format', title: 'Format', about: 'The code against the DTCG format: file formats, structure, references, types and values, metadata.', groups: ['Format', 'Structure', 'References', 'Types and values', 'Metadata'] },
   { id: 'tiers', title: 'Tiers', about: 'Base, semantic and component tokens, and what each may point at.', groups: ['Tiers'] },
   { id: 'contrast', title: 'Contrast', about: 'Text, UI parts and borders against their background, in every theme.', groups: ['Contrast'] },
   { id: 'vision', title: 'Color blindness', about: 'Pairs and status colors as people with color-vision deficiencies see them.', groups: ['Color blindness'] },

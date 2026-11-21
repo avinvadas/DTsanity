@@ -14,7 +14,7 @@ import { typeAndValueRules } from './values';
 const key = (i: Issue) => `${i.fileId}\u0000${(i.keyPath ?? []).join('\u0000')}`;
 
 /**
- * Pasted text is often part of a set: its references to tokens that weren't
+ * Pasted code is often part of a set: its references to tokens that weren't
  * pasted are expected, not broken. They become one note per pasted file,
  * with how many there are, instead of a broken reference each.
  */

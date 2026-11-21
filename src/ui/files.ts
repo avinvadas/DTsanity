@@ -1,25 +1,10 @@
-import { download, exportAs, isUnchanged, type ExportFormat } from '../io/export';
+import { download, exportAs, fileNameOf, isUnchanged, type ExportFormat } from '../io/export';
 import { isConfigFile, isResolverFile, isStudioMetaFile } from '../model/format';
 import type { SourceFile } from '../model/types';
 import { allModels, clearAll, redo, removeFile, store, undo, type AppState } from '../state/app';
 import { h, masked, plural, xButton } from './dom';
 import { viewControls } from './loader';
 import { TIP } from './tips';
-
-/** Copy a pasted file's JSON, with any fixes, to paste back where it came from. */
-function copyButton(f: SourceFile) {
-  const b = h('button', { class: 'ghost', 'data-tip': 'Copy this file’s JSON, with your fixes, to paste back where it came from.' }, 'Copy fixed JSON');
-  b.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(exportAs(f).text);
-      b.textContent = 'Copied';
-    } catch {
-      b.textContent = 'Copy failed';
-    }
-    setTimeout(() => (b.textContent = 'Copy fixed JSON'), 2000);
-  });
-  return b;
-}
 
 const LEGACY_LABEL = { 'tokens-studio': 'Tokens Studio', 'style-dictionary': 'Style Dictionary' } as const;
 
@@ -41,7 +26,7 @@ export class TTFiles extends HTMLElement {
 
   private save(f: SourceFile, format: ExportFormat) {
     const { text, notes } = exportAs(f, format);
-    download(f.name, text);
+    download(fileNameOf(f), text);
     if (notes.length) this.exportNotes.set(f.id, notes);
     else this.exportNotes.delete(f.id);
     this.render(store.get());
@@ -91,7 +76,7 @@ export class TTFiles extends HTMLElement {
         'li',
         { class: 'file' },
         masked(h('span', { class: 'file-name' }, f.name)),
-        h('span', { class: 'meta', 'data-tip': TIP.fileMeta }, `${formatLabel(f)} · ${plural(counts.get(f.id) ?? 0, 'token')}${f.origin === 'url' ? ' · from URL' : f.origin === 'paste' ? ' · pasted' : ''}`),
+        h('span', { class: 'meta', 'data-tip': TIP.fileMeta }, `${formatLabel(f)} · ${plural(counts.get(f.id) ?? 0, 'token')}${f.origin === 'url' ? ' · from URL' : ''}`),
         h(
           'span',
           {
@@ -106,8 +91,6 @@ export class TTFiles extends HTMLElement {
               h('button', { class: 'ghost', 'data-tip': TIP.downloadLegacy, onclick: () => this.save(f, 'original') }, `Download as ${kind}`),
             ]
           : h('button', { class: 'ghost', 'data-tip': TIP.download, onclick: () => this.save(f, 'dtcg') }, 'Download'),
-        // What came in by pasting goes back out the same way.
-        f.origin === 'paste' ? copyButton(f) : null,
         xButton('Remove file', () => removeFile(f.id), TIP.remove, 'file-remove'),
         notes
           ? masked(
@@ -134,7 +117,7 @@ export class TTFiles extends HTMLElement {
         masked(h('button', { disabled: !lastUndo, onclick: undo, 'data-tip': lastUndo ? `Undo: ${lastUndo}` : TIP.undoNone }, 'Undo')),
         masked(h('button', { disabled: !nextRedo, onclick: redo, 'data-tip': nextRedo ? `Redo: ${nextRedo}` : TIP.redoNone }, 'Redo')),
         h('span', { class: 'spacer' }),
-        files.length > 1 ? h('button', { 'data-tip': TIP.downloadAll, onclick: () => files.forEach((f) => download(f.name, exportAs(f).text)) }, 'Download all (DTCG)') : null,
+        files.length > 1 ? h('button', { 'data-tip': TIP.downloadAll, onclick: () => files.forEach((f) => download(fileNameOf(f), exportAs(f).text)) }, 'Download all (DTCG)') : null,
         h('button', { class: 'ghost danger', 'data-tip': TIP.clearAll, onclick: clearAll }, 'Clear all'),
       ),
     );

@@ -13,6 +13,11 @@ export const exportText = (f: SourceFile): string => serialize(f.doc);
  * Text to download. Converted legacy files export as DTCG by default, or back
  * in their original format; `notes` lists what couldn't be converted back.
  */
+/** The name a source downloads under: its own, or for pasted code a file name made from it (“Pasted code 2” → pasted-code-2.json). */
+export function fileNameOf(f: Pick<SourceFile, 'name' | 'origin'>): string {
+  return f.origin === 'paste' ? `${f.name.toLowerCase().replace(/\s+/g, '-')}.json` : f.name;
+}
+
 export function exportAs(f: SourceFile, format: ExportFormat = 'dtcg'): { text: string; notes: string[] } {
   if (format === 'original' && f.converted && f.legacyKind) {
     // A Style Dictionary file writes references as "{a.b.value}" only if it did so when loaded (Spectrum writes "{a.b}").
@@ -52,8 +57,8 @@ export function fixedSet(s: Pick<AppState, 'files' | 'past'>, now = new Date(), 
   const notes = new Map<string, string[]>();
   const files = s.files.map((f) => {
     const out = exportAs(f, f.converted ? 'original' : 'dtcg');
-    notes.set(f.name, out.notes);
-    return { path: `${FIXED_FOLDER}/${f.name}`, text: out.text };
+    notes.set(fileNameOf(f), out.notes);
+    return { path: `${FIXED_FOLDER}/${fileNameOf(f)}`, text: out.text };
   });
   return zip([...files, { path: `${FIXED_FOLDER}/CHANGES.md`, text: changesMarkdown(s, notes, now, open) }], now);
 }

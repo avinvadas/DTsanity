@@ -1,7 +1,7 @@
 import type { AppState } from '../state/app';
 import type { SourceFile } from '../model/types';
 import { parseJson, toJS } from '../json/cst';
-import { exportText } from './export';
+import { exportText, fileNameOf } from './export';
 
 /**
  * What changed in each file since it was loaded, token by token, for the
@@ -85,7 +85,7 @@ export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: Read
     '',
   ];
   for (const { f, changes } of edited) {
-    lines.push(`## ${f.name}`, '');
+    lines.push(`## ${fileNameOf(f)}`, '');
     for (const c of changes) {
       if (c.kind === 'added') lines.push(`- Added ${code(c.path)}: ${code(show(c.after))}`);
       else if (c.kind === 'removed') lines.push(`- Removed ${code(c.path)} (was ${code(show(c.before))})`);
@@ -93,7 +93,7 @@ export function changesMarkdown(s: Pick<AppState, 'files' | 'past'>, notes: Read
     }
     lines.push('');
   }
-  const unchanged = perFile.filter((x) => !x.changes.length).map((x) => x.f.name);
+  const unchanged = perFile.filter((x) => !x.changes.length).map((x) => fileNameOf(x.f));
   if (unchanged.length) lines.push('## Unchanged', '', ...unchanged.map((n) => `- ${n}`), '');
   if (s.past.length) lines.push('## Actions, in order', '', ...s.past.map((p, i) => `${i + 1}. ${p.label}`), '');
   const lost = [...notes].filter(([, n]) => n.length);
