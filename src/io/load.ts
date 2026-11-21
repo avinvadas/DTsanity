@@ -410,7 +410,7 @@ export async function fetchSource(input: string): Promise<RawSource | LoadError>
   try {
     url = normalizeUrl(input).url;
   } catch {
-    return { name: input, message: 'That is not a valid URL.' };
+    return { name: input, message: 'Please enter valid JSON code or a files repository URL.' };
   }
   const name = decodeURIComponent(url.pathname.split('/').filter(Boolean).at(-1) ?? '') || 'tokens.json';
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return { name, message: 'Only http and https URLs can be loaded.' };

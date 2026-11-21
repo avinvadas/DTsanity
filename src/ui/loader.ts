@@ -257,23 +257,40 @@ export class TTLoader extends HTMLElement {
         }
       }
       hint.classList.remove('error');
+      field.removeAttribute('aria-invalid');
       hint.textContent = kind === 'json' ? 'Code: checked here as pasted code. ⌘↩ to check.' : github ? 'GitHub link: the raw file will be loaded.' : '';
       fit();
     };
     field.addEventListener('input', update);
     update();
+    // A problem with what was typed or pasted is said right here, under the field, which turns red until it changes.
+    const invalid = (message: string) => {
+      hint.classList.add('error');
+      hint.textContent = message;
+      field.setAttribute('aria-invalid', 'true');
+    };
     const go = () => {
       const kind = kindOf(field.value);
-      if (kind === 'link') return void ingest(fetchSource(field.value.trim()).then((r) => [r]));
+      if (kind === 'link') {
+        let url: URL | null = null;
+        try {
+          url = normalizeUrl(field.value.trim()).url;
+        } catch {
+          /* not a link */
+        }
+        if (!url || (url.protocol !== 'https:' && url.protocol !== 'http:')) return invalid('Please enter valid JSON code or a files repository URL.');
+        return void ingest(
+          fetchSource(field.value.trim()).then((r) => {
+            if ('text' in r) return [r];
+            invalid(r.message);
+            return [];
+          }),
+        );
+      }
       if (kind !== 'json') return;
       const raw = pastedSource(field.value, store.get().files.map((f) => f.name));
       const parsed = parseSource(raw, store.get().settings);
-      // An error in pasted JSON is said right here, under the text to correct.
-      if (isLoadError(parsed)) {
-        hint.classList.add('error');
-        hint.textContent = parsed.skipped ? 'No design tokens in it.' : `${parsed.line ? `Line ${parsed.line}, column ${parsed.col}: ` : ''}${parsed.message}`;
-        return;
-      }
+      if (isLoadError(parsed)) return invalid(parsed.skipped ? 'No design tokens in it.' : `${parsed.line ? `Line ${parsed.line}, column ${parsed.col}: ` : ''}${parsed.message}`);
       field.value = '';
       update();
       void ingest(Promise.resolve([raw]));

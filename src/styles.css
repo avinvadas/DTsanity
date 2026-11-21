@@ -1961,6 +1961,9 @@ details.cl[open] > summary .group-sev { display: none; }
 .url-form textarea { background: linear-gradient(var(--zone-fill), var(--zone-fill)), var(--bg); }
 .url-form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .url-form .hint.error { color: var(--error); }
+/* While the hint says what's wrong, the field's frame is red too. */
+.url-form textarea[aria-invalid='true'] { border-color: var(--error); }
+.url-form textarea[aria-invalid='true']:focus-visible { outline-color: var(--error); }
 
 /* ============================================================
    Landing, split (wide desktop windows): the drop circle on the right, everything else in a column
