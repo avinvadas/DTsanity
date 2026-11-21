@@ -148,6 +148,7 @@
   --font-md: calc(var(--font-base) * var(--type-ratio));                       /* 18 */
   --font-lg: calc(var(--font-md) * var(--type-ratio));                         /* 20.3 */
   --font-xl: calc(var(--font-lg) * var(--type-ratio));                         /* 22.8 */
+  --font-2xl: calc(var(--font-xl) * var(--type-ratio));                       /* 25.6 */
   --font-title: var(--font-xl);
   --leading: 1.5;
 
@@ -537,17 +538,12 @@ dialog.files-dialog .dropzone:hover:not(:disabled)::after, .view[data-view='file
 body.dragging dialog.files-dialog .dropzone::after, body.dragging .view[data-view='files']:not([data-empty]) .dropzone::after { border-color: var(--line-strong); }
 /* Proportions from the design (a 588px circle): icon box 224px, heading 22px, subline 15px, baselines 24px apart. */
 .dropzone > .icon { width: calc(var(--zone) * var(--icon-k)); height: auto; color: var(--text); }
-/* The token-file icon fades in. On the landing, a glow behind it (50% opacity, 5rem blur) in the text color; the spectrum colors stay on the circle's border light. */
+/* The token-file icon fades in. No shadow: it is drawn flat, in the text color at 66%, and the circle shows through its cut-outs. */
 @property --tf-hue { syntax: '<number>'; inherits: false; initial-value: 355; }
-.dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; filter: drop-shadow(var(--shadow-soft)); }
-.view[data-empty] .dropzone > .icon.token-file-icon, .m-load .dropzone > .icon.token-file-icon { filter: drop-shadow(var(--shadow-soft)) drop-shadow(0 0 5rem color-mix(in oklch, var(--text) 50%, transparent)); }
-/* The drawing (outline, label, letters) at 0.66, as one layer so the label and the outline are the same ink; the file's solid body stays opaque. */
-.token-file-icon > :not(.tf-base, defs) { opacity: 0.66; transition: opacity 0.1s ease-out; }
-/* Pointing at the target, or dragging files over the page, brings the drawing to full strength. */
-.dropzone:hover:not(:disabled) > .token-file-icon > :not(.tf-base, defs), body.dragging .dropzone > .token-file-icon > :not(.tf-base, defs) { opacity: 1; }
-.tf-base { fill: var(--bg); }
-/* The JSON letters are cut from the label in the page color. */
-.tf-label { fill: var(--bg); }
+.dropzone > .icon.token-file-icon { animation: tf-in 0.6s ease-out backwards; }
+.token-file-icon > .tf-ink { opacity: 0.66; transition: opacity 0.1s ease-out; }
+/* Pointing at the target, or dragging files over the page, brings it to full strength. */
+.dropzone:hover:not(:disabled) > .token-file-icon > .tf-ink, body.dragging .dropzone > .token-file-icon > .tf-ink { opacity: 1; }
 @keyframes tf-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tf-hue { from { --tf-hue: 355; } to { --tf-hue: 715; } }
 @media (prefers-reduced-motion: reduce) {
@@ -2002,11 +1998,12 @@ details.cl[open] > summary .group-sev { display: none; }
   body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding: 0; margin-top: var(--grid-1); }
   body:not(.has-files) .workspace > tt-set-aside { margin: var(--space-3) var(--space-4) 0 calc(var(--space-3) + var(--space-2)); }
 
-  /* The intro is the page's title now: the view title's size and weight. */
+  /* The intro is the page's title now: the view title's weight, a step larger. */
   body:not(.has-files) .view[data-empty] > .vh { align-items: flex-start; }
   body:not(.has-files) .view[data-empty] .landing-intro {
     margin: 0; max-width: none; text-align: left; text-wrap: balance;
-    font-size: var(--font-title); line-height: 1.2; font-weight: 600; color: var(--text);
+    /* One step above the view titles: this is the page's own title. */
+    font-size: var(--font-2xl); line-height: 1.2; font-weight: 600; color: var(--text);
   }
 
   /* The circle: right column, the same distance from the top, the right and the bottom. */
