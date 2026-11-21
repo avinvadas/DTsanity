@@ -64,6 +64,8 @@ export class TTPolicy extends HTMLElement {
     this.replaceChildren(
       viewHead('What to check', { summary: this.summary }),
       h('p', { class: 'meta policy-intro' }, 'Turn a whole section off to work on one kind of finding at a time. Changes apply right away to every file and are kept in this browser.'),
+      // How files are read comes before what is checked in them.
+      h('section', { class: 'policy-reading' }, h('h2', null, 'Reading files'), document.createElement('tt-settings')),
       h('div', { class: 'policy' }, SECTIONS.map((s) => this.section(s))),
       h('div', { class: 'policy-foot' }, this.reset),
     );

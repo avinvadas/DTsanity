@@ -237,7 +237,7 @@ export class TTLoader extends HTMLElement {
     const field = masked(
       h('textarea', {
         id: 'tt-load',
-        rows: 1,
+        rows: 4,
         spellcheck: 'false',
         autocomplete: 'off',
         placeholder: 'https://… or { … }',
@@ -251,7 +251,7 @@ export class TTLoader extends HTMLElement {
       const t = v.trim();
       return !t ? 'empty' : /^[[{"]/.test(t) ? 'json' : 'link';
     };
-    // One line for a link; it grows with pasted JSON, up to about ten lines, then scrolls.
+    // Four lines to start; it grows with pasted code, up to about ten lines, then scrolls.
     const fit = () => {
       field.style.height = 'auto';
       field.style.height = `${Math.min(field.scrollHeight + 2, 240)}px`;
@@ -309,8 +309,10 @@ export class TTLoader extends HTMLElement {
         },
       },
       h('label', { for: 'tt-load' }, 'Load files from a link, or paste code'),
-      h('div', { class: 'row' }, field, submit),
+      field,
       hint,
+      // Under the field, where pasted code ends.
+      h('div', { class: 'load-actions' }, submit),
     );
 
     const errors = masked(h('div', { class: 'load-errors', role: 'alert' }));

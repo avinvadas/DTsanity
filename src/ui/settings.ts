@@ -1,12 +1,16 @@
 import { store, updateSettings } from '../state/app';
 import { h } from './dom';
 
+let count = 0;
+
 /** Preferences bar. Settings persist locally and hold no token data. */
 export class TTSettings extends HTMLElement {
   private unsub?: () => void;
 
   connectedCallback() {
-    const legacy = h('input', { type: 'checkbox', id: 'tt-legacy', role: 'switch' });
+    // Its own id: the setting shows in the Files view and on What to check.
+    const id = `tt-legacy-${++count}`;
+    const legacy = h('input', { type: 'checkbox', id, role: 'switch' });
     legacy.addEventListener('change', () => updateSettings({ acceptLegacy: legacy.checked }));
     this.replaceChildren(
       h(
@@ -15,7 +19,7 @@ export class TTSettings extends HTMLElement {
         legacy,
         h(
           'label',
-          { for: 'tt-legacy' },
+          { for: id },
           h('strong', null, 'Accept legacy formats'),
           h('span', null, 'Converts files in older formats (Tokens Studio, Style Dictionary v3 and similar) to DTCG.'),
         ),

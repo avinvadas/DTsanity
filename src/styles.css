@@ -615,9 +615,10 @@ body.dragging .dropzone {
 .view[data-empty] .url-form { width: min(var(--grid-zone), 100%); gap: var(--grid-3); }
 .view[data-empty] .url-form .row { gap: var(--grid-3); }
 .view[data-empty] .url-form input, .view[data-empty] .url-form button { height: var(--grid-1); min-height: var(--grid-1); }
-.view[data-empty] .url-form textarea { min-height: var(--grid-1); padding-block: calc((var(--grid-1) - 1.5em - 2px) / 2); }
+.load-actions { display: flex; justify-content: flex-end; align-self: stretch; }
 /* On the landing the line closes the form instead: under the legacy switch, above the footer text. */
-.view[data-empty] tt-settings { width: min(var(--grid-zone), 100%); padding-top: 0; padding-bottom: var(--grid-2); border-top: 0; border-bottom: 1px solid var(--border); }
+/* The initial view leaves reading settings to What to check, where they always are. */
+.view[data-empty] tt-settings { display: none; }
 /* Idle: a soft light travels slowly around the circle's border, in the same slowly cycling hue as the icon's point. */
 @property --glint { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 .view[data-empty] .dropzone::before, .m-load .dropzone::before {
@@ -683,6 +684,10 @@ tt-set-aside[hidden] { display: none; }
 .load-error pre { margin: var(--space-2) 0 0; overflow-x: auto; padding: var(--space-2); background: var(--surface); border-radius: var(--radius-sm); }
 
 tt-settings { display: block; padding-top: var(--space-3); border-top: 1px solid var(--border); }
+/* On What to check: its own block above the sections. */
+.policy-reading { max-width: 56rem; margin-bottom: var(--space-4); }
+.policy-reading h2 { margin: 0 0 var(--space-2); font-size: var(--font-md, 1rem); }
+.policy-reading tt-settings { padding: var(--space-3) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .setting { display: flex; gap: var(--space-2); align-items: flex-start; }
 .setting input { margin: 1px 3px 3px; width: 18px; height: 18px; flex: none; }
 .setting label { display: flex; flex-direction: column; cursor: pointer; line-height: var(--leading); }
@@ -1507,7 +1512,8 @@ tt-mobile { display: none; }
 .m-load .dropzone > .icon { width: calc(var(--zone) * var(--icon-k) * 1.33); }
 .m-load .url-form { width: 100%; }
 .m-load .url-form input { min-height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming in */
-.m-load .url-form textarea, .m-load .url-form textarea.is-json { min-height: 44px; font-size: 16px; padding-block: calc((44px - 1.5em - 2px) / 2); }
+.m-load .url-form textarea, .m-load .url-form textarea.is-json { font-size: 16px; } /* 16px keeps iOS from zooming in */
+.m-load .load-actions button { min-height: 44px; }
 .m-load .url-form button { min-height: 44px; }
 
 
@@ -1934,10 +1940,9 @@ details.cl[open] > summary .group-sev { display: none; }
  * Load from a link or paste JSON: one field. On one line it looks like the other inputs; with JSON in
  * it, it switches to code type and grows (up to about ten lines). The button stays on its first line.
  */
-.url-form .row { align-items: flex-start; }
 .url-form textarea {
-  flex: 1; min-width: 0; box-sizing: border-box; height: var(--control-h); min-height: var(--control-h); max-height: 240px; resize: none; overflow-y: auto;
-  padding: calc((var(--control-h) - 1.5em - 2px) / 2) var(--space-2); border: 1px solid var(--control-border); border-radius: var(--radius);
+  align-self: stretch; min-width: 0; box-sizing: border-box; min-height: 6.5rem; max-height: 240px; resize: vertical; overflow-y: auto;
+  padding: var(--space-2); border: 1px solid var(--control-border); border-radius: var(--radius);
   background: var(--surface); color: var(--text); font: var(--font-base) / 1.5 var(--sans); white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .url-form textarea.is-json { font: var(--font-sm) / 1.5 var(--mono, monospace); }
@@ -1956,7 +1961,7 @@ details.cl[open] > summary .group-sev { display: none; }
      * Golden proportions: the right part is a square of side --square, the left column --square ÷ φ.
      * Together they are --square × φ wide, so the square is the largest that fits the page's height
      * and the window's width ÷ φ. The two are centered in the window; the circle sits in the square
-     * one gap from each side, and the left column ends level with the circle's bottom.
+     * one gap from each side, and the left column's content, footer included, is centered in the height.
      */
     --page-h: calc(100dvh - var(--header-h));
     --ring-gap: var(--grid-1);
@@ -1964,7 +1969,8 @@ details.cl[open] > summary .group-sev { display: none; }
     --circle: calc(var(--square) - 2 * var(--ring-gap));
     display: grid;
     grid-template-columns: calc(var(--square) / 1.618) var(--square);
-    grid-template-rows: auto 1fr auto auto auto auto 1fr auto;
+    /* The notice, then the column's content centered in the height, the footer last in it. */
+    grid-template-rows: auto 1fr auto auto auto auto auto 1fr;
     justify-content: center;
     /* The page keeps its full height (and its dot grid); the layout is the square's height, centered in it. */
     box-sizing: border-box; height: var(--page-h); min-height: 0;
@@ -1979,7 +1985,7 @@ details.cl[open] > summary .group-sev { display: none; }
   body:not(.has-files) .view[data-empty] tt-loader > .load-errors { grid-column: 1; grid-row: 5; }
   body:not(.has-files) .view[data-empty] tt-settings { grid-column: 1; grid-row: 6; }
   body:not(.has-files) .view[data-empty] tt-files { display: none; }
-  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { grid-column: 1; grid-row: 8; }
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { grid-column: 1; grid-row: 7; }
 
   /* The left column: one measure, left-aligned, inset as the header's logo is. */
   body:not(.has-files) .view[data-empty] > .vh,
@@ -1992,8 +1998,8 @@ details.cl[open] > summary .group-sev { display: none; }
   }
   body:not(.has-files) .view[data-empty] .url-form { align-items: stretch; margin-top: var(--grid-1); }
   body:not(.has-files) .view[data-empty] tt-settings { margin-top: var(--grid-2); }
-  /* The footer's last line ends level with the circle's bottom: one gap above the layout's bottom. */
-  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding: 0; margin-bottom: var(--ring-gap); align-self: end; }
+  /* The footer follows the content, a block's gap under it. */
+  body:not(.has-files) .workspace:has(> .view[data-view='files']:not([hidden])) > .page-foot { text-align: left; padding: 0; margin-top: var(--grid-1); }
   body:not(.has-files) .workspace > tt-set-aside { margin: var(--space-3) var(--space-4) 0 calc(var(--space-3) + var(--space-2)); }
 
   /* The intro is the page's title now: the view title's size and weight. */
