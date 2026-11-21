@@ -239,7 +239,9 @@ export class TTLoader extends HTMLElement {
     // Four lines to start (one on phones); it grows with pasted code, up to about ten lines, then scrolls.
     const fit = () => {
       field.style.height = 'auto';
-      field.style.height = `${Math.min(field.scrollHeight + 2, 240)}px`;
+      // The cap is the field's max-height, in rem, so it grows with the page's text size.
+      const cap = parseFloat(getComputedStyle(field).maxHeight) || 240;
+      field.style.height = `${Math.min(field.scrollHeight + 2, cap)}px`;
     };
     const update = () => {
       const kind = kindOf(field.value);
@@ -304,7 +306,12 @@ export class TTLoader extends HTMLElement {
 
     this.replaceChildren(h('div', { class: 'loader' }, input, zone, form), errors);
 
+    // The circle's width, for layouts that set the field as wide as the circle above it.
+    const sizer = new ResizeObserver(() => form.style.setProperty('--zone-w', `${zone.getBoundingClientRect().width}px`));
+    sizer.observe(zone);
+
     this.unsubs.push(
+      () => sizer.disconnect(),
       // Before any file is loaded, the Files view is a centered landing.
       store.select(
         (s) => s.files.length === 0,

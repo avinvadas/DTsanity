@@ -219,7 +219,7 @@ export class TTPalettes extends HTMLElement {
       row = this.paletteRows(cells, row, g.columns, (step) => columnOf(g, original.id, step), p, !!live, settings, shown, contrast, result, past, pins);
     }
     // A grid of hidden palettes only (nothing shown) has no step columns: just names and eyes.
-    const style = g.columns.length ? `--cols: ${g.columns.length}` : 'grid-template-columns: minmax(240px, max-content) minmax(0, 1fr) var(--action-w)';
+    const style = g.columns.length ? `--cols: ${g.columns.length}` : 'grid-template-columns: minmax(15rem, max-content) minmax(0, 1fr) var(--action-w)';
     return masked(h('div', { class: 'sys-scroll' }, h('div', { class: 'sys-grid', style }, cells)));
   }
 
