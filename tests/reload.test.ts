@@ -25,14 +25,14 @@ describe('reloadSource', () => {
 
   it('explains when a handle can no longer be read', async () => {
     const handle = { name: 'tokens.json', getFile: async () => Promise.reject(new DOMException('gone', 'NotFoundError')) } as unknown as FileSystemFileHandle;
-    expect(await reloadSource(load(v1, { handle }))).toMatchObject({ message: expect.stringContaining('moved, renamed or deleted') });
+    expect(await reloadSource(load(v1, { handle }))).toMatchObject({ message: expect.stringContaining('Load it again from where it is now') });
   });
 
   it('falls back to re-reading the File, explaining when the browser refuses', async () => {
     const blob = new File([v1], 'tokens.json');
     expect(await reloadSource(load(v1, { blob }))).toMatchObject({ text: v1 });
     const stale = { name: 'tokens.json', text: () => Promise.reject(new DOMException('changed', 'NotReadableError')) } as unknown as File;
-    expect(await reloadSource(load(v1, { blob: stale }))).toMatchObject({ message: expect.stringContaining('Drop or choose the file again') });
+    expect(await reloadSource(load(v1, { blob: stale }))).toMatchObject({ message: expect.stringContaining('Drop or choose it again') });
   });
 
   it('fetches URL sources again without cookies or referrer', async () => {

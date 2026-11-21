@@ -131,7 +131,8 @@ export class TTIssues extends HTMLElement {
             h('span', { class: 'n', 'data-tip': TIP.groupCount }, String(list.length)),
             h('span', { class: 'group-actions' }, fixes.length === 1 ? this.fixOne(fixes[0]!) : fixAll(fixes, (RULE_TITLE[code] ?? code).toLowerCase())),
           ],
-          content: () => this.clusters(list, where),
+          // Format problems that repeat are said once with every place; a reference problem stays one per token, as each needs its own fix.
+          content: () => this.clusters(list, where, false, category !== 'references'),
         });
       }),
     );
@@ -337,7 +338,7 @@ export class TTIssues extends HTMLElement {
    * then the ones that need a change from the user (in the file, with a tool
    * here, or through the findings report). A cluster with nothing in it is left out.
    */
-  private clusters(issues: Issue[], where: (i: Issue) => string, notes = false) {
+  private clusters(issues: Issue[], where: (i: Issue) => string, notes = false, merge = false) {
     const fixable = issues.filter((i) => i.fix);
     const manual = issues.filter((i) => !i.fix);
     // Counted by what they are about: tokens, or issues when some are about a whole file.
@@ -352,7 +353,7 @@ export class TTIssues extends HTMLElement {
             'div',
             { class: `fix-cluster ${kind}` },
             h('h6', { class: 'cluster-head', 'data-tip': tip }, kind === 'fixable' ? icon('check') : null, h('span', { class: 'cluster-title' }, title), action ?? null),
-            masked(h('ul', { class: 'issue-list' }, items.map((i) => this.row(i, where(i))))),
+            masked(h('ul', { class: 'issue-list' }, merge ? this.merged(items, where) : items.map((i) => this.row(i, where(i))))),
           )
         : null;
     return h(
@@ -367,6 +368,33 @@ export class TTIssues extends HTMLElement {
   }
 
 
+  /**
+   * Issues with the same message, one entry each set: the message once, then
+   * every token and place it applies to, and one button for all their fixes.
+   */
+  private merged(items: Issue[], where: (i: Issue) => string) {
+    const sets = new Map<string, Issue[]>();
+    for (const i of items) sets.set(`${i.severity}|${i.message}`, [...(sets.get(`${i.severity}|${i.message}`) ?? []), i]);
+    return [...sets.values()].map((set) => {
+      if (set.length === 1) return this.row(set[0]!, where(set[0]!));
+      const first = set[0]!;
+      const fixes = set.map((i) => i.fix).filter((x): x is Fix => !!x);
+      return h(
+        'li',
+        { class: `issue merged ${first.severity}`, 'data-rule': first.code, 'data-severity': first.severity },
+        h('span', { class: `sev ${first.severity}`, role: 'img', 'aria-label': SEVERITY_LABEL[first.severity], 'data-tip': SEVERITY_TIP[first.severity] }, severityIcon(first.severity)),
+        h(
+          'div',
+          { class: 'body' },
+          h('span', { class: 'issue-head' }, h('strong', { class: 'issue-title', title: first.code }, RULE_TITLE[first.code] ?? first.code), h('span', { class: 'n' }, `${set.length} places`)),
+          issueDetail(first),
+          h('ul', { class: 'issue-places' }, set.map((i) => h('li', { 'data-target': i.target, 'data-where': where(i) || undefined }, i.target ? h('code', null, i.target) : null, h('code', { class: 'where' }, where(i))))),
+          fixes.length ? h('div', { class: 'fix' }, h('button', { type: 'button', class: 'fix-btn', 'data-tip': TIP.fixAll, onclick: () => this.apply(fixes, `Fix ${fixes.length} issues`) }, icon('tool'), fixes.length === set.length ? `Apply ${fixes.length} fixes` : `Apply ${fixes.length} of ${set.length} fixes`)) : null,
+        ),
+      );
+    });
+  }
+
   private row(i: Issue, where: string) {
     const fix = i.fix;
     return h(
@@ -377,6 +405,8 @@ export class TTIssues extends HTMLElement {
         'div',
         { class: 'body' },
         issueHead(i, i.themes ? h('span', { class: 'theme-tag', 'data-tip': TIP.themeTag }, `${i.themes.join(', ')} only`) : null),
+        // A finding about a whole file names the file above its message.
+        !i.target && where ? h('p', { class: 'issue-file' }, where) : null,
         issueDetail(i),
         fix
           ? h(
@@ -391,7 +421,8 @@ export class TTIssues extends HTMLElement {
             ? h('p', { class: 'no-fix' }, noFixNote(i.code))
             : null,
       ),
-      h('code', { class: 'where', 'data-tip': where ? TIP.where : undefined }, where),
+      // A whole-file finding already names its file above its message.
+      i.target || !where ? h('code', { class: 'where', 'data-tip': where ? TIP.where : undefined }, where) : null,
     );
   }
 }

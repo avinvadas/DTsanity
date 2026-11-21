@@ -8,6 +8,36 @@ import type { Edit, Fix, Issue, Model, Token } from '../model/types';
 import { findEmbedded } from './references';
 
 /** What to do with a property DTCG doesn't define inside a value: keep what it does. */
+/**
+ * One line for problems that repeat across the items of a value: “$value[0]
+ * has … $value[1] has …” becomes “$value[0,1] each has …”, and the same
+ * problem on several fields (“$value[0].offsetX is …, $value[0].offsetY is
+ * …”) is said once for all of them. Identical lines are said once.
+ */
+export function mergeRepeats(lines: readonly string[]): string[] {
+  const out: { paths: string[]; rest: string }[] = [];
+  for (const line of lines) {
+    const m = line.match(/^(\$value[^\s]*) (.*)$/s);
+    if (!m) {
+      if (!out.some((o) => !o.paths.length && o.rest === line)) out.push({ paths: [], rest: line });
+      continue;
+    }
+    const [, path, rest] = m as unknown as [string, string, string];
+    const same = out.find((o) => o.paths.length && o.rest === rest);
+    if (same) {
+      if (!same.paths.includes(path)) same.paths.push(path);
+    } else out.push({ paths: [path], rest });
+  }
+  return out.map(({ paths, rest }) => {
+    if (paths.length <= 1) return paths.length ? `${paths[0]} ${rest}` : rest;
+    // Items of one array: $value[0], $value[1] → $value[0,1].
+    const items = paths.map((p) => p.match(/^(.*)\[(\d+)\]$/));
+    const base = items[0]?.[1];
+    const named = items.every((x) => x && x[1] === base) ? `${base}[${items.map((x) => x![2]).join(',')}]` : paths.join(', ');
+    return `${named} each ${rest}`;
+  });
+}
+
 const EXTRA_HINT = 'Keep what each one does: an alpha belongs to the color it applies to (its “alpha”); anything that doesn’t change the value goes under the token’s “$extensions”.';
 
 /**
@@ -256,7 +286,7 @@ class Checker {
         this.suspect(`${at} is ${n}, so lines would be ${n} times the font size. It looks like pixels: ${n}px ÷ ${dim(this.size)} = ${ratio}.`, true);
         return ratio;
       }
-      this.suspect(`${at} is ${n}, so lines would be ${n} times the font size. If it's meant as pixels, divide it by the font size.`, false);
+      this.suspect(`${at} is ${n}: lines would be ${n} times the font size. For a size in pixels, divide it by the font size.`, false);
     }
     return n;
   }
@@ -468,7 +498,7 @@ export function typeAndValueRules(model: Model): Issue[] {
       if (checker.moved) preview.after = `${preview.after === '{}' ? '' : `${preview.after} and `}“$extensions” ${compact(checker.moved)}`;
       fix = { label, preview, edits };
     }
-    const lines = problems.map((p) => p.message);
+    const lines = mergeRepeats(problems.map((p) => p.message));
     issues.push(
       makeIssue(
         hasError ? 'error' : 'warning',
@@ -520,7 +550,7 @@ function fontFallbackNotes(model: Model): Issue[] {
         'info',
         'values',
         'font-fallback',
-        `${list.map((x) => `“${x}”`).join(', ')} ${list.length > 1 ? 'end' : 'ends'} without a generic family like sans-serif, serif or monospace. If the font doesn't load, the browser picks its own default.`,
+        `${list.map((x) => `“${x}”`).join(', ')} ${list.length > 1 ? 'end' : 'ends'} without a generic family (sans-serif, serif or monospace). Add one at the end.`,
         { fileId: t.fileId, target: t.id, keyPath: t.keyPath, pos: t.pos },
       ),
     );

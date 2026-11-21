@@ -124,14 +124,14 @@ export function convertLegacyValue(type: string | undefined, v: unknown, note: N
     const s = convertAliasSyntax(v);
     if (isAlias(s)) return s;
     if (s.includes('{')) {
-      note(`“${s}” combines a reference with other text (an expression or modifier). DTCG has no equivalent, so it was left as is.`);
+      note(`“${s}” mixes a reference with other text, which DTCG can't express. Left as is.`);
       return s;
     }
     v = s;
   }
   if (isDtcgForm(type, v)) return v;
   const keep = (what: string) => {
-    note(`“${display(v)}” can't be written as a DTCG ${what}, so it was left as is.`);
+    note(`“${display(v)}” can't be written as a DTCG ${what}. Left as is.`);
     return v;
   };
   switch (type) {

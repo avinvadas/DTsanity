@@ -53,7 +53,7 @@ export function structureRules(model: Model): Issue[] {
             'warning',
             'structure',
             'unknown-property',
-            `“${e.key}” isn't a DTCG property.${hint ? ` Did you mean “${hint}”?` : ' If tools need it, keep it under “$extensions”.'}`,
+            `“${e.key}” isn't a DTCG property.${hint ? ` Did you mean “${hint}”?` : ' Move it under “$extensions”.'}`,
             at(e.key, e.pos),
             hint && !has(hint)
               ? { label: `Rename to “${hint}”`, preview: { before: `"${e.key}"`, after: `"${hint}"` }, edits: [{ fileId: file.id, path: [...keyPath, e.key], rename: hint }] }
@@ -74,7 +74,7 @@ export function structureRules(model: Model): Issue[] {
               ? `“${e.key}” is legacy; DTCG uses “${target}”.`
               : e.value.kind === 'object'
                 ? `Holds “${e.key}”, a token or group; DTCG tokens can't hold either. Move it beside this token, into a group, keeping its name for whatever refers to it.`
-                : `“${e.key}” sits beside “$value”, where DTCG reads it as a token inside this one. If it changes the value (an alpha, say), it belongs inside “$value”; otherwise under “$extensions”.`,
+                : `“${e.key}” sits beside “$value”, where DTCG reads it as a token inside this one. Place it inside “$value” if it changes the value; otherwise under “$extensions”.`,
             at(e.key, e.pos),
             target && !has(target)
               ? { label: `Rename to “${target}”`, preview: { before: `"${e.key}"`, after: `"${target}"` }, edits: [{ fileId: file.id, path: [...keyPath, e.key], rename: target }] }

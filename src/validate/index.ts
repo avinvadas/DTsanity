@@ -34,8 +34,8 @@ export function analyze(files: SourceFile[], settings: Settings, scope: ThemeSco
       // Content, but nothing DTCG or a supported legacy format calls a token: a format of its own.
       modelIssues.push(
         hasValues(f.doc.root)
-          ? makeIssue('warning', 'format', 'unsupported-format', `${f.name} holds values but no tokens: it isn't DTCG, Tokens Studio or Style Dictionary, so DTsanity can't read it.`, { fileId: f.id })
-          : makeIssue('info', 'format', 'no-tokens', `${f.name} has no “$value” anywhere.`, { fileId: f.id }),
+          ? makeIssue('warning', 'format', 'unsupported-format', `Holds values but no tokens in DTCG, Tokens Studio or Style Dictionary form, so DTsanity can't read it.`, { fileId: f.id })
+          : makeIssue('info', 'format', 'no-tokens', `Has no “$value” anywhere.`, { fileId: f.id }),
       );
       continue;
     }
@@ -80,13 +80,13 @@ function unreadable(f: SourceFile, tokens: number, issues: Issue[]): Issue | und
   const modes = modeValues(f.doc.root);
   const why =
     modes.tokens >= share / 2
-      ? ` ${modes.tokens} of them hold one value per mode inside “$value” (${modes.keys.map((k) => `“${k}”`).join(', ')}), which DTCG doesn't define; DTCG puts modes in separate files or in “$extensions”.`
-      : ' It seems to use a format of its own, not DTCG, Tokens Studio or Style Dictionary.';
+      ? ` ${modes.tokens} of them hold one value per mode inside “$value” (${modes.keys.map((k) => `“${k}”`).join(', ')}). Move each mode to its own file, or under “$extensions”.`
+      : '';
   return makeIssue(
     'warning',
     'format',
     'unsupported-format',
-    `${share} of the ${tokens} tokens in ${f.name} can't be read as DTCG: ${top}.${why} Checks that need values skip what they can't read.`,
+    `${share} of the ${tokens} tokens can't be read as DTCG: ${top}.${why}`,
     { fileId: f.id },
   );
 }

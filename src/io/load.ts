@@ -352,7 +352,7 @@ export async function reloadSource(f: SourceFile): Promise<RawSource | LoadError
     try {
       return await readFile(await f.handle.getFile(), f.handle, f.name);
     } catch (err) {
-      return { name: f.name, message: `Couldn't read “${f.name}” again. It may have been moved, renamed or deleted.${reason(err)}` };
+      return { name: f.name, message: `Couldn't read the file again. Load it again from where it is now.${reason(err)}` };
     }
   }
   if (f.blob) {
@@ -361,11 +361,11 @@ export async function reloadSource(f: SourceFile): Promise<RawSource | LoadError
     } catch (err) {
       return {
         name: f.name,
-        message: `This browser can't read “${f.name}” again after it changed on disk. Drop or choose the file again to reload it.${reason(err)}`,
+        message: `This browser can't read the file again after it changed on disk. Drop or choose it again to reload it.${reason(err)}`,
       };
     }
   }
-  return { name: f.name, message: `There is no source to reload “${f.name}” from.` };
+  return { name: f.name, message: `There is no source to reload it from.` };
 }
 
 /** github.com/o/r/blob/branch/path → raw.githubusercontent.com/o/r/branch/path */

@@ -96,7 +96,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
     }
     if (f.doc.root.kind !== 'object') {
       model.issues.push(
-        makeIssue('error', 'structure', 'root-not-object', `${f.name} holds a ${f.doc.root.kind}; DTCG files hold an object.`, {
+        makeIssue('error', 'structure', 'root-not-object', `The top level is ${f.doc.root.kind === 'array' ? 'a list' : `a ${f.doc.root.kind}`}; DTCG needs an object.`, {
           fileId: f.id,
           pos: f.doc.root.pos,
         }),
@@ -105,7 +105,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
     }
     if (f.syntax === 'json5' && !/\.(json5|jsonc)$/i.test(f.name)) {
       model.issues.push(
-        makeIssue('warning', 'format', 'json5-syntax', `${f.name} uses JSON5 syntax (comments, unquoted keys or trailing commas), which most JSON tools can't read. Rename it .json5 or .jsonc, or write strict JSON.`, { fileId: f.id }),
+        makeIssue('warning', 'format', 'json5-syntax', `Uses JSON5 syntax (comments, unquoted keys or trailing commas), which most JSON tools can't read. Rename it .json5 or .jsonc, or write strict JSON.`, { fileId: f.id }),
       );
     }
     if (f.format === 'legacy' && !f.converted) {
@@ -115,7 +115,7 @@ export function buildModel(files: SourceFile[], settings: Settings = DEFAULT_SET
           'error',
           'format',
           'legacy-format',
-          `${f.name} uses ${kind} keys (“value”, “type” without “$”).`,
+          `Uses ${kind} keys (“value”, “type” without “$”).`,
           { fileId: f.id },
           { label: 'Turn on legacy support', setting: { acceptLegacy: true } },
         ),
@@ -192,7 +192,7 @@ function walkGroup(ctx: Ctx, f: SourceFile, node: JObject, path: string[], keyPa
     }
     if (e.key.startsWith('$')) continue;
     if (e.value.kind !== 'object') {
-      invalidNode(ctx, f, childPath, childKeyPath, e.pos, `Expected a token or group, found a ${e.value.kind}. If it is data about this group, move it under the group’s “$extensions”.`);
+      invalidNode(ctx, f, childPath, childKeyPath, e.pos, `Expected a token or group, found a ${e.value.kind}. Move data about this group under its “$extensions”.`);
       continue;
     }
     if (entry(e.value, '$value') || (ctx.model.settings.acceptLegacy && entry(e.value, 'sets') && isSetsToken(toJS(e.value) as Record<string, unknown>)))
