@@ -1493,7 +1493,7 @@ tt-mobile { display: none; }
 }
 .m-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); box-sizing: border-box; padding: 0 var(--space-4); background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 600; }
 .m-body { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-4) var(--space-4) calc(88px + 0.5rem + env(safe-area-inset-bottom)); }
-.m-lede { margin: 0; color: var(--text); font-size: var(--font-base); line-height: var(--leading); }
+.m-lede { margin: 0; color: var(--text); font-size: var(--font-base); line-height: var(--leading); text-align: center; text-wrap: balance; }
 .m-note { margin: 0; color: var(--muted); font-size: var(--font-sm); }
 .m-empty { color: var(--muted); }
 
@@ -1510,8 +1510,13 @@ tt-mobile { display: none; }
 .m-load .dropzone > .icon { width: calc(var(--zone) * var(--icon-k) * 1.33); }
 .m-load .url-form { width: 100%; }
 .m-load .url-form input { min-height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming in */
-.m-load .url-form textarea, .m-load .url-form textarea.is-json { font-size: 16px; } /* 16px keeps iOS from zooming in */
+.m-load .url-form textarea, .m-load .url-form textarea.is-json { font-size: 16px; min-height: 44px; padding-block: calc((44px - 1.5em - 2px) / 2); } /* 16px keeps iOS from zooming in; one line to start */
 .m-load .load-actions button { min-height: 44px; }
+/* On phones Load sits beside the field, on its first line: the label above, the hint under both. */
+.m-load .url-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-2); align-items: start; }
+.m-load .url-form > :not(textarea, .load-actions) { grid-column: 1 / -1; }
+.m-load .url-form > textarea { grid-column: 1; grid-row: 2; }
+.m-load .url-form > .load-actions { grid-column: 2; grid-row: 2; align-self: start; }
 .m-load .url-form button { min-height: 44px; }
 
 
@@ -2008,6 +2013,8 @@ details.cl[open] > summary .group-sev { display: none; }
     margin: 0; max-width: none; text-align: left; text-wrap: balance;
     /* The size of an h1 (2em, 32px), with a little more line height: this is the page's own title. */
     font-size: 2rem; line-height: 1.35; font-weight: 600; color: var(--text);
+    /* It shrinks with its column, so a narrow window keeps it to three lines; an h1's size is the most. */
+    font-size: min(2rem, calc((var(--square) / 1.618 - var(--space-3) - var(--space-2) - var(--space-5)) / 14.5));
   }
 
   /* The circle: right column, the same distance from the top, the right and the bottom. */

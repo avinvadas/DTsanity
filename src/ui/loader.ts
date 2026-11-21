@@ -221,7 +221,8 @@ export class TTLoader extends HTMLElement {
     const field = masked(
       h('textarea', {
         id: 'tt-load',
-        rows: 4,
+        // Phones start on one line, so the drop circle stays the first thing; it grows with pasted code.
+        rows: phone ? 1 : 4,
         spellcheck: 'false',
         autocomplete: 'off',
         placeholder: 'https://… or { … }',
@@ -235,7 +236,7 @@ export class TTLoader extends HTMLElement {
       const t = v.trim();
       return !t ? 'empty' : /^[[{"]/.test(t) ? 'json' : 'link';
     };
-    // Four lines to start; it grows with pasted code, up to about ten lines, then scrolls.
+    // Four lines to start (one on phones); it grows with pasted code, up to about ten lines, then scrolls.
     const fit = () => {
       field.style.height = 'auto';
       field.style.height = `${Math.min(field.scrollHeight + 2, 240)}px`;
