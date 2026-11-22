@@ -9,8 +9,11 @@ import { moreMenu, type MenuItem } from './menu';
 import { promptButton } from './prompt-link';
 import { TIP } from './tips';
 
-/** Length of each step on the first load: the ring fill, the landing fading out, the results fading in. */
+/** Length of the fades on the first load: the landing fading out, the results fading in. */
 export const LOAD_MS = 330;
+/** The ring fill, long enough to be seen going round (it matches ring-fill in styles.css), with a beat at full before the fade. */
+const RING_MS = 900;
+const RING_HOLD_MS = 150;
 
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait = (ms: number) => new Promise<void>((done) => setTimeout(done, ms));
@@ -20,7 +23,7 @@ function fillRing(zone: HTMLElement): Promise<void> {
   zone.classList.remove('loading');
   void zone.offsetWidth;
   zone.classList.add('loading');
-  return wait(LOAD_MS);
+  return wait(RING_MS + RING_HOLD_MS);
 }
 
 /** Fade the whole landing out; resolves when it is gone. */
@@ -33,7 +36,9 @@ function fadeOut(view: HTMLElement): Promise<void> {
 export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
   setBusy(true);
   // The first load plays out on the landing: ring fill, fade out, then the results fade in.
-  const zone = store.get().files.length === 0 && !reducedMotion() ? document.querySelector<HTMLElement>('.dropzone') : null;
+  // The circle on screen: the page holds the desktop one and the phone one, and shows one of them.
+  const shown = [...document.querySelectorAll<HTMLElement>('.dropzone')].find((z) => z.getBoundingClientRect().height > 0) ?? null;
+  const zone = store.get().files.length === 0 && !reducedMotion() ? shown : null;
   const view = zone?.closest<HTMLElement>('.view');
   const ring = zone ? fillRing(zone) : null;
   try {

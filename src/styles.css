@@ -533,7 +533,6 @@ tbody tr:last-child td, tfoot tr:last-child td { border-bottom: 0; }
   transition: border-color 0.15s;
 }
 .dropzone:hover:not(:disabled)::after, body.dragging .dropzone::after { border-color: var(--text); }
-.dropzone.loading::after { border-color: transparent; }
 /* The full-width areas (Files view, Add files dialog) keep the thin line: only the circle echoes the icon. */
 dialog.files-dialog .dropzone::after, .view[data-view='files']:not([data-empty]) .dropzone::after { border: 1px solid var(--line); }
 dialog.files-dialog .dropzone:hover:not(:disabled)::after, .view[data-view='files']:not([data-empty]) .dropzone:hover:not(:disabled)::after,
@@ -579,13 +578,20 @@ body.dragging .dropzone {
     oklch(0.68 0.22 355), oklch(0.68 0.22 55), oklch(0.68 0.22 115), oklch(0.68 0.22 175),
     oklch(0.68 0.22 235), oklch(0.68 0.22 295), oklch(0.68 0.22 355)
   );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--zb)), #000 calc(100% - var(--zb) + 0.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
+  /* Three times the border's width, centered on it: a border's width outside the circle, over the border, and one inside.
+     The border stays under the part not yet filled. */
+  --zr: calc(var(--zb) * 3);
+  inset: calc(var(--zb) * -1);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--zr)), #000 calc(100% - var(--zr) + 0.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
   -webkit-mask-composite: source-in;
-  mask: radial-gradient(farthest-side, transparent calc(100% - var(--zb)), #000 calc(100% - var(--zb) + 0.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--zr)), #000 calc(100% - var(--zr) + 0.5px)), conic-gradient(#000 calc(var(--fill) * 1turn), transparent 0);
   mask-composite: intersect;
+  /* Above the border (::after) and the idle glint (::before), hovered or not. */
+  z-index: 2;
   opacity: 0;
 }
-.dropzone.loading .zone-ring { opacity: 1; animation: ring-fill 0.33s linear forwards; }
+/* 0.9s, as RING_MS in loader.ts: long enough to see it go round. */
+.dropzone.loading .zone-ring { opacity: 1; animation: ring-fill 0.9s ease-in-out forwards; }
 @keyframes ring-fill { from { --fill: 0; } to { --fill: 1; } }
 .view.fade-out { animation: fade-out 0.33s ease-in forwards; }
 @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
@@ -1505,7 +1511,6 @@ tt-mobile { display: none; }
 .m-load .loader { gap: var(--grid-1); }
 .m-load .dropzone { --zone: min(calc(var(--header-h) * 4.236), calc(100vw - 2 * var(--space-4))); }
 .m-load .url-form { gap: var(--grid-3); }
-.m-load .zone-ring { display: none; }
 /* Phones: the file icon a third larger than the circle's proportion (the circle's border keeps its weight). */
 .m-load .dropzone > .icon { width: calc(var(--zone) * var(--icon-k) * 1.33); }
 .m-load .url-form { width: 100%; }
