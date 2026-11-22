@@ -131,6 +131,11 @@
   --error-soft: var(--ref-red-50);
   --info: var(--ref-slate-600);
   --info-soft: var(--ref-slate-50);
+  /* The soft tints are about as light as the page here, so tinted notes, chips and tags get a faint edge in their own hue. */
+  --info-edge: color-mix(in oklch, var(--info) 30%, transparent);
+  --ok-edge: color-mix(in oklch, var(--ok) 30%, transparent);
+  --warn-edge: color-mix(in oklch, var(--warn) 30%, transparent);
+  --error-edge: color-mix(in oklch, var(--error) 30%, transparent);
   --tooltip-bg: var(--ref-tone-800);
   --tooltip-text: var(--ref-tone-0);
   --backdrop: rgba(39, 41, 43, 0.45);
@@ -231,6 +236,11 @@
     --error-soft: var(--ref-red-900);
     --info: var(--ref-slate-300);
     --info-soft: var(--ref-slate-900);
+    /* Dark tints stand out from the page on their own: no edge. */
+    --info-edge: transparent;
+    --ok-edge: transparent;
+    --warn-edge: transparent;
+    --error-edge: transparent;
     --tooltip-bg: var(--ref-tone-0);
     --tooltip-text: var(--ref-tone-800);
     --backdrop: rgba(8, 10, 12, 0.6);
@@ -686,6 +696,12 @@ tt-set-aside[hidden] { display: none; }
 .load-errors:empty { display: none; }
 .load-errors { margin-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .load-error { background: var(--error-soft); border-radius: var(--radius); padding: var(--space-2) var(--space-3); }
+/* Tinted blocks and tags carry a faint edge in their hue (light theme; see --info-edge). Inset, so nothing changes size. */
+.note, .chip.info, .tier-tag, .tier-tag.component { box-shadow: inset 0 0 0 1px var(--info-edge); }
+.tier-tag.semantic, .tier-tag.base { box-shadow: none; }
+.badge.ok { box-shadow: inset 0 0 0 1px var(--ok-edge); }
+.badge.changed, .chip.warning, .export-notes, .type-range { box-shadow: inset 0 0 0 1px var(--warn-edge); }
+.chip.error, .load-error { box-shadow: inset 0 0 0 1px var(--error-edge); }
 .load-error p { margin: var(--space-1) 0 0; }
 .load-error pre { margin: var(--space-2) 0 0; overflow-x: auto; padding: var(--space-2); background: var(--surface); border-radius: var(--radius-sm); }
 
