@@ -1349,6 +1349,45 @@ table.vision-table th[scope='row'] small { font-weight: 400; color: var(--muted)
 .sibling-row.miss.warning .sibling-diff { color: var(--warn); }
 .sibling-row.miss.info .sibling-diff { color: var(--info); }
 table.pairs tr.flash td { animation: row-flash 1.2s ease-out; }
+/* Cases, flat: one row per case, its background, content, icon and border, then one sample per theme with all of them. */
+table.pairs.roles th, table.pairs.roles td { width: auto; vertical-align: top; }
+table.pairs.roles .role-cell { position: relative; }
+/*
+ * The token columns are pinned at the left and keep their names on one line; the theme columns scroll
+ * sideways beside them, each as wide as the room left, snapping so one theme shows at a time.
+ */
+/* A theme column: as wide as its sample and its results, no more. */
+.roles-wrap { --theme-w: 8rem; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; }
+/* While the layout measures the names' natural width: on one line, unsized. */
+.roles-wrap.measuring table.pairs.roles .token-cell, .roles-wrap.measuring table.pairs.roles .token-id { white-space: nowrap; }
+table.pairs.roles { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+.roles-wrap.measuring table.pairs.roles { table-layout: auto; width: max-content; }
+/* A long token name breaks after a dot or dash into a second line, so the columns stay narrow. */
+table.pairs.roles .token-id, table.pairs.roles .token-cell { white-space: normal; overflow-wrap: normal; }
+table.pairs.roles .token-cell { display: inline; }
+table.pairs.roles .name-end { white-space: nowrap; }
+table.pairs.roles .pin { position: sticky; z-index: 1; background: var(--surface); }
+table.pairs.roles thead .pin { background: var(--surface-2); z-index: 2; }
+/* The last token column (as many as have tokens) ends the still part with a line and a soft shadow. */
+.roles-wrap[data-last-col="1"] .pin[data-col="1"], .roles-wrap[data-last-col="2"] .pin[data-col="2"], .roles-wrap[data-last-col="3"] .pin[data-col="3"], .roles-wrap[data-last-col="0"] .pin[data-col="0"] { box-shadow: 1px 0 0 var(--border-strong), 6px 0 8px -6px rgb(0 0 0 / 0.18); }
+table.pairs.roles .case-theme, table.pairs.roles .case-sample { box-sizing: border-box; width: var(--theme-w); min-width: var(--theme-w); max-width: var(--theme-w); scroll-snap-align: start; white-space: normal; }
+table.pairs.roles tr.fail .pin, table.pairs.roles td.fail { background-color: var(--surface); }
+table.pairs.roles td.flash { animation: row-flash 1.2s ease-out; }
+table.pairs.roles .role-cell .tier-tag { margin-left: var(--space-1); }
+/* A token's actions float over its cell while it is hovered or focused, so they take no room of their own. */
+.role-actions { position: absolute; top: 50%; right: var(--space-1); transform: translateY(-50%); display: inline-flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-pop); opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+.role-cell:hover .role-actions, .role-cell:focus-within .role-actions { opacity: 1; pointer-events: auto; }
+@media (hover: none) { .role-actions { position: static; transform: none; box-shadow: none; background: none; opacity: 1; pointer-events: auto; } }
+.case-sample { white-space: nowrap; vertical-align: top; }
+.case-sample > .case-canvas { display: block; width: 4.5rem; height: 2.25rem; border-radius: var(--radius); box-shadow: inset 0 0 0 1px var(--swatch-edge); }
+/* Each part's result under the sample, so a column per theme stays narrow. */
+.case-results { display: flex; flex-direction: column; margin-top: var(--space-1); font-size: var(--font-2xs); font-variant-numeric: tabular-nums; }
+.case-results > span { display: inline-flex; align-items: center; gap: 3px; }
+.case-results small { color: var(--muted); }
+.case-results .icon { width: 0.75rem; height: 0.75rem; }
+.case-results .pass .icon { color: var(--ok); }
+.case-results .miss.error { color: var(--error); }
+.case-results .miss.warning { color: var(--warn); }
 @keyframes row-flash { from { background: var(--accent-soft); } to { background: transparent; } }
 .token-cell { display: inline-flex; align-items: center; gap: 2px; }
 .realias-btn { padding: 0 0.1875rem; }

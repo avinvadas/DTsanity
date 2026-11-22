@@ -3,13 +3,13 @@ import { simulate, VISIONS } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
 import { TIER_LABEL, tierNames, tierReadings, type Tier } from '../model/tiers';
 import type { Model, Severity } from '../model/types';
-import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairCheck, type PairKind } from '../semantic/pairs';
+import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, parse, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairCheck, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
-import { displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
+import { caseCanvas, displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
 import { collapsible, disclosure, expand, isOpen, setAll } from './collapsible';
 import { viewControls } from './loader';
-import { h, icon, masked, plural, severityIcon, viewHead, xButton } from './dom';
+import { h, icon, masked, plural, severityIcon, viewHead, xButton, type Child } from './dom';
 import { TIP } from './tips';
 import { tokenField, type FieldStatus, type TokenOption } from './token-field';
 import { typographySection } from './typography';
@@ -183,7 +183,7 @@ export class TTSemantic extends HTMLElement {
       ...(component && rows.length
         ? [this.componentSections(rows, siblings, themeNames, v)]
         : [
-            shown.length ? this.table(shown, themeNames, v) : rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
+            shown.length ? this.table(rows, themeNames, v) : rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
             rows.length ? this.visionTable(rows, themeNames, v) : '',
             siblings.length ? this.siblingsPanel(siblings, themeNames, v) : '',
           ]),
@@ -198,61 +198,142 @@ export class TTSemantic extends HTMLElement {
     }
   }
 
+  /**
+   * The pairs as cases, flat: one row per case (the tokens named alike, as `bg.neutral`,
+   * `text.neutral`, `icon.neutral`, `border.neutral`), its background, content, icon and border side
+   * by side, then one sample per theme with all of them together and each one's result. Each token
+   * keeps its own check: content at the text level, icon and border at the UI level, each against
+   * the background it is paired with (a border against what surrounds the shape). A case shows when
+   * any of its parts fails, with failing only.
+   */
   private table(rows: PairRow[], themeNames: (string | null)[], v: View) {
-    return masked(
-      h(
-        'div',
-        { class: 'table-wrap' },
+    type Col = 'text' | 'icon' | 'border';
+    const COLS: { id: Col; label: string; tip: string }[] = [
+      { id: 'text', label: 'Content', tip: TIP.pairColText },
+      { id: 'icon', label: 'Icon', tip: TIP.pairColIcon },
+      { id: 'border', label: 'Border', tip: TIP.pairColBorder },
+    ];
+    const colOf = (r: PairRow): Col => ({ text: 'text', border: 'border', ui: 'icon' } as const)[glyphOf(r.pair)];
+    const fails = (r: PairRow) => !r.pass || r.cvdFails.length > 0;
+    interface Case {
+      key: string;
+      bg: string;
+      parts: Partial<Record<Col, PairRow>>;
+    }
+    // Content and icons by their case and the background they sit on; a border joins its case's row,
+    // as it is checked against what surrounds a shape rather than on a fill of its own.
+    const cases: Case[] = [];
+    const place = (r: PairRow, col: Col, find: (c: Case) => boolean) => {
+      const at = cases.find((c) => find(c) && !c.parts[col]);
+      if (at) at.parts[col] = r;
+      else cases.push({ key: parse(r.pair.fg).key, bg: r.pair.bg, parts: { [col]: r } });
+    };
+    const borders: PairRow[] = [];
+    for (const r of rows) {
+      const col = colOf(r);
+      if (col === 'border') borders.push(r);
+      else place(r, col, (c) => c.key === parse(r.pair.fg).key && c.bg === r.pair.bg);
+    }
+    for (const r of borders) {
+      const key = parse(r.pair.fg).key;
+      // The case's own background first, then any row of the case, then the background it is checked on.
+      place(r, 'border', (c) => c.key === key && (parse(c.bg).key === key || !cases.some((x) => x.key === key && parse(x.bg).key === key && !x.parts.border)));
+    }
+    // The order cases first appear in, with a case's rows together.
+    const firstAt = new Map<string, number>();
+    cases.forEach((c, i) => firstAt.has(c.key) || firstAt.set(c.key, i));
+    const ordered = cases.map((c, i) => ({ c, i })).sort((a, b) => firstAt.get(a.c.key)! - firstAt.get(b.c.key)! || a.i - b.i).map((x) => x.c);
+    const shown = this.onlyFailing ? ordered.filter((c) => Object.values(c.parts).some((r) => r && fails(r))) : ordered;
+    // A column no case has a token in is left out.
+    const cols = COLS.filter((col) => shown.some((c) => c.parts[col.id]));
+
+    const gamut = displayGamut(v.settings.gamut);
+    const token = (r: PairRow | undefined, col: Col) => {
+      if (!r) return h('td', { class: 'role-cell empty pin', 'data-col': cols.findIndex((c) => c.id === col) + 1 });
+      const other: PairKind = r.pair.kind === 'text' ? 'ui' : 'text';
+      const td = h(
+        'td',
+        { class: `role-cell pin${fails(r) ? ` fail ${r.pass ? r.cvdTone : r.tone}` : ''}`, 'data-col': cols.findIndex((c) => c.id === col) + 1 },
+        h('span', { class: 'token-id token-cell' }, breakable(r.pair.fg, this.realiasButton(r, 'fg', v))),
+        this.tierTag(r.tiers.fg, r.pair.fg),
         h(
-          'table',
-          { class: 'pairs' },
-          h(
-            'thead',
-            null,
-            h(
-              'tr',
-              null,
-              h('th', null, 'Foreground'),
-              h('th', null, 'Background'),
-              h('th', { 'data-tip': TIP.pairKind }, 'Kind'),
-              themeNames.map((n) => h('th', null, n ?? 'Contrast')),
-              h('th', null, h('span', { class: 'visually-hidden' }, 'Actions')),
-            ),
-          ),
+          'span',
+          { class: 'role-actions' },
+          col === 'border' ? null : h('button', { type: 'button', class: 'ghost small', 'data-tip': TIP.pairKind, onclick: () => setPairKind(r.pair.id, other) }, other === 'text' ? 'Check as text' : 'Check as UI'),
+          xButton('Remove pair', () => removePair(r.pair.id), TIP.pairRemove),
+        ),
+      );
+      this.rowEls.set(r.pair.id, td);
+      return td;
+    };
+    const LABEL: Record<Col, string> = { text: 'Content', icon: 'Icon', border: 'Border' };
+    const sample = (c: Case, i: number) => {
+      const checks = cols.map((col) => ({ col: col.id, r: c.parts[col.id], check: c.parts[col.id]?.seen.normal[i] }));
+      const present = checks.filter((x) => x.check);
+      if (!present.length) return h('td', { class: 'case-sample' }, h('span', { class: 'muted', 'data-tip': TIP.pairMissing }, '—'));
+      // The case's background as its content or icon sees it; a border alone shows on the one it is checked against.
+      const bg = (present.find((x) => x.col !== 'border') ?? present[0]!).check!.bg;
+      const part = (col: Col) => checks.find((x) => x.col === col)?.check?.shown;
+      return h(
+        'td',
+        { class: 'case-sample' },
+        caseCanvas(bg, { text: part('text'), icon: part('icon'), border: part('border') }, gamut),
+        h(
+          'div',
+          { class: 'case-results' },
+          present.map(({ col, r, check }) => {
+            const first = check!.results[0];
+            const cvd = check!.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r!.seen[id][i] && !r!.seen[id][i]!.pass) : [];
+            return h(
+              'span',
+              { class: check!.pass ? (cvd.length ? 'miss warning' : 'pass') : `miss ${r!.tone}`, 'data-tip': first ? `${LABEL[col]}: ${first.level.label}, ${check!.pass ? 'passes' : 'fails'}` : undefined },
+              check!.pass ? (cvd.length ? severityIcon('warning') : icon('check')) : severityIcon(r!.tone),
+              h('small', null, LABEL[col]),
+              first ? ` ${formatContrast(first.value, first.level.metric)}` : '',
+              cvd.length ? h('small', { class: 'cvd-miss', 'data-tip': TIP.pairCvdMiss }, ` ${cvd.map((x) => x.short).join(', ')}`) : null,
+            );
+          }),
+        ),
+      );
+    };
+    const wrap = h(
+      'div',
+      { class: 'table-wrap roles-wrap', 'data-last-col': cols.length },
+      h(
+        'table',
+        { class: 'pairs roles' },
+          h('thead', null, h('tr', null, h('th', { class: 'pin', 'data-col': 0 }, 'Background'), cols.map((c, i) => h('th', { class: 'pin', 'data-col': i + 1, 'data-tip': c.tip }, c.label)), themeNames.map((n) => h('th', { class: 'case-theme' }, n ?? 'Sample')))),
           h(
             'tbody',
             null,
-            rows.map((r) => {
-              const row = h(
+            shown.map((c) => {
+              const any = Object.values(c.parts).find(Boolean)!;
+              const own = Object.values(c.parts).find((r) => r && r.pair.bg === c.bg) ?? any;
+              return h(
                 'tr',
-                { class: r.pass ? '' : `fail ${r.tone}` },
+                null,
                 h(
                   'td',
-                  { class: 'token-id' },
-                  h('span', { class: 'token-cell' }, r.pair.fg, this.realiasButton(r, 'fg', v)),
-                  this.tierTag(r.tiers.fg, r.pair.fg),
+                  { class: 'token-id role-bg pin', 'data-col': 0 },
+                  h('span', { class: 'token-cell' }, breakable(c.bg, own.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, ' added') : null, this.realiasButton(own, 'bg', v))),
+                  this.tierTag(own.tiers.bg, c.bg),
                 ),
-                h(
-                  'td',
-                  { class: 'token-id' },
-                  h('span', { class: 'token-cell' }, r.pair.bg, r.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, ' added') : null, this.realiasButton(r, 'bg', v)),
-                  this.tierTag(r.tiers.bg, r.pair.bg),
-                ),
-                h('td', null, this.kindSelect(r)),
-                r.seen.normal.map((c, i) => h('td', null, this.result(c, r, i, v))),
-                h(
-                  'td',
-                  { class: 'pair-actions' },
-                  xButton('Remove pair', () => removePair(r.pair.id), TIP.pairRemove),
-                ),
+                cols.map((col) => token(c.parts[col.id], col.id)),
+                themeNames.map((_, i) => sample(c, i)),
               );
-              this.rowEls.set(r.pair.id, row);
-              return row;
             }),
           ),
-        ),
       ),
     );
+    // The token columns stay put; the theme samples scroll sideways under them, one theme at a time.
+    // Laid out when the box gets its size or changes it, again a frame later and once the fonts are in, as names measure differently before.
+    const layout = () => {
+      pinColumns(wrap);
+      requestAnimationFrame(() => pinColumns(wrap));
+    };
+    new ResizeObserver(layout).observe(wrap);
+    void document.fonts?.ready.then(layout);
+    return masked(wrap);
   }
 
   /**
@@ -392,43 +473,6 @@ export class TTSemantic extends HTMLElement {
         { colspan: 2 + themeNames.length },
         h('div', { class: 'alias-themes' }, allModels(store.get()).map(theme)),
         h('p', { class: 'hint' }, `Each option shows the smallest difference it would leave to the other members, with the worst color-vision deficiency; ✓ means at least ${min}. Only the reference changes. Undo with ⌘Z.`),
-      ),
-    );
-  }
-
-  private kindSelect(r: PairRow) {
-    const select = h(
-      'select',
-      { 'aria-label': 'Kind', 'data-tip': TIP.pairKind },
-      KINDS.map((k) => h('option', { value: k.id, selected: k.id === r.pair.kind }, k.label)),
-    );
-    select.addEventListener('change', () => setPairKind(r.pair.id, select.value as PairKind));
-    return select;
-  }
-
-  private result(c: PairCheck | undefined, r: PairRow, theme: number, v: View) {
-    if (!c) return h('span', { class: 'muted', 'data-tip': TIP.pairMissing }, '—');
-    // With typical vision shown, say which deficiencies this theme's pair fails under.
-    const cvd = c.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r.seen[id][theme] && !r.seen[id][theme]!.pass) : [];
-    return h(
-      'div',
-      { class: `pair-result${c.pass ? '' : ' fail'}` },
-      pairCanvas(c.shown, c.bg, glyphOf(r.pair), displayGamut(v.settings.gamut)),
-      h(
-        'div',
-        { class: 'pair-values' },
-        c.results.map((x) =>
-          h(
-            'span',
-            { class: x.pass ? 'pass' : `miss ${r.tone}`, 'data-tip': `${x.level.label}: ${x.pass ? 'passes' : 'fails'}` },
-            x.pass ? icon('check') : severityIcon(r.tone),
-            ` ${formatContrast(x.value, x.level.metric)} `,
-            h('small', null, x.level.short),
-          ),
-        ),
-        cvd.length
-          ? h('span', { class: 'miss warning cvd-miss', 'data-tip': TIP.pairCvdMiss }, severityIcon('warning'), ` ${cvd.map((x) => x.short).join(', ')}`)
-          : null,
       ),
     );
   }
@@ -644,7 +688,7 @@ export class TTSemantic extends HTMLElement {
         ],
         // Built when first opened, so large libraries stay quick.
         content: () => [
-          shown.length ? this.table(shown, themeNames, v) : h('p', { class: 'empty' }, 'Every pair passes.'),
+          shown.length ? this.table(own, themeNames, v) : h('p', { class: 'empty' }, 'Every pair passes.'),
           own.length ? this.visionTable(own, themeNames, v, true) : '',
           groups.length ? this.siblingsPanel(groups, themeNames, v, true) : '',
         ],
@@ -787,4 +831,58 @@ export class TTSemantic extends HTMLElement {
       message,
     );
   }
+}
+
+/**
+ * Lay out a cases table: the theme columns at one compact width (a sample and its results), the
+ * token columns pinned at the left and sized to the room the themes leave. The tokens take their
+ * names' natural width when that leaves room for a theme; more room shows more themes, whole ones;
+ * with less, the names break onto a second line and one theme shows. The themes scroll, the tokens stay.
+ */
+function pinColumns(wrap: HTMLElement) {
+  const head = [...wrap.querySelectorAll<HTMLElement>('thead th.pin')];
+  const themes = wrap.querySelectorAll('thead th.case-theme').length;
+  const room = wrap.clientWidth;
+  if (!head.length || !room) return;
+  // A theme column's width as laid out (set in rem in the styles).
+  const theme = wrap.querySelector('thead th.case-theme')?.getBoundingClientRect().width || 128;
+  // The names' natural widths, measured on one line and unsized.
+  wrap.classList.add('measuring');
+  head.forEach((th) => (th.style.width = ''));
+  wrap.querySelector<HTMLElement>('table')?.style.removeProperty('width');
+  const natural = head.map((th) => th.getBoundingClientRect().width);
+  wrap.classList.remove('measuring');
+  const sum = natural.reduce((a, b) => a + b, 0);
+  const fit = Math.max(1, Math.min(themes, Math.floor((room - sum) / theme)));
+  const tokens = Math.max(room - fit * theme, head.length * 96);
+  // Each token column first gets about half its natural width (its names on two lines), then a share of
+  // the rest by how much more it would take; the table is laid out at exactly these widths.
+  // The cell's padding and the name's picker don't shrink with the name: about 48px of each width.
+  const need = natural.map((n) => Math.ceil(Math.max(0, n - 48) * 0.55 + 48));
+  const needSum = need.reduce((a, b) => a + b, 0);
+  const widths =
+    tokens >= needSum
+      ? natural.map((n, i) => Math.floor(need[i]! + ((tokens - needSum) * (n - need[i]!)) / Math.max(1, sum - needSum)))
+      : natural.map((n) => Math.floor((tokens * n) / sum));
+  head.forEach((th, i) => (th.style.width = `${widths[i]}px`));
+  const table = wrap.querySelector<HTMLElement>('table');
+  if (table) table.style.width = `${widths.reduce((a, b) => a + b, 0) + themes * theme}px`;
+  const lefts: number[] = [];
+  let x = 0;
+  head.forEach((th) => {
+    lefts.push(x);
+    x += th.getBoundingClientRect().width;
+  });
+  wrap.querySelectorAll<HTMLElement>('.pin[data-col]').forEach((el) => (el.style.left = `${lefts[Number(el.dataset.col)] ?? 0}px`));
+  wrap.style.scrollPaddingLeft = `${x}px`;
+}
+
+/**
+ * A token name that may break after its dots and dashes, so a long one takes two lines rather than
+ * the row's width. What follows it (its picker) stays on the line of its last part.
+ */
+function breakable(name: string, ...after: Child[]): Node[] {
+  const parts = name.split(/(?<=[.\-_])/);
+  const last = parts.pop() ?? '';
+  return [...parts.flatMap((p) => [document.createTextNode(p), document.createElement('wbr')]), h('span', { class: 'name-end' }, last, ...after)];
 }

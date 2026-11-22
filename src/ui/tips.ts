@@ -23,6 +23,9 @@ export const TIP = {
 
   // Semantic pairs
   pairKind: 'Text must reach the text level (AA 4.5, AAA 7, Lc 60). UI parts such as icons and borders need the non-text level (3, or Lc 45).',
+  pairColText: 'Text on this background, checked at the text level.',
+  pairColIcon: 'Icons and other parts on this background, checked at the UI level.',
+  pairColBorder: 'Borders and outlines, checked against the background around the shape, at the UI level.',
   pairFailText: 'Text pairs below the text level in at least one theme.',
   pairFailUi: 'Icon, border and other UI pairs below the non-text level in at least one theme.',
   pairMissing: 'One of the two tokens is not in this theme.',

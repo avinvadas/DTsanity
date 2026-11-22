@@ -111,6 +111,57 @@ export function pairCanvas(fg: ColorInfo, bg: ColorInfo, glyph: PairGlyph, gamut
   return canvas;
 }
 
+/**
+ * One case as a whole, on its background: its content as "Aa", its icon as a ring and bar, and its
+ * border along the edge. Parts the case doesn't have are left out.
+ */
+export function caseCanvas(bg: ColorInfo, parts: { text?: ColorInfo; icon?: ColorInfo; border?: ColorInfo }, gamut: Gamut): HTMLCanvasElement {
+  const canvas = document.createElement('canvas') as Painted;
+  canvas.className = 'swatch-canvas case-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.paint = (size = measure(canvas)) => {
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.max(1, Math.round(size.w * dpr));
+    const h = Math.max(1, Math.round(size.h * dpr));
+    if (canvas.width !== w) canvas.width = w;
+    if (canvas.height !== h) canvas.height = h;
+    const ctx = canvas.getContext('2d', { colorSpace: gamut === 'p3' ? 'display-p3' : 'srgb' });
+    if (!ctx) return;
+    ctx.clearRect(0, 0, w, h);
+    if (bg.oklch.alpha < 1) checkerboard(ctx, w, h, 6 * dpr);
+    ctx.fillStyle = paintStyle(bg, gamut);
+    ctx.fillRect(0, 0, w, h);
+    const both = parts.text && parts.icon;
+    if (parts.text) {
+      ctx.fillStyle = paintStyle(parts.text, gamut);
+      ctx.font = `600 ${Math.round(h * 0.42)}px 'Sofia Sans', system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Aa', both ? w * 0.34 : w / 2, h / 2 + h * 0.03);
+    }
+    if (parts.icon) {
+      const cx = both ? w * 0.7 : w / 2;
+      const r = h * 0.17;
+      ctx.strokeStyle = ctx.fillStyle = paintStyle(parts.icon, gamut);
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      ctx.arc(cx, h / 2, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, h / 2, r * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (parts.border) {
+      // Along the edge of the background shape; the rounded corners come from the canvas's own radius.
+      const lw = 2 * dpr;
+      ctx.strokeStyle = paintStyle(parts.border, gamut);
+      ctx.lineWidth = lw;
+      ctx.strokeRect(lw / 2, lw / 2, w - lw, h - lw);
+    }
+  };
+  return canvas;
+}
+
 function paint(canvas: HTMLCanvasElement, info: ColorInfo, gamut: Gamut, mark: boolean, size: Size) {
   const dpr = window.devicePixelRatio || 1;
   const w = Math.max(1, Math.round(size.w * dpr));
