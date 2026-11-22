@@ -14,6 +14,7 @@ import {
 import { h, masked, plural, viewHead, xButton } from './dom';
 import { viewControls } from './loader';
 import { TIP } from './tips';
+import { diagnosisFor } from './blocked';
 
 const SOURCE: Record<ThemeSource, string> = {
   resolver: 'Read from the DTCG resolver file: each theme reads its files in the resolver’s order, later files overriding earlier ones.',
@@ -46,10 +47,17 @@ export class TTThemes extends HTMLElement {
 
   private render(v: View) {
     const files = v.files.filter((f) => !isMetaFile(f));
+    // Why there are no themes, or files whose themes can't be read, and where that is handled.
+    const diag = diagnosisFor('themes', v.themes.length, 'No themes to show');
+    if (diag.empty) {
+      this.replaceChildren(viewHead('Themes', { actions: this.reload.el }), diag.empty);
+      return;
+    }
     if (v.themes.length === 0) {
       // Say why there's no switcher, rather than hiding the panel.
       this.replaceChildren(
         viewHead('Themes', { actions: this.reload.el }),
+        diag.line ?? '',
         h(
           'p',
           { class: 'meta' },
@@ -75,6 +83,7 @@ export class TTThemes extends HTMLElement {
 
     this.replaceChildren(
       viewHead('Themes', { summary: plural(v.themes.length, 'theme'), actions: this.reload.el }),
+      diag.line ?? '',
       h(
         'p',
         { class: 'meta' },

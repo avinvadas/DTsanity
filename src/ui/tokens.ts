@@ -5,6 +5,7 @@ import type { ThemeModel } from '../themes/merge';
 import { h, masked, plural, viewHead } from './dom';
 import { viewControls } from './loader';
 import { TIP } from './tips';
+import { diagnosisFor } from './blocked';
 
 const PAGE = 300;
 
@@ -39,6 +40,7 @@ export class TTTokens extends HTMLElement {
   /** In the all-themes view: one model per theme, shown as one column each. */
   private themes: ThemeModel[] = [];
   private summary = h('p', { class: 'summary' });
+  private blocked = h('div', { class: 'blocked-slot' });
   private typeSelect = h('select', { 'aria-label': 'Filter by type' });
 
   connectedCallback() {
@@ -56,6 +58,8 @@ export class TTTokens extends HTMLElement {
 
     this.replaceChildren(
       viewHead('Tokens list', { summary: masked(this.summary), actions: this.reload.el }),
+      // Files whose tokens aren't listed, and where to fix them: kept current as files change.
+      this.blocked,
       h('div', { class: 'toolbar' }, masked(search), masked(this.typeSelect)),
       masked(
         h(
@@ -79,6 +83,10 @@ export class TTTokens extends HTMLElement {
         this.renderHead();
         this.renderTypes();
         this.renderRows();
+        // Why there are no tokens, or fewer than the files hold, and where that is handled: in place of the table when empty.
+        const diag = diagnosisFor('tokens', this.tokens().length, 'No tokens to show');
+        this.blocked.replaceChildren(diag.empty ?? diag.line ?? '');
+        this.toggleAttribute('data-empty-view', !!diag.empty);
       },
       (a, b) => a.every((x, i) => x === b[i]),
     );

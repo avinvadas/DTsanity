@@ -21,6 +21,7 @@ import { viewControls } from './loader';
 import { h, icon, masked, pinButton, plural, segmentedPick, viewHead } from './dom';
 import { promptButton } from './prompt-link';
 import { FLAG_TIP, flagTip, levelTip, TIP } from './tips';
+import { diagnosisFor } from './blocked';
 
 /**
  * Base colors as a system: palettes on the same step scheme share one grid of
@@ -130,23 +131,27 @@ export class TTPalettes extends HTMLElement {
     const total = included.reduce((n, p) => n + p.swatches.length, 0) + set.loose.length;
     const scroll = [...this.querySelectorAll('.sys-scroll')].map((el) => el.scrollLeft);
 
+    // Why there are no base colors, or fewer than the files hold, and where that is handled.
+    const diag = diagnosisFor('base', total, 'No base colors to show');
     this.replaceChildren(
       viewHead(masked(h('span', null, `${tierNames(v.model).base} tier`)), {
         summary: total ? `${plural(included.length, 'palette')} · ${plural(total, 'color')}` : null,
         actions: this.reload.el,
       }),
+      diag.line ?? '',
+      diag.empty ?? '',
       total && settings.contrast.length ? contrastControls(settings, set, contrast) : '',
       h(
         'div',
         { class: 'palettes-body' },
         // How the palettes below are drawn: these belong to this view, so they sit on top of its colors, not in the header.
         total ? h('div', { class: 'toolbar palette-display', role: 'group', 'aria-label': 'Color display' }, this.formatToggle(settings.colorFormat), this.gamutSelect(settings.gamut)) : null,
-        v.themes.length > 1 && v.activeTheme === ALL_THEMES
+        v.themes.length > 1 && v.activeTheme === ALL_THEMES && !diag.empty
           ? h('p', { class: 'note' }, 'Base colors are shown for the first theme, ', masked(h('b', null, v.themes[0]!.name)), '. Pick a theme in the sidebar to see its own.')
           : null,
-        settings.gamut === 'p3' && shown === 'srgb' ? h('p', { class: 'note' }, "This screen can't show Display P3, so colors marked P3 are drawn mapped to sRGB.") : null,
+        settings.gamut === 'p3' && shown === 'srgb' && !diag.empty ? h('p', { class: 'note' }, "This screen can't show Display P3, so colors marked P3 are drawn mapped to sRGB.") : null,
         // Colors written as CSS strings are a legacy form: read only with legacy formats on, as legacy files are.
-        set.legacySkipped
+        set.legacySkipped && !diag.empty
           ? h(
               'p',
               { class: total ? 'note' : 'empty' },
@@ -154,7 +159,7 @@ export class TTPalettes extends HTMLElement {
               h('button', { type: 'button', class: 'link', onclick: () => updateSettings({ acceptLegacy: true }) }, 'Accept legacy formats'),
               ' to check them; the Issues view lists each with a fix that converts it.',
             )
-          : total === 0
+          : total === 0 && !diag.empty
             ? h('p', { class: 'empty' }, 'No base colors found. Base colors are color tokens with a raw value rather than a token reference.')
             : null,
         // The scale findings have no one-click fix: one findings report for all of them.

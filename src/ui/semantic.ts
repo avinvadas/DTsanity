@@ -13,6 +13,7 @@ import { h, icon, masked, plural, severityIcon, viewHead, xButton } from './dom'
 import { TIP } from './tips';
 import { tokenField, type FieldStatus, type TokenOption } from './token-field';
 import { typographySection } from './typography';
+import { diagnosisFor } from './blocked';
 
 const KINDS: { id: PairKind; label: string }[] = [
   { id: 'text', label: 'Text' },
@@ -118,6 +119,8 @@ export class TTSemantic extends HTMLElement {
     const targets = v.settings.contrast;
     const themeNames = v.themeModels.length ? v.themeModels.map((m) => m.theme.name) : [null];
 
+    // Why there are no pairs, or fewer than the files hold, and where that is handled.
+    const diag = diagnosisFor(this.tier, rows.length, component ? 'No component pairs to show' : 'No pairs to show');
     this.replaceChildren(
       viewHead(masked(h('span', null, `${tierNames(v.model)[component ? 'component' : 'semantic']} tier`)), {
         summary: [
@@ -130,6 +133,7 @@ export class TTSemantic extends HTMLElement {
         ],
         actions: this.reload.el,
       }),
+      diag.line ?? '',
       // The short version; the full one, with what is and isn't a pair, is on How DTsanity works.
       h(
         'p',
@@ -171,7 +175,9 @@ export class TTSemantic extends HTMLElement {
             h('span', { class: 'spacer' }),
             edited ? h('button', { type: 'button', class: 'link', 'data-tip': TIP.pairsReset, onclick: resetPairs }, 'Reset to the pairs found by name') : null,
           )
-        : component
+        : diag.empty
+          ? diag.empty
+          : component
           ? h('p', { class: 'empty' }, 'No component pairs found. Component tokens are read from a components group or file, or from names that start with a component, such as button.primary.bg or card.content.')
           : this.noPairs(colorIds),
       ...(component && rows.length

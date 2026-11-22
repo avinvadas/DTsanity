@@ -11,6 +11,7 @@ import { issuesScope, pairsScope, promptButton } from './prompt-link';
 import { findingCards, findings, findingTotal, fixableText, issuesOf, type FindingKind, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { viewControls } from './loader';
+import { CATEGORY_LABEL } from './blocked';
 import { goTo } from './nav';
 import { CATEGORY_TIP, SEVERITY_TIP, TIP } from './tips';
 
@@ -27,14 +28,6 @@ const sevMark = (sev: Severity) => h('span', { class: `sev group-sev ${sev}`, ro
 /** The most severe of some issues. */
 const worst = (issues: readonly Issue[]): Severity => SEVERITIES.find((s) => issues.some((i) => i.severity === s)) ?? 'info';
 const CATEGORIES: Category[] = ['format', 'structure', 'references', 'types', 'values', 'metadata'];
-const CATEGORY_LABEL: Record<Category, string> = {
-  format: 'File format',
-  structure: 'Structure',
-  references: 'References',
-  types: 'Types',
-  values: 'Values',
-  metadata: 'Metadata',
-};
 
 
 export class TTIssues extends HTMLElement {
