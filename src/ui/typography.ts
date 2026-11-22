@@ -1,6 +1,6 @@
 import type { Tier } from '../model/tiers';
 import type { Issue, Model } from '../model/types';
-import { formatPart, orderStyles, partCandidates, PARTS, pointPart, rangeNotes, sizePx, styleCss, typeStyle, typographyIdsIn, type PartKey, type RangeNote, type StylePart, type TypeStyle } from '../semantic/typography';
+import { formatPart, MIN_PX, orderStyles, partCandidates, PARTS, pointPart, rangeNotes, sizePx, styleCss, typeStyle, typographyIdsIn, type PartKey, type RangeNote, type StylePart, type TypeStyle } from '../semantic/typography';
 import { allModels, applyEdits, applyFixes, store } from '../state/app';
 import { withPolicy } from '../policy/rules';
 import { disclosure, isOpen } from './collapsible';
@@ -61,18 +61,25 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
     const at = pick?.i ?? 0;
     const shown = entries.flatMap((e) => (e.styles[at] ? [{ e, st: e.styles[at]! }] : []));
     const notes = withPolicy(rangeNotes(shown.map(({ st }) => st)), store.get().settings.policy, (n) => `type-${n.code}`);
-    const notesOf = (id: string) => notes.filter((n) => n.ids.includes(id));
     const ownValue = (e: Entry) => tier !== 'base' && e.styles.some((st) => !st?.inherited && st?.parts.some((p) => p.literal !== undefined));
-    const flagged = (e: Entry) => e.issues.length > 0 || ownValue(e) || notesOf(e.id).length > 0;
-    const rows = orderStyles(shown.map((x) => ({ ...x, id: x.e.id, order: x.st.token.order, px: x.st.value ? (sizePx(x.st.value.fontSize) ?? -1) : -1 }))).filter((x) => !onlyIssues || flagged(x.e));
-    const counts = { styles: shown.filter(({ e }) => e.issues.length || ownValue(e)).length, range: notes.length };
+    // The range alerts are placed on the whole list, in hierarchy order; failing only keeps the rows they mark.
+    const ordered = orderStyles(shown.map((x) => ({ ...x, id: x.e.id, order: x.st.token.order, px: x.st.value ? (sizePx(x.st.value.fontSize) ?? -1) : -1 })));
+    const inNote = new Set(notes.flatMap((n) => n.ids));
+    const flagged = (e: Entry) => e.issues.length > 0 || ownValue(e) || inNote.has(e.id);
+    const rows = ordered.filter((x) => !onlyIssues || flagged(x.e));
+    const system = systemMarks(rows, notes);
+    const counts = { styles: shown.filter(({ e }) => e.issues.length || ownValue(e)).length };
     host.replaceChildren(
       h(
         'div',
         { class: 'type-head-row' },
         h('h3', null, 'Typography'),
         counts.styles ? h('span', { class: 'chip warning', 'data-tip': TIP.typeStyleAlerts }, severityIcon('warning'), `${plural(counts.styles, 'style')} to check`) : null,
-        counts.range ? h('span', { class: 'chip warning', 'data-tip': TIP.typeRangeAlerts }, severityIcon('warning'), `${plural(counts.range, 'range alert')}`) : null,
+        // The range alerts by what they are in the system, as the list below marks them.
+        system.counts.families ? h('span', { class: 'chip warning', 'data-tip': TIP.typeRange.same }, severityIcon('warning'), `${plural(system.counts.families, 'family repeats', 'families repeat')} another`) : null,
+        system.counts.groups ? h('span', { class: 'chip warning', 'data-tip': TIP.typeRange.same }, severityIcon('warning'), `${plural(system.counts.groups, 'group looks', 'groups look')} the same`) : null,
+        system.counts.close ? h('span', { class: 'chip warning', 'data-tip': TIP.typeRange.close }, severityIcon('warning'), `${plural(system.counts.close, 'step')} too small`) : null,
+        system.counts.small ? h('span', { class: 'chip warning', 'data-tip': TIP.typeRange.small }, severityIcon('warning'), `${plural(system.counts.small, 'style')} under ${MIN_PX}px`) : null,
         h('span', { class: 'spacer' }),
         // The range alerts have no fix here: their findings report, for every theme.
         notes.length ? promptButton({ typography: true }) : null,
@@ -106,11 +113,23 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
         { class: 'meta' },
         `${plural(ids.length, 'typography style')}, by hierarchy from display down to captions, each set in its own style`,
         modes.length ? ` as resolved in ${pick!.name}` : '',
-        '. Expand a style for its parts and alerts: point a part at another token; only the reference changes and ⌘Z undoes it.',
+        '. Marked areas are parts of the hierarchy that repeat another or don’t step. Expand a style for its parts: point a part at another token; only the reference changes and ⌘Z undoes it.',
       ),
-      notes.length ? masked(h('ul', { class: 'type-range' }, notes.map((n) => noteRow(n)))) : '',
       rows.length
-        ? masked(h('div', { class: 'type-scale' }, rows.map(({ e, st }) => row(e, st, at, models, names, notesOf(e.id), ownValue(e), tier, draw))))
+        ? masked(
+            h(
+              'div',
+              { class: 'type-scale' },
+              rows.flatMap(({ e, st }, i) => {
+                const starts = system.areas.filter((a) => a.start === i).sort((a, b) => b.end - a.end);
+                const kinds = [...new Set(system.areas.filter((a) => a.start <= i && i <= a.end).map((a) => a.kind))];
+                const el = row(e, st, at, models, names, system.marks.get(e.id) ?? [], ownValue(e), tier, draw);
+                kinds.forEach((k) => el.classList.add('in-area', `area-${k}`));
+                if (kinds.length && !system.areas.some((a) => a.start <= i + 1 && i + 1 <= a.end && kinds.includes(a.kind))) el.classList.add('area-end');
+                return [...starts.map((a) => h('div', { class: `type-area-label area-${a.kind}`, 'data-tip': TIP.typeRange[a.kind] }, severityIcon('warning'), h('span', null, a.label))), el];
+              }),
+            ),
+          )
         : h('p', { class: 'empty' }, 'Every typography style is fine.'),
     );
   };
@@ -123,6 +142,82 @@ export function typographySection(tier: Tier, onlyIssues: boolean, issues: reado
   return host;
 }
 
+interface Area {
+  start: number;
+  end: number;
+  kind: 'same' | 'close';
+  label: string;
+}
+
+/**
+ * The range alerts, placed on the list in its hierarchy order. Where they cover a stretch of the
+ * hierarchy, they mark it as an area: a family that repeats another family at every size (redundant),
+ * or two neighbouring styles whose sizes don't step (stale). What covers no stretch marks its rows.
+ */
+function systemMarks(rows: readonly { id: string; px: number; st: TypeStyle }[], notes: readonly RangeNote[]) {
+  const at = new Map(rows.map((r, i) => [r.id, i]));
+  const family = (id: string) => id.split('.').slice(0, -1).join('.') || id;
+  const areas: Area[] = [];
+  const marks = new Map<string, string[]>();
+  const mark = (id: string, text: string) => marks.set(id, [...(marks.get(id) ?? []), text]);
+  const px = (id: string) => rows.find((r) => r.id === id)?.px;
+  const fmt = (n: number | undefined) => `${Math.round((n ?? 0) * 100) / 100}px`;
+
+  // Redundant families: every style of family B looks the same as a style of one family A, earlier in the hierarchy.
+  const same = notes.filter((n) => n.code === 'same').map((n) => [...n.ids].filter((id) => at.has(id)).sort((a, b) => at.get(a)! - at.get(b)!)).filter((ids) => ids.length > 1);
+  const repeats = new Map<string, Map<string, number>>(); // family B → family A → styles of B that repeat A
+  for (const ids of same) {
+    const anchor = family(ids[0]!);
+    for (const id of ids.slice(1)) {
+      if (family(id) === anchor) continue;
+      const m = repeats.get(family(id)) ?? new Map<string, number>();
+      m.set(anchor, (m.get(anchor) ?? 0) + 1);
+      repeats.set(family(id), m);
+    }
+  }
+  const redundant = new Map<string, string>(); // family B → family A
+  for (const [b, by] of repeats) {
+    if (by.size !== 1) continue;
+    const [a, n] = [...by][0]!;
+    const members = rows.map((r, i) => ({ r, i })).filter(({ r }) => family(r.id) === b);
+    const own = members.filter(({ r }) => !r.st.aliasOf);
+    const contiguous = members.every(({ i }, k) => k === 0 || i === members[k - 1]!.i + 1);
+    // A family is two styles or more; one style that matches another is marked on its row.
+    if (n === own.length && own.length >= 2 && contiguous) {
+      redundant.set(b, a);
+      areas.push({ start: members[0]!.i, end: members.at(-1)!.i, kind: 'same', label: `${b} looks the same as ${a} at every one of its ${n} sizes: the family repeats it.` });
+    }
+  }
+  // The rest of the styles that look the same: each group on its rows, without the styles a family area covers.
+  const uncovered = (ids: string[]) => ids.slice(1).filter((id) => redundant.get(family(id)) !== family(ids[0]!));
+  for (const ids of same) {
+    const left = uncovered(ids);
+    if (!left.length) continue;
+    const group = [ids[0]!, ...left];
+    for (const id of group) mark(id, `Looks the same as ${group.filter((x) => x !== id).join(', ')}`);
+  }
+  // Sizes that don't step: an area when the two styles are neighbours in the hierarchy, else on both rows.
+  for (const n of notes.filter((x) => x.code === 'close')) {
+    const [a, b] = n.ids as [string, string];
+    if (!at.has(a) || !at.has(b)) continue;
+    const ratio = `×${((px(a) ?? 1) / (px(b) ?? 1)).toFixed(2)}`;
+    if (Math.abs(at.get(a)! - at.get(b)!) === 1)
+      areas.push({ start: Math.min(at.get(a)!, at.get(b)!), end: Math.max(at.get(a)!, at.get(b)!), kind: 'close', label: `The step from ${fmt(px(a))} to ${fmt(px(b))} (${ratio}) is too small to read as a level, with the same family and weight.` });
+    else {
+      mark(a, `Too close in size to ${b} (${ratio})`);
+      mark(b, `Too close in size to ${a} (${ratio})`);
+    }
+  }
+  for (const n of notes.filter((x) => x.code === 'small')) for (const id of n.ids) if (at.has(id)) mark(id, `Under ${MIN_PX}px`);
+  const counts = {
+    families: areas.filter((a) => a.kind === 'same').length,
+    groups: same.filter((ids) => uncovered(ids).length).length,
+    close: notes.filter((x) => x.code === 'close').length,
+    small: notes.filter((x) => x.code === 'small').length,
+  };
+  return { areas, marks, counts };
+}
+
 /** One issue standing for two identical ones, with both fixes' edits applied together. */
 function mergeFix(a: Issue, b: Issue): Issue {
   if (!a.fix || !b.fix || !('edits' in a.fix) || !('edits' in b.fix)) return a;
@@ -130,13 +225,14 @@ function mergeFix(a: Issue, b: Issue): Issue {
 }
 
 /** One line of the scale: the sample in its style, a summary of its values, its alerts, and the edit panel when open. */
-function row(e: Entry, st: TypeStyle, at: number, models: Model[], names: (string | null)[], notes: RangeNote[], ownValue: boolean, tier: Tier, redraw: () => void) {
+function row(e: Entry, st: TypeStyle, at: number, models: Model[], names: (string | null)[], marks: readonly string[], ownValue: boolean, tier: Tier, redraw: () => void) {
   const key = `type|${tier}|${e.id}`;
   const open = isOpen(key, false);
   const v = st.value;
   const sample = v ? h('p', { class: 'type-specimen', title: SAMPLE }, SAMPLE) : h('p', { class: 'muted type-broken', 'data-tip': TIP.typeBroken }, 'A reference in this style doesn’t resolve, so it can’t be shown.');
   if (v) Object.assign(sample.style, styleCss(v));
-  const worst = e.issues.some((i) => i.severity === 'error') ? 'error' : e.issues.length || notes.length || ownValue ? 'warning' : null;
+  // The style's own findings; range alerts are marks on the list, not the style's.
+  const worst = e.issues.some((i) => i.severity === 'error') ? 'error' : e.issues.length || ownValue ? 'warning' : null;
   const panelId = `type-edit-${tier}-${e.id}`.replace(/[^\w-]/g, '_');
   const toggle = disclosure({ key, label: e.id, open: false, tip: TIP.typeExpand, onToggle: redraw });
   toggle.setAttribute('aria-controls', panelId);
@@ -146,14 +242,14 @@ function row(e: Entry, st: TypeStyle, at: number, models: Model[], names: (strin
     h(
       'div',
       { class: 'type-row-main' },
-      h('div', { class: 'type-row-text' }, sample, h('span', { class: 'token-id' }, e.id)),
+      h('div', { class: 'type-row-text' }, sample, h('span', { class: 'token-id' }, e.id), marks.map((m) => h('span', { class: 'type-mark' }, severityIcon('warning'), m))),
       h('span', { class: 'type-row-actions' }, worst && !open ? h('span', { class: `type-flag ${worst}`, role: 'img', 'aria-label': worst === 'error' ? 'Has errors' : 'Has warnings', 'data-tip': TIP.typeRowAlerts }, severityIcon(worst)) : null, toggle),
     ),
     open
       ? h(
           'div',
           { class: 'type-edit', id: panelId },
-          h('div', { class: 'type-parts' }, st.aliasOf ? partRows(e.id, undefined, present(e, models, names, at), tier, e.issues) : null, PARTS.map((p) => partRows(e.id, p.key, present(e, models, names, at), tier, e.issues))), worst ? h('ul', { class: 'type-issues' }, e.issues.filter((i) => !namesPart(i)).map((i) => issueRow(i)), notes.map((n) => noteRow(n)), ownValue ? ownRow(st) : null) : null,
+          h('div', { class: 'type-parts' }, st.aliasOf ? partRows(e.id, undefined, present(e, models, names, at), tier, e.issues) : null, PARTS.map((p) => partRows(e.id, p.key, present(e, models, names, at), tier, e.issues))), worst ? h('ul', { class: 'type-issues' }, e.issues.filter((i) => !namesPart(i)).map((i) => issueRow(i)), ownValue ? ownRow(st) : null) : null,
         )
       : null,
   );
@@ -170,10 +266,6 @@ function ownRow(st: TypeStyle) {
   const own = st.parts.filter((p) => p.literal !== undefined).map((p) => PARTS.find((x) => x.key === p.key)!.label.toLowerCase());
   if (!own.length) return null;
   return h('li', { class: 'type-issue warning', 'data-tip': TIP.typeOwnValue }, severityIcon('warning'), h('span', null, `Raw value for ${own.join(', ')}: point ${own.length === 1 ? 'it' : 'them'} at base tokens.`));
-}
-
-function noteRow(n: RangeNote) {
-  return h('li', { class: `type-issue ${n.severity}`, 'data-tip': TIP.typeRange[n.code] }, severityIcon(n.severity), h('span', null, n.message));
 }
 
 /** A part's label, its reference picker and resolved value: one row, or one per theme when themes write it differently. */

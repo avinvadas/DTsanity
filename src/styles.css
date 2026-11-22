@@ -702,6 +702,18 @@ tt-set-aside[hidden] { display: none; }
 .badge.ok { box-shadow: inset 0 0 0 1px var(--ok-edge); }
 .badge.changed, .chip.warning, .export-notes, .type-range { box-shadow: inset 0 0 0 1px var(--warn-edge); }
 .chip.error, .load-error { box-shadow: inset 0 0 0 1px var(--error-edge); }
+/* What findings keep out of a view, said in that view, each line linking to where it is fixed. */
+.blocked-note { font-size: var(--font-sm); background: var(--warn-soft); box-shadow: inset 0 0 0 1px var(--warn-edge); border-radius: var(--radius); padding: var(--space-2) var(--space-3); margin: 0 0 var(--space-4); max-width: 56rem; }
+.blocked-note a, .view-error a { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+/* In place of an empty view's content: what is missing, why, and where it is handled. A problem carries the error tone. */
+.view-error { display: flex; gap: var(--space-3); align-items: flex-start; max-width: 40rem; margin: var(--space-6) 0; padding: var(--space-5); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
+.view-error.problem { border-color: color-mix(in oklch, var(--error) 45%, transparent); background: var(--error-soft); }
+.view-error-icon { flex: none; color: var(--error); line-height: 0; }
+.view-error-icon .icon { width: 1.5rem; height: 1.5rem; }
+.view-error-body h3 { margin: 0 0 var(--space-2); font-size: var(--font-md); }
+.view-error-body p { margin: 0; }
+.view-error-body .view-error-go { margin-top: var(--space-3); font-weight: 600; }
+tt-tokens[data-empty-view] .toolbar, tt-tokens[data-empty-view] .table-wrap { display: none; }
 .load-error p { margin: var(--space-1) 0 0; }
 .load-error pre { margin: var(--space-2) 0 0; overflow-x: auto; padding: var(--space-2); background: var(--surface); border-radius: var(--radius-sm); }
 
@@ -1815,6 +1827,16 @@ section.type-styles { display: flex; flex-direction: column; gap: var(--space-2)
 .type-head-row h3 { font-size: var(--font-md); margin: 0; }
 .type-head-row .spacer { flex: 1; }
 .type-range { list-style: none; margin: 0; padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-sm); border-radius: var(--radius); background: var(--warn-soft); }
+/*
+ * Range alerts on the hierarchy list: an area (a family that repeats another, or a step too small) is
+ * a label line above it and a bar down its rows; what covers no stretch is a mark under the style's name.
+ */
+.type-area-label { display: flex; align-items: flex-start; gap: var(--space-2); padding: var(--space-2) var(--space-3); font-size: var(--font-sm); color: var(--text); background: var(--warn-soft); box-shadow: inset 4px 0 0 var(--warn); }
+.type-area-label .icon { flex: none; width: 1rem; height: 1rem; color: var(--warn); margin-top: 2px; }
+.type-scale > .type-area-label + .type-row, .type-scale > .type-area-label + .type-area-label { border-top: 0; }
+.type-row.in-area { box-shadow: inset 4px 0 0 var(--warn); background: color-mix(in oklch, var(--warn-soft) 45%, transparent); }
+.type-mark { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-xs); font-weight: 600; color: var(--warn); }
+.type-mark .icon { width: 0.875rem; height: 0.875rem; flex: none; }
 .type-scale { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
 .type-row + .type-row { border-top: 1px solid var(--border); }
 .type-row-main { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); min-width: 0; }
