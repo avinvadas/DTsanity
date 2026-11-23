@@ -1349,45 +1349,51 @@ table.vision-table th[scope='row'] small { font-weight: 400; color: var(--muted)
 .sibling-row.miss.warning .sibling-diff { color: var(--warn); }
 .sibling-row.miss.info .sibling-diff { color: var(--info); }
 table.pairs tr.flash td { animation: row-flash 1.2s ease-out; }
-/* Cases, flat: one row per case, its background, content, icon and border, then one sample per theme with all of them. */
-table.pairs.roles th, table.pairs.roles td { width: auto; vertical-align: top; }
-table.pairs.roles .role-cell { position: relative; }
 /*
- * The token columns are pinned at the left and keep their names on one line; the theme columns scroll
- * sideways beside them, each as wide as the room left, snapping so one theme shows at a time.
+ * Combinations: a Roles column with each case's tokens stacked as they layer (content, foreground,
+ * border, background), each a small button with its role's mark; then a sample per theme. The Roles
+ * column stays put while the themes scroll beside it.
  */
-/* A theme column: as wide as its sample and its results, no more. */
-.roles-wrap { --theme-w: 8rem; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; }
-/* While the layout measures the names' natural width: on one line, unsized. */
-.roles-wrap.measuring table.pairs.roles .token-cell, .roles-wrap.measuring table.pairs.roles .token-id { white-space: nowrap; }
-table.pairs.roles { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
-.roles-wrap.measuring table.pairs.roles { table-layout: auto; width: max-content; }
-/* A long token name breaks after a dot or dash into a second line, so the columns stay narrow. */
-table.pairs.roles .token-id, table.pairs.roles .token-cell { white-space: normal; overflow-wrap: normal; }
-table.pairs.roles .token-cell { display: inline; }
-table.pairs.roles .name-end { white-space: nowrap; }
-table.pairs.roles .pin { position: sticky; z-index: 1; background: var(--surface); }
-table.pairs.roles thead .pin { background: var(--surface-2); z-index: 2; }
-/* The last token column (as many as have tokens) ends the still part with a line and a soft shadow. */
-.roles-wrap[data-last-col="1"] .pin[data-col="1"], .roles-wrap[data-last-col="2"] .pin[data-col="2"], .roles-wrap[data-last-col="3"] .pin[data-col="3"], .roles-wrap[data-last-col="0"] .pin[data-col="0"] { box-shadow: 1px 0 0 var(--border-strong), 6px 0 8px -6px rgb(0 0 0 / 0.18); }
-table.pairs.roles .case-theme, table.pairs.roles .case-sample { box-sizing: border-box; width: var(--theme-w); min-width: var(--theme-w); max-width: var(--theme-w); scroll-snap-align: start; white-space: normal; }
-table.pairs.roles tr.fail .pin, table.pairs.roles td.fail { background-color: var(--surface); }
-table.pairs.roles td.flash { animation: row-flash 1.2s ease-out; }
-table.pairs.roles .role-cell .tier-tag { margin-left: var(--space-1); }
-/* A token's actions float over its cell while it is hovered or focused, so they take no room of their own. */
-.role-actions { position: absolute; top: 50%; right: var(--space-1); transform: translateY(-50%); display: inline-flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-pop); opacity: 0; pointer-events: none; transition: opacity 0.1s; }
-.role-cell:hover .role-actions, .role-cell:focus-within .role-actions { opacity: 1; pointer-events: auto; }
-@media (hover: none) { .role-actions { position: static; transform: none; box-shadow: none; background: none; opacity: 1; pointer-events: auto; } }
-.case-sample { white-space: nowrap; vertical-align: top; }
-.case-sample > .case-canvas { display: block; width: 4.5rem; height: 2.25rem; border-radius: var(--radius); box-shadow: inset 0 0 0 1px var(--swatch-edge); }
-/* Each part's result under the sample, so a column per theme stays narrow. */
-.case-results { display: flex; flex-direction: column; margin-top: var(--space-1); font-size: var(--font-2xs); font-variant-numeric: tabular-nums; }
-.case-results > span { display: inline-flex; align-items: center; gap: 3px; }
-.case-results small { color: var(--muted); }
-.case-results .icon { width: 0.75rem; height: 0.75rem; }
+.roles-wrap { overscroll-behavior-x: contain; }
+table.pairs.roles { width: max-content; border-collapse: separate; border-spacing: 0; }
+.roles-wrap { width: fit-content; max-width: 100%; }
+table.pairs.roles th, table.pairs.roles td { width: auto; vertical-align: top; border-bottom: 1px solid var(--border); }
+table.pairs.roles tbody tr:last-child td { border-bottom: 0; }
+table.pairs.roles .roles-head, table.pairs.roles .roles-cell { position: sticky; left: 0; z-index: 1; background: var(--surface); border-right: 1px solid var(--border); box-shadow: 6px 0 8px -6px rgb(0 0 0 / 0.12); }
+table.pairs.roles thead .roles-head { background: var(--surface-2); z-index: 2; }
+table.pairs.roles .roles-cell { padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3); }
+.role-line { display: flex; align-items: center; gap: var(--space-2); }
+.role-line + .role-line { margin-top: 6px; }
+.role-glyph { display: inline-flex; width: 1rem; flex: none; color: var(--text); }
+.role-svg { width: 1rem; height: 0.625rem; }
+/* A token: a small secondary button with its name and the token mark; in its alert's color when it has one. */
+.role-item { display: inline-flex; align-items: center; gap: var(--space-2); height: 1.75rem; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); font-family: var(--mono); font-size: var(--font-sm); font-weight: 400; white-space: nowrap; cursor: pointer; }
+.role-item:hover { background: var(--surface-hover); }
+.role-item .icon { width: 0.875rem; height: 0.875rem; color: var(--muted); }
+.role-item.warning { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+.role-item.error { border-color: var(--error); color: var(--error); background: var(--error-soft); }
+.role-item.warning .icon, .role-item.error .icon { color: currentColor; }
+.role-line .tier-tag, .role-line .added { margin-left: 0; }
+.realias-actions { display: flex; gap: var(--space-2); justify-content: flex-end; margin-top: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--border); }
+/* A theme: its sample, then each tokenized part's result. */
+table.pairs.roles .case-theme, table.pairs.roles .case-sample { width: 10rem; min-width: 10rem; padding: var(--space-3) var(--space-3); }
+table.pairs.roles thead .case-theme { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.case-sample > .case-canvas { display: block; width: 9rem; height: 5rem; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px var(--swatch-edge); }
+.case-results { display: flex; flex-direction: column; gap: 2px; margin-top: var(--space-2); font-size: var(--font-xs); font-variant-numeric: tabular-nums; }
+.case-result { display: inline-flex; align-items: center; gap: 4px; }
+/* A result with a problem is a button: it opens the fix of its token, for this theme. */
+button.case-result { align-self: flex-start; height: auto; min-height: 0; padding: 1px 4px; margin-left: -4px; border: 0; border-radius: var(--radius-sm); background: none; font: inherit; color: inherit; cursor: pointer; }
+button.case-result:hover, button.case-result:focus-visible { background: var(--surface-hover); }
+button.case-result .case-part { text-decoration: underline dotted; text-underline-offset: 2px; }
+.nearest-btn { justify-self: start; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 2px; text-align: left; }
+.case-results .case-part { color: var(--text); }
+.case-results .case-value { font-family: var(--mono); }
+.case-results .icon { width: 0.75rem; height: 0.75rem; flex: none; }
 .case-results .pass .icon { color: var(--ok); }
 .case-results .miss.error { color: var(--error); }
 .case-results .miss.warning { color: var(--warn); }
+.case-results .miss .case-part { color: inherit; }
+.case-results .cvd-miss { color: var(--warn); }
 @keyframes row-flash { from { background: var(--accent-soft); } to { background: transparent; } }
 .token-cell { display: inline-flex; align-items: center; gap: 2px; }
 .realias-btn { padding: 0 0.1875rem; }

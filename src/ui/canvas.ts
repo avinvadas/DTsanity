@@ -134,29 +134,30 @@ export function caseCanvas(bg: ColorInfo, parts: { text?: ColorInfo; icon?: Colo
     const both = parts.text && parts.icon;
     if (parts.text) {
       ctx.fillStyle = paintStyle(parts.text, gamut);
-      ctx.font = `600 ${Math.round(h * 0.42)}px 'Sofia Sans', system-ui, sans-serif`;
+      ctx.font = `500 ${Math.round(h * 0.34)}px 'Sofia Sans', system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Aa', both ? w * 0.34 : w / 2, h / 2 + h * 0.03);
+      ctx.fillText('Aa', both ? w * 0.57 : w / 2, h / 2 + h * 0.03);
     }
     if (parts.icon) {
-      const cx = both ? w * 0.7 : w / 2;
-      const r = h * 0.17;
+      // The icon leads the text, as an icon does in a button: "○Aa".
+      const r = h * 0.13;
+      const cx = both ? w * 0.57 - h * 0.42 - r : w / 2;
       ctx.strokeStyle = ctx.fillStyle = paintStyle(parts.icon, gamut);
       ctx.lineWidth = 2 * dpr;
       ctx.beginPath();
       ctx.arc(cx, h / 2, r, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(cx, h / 2, r * 0.35, 0, Math.PI * 2);
-      ctx.fill();
     }
     if (parts.border) {
-      // Along the edge of the background shape; the rounded corners come from the canvas's own radius.
-      const lw = 2 * dpr;
+      // Along the edge of the background shape, following the canvas's own rounded corners.
+      const lw = 1.5 * dpr;
+      const radius = (parseFloat(getComputedStyle(canvas).borderTopLeftRadius) || 0) * dpr;
       ctx.strokeStyle = paintStyle(parts.border, gamut);
       ctx.lineWidth = lw;
-      ctx.strokeRect(lw / 2, lw / 2, w - lw, h - lw);
+      ctx.beginPath();
+      ctx.roundRect(lw / 2, lw / 2, w - lw, h - lw, Math.max(0, radius - lw / 2));
+      ctx.stroke();
     }
   };
   return canvas;

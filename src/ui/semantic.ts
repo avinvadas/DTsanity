@@ -9,7 +9,7 @@ import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/p
 import { caseCanvas, displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
 import { collapsible, disclosure, expand, isOpen, setAll } from './collapsible';
 import { viewControls } from './loader';
-import { h, icon, masked, plural, severityIcon, viewHead, xButton, type Child } from './dom';
+import { h, icon, masked, plural, severityIcon, viewHead, type Child } from './dom';
 import { TIP } from './tips';
 import { tokenField, type FieldStatus, type TokenOption } from './token-field';
 import { typographySection } from './typography';
@@ -199,141 +199,107 @@ export class TTSemantic extends HTMLElement {
   }
 
   /**
-   * The pairs as cases, flat: one row per case (the tokens named alike, as `bg.neutral`,
-   * `text.neutral`, `icon.neutral`, `border.neutral`), its background, content, icon and border side
-   * by side, then one sample per theme with all of them together and each one's result. Each token
-   * keeps its own check: content at the text level, icon and border at the UI level, each against
-   * the background it is paired with (a border against what surrounds the shape). A case shows when
-   * any of its parts fails, with failing only.
+   * The pairs as combinations: one row per case (the tokens named alike, as `bg.neutral`,
+   * `text.neutral`, `icon.neutral`, `border.neutral`). The Roles column stacks its tokens from the
+   * bottom up, as they layer: background, border, foreground (icons), content (text); a role the
+   * case has no token for is left out. Beside it, one sample per theme draws what is tokenized,
+   * with each part's result. Each token keeps its own check: content at the text level, foreground
+   * and border at the UI level. The Roles column stays put; the themes scroll beside it.
    */
   private table(rows: PairRow[], themeNames: (string | null)[], v: View) {
-    type Col = 'text' | 'icon' | 'border';
-    const COLS: { id: Col; label: string; tip: string }[] = [
-      { id: 'text', label: 'Content', tip: TIP.pairColText },
-      { id: 'icon', label: 'Icon', tip: TIP.pairColIcon },
-      { id: 'border', label: 'Border', tip: TIP.pairColBorder },
-    ];
-    const colOf = (r: PairRow): Col => ({ text: 'text', border: 'border', ui: 'icon' } as const)[glyphOf(r.pair)];
+    type Part = 'text' | 'icon' | 'border';
+    const partOf = (r: PairRow): Part => ({ text: 'text', border: 'border', ui: 'icon' } as const)[glyphOf(r.pair)];
     const fails = (r: PairRow) => !r.pass || r.cvdFails.length > 0;
     interface Case {
       key: string;
       bg: string;
-      parts: Partial<Record<Col, PairRow>>;
+      parts: Partial<Record<Part, PairRow>>;
     }
-    // Content and icons by their case and the background they sit on; a border joins its case's row,
+    // Content and foreground by their case and the background they sit on; a border joins its case's row,
     // as it is checked against what surrounds a shape rather than on a fill of its own.
     const cases: Case[] = [];
-    const place = (r: PairRow, col: Col, find: (c: Case) => boolean) => {
-      const at = cases.find((c) => find(c) && !c.parts[col]);
-      if (at) at.parts[col] = r;
-      else cases.push({ key: parse(r.pair.fg).key, bg: r.pair.bg, parts: { [col]: r } });
+    const place = (r: PairRow, part: Part, find: (c: Case) => boolean) => {
+      const at = cases.find((c) => find(c) && !c.parts[part]);
+      if (at) at.parts[part] = r;
+      else cases.push({ key: parse(r.pair.fg).key, bg: r.pair.bg, parts: { [part]: r } });
     };
     const borders: PairRow[] = [];
     for (const r of rows) {
-      const col = colOf(r);
-      if (col === 'border') borders.push(r);
-      else place(r, col, (c) => c.key === parse(r.pair.fg).key && c.bg === r.pair.bg);
+      const part = partOf(r);
+      if (part === 'border') borders.push(r);
+      else place(r, part, (c) => c.key === parse(r.pair.fg).key && c.bg === r.pair.bg);
     }
     for (const r of borders) {
       const key = parse(r.pair.fg).key;
-      // The case's own background first, then any row of the case, then the background it is checked on.
       place(r, 'border', (c) => c.key === key && (parse(c.bg).key === key || !cases.some((x) => x.key === key && parse(x.bg).key === key && !x.parts.border)));
     }
-    // The order cases first appear in, with a case's rows together.
     const firstAt = new Map<string, number>();
     cases.forEach((c, i) => firstAt.has(c.key) || firstAt.set(c.key, i));
     const ordered = cases.map((c, i) => ({ c, i })).sort((a, b) => firstAt.get(a.c.key)! - firstAt.get(b.c.key)! || a.i - b.i).map((x) => x.c);
     const shown = this.onlyFailing ? ordered.filter((c) => Object.values(c.parts).some((r) => r && fails(r))) : ordered;
-    // A column no case has a token in is left out.
-    const cols = COLS.filter((col) => shown.some((c) => c.parts[col.id]));
 
     const gamut = displayGamut(v.settings.gamut);
-    const token = (r: PairRow | undefined, col: Col) => {
-      if (!r) return h('td', { class: 'role-cell empty pin', 'data-col': cols.findIndex((c) => c.id === col) + 1 });
-      const other: PairKind = r.pair.kind === 'text' ? 'ui' : 'text';
-      const td = h(
+    const LABEL: Record<Part, string> = { text: 'Content', icon: 'Foreground', border: 'Border' };
+    // The roles from the top down: content, foreground, border, then the background they all sit on.
+    const ORDER: Part[] = ['text', 'icon', 'border'];
+    const item = (role: Part | 'bg', name: Child[]) => h('div', { class: 'role-line' }, h('span', { class: `role-glyph ${role}`, 'aria-hidden': 'true' }, roleGlyph(role)), name);
+    const roles = (c: Case) => {
+      const own = Object.values(c.parts).find((r) => r && r.pair.bg === c.bg) ?? Object.values(c.parts).find(Boolean)!;
+      return h(
         'td',
-        { class: `role-cell pin${fails(r) ? ` fail ${r.pass ? r.cvdTone : r.tone}` : ''}`, 'data-col': cols.findIndex((c) => c.id === col) + 1 },
-        h('span', { class: 'token-id token-cell' }, breakable(r.pair.fg, this.realiasButton(r, 'fg', v))),
-        this.tierTag(r.tiers.fg, r.pair.fg),
-        h(
-          'span',
-          { class: 'role-actions' },
-          col === 'border' ? null : h('button', { type: 'button', class: 'ghost small', 'data-tip': TIP.pairKind, onclick: () => setPairKind(r.pair.id, other) }, other === 'text' ? 'Check as text' : 'Check as UI'),
-          xButton('Remove pair', () => removePair(r.pair.id), TIP.pairRemove),
-        ),
+        { class: 'roles-cell' },
+        ORDER.flatMap((part) => {
+          const r = c.parts[part];
+          if (!r) return [];
+          const [button, pop] = this.realiasButton(r, 'fg', v, { tone: fails(r) ? (r.pass ? r.cvdTone : r.tone) : undefined });
+          this.rowEls.set(r.pair.id, button as HTMLElement);
+          return [item(part, [button as HTMLElement, pop as HTMLElement, this.tierTag(r.tiers.fg, r.pair.fg)])];
+        }),
+        item('bg', [...(this.realiasButton(own, 'bg', v, {}) as HTMLElement[]), own.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, 'added') : null, this.tierTag(own.tiers.bg, c.bg)]),
       );
-      this.rowEls.set(r.pair.id, td);
-      return td;
     };
-    const LABEL: Record<Col, string> = { text: 'Content', icon: 'Icon', border: 'Border' };
     const sample = (c: Case, i: number) => {
-      const checks = cols.map((col) => ({ col: col.id, r: c.parts[col.id], check: c.parts[col.id]?.seen.normal[i] }));
-      const present = checks.filter((x) => x.check);
+      const present = ORDER.flatMap((part) => (c.parts[part]?.seen.normal[i] ? [{ part, r: c.parts[part]!, check: c.parts[part]!.seen.normal[i]! }] : []));
       if (!present.length) return h('td', { class: 'case-sample' }, h('span', { class: 'muted', 'data-tip': TIP.pairMissing }, '—'));
-      // The case's background as its content or icon sees it; a border alone shows on the one it is checked against.
-      const bg = (present.find((x) => x.col !== 'border') ?? present[0]!).check!.bg;
-      const part = (col: Col) => checks.find((x) => x.col === col)?.check?.shown;
+      // The case's background as its content or foreground sees it; a border alone shows on the one it is checked against.
+      const bg = (present.find((x) => x.part !== 'border') ?? present[0]!).check.bg;
+      const shownPart = (part: Part) => present.find((x) => x.part === part)?.check.shown;
       return h(
         'td',
         { class: 'case-sample' },
-        caseCanvas(bg, { text: part('text'), icon: part('icon'), border: part('border') }, gamut),
+        caseCanvas(bg, { text: shownPart('text'), icon: shownPart('icon'), border: shownPart('border') }, gamut),
         h(
           'div',
           { class: 'case-results' },
-          present.map(({ col, r, check }) => {
-            const first = check!.results[0];
-            const cvd = check!.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r!.seen[id][i] && !r!.seen[id][i]!.pass) : [];
-            return h(
-              'span',
-              { class: check!.pass ? (cvd.length ? 'miss warning' : 'pass') : `miss ${r!.tone}`, 'data-tip': first ? `${LABEL[col]}: ${first.level.label}, ${check!.pass ? 'passes' : 'fails'}` : undefined },
-              check!.pass ? (cvd.length ? severityIcon('warning') : icon('check')) : severityIcon(r!.tone),
-              h('small', null, LABEL[col]),
-              first ? ` ${formatContrast(first.value, first.level.metric)}` : '',
-              cvd.length ? h('small', { class: 'cvd-miss', 'data-tip': TIP.pairCvdMiss }, ` ${cvd.map((x) => x.short).join(', ')}`) : null,
-            );
+          present.map(({ part, r, check }) => {
+            const first = check.results[0];
+            const cvd = check.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r.seen[id][i] && !r.seen[id][i]!.pass) : [];
+            const cls = check.pass ? (cvd.length ? 'miss warning' : 'pass') : `miss ${r.tone}`;
+            const face = [
+              check.pass ? (cvd.length ? severityIcon('warning') : icon('check')) : severityIcon(r.tone),
+              h('span', { class: 'case-part' }, LABEL[part]),
+              first ? h('span', { class: 'case-value' }, formatContrast(first.value, first.level.metric)) : null,
+              cvd.length ? h('small', { class: 'cvd-miss', 'data-tip': TIP.pairCvdMiss }, cvd.map((x) => x.short).join(', ')) : null,
+            ];
+            // A line with a problem opens its token's fix, for this theme.
+            if (!check.pass || cvd.length) return this.realiasButton(r, 'fg', v, { face, cls: `case-result ${cls}`, theme: i });
+            return h('span', { class: `case-result ${cls}`, 'data-tip': first ? `${LABEL[part]}: ${first.level.label}, passes` : undefined }, face);
           }),
         ),
       );
     };
-    const wrap = h(
-      'div',
-      { class: 'table-wrap roles-wrap', 'data-last-col': cols.length },
+    return masked(
       h(
-        'table',
-        { class: 'pairs roles' },
-          h('thead', null, h('tr', null, h('th', { class: 'pin', 'data-col': 0 }, 'Background'), cols.map((c, i) => h('th', { class: 'pin', 'data-col': i + 1, 'data-tip': c.tip }, c.label)), themeNames.map((n) => h('th', { class: 'case-theme' }, n ?? 'Sample')))),
-          h(
-            'tbody',
-            null,
-            shown.map((c) => {
-              const any = Object.values(c.parts).find(Boolean)!;
-              const own = Object.values(c.parts).find((r) => r && r.pair.bg === c.bg) ?? any;
-              return h(
-                'tr',
-                null,
-                h(
-                  'td',
-                  { class: 'token-id role-bg pin', 'data-col': 0 },
-                  h('span', { class: 'token-cell' }, breakable(c.bg, own.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, ' added') : null, this.realiasButton(own, 'bg', v))),
-                  this.tierTag(own.tiers.bg, c.bg),
-                ),
-                cols.map((col) => token(c.parts[col.id], col.id)),
-                themeNames.map((_, i) => sample(c, i)),
-              );
-            }),
-          ),
+        'div',
+        { class: 'table-wrap roles-wrap' },
+        h(
+          'table',
+          { class: 'pairs roles' },
+          h('thead', null, h('tr', null, h('th', { class: 'roles-head' }, 'Roles'), themeNames.map((n) => h('th', { class: 'case-theme' }, n ?? 'Sample')))),
+          h('tbody', null, shown.map((c) => h('tr', null, roles(c), themeNames.map((_, i) => sample(c, i))))),
+        ),
       ),
     );
-    // The token columns stay put; the theme samples scroll sideways under them, one theme at a time.
-    // Laid out when the box gets its size or changes it, again a frame later and once the fonts are in, as names measure differently before.
-    const layout = () => {
-      pinColumns(wrap);
-      requestAnimationFrame(() => pinColumns(wrap));
-    };
-    new ResizeObserver(layout).observe(wrap);
-    void document.fonts?.ready.then(layout);
-    return masked(wrap);
   }
 
   /**
@@ -356,9 +322,23 @@ export class TTSemantic extends HTMLElement {
     const worst: FieldStatus | undefined =
       status === 'error' || issues.some((i) => i.severity === 'error') ? 'error' : status || issues.length || own ? 'warning' : undefined;
     const file = store.get().files.find((f) => f.id === t.fileId)?.name;
+    const candidates = aliasCandidates(model, id);
+    const pick = (target: string) => {
+      const edit = pointColor(model, id, target, mode);
+      if (!edit) return;
+      before?.();
+      applyEdits(`Point ${id} at ${target}${theme ? ` in ${theme}` : ''}`, [edit]);
+    };
+    // A raw value's first fix: the base color nearest to it, one click away.
+    const nearest = own
+      ? candidates
+          .flatMap((g) => g.tokens)
+          .map((cand) => ({ cand, d: distance(cand.info, fallback) }))
+          .sort((a, b) => a.d - b.d)[0]
+      : undefined;
     const field = tokenField({
       label: `${theme ?? ''} reference of ${id}`.trim(),
-      groups: aliasCandidates(model, id).map((g) => ({
+      groups: candidates.map((g) => ({
         label: g.label,
         options: g.tokens.map((cand) => ({ value: cand.id, label: cand.id, meta: meta(cand), info: cand.info })),
       })),
@@ -367,14 +347,19 @@ export class TTSemantic extends HTMLElement {
       ...(worst ? { status: worst } : {}),
       gamut: displayGamut(v.settings.gamut),
       ...(own ? { tip: TIP.pairOwnValue } : {}),
-      onPick: (target) => {
-        const edit = pointColor(model, id, target, mode);
-        if (!edit) return;
-        before?.();
-        applyEdits(`Point ${id} at ${target}${theme ? ` in ${theme}` : ''}`, [edit]);
-      },
+      onPick: pick,
     });
-    return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, label), field, h('small', { class: 'muted', 'data-tip': TIP.pairRealiasFile }, `in ${file ?? 'its file'}`));
+    const suggest = nearest
+      ? h(
+          'button',
+          { type: 'button', class: 'small nearest-btn', 'data-tip': TIP.pairNearest, onclick: () => pick(nearest.cand.id) },
+          'Point at ',
+          masked(h('span', { class: 'token-id' }, nearest.cand.id)),
+          nearest.d < 0.002 ? ' (the same color)' : ` (ΔE ${nearest.d.toFixed(3)})`,
+          meta(nearest.cand) ? h('small', { class: 'muted' }, ` · ${meta(nearest.cand)}`) : null,
+        )
+      : null;
+    return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, label), field, suggest, h('small', { class: 'muted', 'data-tip': TIP.pairRealiasFile }, `in ${file ?? 'its file'}`));
   }
 
   /**
@@ -383,11 +368,16 @@ export class TTSemantic extends HTMLElement {
    * shows the contrast it would give this pair, and whether that holds with
    * every color-vision deficiency. The popover stays open across picks.
    */
-  private realiasButton(r: PairRow, role: 'fg' | 'bg', v: View) {
-    const key = `${r.pair.id}|${role}`;
+  private realiasButton(r: PairRow, role: 'fg' | 'bg', v: View, item?: { tone?: string; face?: Child[]; cls?: string; theme?: number }) {
+    const key = `${r.pair.id}|${role}${item?.theme !== undefined ? `|${item.theme}` : ''}`;
     const id = r.pair[role];
     const label = role === 'fg' ? 'Foreground' : 'Background';
-    const button = h('button', { type: 'button', class: 'ghost small realias-btn', 'aria-haspopup': 'dialog', 'aria-label': `Re-alias ${id}`, 'data-tip': TIP.realias }, icon('token'));
+    // As a token item (the cases table): the token's name on a small button, in its alert's color; else the bare token icon.
+    const button = item?.face
+      ? h('button', { type: 'button', class: `${item.cls ?? ''} realias-btn`, 'aria-haspopup': 'dialog', 'aria-label': `Fix ${id}`, 'data-tip': TIP.pairFixHere }, item.face)
+      : item
+      ? h('button', { type: 'button', class: `role-item realias-btn${item.tone ? ` ${item.tone}` : ''}`, 'aria-haspopup': 'dialog', 'aria-label': `Re-alias ${id}`, 'data-tip': TIP.realias }, masked(h('span', { class: 'role-name' }, id)), icon('token'))
+      : h('button', { type: 'button', class: 'ghost small realias-btn', 'aria-haspopup': 'dialog', 'aria-label': `Re-alias ${id}`, 'data-tip': TIP.realias }, icon('token'));
     const pop = h('div', { class: 'realias-pop', popover: 'auto', role: 'dialog', 'aria-label': `Re-alias ${id}` });
     const targets = v.settings.contrast;
     // At the level of the theme the option is for: enhanced in a high-contrast theme.
@@ -401,11 +391,13 @@ export class TTSemantic extends HTMLElement {
     const fill = () => {
       const names = v.themeModels.length ? v.themeModels.map((m) => m.theme.name) : [null];
       pop.replaceChildren(
-        h('div', { class: 'realias-head' }, h('strong', null, id), h('span', { class: 'muted' }, ` ${label.toLowerCase()} of `, role === 'fg' ? r.pair.bg : r.pair.fg)),
+        h('div', { class: 'realias-head' }, h('strong', null, id), h('span', { class: 'muted' }, ` ${label.toLowerCase()} of `, role === 'fg' ? r.pair.bg : r.pair.fg, item?.theme !== undefined && names[item.theme] ? ` · in ${names[item.theme]}` : '')),
         h(
           'div',
           { class: 'realias-themes' },
           allModels(store.get()).map((model, i) => {
+            // Opened from one theme's result: that theme only.
+            if (item?.theme !== undefined && i !== item.theme) return '';
             const c = r.seen.normal[i];
             if (!c) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, names[i] ?? label), h('span', { class: 'muted' }, 'This pair is not in this theme'));
             return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => {
@@ -415,6 +407,17 @@ export class TTSemantic extends HTMLElement {
           }),
         ),
         h('p', { class: 'hint' }, `Each option shows its contrast against the ${role === 'fg' ? 'background' : 'foreground'} and whether it still passes with every color-vision deficiency (CVD). Only the reference changes; ⌘Z undoes it.`),
+        // The pair's own actions, from its token: the level it is checked at, and removing it.
+        item && role === 'fg'
+          ? h(
+              'div',
+              { class: 'realias-actions' },
+              glyphOf(r.pair) === 'border'
+                ? null
+                : h('button', { type: 'button', class: 'ghost small', 'data-tip': TIP.pairKind, onclick: () => (pop.hidePopover(), setPairKind(r.pair.id, r.pair.kind === 'text' ? 'ui' : 'text')) }, r.pair.kind === 'text' ? 'Check as UI' : 'Check as text'),
+              h('button', { type: 'button', class: 'ghost small danger', 'data-tip': TIP.pairRemove, onclick: () => (pop.hidePopover(), removePair(r.pair.id)) }, 'Remove pair'),
+            )
+          : '',
       );
     };
     const place = () => {
@@ -765,7 +768,7 @@ export class TTSemantic extends HTMLElement {
     row.classList.remove('flash');
     void row.offsetWidth;
     row.classList.add('flash');
-    row.querySelector<HTMLElement>('.realias-btn')?.focus({ preventScroll: true });
+    (row.matches('.realias-btn') ? row : row.querySelector<HTMLElement>('.realias-btn'))?.focus({ preventScroll: true });
   }
 
   /** Add a pair by hand: two color tokens picked from every theme's color tokens, and a kind. */
@@ -833,56 +836,25 @@ export class TTSemantic extends HTMLElement {
   }
 }
 
-/**
- * Lay out a cases table: the theme columns at one compact width (a sample and its results), the
- * token columns pinned at the left and sized to the room the themes leave. The tokens take their
- * names' natural width when that leaves room for a theme; more room shows more themes, whole ones;
- * with less, the names break onto a second line and one theme shows. The themes scroll, the tokens stay.
- */
-function pinColumns(wrap: HTMLElement) {
-  const head = [...wrap.querySelectorAll<HTMLElement>('thead th.pin')];
-  const themes = wrap.querySelectorAll('thead th.case-theme').length;
-  const room = wrap.clientWidth;
-  if (!head.length || !room) return;
-  // A theme column's width as laid out (set in rem in the styles).
-  const theme = wrap.querySelector('thead th.case-theme')?.getBoundingClientRect().width || 128;
-  // The names' natural widths, measured on one line and unsized.
-  wrap.classList.add('measuring');
-  head.forEach((th) => (th.style.width = ''));
-  wrap.querySelector<HTMLElement>('table')?.style.removeProperty('width');
-  const natural = head.map((th) => th.getBoundingClientRect().width);
-  wrap.classList.remove('measuring');
-  const sum = natural.reduce((a, b) => a + b, 0);
-  const fit = Math.max(1, Math.min(themes, Math.floor((room - sum) / theme)));
-  const tokens = Math.max(room - fit * theme, head.length * 96);
-  // Each token column first gets about half its natural width (its names on two lines), then a share of
-  // the rest by how much more it would take; the table is laid out at exactly these widths.
-  // The cell's padding and the name's picker don't shrink with the name: about 48px of each width.
-  const need = natural.map((n) => Math.ceil(Math.max(0, n - 48) * 0.55 + 48));
-  const needSum = need.reduce((a, b) => a + b, 0);
-  const widths =
-    tokens >= needSum
-      ? natural.map((n, i) => Math.floor(need[i]! + ((tokens - needSum) * (n - need[i]!)) / Math.max(1, sum - needSum)))
-      : natural.map((n) => Math.floor((tokens * n) / sum));
-  head.forEach((th, i) => (th.style.width = `${widths[i]}px`));
-  const table = wrap.querySelector<HTMLElement>('table');
-  if (table) table.style.width = `${widths.reduce((a, b) => a + b, 0) + themes * theme}px`;
-  const lefts: number[] = [];
-  let x = 0;
-  head.forEach((th) => {
-    lefts.push(x);
-    x += th.getBoundingClientRect().width;
-  });
-  wrap.querySelectorAll<HTMLElement>('.pin[data-col]').forEach((el) => (el.style.left = `${lefts[Number(el.dataset.col)] ?? 0}px`));
-  wrap.style.scrollPaddingLeft = `${x}px`;
-}
-
-/**
- * A token name that may break after its dots and dashes, so a long one takes two lines rather than
- * the row's width. What follows it (its picker) stays on the line of its last part.
- */
-function breakable(name: string, ...after: Child[]): Node[] {
-  const parts = name.split(/(?<=[.\-_])/);
-  const last = parts.pop() ?? '';
-  return [...parts.flatMap((p) => [document.createTextNode(p), document.createElement('wbr')]), h('span', { class: 'name-end' }, last, ...after)];
+/** The small mark before each role in a combination: a diamond for the background (filled) and the border (outline), an almond for content and foreground. */
+function roleGlyph(role: 'text' | 'icon' | 'border' | 'bg'): SVGSVGElement {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 16 10');
+  svg.setAttribute('class', 'role-svg');
+  const add = (tag: string, attrs: Record<string, string>) => {
+    const el = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    svg.append(el);
+  };
+  const diamond = 'M8 1 L15 5 L8 9 L1 5 Z';
+  const almond = 'M1 5 Q8 -1 15 5 Q8 11 1 5 Z';
+  if (role === 'bg') add('path', { d: diamond, fill: 'currentColor' });
+  else if (role === 'border') add('path', { d: diamond, fill: 'none', stroke: 'currentColor', 'stroke-width': '1.3' });
+  else {
+    add('path', { d: almond, fill: 'none', stroke: 'currentColor', 'stroke-width': '1', opacity: '0.55' });
+    if (role === 'icon') add('circle', { cx: '8', cy: '5', r: '1.8', fill: 'currentColor' });
+    else add('path', { d: 'M6 3.2 L10.5 5 L6 6.8 Z', fill: 'currentColor' });
+  }
+  return svg;
 }

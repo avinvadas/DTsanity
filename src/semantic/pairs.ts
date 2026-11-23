@@ -4,7 +4,7 @@ import { levelById, type ContrastTarget, type Level, type Metric } from '../cont
 import { contrast } from '../contrast/metrics';
 import type { JPath } from '../json/cst';
 import { modeValues } from '../model/modes';
-import { PICK_FROM, TIER_LABEL, tiersOf } from '../model/tiers';
+import { PICK_FROM, TIER_LABEL, tiersOf, type Tier } from '../model/tiers';
 import type { Edit, Model, Token } from '../model/types';
 
 /**
@@ -393,7 +393,9 @@ export interface AliasCandidate {
  */
 export function aliasCandidates(model: Model, id?: string): { label: string; tokens: AliasCandidate[] }[] {
   const tiers = tiersOf(model);
-  const allowed = id ? PICK_FROM[tiers.get(id) ?? 'semantic'] : (['base'] as const);
+  // A token read as base (a raw value) may still be pointed at a base color: that is how a raw value becomes a reference.
+  const from = id ? PICK_FROM[tiers.get(id) ?? 'semantic'] : [];
+  const allowed: readonly Tier[] = from.length ? from : ['base'];
   const loops = id ? leadsTo(model, id) : new Set<string>();
   const groups = new Map<string, AliasCandidate[]>();
   const tokens = [...model.tokens.values()].sort((a, b) => allowed.indexOf(tiers.get(a.id)!) - allowed.indexOf(tiers.get(b.id)!) || a.order - b.order);

@@ -31,6 +31,8 @@ export const TIP = {
   pairMissing: 'One of the two tokens is not in this theme.',
   pairAdded: 'A pair you added.',
   pairRemove: 'Stop checking this pair. Nothing changes in your code.',
+  pairNearest: 'The base color closest to this raw value: pointing at it makes the value a reference, with almost the same color.',
+  pairFixHere: 'Fix this part in this theme: point its token at another one.',
   pairOwnValue: 'This token has a raw color value, not a token reference. Pick a token to reference it instead.',
   pairRealiasFile: 'The file the reference is written in. Themes that read the same file change together.',
   pairFailCvd: 'Pairs that pass with typical vision but not with a color-vision deficiency in at least one theme.',
