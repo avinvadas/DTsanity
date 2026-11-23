@@ -113,6 +113,39 @@ export class TTSemantic extends HTMLElement {
     const targets = v.settings.contrast;
     const themeNames = v.themeModels.length ? v.themeModels.map((m) => m.theme.name) : [null];
 
+    const toolbar = h(
+    'div',
+    { class: 'toolbar' },
+    h(
+      'div',
+      { class: 'segmented', role: 'radiogroup', 'aria-label': 'Pairs shown' },
+      [
+        [true, `Failing (${anyFail.length})`],
+        [false, `All (${rows.length})`],
+      ].map(([value, label]) =>
+        h(
+          'button',
+          {
+            type: 'button',
+            role: 'radio',
+            class: this.onlyFailing === value ? 'on' : '',
+            'aria-checked': String(this.onlyFailing === value),
+            onclick: () => {
+              this.onlyFailingChoice = value as boolean;
+              this.render(store.get());
+            },
+          },
+          label as string,
+        ),
+      ),
+    ),
+    component ? this.componentTools(v) : null,
+    h('span', { class: 'spacer' }),
+    edited ? h('button', { type: 'button', class: 'link', 'data-tip': TIP.pairsReset, onclick: resetPairs }, 'Reset to the pairs found by name') : null,
+    this.visionSelect(),
+          );
+    // The toolbar shares the pairs table's width, so its controls end where the table does.
+    const toolbarAndTable = component || !shown.length ? toolbar : h('div', { class: 'pairs-block' }, toolbar, this.table(rows, themeNames, v));
     // Why there are no pairs, or fewer than the files hold, and where that is handled.
     const diag = diagnosisFor(this.tier, rows.length, component ? 'No component pairs to show' : 'No pairs to show');
     this.replaceChildren(
@@ -139,37 +172,7 @@ export class TTSemantic extends HTMLElement {
       ),
       targets.length === 0 ? h('p', { class: 'note' }, 'Pick a contrast target in the sidebar to check the pairs.') : '',
       rows.length
-        ? h(
-            'div',
-            { class: 'toolbar' },
-            h(
-              'div',
-              { class: 'segmented', role: 'radiogroup', 'aria-label': 'Pairs shown' },
-              [
-                [true, `Failing (${anyFail.length})`],
-                [false, `All (${rows.length})`],
-              ].map(([value, label]) =>
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    role: 'radio',
-                    class: this.onlyFailing === value ? 'on' : '',
-                    'aria-checked': String(this.onlyFailing === value),
-                    onclick: () => {
-                      this.onlyFailingChoice = value as boolean;
-                      this.render(store.get());
-                    },
-                  },
-                  label as string,
-                ),
-              ),
-            ),
-            component ? this.componentTools(v) : null,
-            h('span', { class: 'spacer' }),
-            edited ? h('button', { type: 'button', class: 'link', 'data-tip': TIP.pairsReset, onclick: resetPairs }, 'Reset to the pairs found by name') : null,
-            this.visionSelect(),
-          )
+        ? toolbarAndTable
         : diag.empty
           ? diag.empty
           : component
@@ -178,7 +181,8 @@ export class TTSemantic extends HTMLElement {
       ...(component && rows.length
         ? [this.componentSections(rows, siblings, themeNames, v)]
         : [
-            shown.length ? this.table(rows, themeNames, v) : rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
+            // The table is drawn with the toolbar above (see toolbarAndTable); with nothing failing, it says so.
+            !shown.length && rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
           ]),
       typographySection(this.tier, this.onlyFailing, v.model.issues) ?? '',
       colorIds.length ? this.addForm(colorIds) : '',
@@ -196,6 +200,7 @@ export class TTSemantic extends HTMLElement {
     return h(
       'span',
       { class: 'vision-pick', 'data-tip': TIP.visionPick },
+      h('span', { class: 'vision-pick-label', 'aria-hidden': 'true' }, 'Vision type'),
       swatchSelect({
         label: 'Vision type',
         groups: [{ label: '', options: VISIONS.map((x) => ({ value: x.id, label: x.short, title: x.label, lead: () => icon('eye') })) }],
@@ -255,13 +260,13 @@ export class TTSemantic extends HTMLElement {
     const LABEL: Record<Part, string> = { text: 'Content', icon: 'Foreground', border: 'Border' };
     // The roles from the top down: content, foreground, border, then the background they all sit on.
     const ORDER: Part[] = ['text', 'icon', 'border'];
-    const item = (role: Part | 'bg', name: Child[]) => h('div', { class: 'role-line' }, h('span', { class: `role-glyph ${role}`, 'aria-hidden': 'true' }, roleGlyph(role)), name);
+    const item = (role: Part | 'bg', name: Child[]) => h('div', { class: `role-line ${role}` }, name);
     const roles = (c: Case) => {
       const own = Object.values(c.parts).find((r) => r && r.pair.bg === c.bg) ?? Object.values(c.parts).find(Boolean)!;
       return h(
         'td',
         { class: 'roles-cell' },
-        ORDER.flatMap((part) => {
+        ...ORDER.flatMap((part) => {
           const r = c.parts[part];
           if (!r) return [];
           const [button, pop] = this.realiasButton(r, 'fg', v, { tone: fails(r) ? (r.pass ? r.cvdTone : r.tone) : undefined });
@@ -415,8 +420,10 @@ export class TTSemantic extends HTMLElement {
             // Opened from one theme's result: that theme only.
             if (item?.theme !== undefined && i !== item.theme) return '';
             const c = r.seen.normal[i];
-            if (!c) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, names[i] ?? label), h('span', { class: 'muted' }, 'This pair is not in this theme'));
-            return this.aliasField(model, id, names[i] ?? label, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => {
+            // One theme: the header already names it, so the line is labelled by its role.
+            const rowLabel = item?.theme !== undefined ? label : names[i] ?? label;
+            if (!c) return h('div', { class: 'alias-side' }, h('span', { class: 'label' }, rowLabel), h('span', { class: 'muted' }, 'This pair is not in this theme'));
+            return this.aliasField(model, id, rowLabel, names[i] ?? null, role === 'fg' ? c.fg : c.bg, (cand) => {
               const level = store.get().themeModels[i]?.theme.contrast;
               return role === 'fg' ? meta(cand.info, c.bg, level) : meta(c.fg, cand.info, level);
             }, v, () => (this.keepOpen = key), c.pass || r.tone === 'info' ? undefined : r.tone, ownMode(i, id));
@@ -653,25 +660,3 @@ export class TTSemantic extends HTMLElement {
   }
 }
 
-/** The small mark before each role in a combination: a diamond for the background (filled) and the border (outline), an almond for content and foreground. */
-function roleGlyph(role: 'text' | 'icon' | 'border' | 'bg'): SVGSVGElement {
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 16 10');
-  svg.setAttribute('class', 'role-svg');
-  const add = (tag: string, attrs: Record<string, string>) => {
-    const el = document.createElementNS(NS, tag);
-    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-    svg.append(el);
-  };
-  const diamond = 'M8 1 L15 5 L8 9 L1 5 Z';
-  const almond = 'M1 5 Q8 -1 15 5 Q8 11 1 5 Z';
-  if (role === 'bg') add('path', { d: diamond, fill: 'currentColor' });
-  else if (role === 'border') add('path', { d: diamond, fill: 'none', stroke: 'currentColor', 'stroke-width': '1.3' });
-  else {
-    add('path', { d: almond, fill: 'none', stroke: 'currentColor', 'stroke-width': '1', opacity: '0.55' });
-    if (role === 'icon') add('circle', { cx: '8', cy: '5', r: '1.8', fill: 'currentColor' });
-    else add('path', { d: 'M6 3.2 L10.5 5 L6 6.8 Z', fill: 'currentColor' });
-  }
-  return svg;
-}

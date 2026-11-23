@@ -1364,8 +1364,7 @@ table.pairs.roles thead .roles-head { background: var(--surface-2); z-index: 2; 
 table.pairs.roles .roles-cell { padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3); }
 .role-line { display: flex; align-items: center; gap: var(--space-2); }
 .role-line + .role-line { margin-top: 6px; }
-.role-glyph { display: inline-flex; width: 1rem; flex: none; color: var(--text); }
-.role-svg { width: 1rem; height: 0.625rem; }
+/* A token's path, small and quiet above it (and above the next ones that share it). */
 /* A token: a small secondary button with its name and the token mark; in its alert's color when it has one. */
 .role-item { display: inline-flex; align-items: center; gap: var(--space-2); height: 1.75rem; padding: 0 var(--space-2); border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); font-family: var(--mono); font-size: var(--font-sm); font-weight: 400; white-space: nowrap; cursor: pointer; }
 .role-item:hover { background: var(--surface-hover); }
@@ -1375,7 +1374,11 @@ table.pairs.roles .roles-cell { padding: var(--space-3) var(--space-4) var(--spa
 .role-item.warning .icon, .role-item.error .icon { color: currentColor; }
 .role-line .tier-tag, .role-line .added { margin-left: 0; }
 /* The vision type the samples show, at the end of the toolbar: led by an eye. */
-.vision-pick { margin-left: auto; display: inline-flex; }
+/* The toolbar and the pairs table share one width: the table's, or the page's when the table is wider. */
+.pairs-block { display: flex; flex-direction: column; gap: var(--space-3); width: fit-content; min-width: 0; max-width: 100%; }
+.pairs-block > .roles-wrap { max-width: 100%; }
+.vision-pick { margin-left: auto; display: inline-flex; align-items: center; gap: var(--space-2); }
+.vision-pick-label { font-size: var(--font-sm); color: var(--muted); white-space: nowrap; }
 .vision-select .ss-button { min-width: 8.5rem; padding-left: var(--space-2); }
 .vision-select .ss-label { font-family: inherit; }
 .vision-select .ss-chevron { margin-left: auto; }
@@ -1391,7 +1394,8 @@ table.pairs.roles thead .case-theme { padding-top: var(--space-2); padding-botto
 button.case-result { align-self: flex-start; height: auto; min-height: 0; padding: 1px 4px; margin-left: -4px; border: 0; border-radius: var(--radius-sm); background: none; font: inherit; color: inherit; cursor: pointer; }
 button.case-result:hover, button.case-result:focus-visible { background: var(--surface-hover); }
 button.case-result .case-part { text-decoration: underline dotted; text-underline-offset: 2px; }
-.nearest-btn { justify-self: start; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 2px; text-align: left; }
+.nearest-btn { grid-column: 2; justify-self: start; display: block; white-space: normal; max-width: 100%; min-width: 0; text-align: left; height: auto; line-height: 1.35; padding-block: var(--space-1); }
+.alias-side .nearest-btn .token-id { white-space: normal; overflow-wrap: anywhere; }
 .case-results .case-part { color: var(--text); }
 .case-results .case-value { font-family: var(--mono); }
 .case-results .icon { width: 0.75rem; height: 0.75rem; flex: none; }
