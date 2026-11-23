@@ -1,16 +1,17 @@
 import { formatContrast } from '../contrast/metrics';
-import { simulate, VISIONS } from '../color/cvd';
+import { simulate, VISIONS, type Vision } from '../color/cvd';
 import { distance, type ColorInfo } from '../color/format';
 import { TIER_LABEL, tierNames, tierReadings, type Tier } from '../model/tiers';
 import type { Model, Severity } from '../model/types';
-import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, parse, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairCheck, type PairKind } from '../semantic/pairs';
+import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, parse, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairKind } from '../semantic/pairs';
 import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
-import { caseCanvas, displayGamut, paintAll, pairCanvas, swatchCanvas } from './canvas';
-import { collapsible, disclosure, expand, isOpen, setAll } from './collapsible';
+import { caseCanvas, displayGamut, paintAll } from './canvas';
+import { collapsible, setAll } from './collapsible';
 import { viewControls } from './loader';
 import { h, icon, masked, plural, severityIcon, viewHead, type Child } from './dom';
 import { TIP } from './tips';
+import { swatchSelect } from './swatch-select';
 import { tokenField, type FieldStatus, type TokenOption } from './token-field';
 import { typographySection } from './typography';
 import { diagnosisFor } from './blocked';
@@ -46,12 +47,6 @@ function ownMode(i: number, id: string): string | undefined {
   return shared ? mode : undefined;
 }
 
-/** A group member's own part of the name, e.g. "danger" for `color.text.danger` in `color.text.*`. */
-const statusOf = (id: string, group: string) => {
-  const g = group.split('.');
-  return id.split('.').filter((w, i) => g[i] !== w).join('.') || id;
-};
-
 /**
  * Foreground/background pairs found by name, each checked for contrast and
  * color-vision deficiencies in every theme. One element per tier: the
@@ -68,14 +63,14 @@ export class TTSemantic extends HTMLElement {
   /** Failing pairs only. Undefined until the user picks: then failing ones first, when there are any. */
   private onlyFailingChoice: boolean | undefined;
   private onlyFailing = true;
+  /** The vision type the samples are drawn and measured with. Typical until picked. */
+  private vision: Vision = 'normal';
   /** The component filter text. */
   private query = '';
   /** A re-alias popover to open again after the pick that re-rendered the view. */
   private keepOpen?: string;
   /** How to open each re-alias popover of the current render, by pair id and side. */
   private reopeners = new Map<string, () => void>();
-  /** Pair rows by pair id, for jumping from a vision tile to its pair. */
-  private rowEls = new Map<string, HTMLElement>();
   // Canvases painted while the view is hidden have no size: paint again once it shows.
   // When the view is shown it also checks it shows the current files, in case an update was missed.
   private resize = new ResizeObserver(() => (this.rendered === this.inputs() ? paintAll(this) : this.render(store.get())));
@@ -100,7 +95,6 @@ export class TTSemantic extends HTMLElement {
 
   private render(v: View) {
     this.reopeners.clear();
-    this.rowEls.clear();
     const result = pairsOf(store.get());
     this.rendered = result;
     const { colorIds, edited } = result;
@@ -174,6 +168,7 @@ export class TTSemantic extends HTMLElement {
             component ? this.componentTools(v) : null,
             h('span', { class: 'spacer' }),
             edited ? h('button', { type: 'button', class: 'link', 'data-tip': TIP.pairsReset, onclick: resetPairs }, 'Reset to the pairs found by name') : null,
+            this.visionSelect(),
           )
         : diag.empty
           ? diag.empty
@@ -184,8 +179,6 @@ export class TTSemantic extends HTMLElement {
         ? [this.componentSections(rows, siblings, themeNames, v)]
         : [
             shown.length ? this.table(rows, themeNames, v) : rows.length ? h('p', { class: 'empty' }, 'Every pair passes.') : '',
-            rows.length ? this.visionTable(rows, themeNames, v) : '',
-            siblings.length ? this.siblingsPanel(siblings, themeNames, v) : '',
           ]),
       typographySection(this.tier, this.onlyFailing, v.model.issues) ?? '',
       colorIds.length ? this.addForm(colorIds) : '',
@@ -196,6 +189,26 @@ export class TTSemantic extends HTMLElement {
       this.keepOpen = undefined;
       reopen?.();
     }
+  }
+
+  /** The vision type the samples show: a dropdown led by an eye, at the toolbar's end. */
+  private visionSelect() {
+    return h(
+      'span',
+      { class: 'vision-pick', 'data-tip': TIP.visionPick },
+      swatchSelect({
+        label: 'Vision type',
+        groups: [{ label: '', options: VISIONS.map((x) => ({ value: x.id, label: x.short, title: x.label, lead: () => icon('eye') })) }],
+        value: this.vision,
+        gamut: 'srgb',
+        mask: false,
+        class: 'vision-select',
+        onPick: (value) => {
+          this.vision = value as Vision;
+          this.render(store.get());
+        },
+      }),
+    );
   }
 
   /**
@@ -252,14 +265,15 @@ export class TTSemantic extends HTMLElement {
           const r = c.parts[part];
           if (!r) return [];
           const [button, pop] = this.realiasButton(r, 'fg', v, { tone: fails(r) ? (r.pass ? r.cvdTone : r.tone) : undefined });
-          this.rowEls.set(r.pair.id, button as HTMLElement);
           return [item(part, [button as HTMLElement, pop as HTMLElement, this.tierTag(r.tiers.fg, r.pair.fg)])];
         }),
         item('bg', [...(this.realiasButton(own, 'bg', v, {}) as HTMLElement[]), own.pair.source === 'user' ? h('small', { class: 'added', 'data-tip': TIP.pairAdded }, 'added') : null, this.tierTag(own.tiers.bg, c.bg)]),
       );
     };
     const sample = (c: Case, i: number) => {
-      const present = ORDER.flatMap((part) => (c.parts[part]?.seen.normal[i] ? [{ part, r: c.parts[part]!, check: c.parts[part]!.seen.normal[i]! }] : []));
+      // As seen with the vision type picked: the colors simulated, and each part measured as seen.
+      const seenAs = this.vision;
+      const present = ORDER.flatMap((part) => (c.parts[part]?.seen[seenAs][i] ? [{ part, r: c.parts[part]!, check: c.parts[part]!.seen[seenAs][i]! }] : []));
       if (!present.length) return h('td', { class: 'case-sample' }, h('span', { class: 'muted', 'data-tip': TIP.pairMissing }, '—'));
       // The case's background as its content or foreground sees it; a border alone shows on the one it is checked against.
       const bg = (present.find((x) => x.part !== 'border') ?? present[0]!).check.bg;
@@ -273,10 +287,12 @@ export class TTSemantic extends HTMLElement {
           { class: 'case-results' },
           present.map(({ part, r, check }) => {
             const first = check.results[0];
-            const cvd = check.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r.seen[id][i] && !r.seen[id][i]!.pass) : [];
-            const cls = check.pass ? (cvd.length ? 'miss warning' : 'pass') : `miss ${r.tone}`;
+            // With typical vision, a pass that fails with a deficiency says which; with a deficiency picked, the result is that one's.
+            const cvd = seenAs === 'normal' && check.pass ? VISIONS.filter(({ id }) => id !== 'normal' && r.seen[id][i] && !r.seen[id][i]!.pass) : [];
+            const tone = seenAs === 'normal' ? r.tone : r.cvdTone;
+            const cls = check.pass ? (cvd.length ? 'miss warning' : 'pass') : `miss ${tone}`;
             const face = [
-              check.pass ? (cvd.length ? severityIcon('warning') : icon('check')) : severityIcon(r.tone),
+              check.pass ? (cvd.length ? severityIcon('warning') : icon('check')) : severityIcon(tone),
               h('span', { class: 'case-part' }, LABEL[part]),
               first ? h('span', { class: 'case-value' }, formatContrast(first.value, first.level.metric)) : null,
               cvd.length ? h('small', { class: 'cvd-miss', 'data-tip': TIP.pairCvdMiss }, cvd.map((x) => x.short).join(', ')) : null,
@@ -444,182 +460,6 @@ export class TTSemantic extends HTMLElement {
     return [button, masked(pop)];
   }
 
-  /**
-   * Point a status group's members at other existing tokens, theme by theme.
-   * Each option shows the smallest difference it would leave to the other
-   * members, with the worst deficiency (achromatopsia aside).
-   */
-  private siblingRealiasRow(row: SiblingRow, themeNames: (string | null)[], v: View) {
-    const min = v.settings.cvdDistance;
-    const theme = (model: Model, i: number) => {
-      const c = row.checks[i];
-      if (!c) return h('div', { class: 'alias-theme' }, themeNames[i] ? h('strong', null, themeNames[i]) : null, h('span', { class: 'muted' }, 'Fewer than two of these tokens are in this theme.'));
-      const meta = (id: string) => (cand: AliasCandidate) => {
-        const others = c.colors.filter((m) => m.id !== id);
-        const worst = Math.min(
-          ...VISIONS.filter((x) => x.id !== 'achroma').flatMap((x) => others.map((o) => distance(simulate(cand.info, x.id), simulate(o.info, x.id)))),
-        );
-        return `ΔE ${worst.toFixed(3)} ${worst >= min ? '✓' : '✗'}`;
-      };
-      return h(
-        'div',
-        { class: 'alias-theme' },
-        themeNames[i] ? h('strong', null, themeNames[i]) : null,
-        c.colors.map((m) => this.aliasField(model, m.id, statusOf(m.id, row.group.id), themeNames[i] ?? null, m.info, meta(m.id), v, undefined, row.tone && row.tone !== 'info' && c.results.some((x) => !x.pass && x.vision !== 'achroma' && x.closest.includes(m.id)) ? row.tone : undefined, ownMode(i, m.id))),
-      );
-    };
-    return h(
-      'tr',
-      { class: 'pair-detail' },
-      h(
-        'td',
-        { colspan: 2 + themeNames.length },
-        h('div', { class: 'alias-themes' }, allModels(store.get()).map(theme)),
-        h('p', { class: 'hint' }, `Each option shows the smallest difference it would leave to the other members, with the worst color-vision deficiency; ✓ means at least ${min}. Only the reference changes. Undo with ⌘Z.`),
-      ),
-    );
-  }
-
-  /**
-   * Every pair as seen with each vision type: one row per type, one column per
-   * theme, so the effect of each deficiency reads straight down a column.
-   */
-  private visionTable(rows: PairRow[], themeNames: (string | null)[], v: View, compact = false) {
-    const gamut = displayGamut(v.settings.gamut);
-    const tile = (r: PairRow, c: PairCheck | undefined) => {
-      if (!c) return h('span', { class: 'vision-tile empty', 'data-tip': TIP.pairMissing });
-      const first = c.results[0];
-      const value = first ? ` · ${formatContrast(first.value, first.level.metric)}` : '';
-      return h(
-        'button',
-        {
-          type: 'button',
-          class: `vision-tile${c.pass ? '' : ` miss ${r.tone}`}`,
-          title: `${r.pair.fg} on ${r.pair.bg}${value}`,
-          'aria-label': `Change aliases of ${r.pair.fg} on ${r.pair.bg}`,
-          onclick: () => this.openPair(r),
-        },
-        pairCanvas(c.shown, c.bg, glyphOf(r.pair), gamut),
-        c.pass ? null : severityIcon(r.tone),
-      );
-    };
-    return h(
-      'section',
-      { class: 'vision' },
-      h(compact ? 'h4' : 'h3', { 'data-tip': TIP.vision }, 'Seen with each vision type'),
-      compact
-        ? null
-        : h('p', { class: 'meta' }, 'Every pair above, as seen with each vision type. A mark shows a pair below its level; hover a tile for its tokens, click to go to it.'),
-      masked(
-        h(
-          'div',
-          { class: 'table-wrap' },
-          h(
-            'table',
-            { class: 'pairs vision-table' },
-            h('thead', null, h('tr', null, h('th', null, 'Vision'), themeNames.map((n) => h('th', null, n ?? 'Pairs')))),
-            h(
-              'tbody',
-              null,
-              VISIONS.map((x) =>
-                h(
-                  'tr',
-                  null,
-                  h('th', { scope: 'row' }, h('span', null, x.short), h('small', null, x.label)),
-                  themeNames.map((_, i) => h('td', null, h('div', { class: 'vision-strip' }, rows.map((r) => tile(r, r.seen[x.id][i]))))),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /** Status colors (danger, warning, success…) that must stay apart, checked under every vision type. */
-  private siblingsPanel(groups: SiblingRow[], themeNames: (string | null)[], v: View, compact = false) {
-    const gamut = displayGamut(v.settings.gamut);
-    const min = h('input', { type: 'number', min: '0.02', max: '0.5', step: '0.01', value: String(v.settings.cvdDistance), 'aria-label': 'Minimum difference' });
-    min.addEventListener('change', () => {
-      const n = Number(min.value);
-      if (n > 0 && n <= 1) updateSettings({ cvdDistance: n });
-    });
-    const cell = (row: SiblingRow, i: number) => {
-      const c = row.checks[i];
-      if (!c) return h('td', null, h('span', { class: 'muted', 'data-tip': TIP.pairMissing }, '—'));
-      return h(
-        'td',
-        null,
-        h(
-          'div',
-          { class: 'sibling-rows' },
-          c.results.map((x) => {
-            const tone = x.vision === 'achroma' || !row.tone ? 'info' : row.tone;
-            const name = VISIONS.find((d) => d.id === x.vision)!;
-            return h(
-              'div',
-              { class: `sibling-row ${x.pass ? 'pass' : `miss ${tone}`}`, title: `${name.label}: closest are ${x.closest[0]} and ${x.closest[1]}` },
-              h('span', { class: 'vision-name' }, name.short),
-              h(
-                'span',
-                { class: 'sibling-swatches' },
-                c.colors.map((m) => h('span', { class: 'sibling-swatch', title: m.id }, swatchCanvas(simulate(m.info, x.vision), gamut, false))),
-              ),
-              h('span', { class: 'sibling-diff' }, x.pass ? icon('check') : severityIcon(tone), ` ${x.distance.toFixed(3)}`),
-            );
-          }),
-        ),
-      );
-    };
-    return h(
-      'section',
-      { class: 'siblings' },
-      h(compact ? 'h4' : 'h3', null, 'Status colors told apart'),
-      compact
-        ? null
-        : [
-            h(
-              'p',
-              { class: 'meta' },
-              'Tokens that differ only by a status word (danger, warning, success…) must look different; the two closest in each group are compared per vision type. ',
-              'Achromatopsia is only marked as information: pair status colors with an icon or label.',
-            ),
-            h('label', { class: 'field inline', 'data-tip': TIP.cvdDistance }, 'Minimum difference ', min),
-          ],
-      masked(
-        h(
-          'div',
-          { class: 'table-wrap' },
-          h(
-            'table',
-            { class: 'pairs siblings-table' },
-            h('thead', null, h('tr', null, h('th', null, 'Group'), themeNames.map((n) => h('th', null, n ?? 'Difference')), h('th', null, h('span', { class: 'visually-hidden' }, 'Actions')))),
-            h(
-              'tbody',
-              null,
-              groups.flatMap((g) => {
-                const key = `group:${g.group.id}`;
-                const open = isOpen(key, false);
-                const row = h(
-                  'tr',
-                  { class: [siblingFails(g) ? `fail ${g.tone}` : '', open ? 'open' : ''].join(' ').trim() },
-                  h('td', { class: 'token-id' }, g.group.id.replace(/\.\*$/, ''), h('small', { class: 'added' }, ` ${g.group.members.length} statuses`)),
-                  themeNames.map((_, i) => cell(g, i)),
-                  h(
-                    'td',
-                    { class: 'pair-actions' },
-                    disclosure({ key, open: false, label: `re-alias panel of ${g.group.id}`, text: 'Re-alias', tip: TIP.siblingRealias, onToggle: () => this.render(store.get()) }),
-                  ),
-                );
-                return open ? [row, this.siblingRealiasRow(g, themeNames, v)] : [row];
-              }),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /** Components view: find a component, expand or collapse all sections, and the status difference threshold. */
   private componentTools(v: View) {
     const find = h('input', { type: 'search', class: 'component-find', placeholder: 'Find a component or token', 'aria-label': 'Find a component or token', value: this.query });
@@ -692,8 +532,6 @@ export class TTSemantic extends HTMLElement {
         // Built when first opened, so large libraries stay quick.
         content: () => [
           shown.length ? this.table(own, themeNames, v) : h('p', { class: 'empty' }, 'Every pair passes.'),
-          own.length ? this.visionTable(own, themeNames, v, true) : '',
-          groups.length ? this.siblingsPanel(groups, themeNames, v, true) : '',
         ],
         onToggle: (open) => open && requestAnimationFrame(() => paintAll(section)),
       });
@@ -748,27 +586,6 @@ export class TTSemantic extends HTMLElement {
             '. Add pairs below to check them anyway.',
           ),
     );
-  }
-
-  /** Bring a pair's row into view and highlight it, with focus on its first picker. */
-  private openPair(r: PairRow) {
-    if (this.onlyFailing && r.pass && !r.cvdFails.length) {
-      this.onlyFailingChoice = false;
-      this.render(store.get());
-    }
-    let row = this.rowEls.get(r.pair.id);
-    if (!row && r.component) {
-      // Its section hasn't been opened yet, so its rows aren't built: open it.
-      const section = this.querySelector<HTMLDetailsElement>(`.component-section[data-component="${CSS.escape(r.component)}"]`);
-      if (section) expand(section);
-      row = this.rowEls.get(r.pair.id);
-    }
-    if (!row) return;
-    row.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    row.classList.remove('flash');
-    void row.offsetWidth;
-    row.classList.add('flash');
-    (row.matches('.realias-btn') ? row : row.querySelector<HTMLElement>('.realias-btn'))?.focus({ preventScroll: true });
   }
 
   /** Add a pair by hand: two color tokens picked from every theme's color tokens, and a kind. */
