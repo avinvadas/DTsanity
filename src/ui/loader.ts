@@ -55,7 +55,7 @@ export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
     const clashes = files.filter((f) => edited.has(f.name)).map((f) => f.name);
     const keep =
       !clashes.length ||
-      confirm(`Replace ${clashes.join(', ')}? Your changes to ${clashes.length === 1 ? 'it' : 'them'} haven't been downloaded and will be lost.`);
+      confirm(`Replace ${clashes.join(', ')}? Your changes to ${clashes.length === 1 ? 'it' : 'them'} haven't been saved to a copy and will be lost.`);
     const adding = keep ? files : files.filter((f) => !edited.has(f.name));
     if (ring) await ring;
     if (view && adding.length) await fadeOut(view);
@@ -131,7 +131,7 @@ export function viewControls(): { el: HTMLElement; status: HTMLElement; unsub: (
 /** Clear every file, asking first when edits made here haven't been downloaded (they live only in this tab). */
 export function confirmClearAll() {
   const edited = store.get().files.filter((f) => !isUnchanged(f)).length;
-  if (edited && !confirm(`Clear all files? Changes to ${plural(edited, 'file')} haven't been downloaded and will be lost.`)) return;
+  if (edited && !confirm(`Clear all files? Changes to ${plural(edited, 'file')} haven't been saved to a copy and will be lost.`)) return;
   clearAll();
 }
 

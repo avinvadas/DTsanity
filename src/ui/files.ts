@@ -88,10 +88,10 @@ export class TTFiles extends HTMLElement {
         ),
         f.converted
           ? [
-              h('button', { class: 'ghost', 'data-tip': TIP.downloadDtcg, onclick: () => this.save(f, 'dtcg') }, 'Download DTCG'),
-              h('button', { class: 'ghost', 'data-tip': TIP.downloadLegacy, onclick: () => this.save(f, 'original') }, `Download as ${kind}`),
+              h('button', { class: 'ghost', 'data-tip': TIP.downloadDtcg, onclick: () => this.save(f, 'dtcg') }, 'Save copy as DTCG'),
+              h('button', { class: 'ghost', 'data-tip': TIP.downloadLegacy, onclick: () => this.save(f, 'original') }, `Save copy as ${kind}`),
             ]
-          : h('button', { class: 'ghost', 'data-tip': TIP.download, onclick: () => this.save(f, 'dtcg') }, 'Download'),
+          : h('button', { class: 'ghost', 'data-tip': TIP.download, onclick: () => this.save(f, 'dtcg') }, 'Save copy'),
         xButton('Remove file', () => removeFile(f.id), TIP.remove, 'file-remove'),
         notes
           ? masked(
@@ -118,7 +118,7 @@ export class TTFiles extends HTMLElement {
         masked(h('button', { disabled: !lastUndo, onclick: undo, 'data-tip': lastUndo ? `Undo: ${lastUndo}` : TIP.undoNone }, 'Undo')),
         masked(h('button', { disabled: !nextRedo, onclick: redo, 'data-tip': nextRedo ? `Redo: ${nextRedo}` : TIP.redoNone }, 'Redo')),
         h('span', { class: 'spacer' }),
-        files.length > 1 ? h('button', { 'data-tip': TIP.downloadAll, onclick: () => files.forEach((f) => download(fileNameOf(f), exportAs(f).text)) }, 'Download all (DTCG)') : null,
+        files.length > 1 ? h('button', { 'data-tip': TIP.downloadAll, onclick: () => files.forEach((f) => download(fileNameOf(f), exportAs(f).text)) }, 'Save all copies (DTCG)') : null,
         h('button', { class: 'ghost danger', 'data-tip': TIP.clearAll, onclick: clearAll }, 'Clear all'),
       ),
       setAsideSection(state.setAside) ?? '',

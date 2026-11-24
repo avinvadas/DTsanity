@@ -9,7 +9,7 @@ import type { FlagKind, ScaleFlag } from '../palette/checks';
 
 export const TIP = {
   // Navigation
-  navFiles: 'Load token files and download your changes.',
+  navFiles: 'Load token files and save copies with your changes.',
   policy: 'What to check: turn kinds of findings on or off, and set how each check reports.',
   policyReset: 'Set every rule back to its built-in level.',
   policyBack: 'Back to where you were.',
@@ -68,15 +68,15 @@ export const TIP = {
   // Files
   unchanged: 'Exporting now gives back exactly the bytes you loaded.',
   unchangedConverted: 'No edits since the file was converted.',
-  edited: 'This file has edits that are not downloaded yet.',
+  edited: 'This file has edits that aren’t saved to a copy yet.',
   fileMeta: 'The format this file was read as, and how many tokens it defines.',
-  download: 'Save this file, with any fixes and edits applied.',
-  downloadDtcg: 'Save this file converted to the DTCG format, with any fixes and edits applied.',
-  downloadLegacy: 'Save this file back in its original format. Values that cannot be converted back are listed below the file.',
+  download: 'Save a copy of this file to this computer, with any fixes and edits applied. Nothing is uploaded, and your original file isn’t changed.',
+  downloadDtcg: 'Save a copy of this file to this computer, converted to the DTCG format, with any fixes and edits applied. Nothing is uploaded, and your original file isn’t changed.',
+  downloadLegacy: 'Save a copy of this file to this computer, back in its original format. Values that cannot be converted back are listed below the file. Your original file isn’t changed.',
   remove: 'Stop checking this file. Nothing is deleted from your computer.',
   undoNone: 'Nothing to undo',
   redoNone: 'Nothing to redo',
-  downloadAll: 'Save every loaded file in the DTCG format.',
+  downloadAll: 'Save a copy of every loaded file to this computer, in the DTCG format. Nothing is uploaded, and your original files aren’t changed.',
   downloadUpdated: 'Save the whole token set with your changes as one folder (zipped): every loaded file under its own name and in its own format, plus CHANGES.md listing each change.',
   downloadUpdatedNone: 'Active once you change the tokens here: apply a fix, re-alias a token or edit a curve.',
   copyScopedPrompt: 'Copy a report of these findings only, for an AI assistant, your design system’s tooling or a ticket. It names your tokens and stays on your clipboard.',

@@ -85,7 +85,7 @@ export const FIX_PRINCIPLES: readonly Principle[] = [
   },
   {
     title: 'The smallest edit',
-    text: 'A fix changes only the lines it is about. Files with no fixes download exactly as they were loaded.',
+    text: 'A fix changes only the lines it is about. Files with no fixes are saved exactly as they were loaded.',
   },
   {
     title: 'Shown first, and undoable',
