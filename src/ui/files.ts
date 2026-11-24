@@ -1,7 +1,8 @@
 import { download, exportAs, fileNameOf, isUnchanged, type ExportFormat } from '../io/export';
 import { isConfigFile, isResolverFile, isStudioMetaFile } from '../model/format';
 import type { SourceFile } from '../model/types';
-import { allModels, clearAll, redo, removeFile, store, undo, type AppState } from '../state/app';
+import { NO_TOKENS_INSIDE, NOT_A_TOKEN_FILE } from '../io/load';
+import { allModels, clearAll, redo, removeFile, store, undo, type AppState, type SetAside } from '../state/app';
 import { h, masked, plural, xButton } from './dom';
 import { viewControls } from './loader';
 import { TIP } from './tips';
@@ -40,9 +41,9 @@ export class TTFiles extends HTMLElement {
       row.append(h('div', { class: 'vh-actions loaded-only' }, this.reload.el));
     }
     this.unsub = store.select(
-      (s): Pick<AppState, 'files' | 'model' | 'themeModels' | 'past' | 'future'> => s,
+      (s): Pick<AppState, 'files' | 'model' | 'themeModels' | 'past' | 'future' | 'setAside'> => s,
       (s) => this.render(s),
-      (a, b) => a.files === b.files && a.themeModels === b.themeModels && a.past === b.past && a.future === b.future,
+      (a, b) => a.files === b.files && a.themeModels === b.themeModels && a.past === b.past && a.future === b.future && a.setAside === b.setAside,
     );
   }
 
@@ -51,7 +52,7 @@ export class TTFiles extends HTMLElement {
     this.unsub?.();
   }
 
-  private render(state: Pick<AppState, 'files' | 'model' | 'themeModels' | 'past' | 'future'>) {
+  private render(state: Pick<AppState, 'files' | 'model' | 'themeModels' | 'past' | 'future' | 'setAside'>) {
     const { files, past, future } = state;
     // The Files header's summary line, like every view's.
     const summary = document.getElementById('files-summary');
@@ -120,6 +121,26 @@ export class TTFiles extends HTMLElement {
         files.length > 1 ? h('button', { 'data-tip': TIP.downloadAll, onclick: () => files.forEach((f) => download(fileNameOf(f), exportAs(f).text)) }, 'Download all (DTCG)') : null,
         h('button', { class: 'ghost danger', 'data-tip': TIP.clearAll, onclick: clearAll }, 'Clear all'),
       ),
+      setAsideSection(state.setAside) ?? '',
     );
   }
+}
+
+/** Why a file was set aside, in the Files list. */
+const WHY: Record<string, string> = { [NOT_A_TOKEN_FILE]: 'Not a token file', [NO_TOKENS_INSIDE]: 'JSON with no design tokens in it' };
+
+/** Beneath the files loaded: the files set aside unread, and why. Not checked, and not counted. */
+function setAsideSection(list: SetAside[]): HTMLElement | null {
+  if (!list.length) return null;
+  return h(
+    'section',
+    { class: 'set-aside-files' },
+    h('h3', { class: 'section-title' }, `${plural(list.length, 'file')} set aside`),
+    h('p', { class: 'meta' }, 'These weren’t read as token files, so they aren’t checked or counted.'),
+    h(
+      'ul',
+      { class: 'file-list' },
+      list.map((x) => h('li', { class: 'file' }, masked(h('span', { class: 'file-name' }, x.name)), h('span', { class: 'meta' }, WHY[x.why] ?? x.why))),
+    ),
+  );
 }

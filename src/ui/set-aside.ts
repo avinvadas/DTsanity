@@ -2,6 +2,8 @@ import { NO_TOKENS_INSIDE, NOT_A_TOKEN_FILE } from '../io/load';
 import { dismissSetAside, store, type SetAside } from '../state/app';
 import { h, masked, severityIcon, xButton } from './dom';
 
+const NONE: SetAside[] = [];
+
 /** How many names a reason lists before “and N more”. */
 const SHOWN = 5;
 
@@ -14,15 +16,18 @@ const names = (list: SetAside[]) => {
  * A note at the top of the page about files the last load set aside: files
  * that aren't token files by their type (a CSS module, a README), and JSON
  * with no design tokens in it (a translation, a config). Not findings: they
- * aren't counted or reported. It stays until closed or the next load.
+ * aren't counted or reported. It stays until closed or the next load; the
+ * Files view lists them all, beneath the files loaded.
  */
 export class TTSetAside extends HTMLElement {
   private unsub?: () => void;
 
   connectedCallback() {
+    // This load's files only: the earlier ones are listed in the Files view.
     this.unsub = store.select(
-      (s) => s.setAside,
+      (s) => (s.setAsideNote ? s.setAside.slice(-s.setAsideNote) : NONE),
       (list) => this.render(list),
+      (a, b) => a.length === b.length && a.every((x, i) => x === b[i]),
     );
   }
 

@@ -66,7 +66,7 @@ function deduped(models: readonly Model[]): Issue[] {
 }
 
 /**
- * Files whose tokens never came in: unreadable, set aside, in an older format, or not an object (`hard`);
+ * Files whose tokens never came in: unreadable, in an older format, or not an object (`hard`);
  * and files read only in part, in a format of their own (`soft`), whose finding says what stops them.
  */
 function fileCauses(s: AppState, issues: readonly Issue[]): { hard?: Cause; soft?: Cause & { modes: boolean } } {
@@ -75,8 +75,7 @@ function fileCauses(s: AppState, issues: readonly Issue[]): { hard?: Cause; soft
   const count = (list: Issue[]) => new Set(list.map((i) => i.fileId)).size;
   const n = s.loadErrors.length;
   if (n) out.push({ kind: 'problem', text: `${plural(n, 'file isn’t', 'files aren’t')} valid JSON, so nothing in ${n === 1 ? 'it' : 'them'} is read.`, weight: n, to: 'files' });
-  const aside = s.setAside.length;
-  if (aside) out.push({ kind: 'problem', text: `${plural(aside, 'file was', 'files were')} set aside as not token files.`, weight: aside, to: 'files' });
+  // Files set aside (a README, a license) hold no tokens, so they never account for missing ones: Files lists them.
   const legacy = filesWith('legacy-format');
   if (legacy.length) out.push({ kind: 'problem', text: `${plural(count(legacy), 'file is', 'files are')} in an older format (Tokens Studio or Style Dictionary), and legacy formats are off.`, weight: count(legacy), to: { issues: legacy[0]!.category } });
   const root = filesWith('root-not-object');

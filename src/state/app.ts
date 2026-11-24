@@ -33,9 +33,9 @@ export interface SetAside {
   why: string;
 }
 
-/** Close the note about files set aside. */
+/** Close the note about files set aside; the Files view still lists them. */
 export function dismissSetAside() {
-  store.set({ setAside: [] });
+  store.set({ setAsideNote: 0 });
 }
 
 /** One undoable step: the documents it changed, before and after. */
@@ -77,6 +77,8 @@ export interface AppState {
   loadErrors: LoadError[];
   /** Files from the last load set aside unread, and why: not a token file type, or JSON with no tokens in it. Not findings. */
   setAside: SetAside[];
+  /** How many files the last load set aside (the last ones in setAside), for the note shown until closed or the next load. */
+  setAsideNote: number;
   busy: boolean;
   past: Command[];
   future: Command[];
@@ -105,6 +107,7 @@ const initial = (settings: Settings): AppState => ({
   model: analyze([], settings),
   loadErrors: [],
   setAside: [],
+  setAsideNote: 0,
   busy: false,
   past: [],
   future: [],
@@ -169,7 +172,10 @@ export function addFiles(added: SourceFile[], errors: LoadError[] = [], setAside
       const fresh = added.filter((f) => !reloaded.has(f.id)).map((f) => f.id);
       edited = s.themes.map((t) => ({ ...t, fileIds: [...t.fileIds.map((id) => successor.get(id) ?? id), ...fresh] }));
     }
-    return { ...derive(s, files, s.settings, edited), loadErrors: errors, setAside, ...dropHistory(s, replaced) };
+    // Files set aside by every load so far, but not ones since loaded as token files; the note is for this load's only.
+    const fresh = new Set([...setAside.map((x) => x.name), ...added.map((f) => f.name)]);
+    const aside = [...s.setAside.filter((x) => !fresh.has(x.name)), ...setAside];
+    return { ...derive(s, files, s.settings, edited), loadErrors: errors, setAside: aside, setAsideNote: setAside.length, ...dropHistory(s, replaced) };
   });
 }
 

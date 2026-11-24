@@ -703,11 +703,11 @@ tt-set-aside[hidden] { display: none; }
 .badge.changed, .chip.warning, .export-notes, .type-range { box-shadow: inset 0 0 0 1px var(--warn-edge); }
 .chip.error, .load-error { box-shadow: inset 0 0 0 1px var(--error-edge); }
 /* What findings keep out of a view, said in that view, each line linking to where it is fixed. */
-.blocked-note { font-size: var(--font-sm); background: var(--warn-soft); box-shadow: inset 0 0 0 1px var(--warn-edge); border-radius: var(--radius); padding: var(--space-2) var(--space-3); margin: 0 0 var(--space-4); max-width: 56rem; }
+.blocked-note { font-size: var(--font-sm); border-block: 1px solid var(--border-strong); padding: var(--space-2) 0; margin: 0 0 var(--space-4); max-width: 56rem; }
 .blocked-note a, .view-error a { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
 /* In place of an empty view's content: what is missing, why, and where it is handled. A problem carries the error tone. */
-.view-error { display: flex; gap: var(--space-3); align-items: flex-start; max-width: 40rem; margin: var(--space-6) 0; padding: var(--space-5); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); }
-.view-error.problem { border-color: color-mix(in oklch, var(--error) 45%, transparent); background: var(--error-soft); }
+/* In place of a view's content: no box, a rule above and below. */
+.view-error { display: flex; gap: var(--space-3); align-items: flex-start; max-width: 40rem; margin: var(--space-6) 0; padding: var(--space-5) 0; border-block: 1px solid var(--border-strong); }
 .view-error-icon { flex: none; color: var(--error); line-height: 0; }
 .view-error-icon .icon { width: 1.5rem; height: 1.5rem; }
 .view-error-body h3 { margin: 0 0 var(--space-2); font-size: var(--font-md); }
@@ -731,6 +731,9 @@ tt-files:empty { display: none; }
 .file-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); }
 .file { display: flex; align-items: center; gap: var(--space-2) var(--space-3); flex-wrap: wrap; padding: var(--space-2) var(--space-3); }
 .file + .file { border-top: 1px solid var(--border); }
+.set-aside-files { margin-top: var(--space-6); }
+.set-aside-files > .meta { margin: 0 0 var(--space-3); color: var(--muted); }
+.set-aside-files .file { align-items: baseline; }
 .file-name { font-weight: 600; overflow-wrap: anywhere; }
 .file .meta { font-size: var(--font-sm); flex: 1; min-width: 10rem; }
 .export-notes { flex-basis: 100%; font-size: var(--font-sm); background: var(--warn-soft); border-radius: var(--radius); padding: var(--space-2) var(--space-3); }

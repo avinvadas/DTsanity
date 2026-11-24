@@ -161,15 +161,17 @@ export class TTSemantic extends HTMLElement {
         actions: this.reload.el,
       }),
       diag.line ?? '',
-      // The short version; the full one, with what is and isn't a pair, is on How DTsanity works.
-      h(
-        'p',
-        { class: 'meta tier-intro' },
-        component ? 'Component tokens are one component’s limited scope use. ' : 'Pairs are found from token names. ',
-        'Each pair is checked in every theme and fails if it fails in any.',
-        h('span', { class: 'foot-sep', 'aria-hidden': 'true' }, ' · '),
-        h('a', { href: component ? '#principles/component-pairs' : '#principles/pairs' }, 'How DTsanity works'),
-      ),
+      // The short version; the full one, with what is and isn't a pair, is on How DTsanity works. Not on an empty page.
+      rows.length
+        ? h(
+            'p',
+            { class: 'meta tier-intro' },
+            component ? 'Component tokens are one component’s limited scope use. ' : 'Pairs are found from token names. ',
+            'Each pair is checked in every theme and fails if it fails in any.',
+            h('span', { class: 'foot-sep', 'aria-hidden': 'true' }, ' · '),
+            h('a', { href: component ? '#principles/component-pairs' : '#principles/pairs' }, 'How DTsanity works'),
+          )
+        : '',
       targets.length === 0 ? h('p', { class: 'note' }, 'Pick a contrast target in the sidebar to check the pairs.') : '',
       rows.length
         ? toolbarAndTable
