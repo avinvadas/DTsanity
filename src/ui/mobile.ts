@@ -1,7 +1,6 @@
 import { VISIONS } from '../color/cvd';
 import { formatContrast } from '../contrast/metrics';
 import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
-import { showPlaces } from './prompt-link';
 import { fixPrompt } from '../io/prompt';
 import type { Fix, Issue } from '../model/types';
 import { glyphOf } from '../semantic/pairs';
@@ -346,8 +345,7 @@ export class TTMobile extends HTMLElement {
       const p = fixPrompt(store.get());
       try {
         await navigator.clipboard.writeText(p.text || 'No corrections needed: every check passes.');
-        showPlaces(copyButton, p, 'm-secondary');
-        this.say(p.places ? 'Findings report copied. Save the places file too' : 'Findings report copied');
+        this.say('Findings report copied');
       } catch {
         this.say('Copy failed');
       }

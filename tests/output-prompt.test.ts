@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getIn, parseJson } from '../src/json/cst';
-import { fixPrompt, issuesScope, pairsScope, type PromptScope } from '../src/io/prompt';
+import { fixPrompt, PLACES_TITLE, issuesScope, pairsScope, type PromptScope } from '../src/io/prompt';
 import type { Issue } from '../src/model/types';
 import { addFiles, allModels, clearAll, store, updateSettings } from '../src/state/app';
 import { findings, findingTotal } from '../src/ui/findings';
@@ -37,8 +37,8 @@ function items(text: string): string[] {
   for (const line of text.split('\n')) {
     if (line.startsWith('## ')) rule = /\[([a-z0-9-]+)\] \(\d+\)$/.exec(line)?.[1];
     else if (line.startsWith('# ')) rule = undefined;
-    // The number, and the places file's pointer to it, count from 1 in every prompt: left out.
-    else if (rule && line.startsWith('- #')) out.push(`[${rule}] ${line.replace(/^- #\d+ /, '').replace(/ under #\d+\. /, ' under #n. ')}`);
+    // The number, and the pointer to its places at the end, count from 1 in every prompt: left out.
+    else if (rule && line.startsWith('- #')) out.push(`[${rule}] ${line.replace(/^- #\d+ /, '').replace(/ under Places #\d+ at the end\. /, ' under Places #n at the end. ')}`);
   }
   return out;
 }
@@ -46,6 +46,36 @@ function items(text: string): string[] {
 /** How many findings a line stands for: one, or the places a grouped line names. */
 const weight = (line: string) => Number(/ In (\d+) places[:,] /.exec(line)?.[1] ?? 1);
 const findingsIn = (lines: string[]) => lines.reduce((n, l) => n + weight(l), 0);
+
+/**
+ * The token paths a written path stands for: `a.b.{c, d}` is `a.b.c` and `a.b.d`; `{a, b}.{c, d}`
+ * is `a.c`, `a.d`, `b.c` and `b.d`.
+ */
+function expand(name: string): string[] {
+  const list = (x: string) => (x.startsWith('{') && x.endsWith('}') ? x.slice(1, -1).split(', ') : [x]);
+  if (name.startsWith('{')) {
+    const close = name.indexOf('}');
+    const leaves = list(name.slice(close + 2));
+    return list(name.slice(0, close + 1)).flatMap((p) => leaves.map((l) => `${p}.${l}`));
+  }
+  const m = /^(.*)\.\{(.*)\}$/.exec(name);
+  return m ? m[2]!.split(', ').map((l) => `${m[1]}.${l}`) : [name];
+}
+
+/** Every key path in a parsed file whose last key is `key`, dot-joined. */
+function keyPathsNamed(root: unknown, key: string): string[] {
+  const out: string[] = [];
+  const walk = (node: { kind?: string; entries?: { key: string; value: unknown }[] } | undefined, path: string) => {
+    if (node?.kind !== 'object') return;
+    for (const e of node.entries!) {
+      const at = path ? `${path}.${e.key}` : e.key;
+      if (e.key === key) out.push(at);
+      walk(e.value as never, at);
+    }
+  };
+  walk(root as never, '');
+  return out;
+}
 
 const isTier = (i: Issue) => i.code.startsWith('tier-');
 
@@ -150,7 +180,8 @@ describe.each(SETS)('findings report: %s', (set) => {
 
       // B4: each rule's section is whole, findings are numbered in order, and nothing steers the fix.
       const lines = full.text.split('\n');
-      const sections = full.text.split('\n## ').slice(1);
+      // The findings' sections, up to the places part at the end (reference data, not rules).
+      const sections = full.text.split(`\n# ${PLACES_TITLE}\n`)[0]!.split('\n## ').slice(1);
       const broken: string[] = [];
       for (const sec of sections) {
         const id = /^.+ \[([a-z0-9-]+)\] \(\d+\)\n/.exec(sec)?.[1];
@@ -176,7 +207,7 @@ describe.each(SETS)('findings report: %s', (set) => {
       for (const l of lines.filter((x) => x.startsWith('- #'))) {
         for (const [, name] of l.matchAll(/`([^`]+)`/g)) {
           // `a.b.{c, d}` is `a.b.c` and `a.b.d`: each part checked.
-          const parts = name!.replace(/\.\{(.*)\}$/, '.$1').split(/[./]|, /).filter((k) => k && k !== '*' && k !== '…');
+          const parts = expand(name!).flatMap((x) => x.split(/[./]/)).filter((k) => k && k !== '*' && k !== '…');
           for (const k of parts) if (!loadedText.includes(k.toLowerCase())) foreign.push(`${name} (“${k}”)`);
         }
         for (const [file] of l.matchAll(/[\w$@ .\-/]+\.json\b/g)) {
@@ -190,17 +221,18 @@ describe.each(SETS)('findings report: %s', (set) => {
       }
       expect(foreign.slice(0, 8), 'every name comes from the loaded files').toEqual([]);
 
-      // B6: the places file. It carries the prompt's fingerprint, and lists every place of each
-      // finding that points to it (as many as the prompt counts), each name from the loaded files.
-      const pointers = [...full.text.matchAll(/^- #(\d+) .* In (\d+) places, every one listed in dtsanity-places\.md under #\1\. /gm)];
-      expect(!!full.places, 'a places file exactly when a finding points to it').toBe(pointers.length > 0);
-      // Its guardrails (open it before editing, examples aren't the list, decline only what a rule covers) exactly then too.
-      for (const rule of ['every one listed in dtsanity-places.md” keep', 'aren’t its whole list', 'Decline by value or by group only'])
-        expect(full.text.includes(rule), `guardrail: ${rule}`).toBe(!!full.places);
-      if (full.places) {
-        const print = /^Fingerprint ([0-9a-f]{8}),/m.exec(full.places.text)?.[1];
-        expect(full.text, 'the prompt names the same fingerprint').toContain(`fingerprint ${print}`);
-        const sections = new Map(full.places.text.split('\n## ').slice(1).map((sec) => [Number(/^#(\d+) /.exec(sec)?.[1]), sec]));
+      // B6: the places at the end. The part is last and marked as reference data, and lists every
+      // place of each finding that points to it (as many as the prompt counts), each name from the loaded files.
+      const pointers = [...full.text.matchAll(/^- #(\d+) .* In (\d+) places, every one listed under Places #\1 at the end\. /gm)];
+      const at = full.text.indexOf(`\n# ${PLACES_TITLE}\n`);
+      expect(at >= 0, 'a places part exactly when a finding points to it').toBe(pointers.length > 0);
+      // Its guardrails (reference data, examples aren't the list, decline only what a rule covers) exactly then too.
+      for (const rule of ['every one listed under Places #n at the end” has', 'aren’t its whole list', 'Decline by value or by group only'])
+        expect(full.text.includes(rule), `guardrail: ${rule}`).toBe(at >= 0);
+      if (at >= 0) {
+        const tail = full.text.slice(at);
+        expect(/^- #\d+ /m.test(tail), 'no finding after the places part begins').toBe(false);
+        const sections = new Map(tail.split('\n## ').slice(1).map((sec) => [Number(/^Places #(\d+): /.exec(sec)?.[1]), sec]));
         const short: string[] = [];
         for (const [, no, count] of pointers) {
           const sec = sections.get(Number(no));
@@ -209,21 +241,102 @@ describe.each(SETS)('findings report: %s', (set) => {
             continue;
           }
           let listed = 0;
-          for (const l of sec.split('\n').filter((x) => x.startsWith('- '))) {
+          // A place in several files counts once for each: “In all 4 files:”, “Only in 2 files (…):”.
+          let times = 1;
+          for (const l of sec.split('\n')) {
+            const label = /^(?:In all (\d+) files|Only in (\d+) files \(.*\)|Only in .*):$/.exec(l);
+            if (label) times = Number(label[1] ?? label[2] ?? 1);
+            if (!l.startsWith('- ')) continue;
             const where = l.replace(/^- (“.*?”(, (“.*?”|\{.*?\}))*|\{.*?\}(, \{.*?\})*): /, '');
             for (const [, name] of where.matchAll(/`([^`]+)`/g)) {
-              const leaves = /\.\{(.*)\}$/.exec(name!)?.[1];
-              listed += leaves ? leaves.split(', ').length : 1;
-              const parts = name!.replace(/\.\{(.*)\}$/, '.$1').split(/[./]|, /).filter((k) => k && k !== '*');
+              listed += expand(name!).length * times;
+              const parts = expand(name!).flatMap((x) => x.split(/[./]/)).filter((k) => k && k !== '*');
               for (const k of parts) if (!loadedText.includes(k.toLowerCase())) foreign.push(`places #${no} ${name}`);
             }
+            const found = /every “[^”]+” key \(([\d,]+)\)/.exec(where)?.[1];
+            if (found) listed += Number(found.replace(/,/g, '')) * times;
             const lineList = /lines? ([\d, ]+)$/.exec(where)?.[1];
-            if (lineList) listed += lineList.split(', ').length;
+            if (lineList) listed += lineList.split(', ').length * times;
           }
           if (listed !== Number(count)) short.push(`#${no}: ${listed} of ${count}`);
         }
-        expect(short.slice(0, 5), 'every place of each finding is in the places file').toEqual([]);
-        expect(foreign.slice(0, 8), 'every name in the places file comes from the loaded files').toEqual([]);
+        expect(short.slice(0, 5), 'every place of each finding is in the places part').toEqual([]);
+        expect(foreign.slice(0, 8), 'every name in the places part comes from the loaded files').toEqual([]);
+      }
+
+      // B7: nothing lost. Rebuilt from the prompt (each path expanded, each “every “k” key” searched
+      // in its file, a place in several files counted once for each), every rule's places are exactly
+      // the places of its findings.
+      {
+        const findingsPart = at >= 0 ? full.text.slice(0, at) : full.text;
+        const placesPart = at >= 0 ? full.text.slice(at) : '';
+        const ruleOf = new Map<number, string>();
+        const rebuilt = new Map<string, string[]>();
+        const put = (rule: string | undefined, xs: string[]) => rule && rebuilt.set(rule, [...(rebuilt.get(rule) ?? []), ...xs]);
+        // A file named in a head: a whole name, not part of a longer one (color-palette.json in semantic-color-palette.json).
+        const named = (text: string) => s.files.filter((f) => new RegExp(`(^|[\\s(,])${f.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`).test(text));
+        // The files a finding is about: those its head opens with, before the message.
+        const of = (head: string) => named(head.slice(0, head.indexOf(': ') < 0 ? undefined : head.indexOf(': ')));
+        const labelled = (m: RegExpExecArray, head: string) =>
+          m[4] !== undefined ? s.files.filter((f) => f.name === m[4]) : m[3] !== undefined ? s.files.filter((f) => m[3]!.split(', ').includes(f.name)) : of(head);
+        const collect = (text: string, rule: string | undefined, files: typeof s.files) => {
+          const times = Math.max(1, files.length);
+          const xs: string[] = [];
+          for (const [, name] of text.matchAll(/`([^`]+)`/g)) for (const x of expand(name!)) for (let k = 0; k < times; k++) xs.push(`n:${x}`);
+          for (const [, key] of text.matchAll(/every “([^”]+)” key \(/g)) for (const f of files) xs.push(...keyPathsNamed(f.doc.root, key!).map((x) => `n:${x}`));
+          for (const [, list] of text.matchAll(/\blines? ((?:\d+, )*\d+)/g)) for (const x of list!.split(', ')) for (let k = 0; k < times; k++) xs.push(`l:${x}`);
+          put(rule, xs);
+        };
+        let rule: string | undefined;
+        for (const l of findingsPart.split('\n')) {
+          if (l.startsWith('## ')) rule = /\[([a-z0-9-]+)\] \(\d+\)$/.exec(l)?.[1];
+          const m = /^- #(\d+) (.*)$/.exec(l);
+          if (!rule || !m) continue;
+          ruleOf.set(Number(m[1]), rule);
+          const body = m[2]!;
+          const grouped = / In (\d+) places([:,]) /.exec(body);
+          if (!grouped) {
+            const target = /^(?:[^`]*? › )?`([^`]+)`/.exec(body)?.[1];
+            const line = /^[^`]*?:(\d+)(?: \(|:)/.exec(body)?.[1];
+            put(rule, target ? [`n:${target}`] : line ? [`l:${line}`] : []);
+            continue;
+          }
+          if (grouped[2] === ',') continue; // listed at the end
+          const head = body.slice(0, grouped.index);
+          for (const part of body.slice(grouped.index + grouped[0].length).split(' | ')) {
+            const label = /^(?:in all (\d+) files|only in (\d+) files \((.*?)\)|only in (.*?)), /.exec(part);
+            collect(label ? part.slice(label[0].length) : part, rule, label ? labelled(label, head) : of(head));
+          }
+        }
+        let no = 0;
+        let head = '';
+        let files: typeof s.files = [];
+        for (const l of placesPart.split('\n')) {
+          const h = /^## Places #(\d+): (.*)$/.exec(l);
+          if (h) {
+            no = Number(h[1]);
+            head = h[2]!;
+            files = of(head);
+            continue;
+          }
+          const label = /^(?:In all (\d+) files|Only in (\d+) files \((.*)\)|Only in (.*)):$/.exec(l);
+          if (label) files = labelled(label, head);
+          else if (l.startsWith('- ')) collect(l.replace(/^- (“.*?”(, (“.*?”|\{.*?\}))*|\{.*?\}(, \{.*?\})*): /, ''), ruleOf.get(no), files);
+        }
+        const actual = new Map<string, string[]>();
+        for (const i of issuesOf(s)) if (i.target || i.pos) actual.set(i.code, [...(actual.get(i.code) ?? []), i.target ? `n:${i.target}` : `l:${i.pos!.line}`]);
+        const lost: string[] = [];
+        for (const [code, xs] of actual) {
+          if (!rebuilt.has(code)) continue; // a rule this prompt doesn't list (B1 covers coverage)
+          const a = [...xs].sort();
+          const b = [...rebuilt.get(code)!].sort();
+          if (a.join('\n') !== b.join('\n')) {
+            const missing = a.filter((x) => !b.includes(x)).slice(0, 2);
+            const extra = b.filter((x) => !a.includes(x)).slice(0, 2);
+            lost.push(`${code}: ${b.length} rebuilt of ${a.length}; missing ${missing.join(', ')}; extra ${extra.join(', ')}`);
+          }
+        }
+        expect(lost.slice(0, 5), 'every place rebuilt from the prompt, no more and no fewer').toEqual([]);
       }
 
       // B3: the same files, loaded again, give the same prompt.

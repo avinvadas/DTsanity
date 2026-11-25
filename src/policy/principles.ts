@@ -146,7 +146,7 @@ export const PROMPT_RULES: readonly PromptRule[] = [
   },
   {
     when: 'places',
-    text: 'Findings that say “every one listed in dtsanity-places.md” keep their full list of places in that file, made with this report. Before you use it, check that its first lines give the same fingerprint as this report; if they don’t, the two come from different checks: stop and ask for a pair made together. If you can’t open the file, plan and report from this report, but don’t edit those findings: ask for the file first.',
+    text: 'A finding that says “every one listed under Places #n at the end” has its full list of places in the last part of this report, under that number. That part is reference data, not more findings: plan and prioritize from the findings, and open a finding’s places when you work on it.',
   },
   {
     when: 'places',

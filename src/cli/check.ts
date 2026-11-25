@@ -77,7 +77,7 @@ updateSettings(settings);
 // Files that aren't valid JSON are findings of their own, as in the app.
 addFiles(files, unreadable);
 // The output is read whole, so every place stays on its finding's line (no places file).
-const p = fixPrompt(store.get(), scope, { placesFile: false });
+const p = fixPrompt(store.get(), scope, { appendix: false });
 const byRule = [...p.text.matchAll(/^## .+ \[([a-z0-9-]+)\] \((\d+)\)$/gm)].map((m) => `${m[1]} ${m[2]}`);
 
 if (json) console.log(JSON.stringify({ build: __VERSION__, count: p.count, more: p.more, findings: p.entries.map((e, i) => ({ no: i + 1, ...e })) }, null, 2));

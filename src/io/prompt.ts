@@ -3,6 +3,7 @@ import { TARGETS } from '../contrast/levels';
 import { formatContrast } from '../contrast/metrics';
 import { ruleTitle } from '../model/rules';
 import type { Issue } from '../model/types';
+import type { JNode } from '../json/cst';
 import type { AppState } from '../state/app';
 import { contrastRule, pairsOf, type PairRow, type SiblingRow } from '../state/pairs';
 import { palettesOf } from '../state/palettes';
@@ -35,8 +36,6 @@ export interface FixPrompt {
   more: number;
   /** Each finding as listed, in report order (the #n numbering); for the offline check's --json. */
   entries: readonly Entry[];
-  /** The places file that goes with the prompt, when a finding's places are listed there and not on its line. */
-  places?: { name: string; text: string };
 }
 
 /**
@@ -56,16 +55,15 @@ export interface PromptScope {
 }
 
 const code = (s: string) => `\`${s}\``;
+const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
 const list = (xs: string[]) => xs.map(code).join(', ');
 
-/** The file that holds every place of the findings whose places a prompt doesn't list on their line. */
-export const PLACES_FILE = 'dtsanity-places.md';
+/** The heading of the part at the end of a prompt that lists every place of the findings whose line gives only examples. */
+export const PLACES_TITLE = 'Places (reference data, not findings)';
 /** Stands for a finding's number until the findings are numbered. */
 const NO = '#\u0000';
-/** How many examples, values and groups a finding with its places in the file names on its line. */
+/** How many examples, values and groups a finding with its places at the end names on its line. */
 const SHOWN = 3;
-/** Stands for the fingerprint until the prompt and its places file are written. */
-const FINGERPRINT = '\u0000fingerprint';
 
 /** A place of a grouped finding: a token (its path), or a line where there is none, with what it quotes when that differs. */
 interface Place {
@@ -78,7 +76,8 @@ const n = (x: number) => x.toLocaleString('en-US');
 
 /**
  * Token paths with their parent written once: `a.b.{c, d}` for `a.b.c` and `a.b.d`, in the order
- * they first appear. A name with a brace or comma in it is kept whole, so the form stays unambiguous.
+ * they first appear; parents with the same last names, once too: `{a, b}.{c, d}` for `a.c`, `a.d`,
+ * `b.c` and `b.d`. A name with a brace or comma in it is kept whole, so the form stays unambiguous.
  */
 function pathParts(ids: string[]): string[] {
   const groups = new Map<string, string[]>();
@@ -88,8 +87,28 @@ function pathParts(ids: string[]): string[] {
     const key = whole ? `\u0000${id}` : id.slice(0, cut);
     groups.set(key, [...(groups.get(key) ?? []), whole ? id : id.slice(cut + 1)]);
   }
-  return [...groups].map(([k, leaves]) => (k.startsWith('\u0000') ? code(leaves[0]!) : leaves.length === 1 ? code(`${k}.${leaves[0]}`) : code(`${k}.{${leaves.join(', ')}}`)));
+  const out: (string | { parents: string[]; leaves: string[] })[] = [];
+  const same = new Map<string, { parents: string[]; leaves: string[] }>();
+  for (const [k, leaves] of groups) {
+    if (k.startsWith('\u0000')) {
+      out.push(code(leaves[0]!));
+      continue;
+    }
+    const key = [...leaves].sort().join('\u0000');
+    const g = same.get(key);
+    if (g) g.parents.push(k);
+    else {
+      const first = { parents: [k], leaves };
+      same.set(key, first);
+      out.push(first);
+    }
+  }
+  const brace = (xs: string[]) => (xs.length === 1 ? xs[0]! : `{${xs.join(', ')}}`);
+  return out.map((x) => (typeof x === 'string' ? x : code(`${brace(x.parents)}.${brace(x.leaves)}`)));
 }
+
+/** Names a list of token paths by a search that finds exactly them, when there is one. */
+type Search = (names: string[]) => string | undefined;
 
 /** Places by what they quote, in the order they first appear; each group's tokens and lines. */
 function byQuote(ps: Place[]): [string, Place[]][] {
@@ -98,15 +117,17 @@ function byQuote(ps: Place[]): [string, Place[]][] {
   return [...out];
 }
 
-const whereParts = (ps: Place[]) => {
+const whereParts = (ps: Place[], search?: Search) => {
   const lines = ps.flatMap((p) => (!p.name && p.line ? [p.line] : []));
-  return [...pathParts(ps.flatMap((p) => (p.name ? [p.name] : []))), ...(lines.length ? [`${lines.length === 1 ? 'line' : 'lines'} ${lines.join(', ')}`] : [])];
+  const names = ps.flatMap((p) => (p.name ? [p.name] : []));
+  const found = names.length > 1 ? search?.(names) : undefined;
+  return [...(found ? [found] : pathParts(names)), ...(lines.length ? [`${lines.length === 1 ? 'line' : 'lines'} ${lines.join(', ')}`] : [])];
 };
 
 /** Every place on the finding's line: each value it quotes once, with the places that hold it. */
-function placesInline(ps: Place[]): string {
+function placesInline(ps: Place[], search?: Search): string {
   const groups = byQuote(ps);
-  return groups.map(([q, xs]) => `${q ? `${q}${groups.length > 1 && xs.length > 1 ? ` (${n(xs.length)})` : ''} at ` : ''}${whereParts(xs).join(', ')}`).join('; ');
+  return groups.map(([q, xs]) => `${q ? `${q}${groups.length > 1 && xs.length > 1 ? ` (${n(xs.length)})` : ''} at ` : ''}${whereParts(xs, search).join(', ')}`).join('; ');
 }
 
 /** A finding's places as its line names them when every place is in the places file: values, where they sit, examples. */
@@ -128,18 +149,11 @@ function placesSummary(ps: Place[]): string {
     .join(' ');
 }
 
-/** A finding's section in the places file: one line per value and parent group. */
-function placesSection(ps: Place[]): string {
+/** A finding's part in the places at the end: one line per value and parent group. */
+function placesSection(ps: Place[], search?: Search): string {
   return byQuote(ps)
-    .flatMap(([q, xs]) => whereParts(xs).map((w) => `- ${q ? `${q}: ` : ''}${w}`))
+    .flatMap(([q, xs]) => whereParts(xs, search).map((w) => `- ${q ? `${q}: ` : ''}${w}`))
     .join('\n');
-}
-
-/** A short, stable fingerprint of a text (FNV-1a, 32 bits), to tell a prompt and its places file belong together. */
-function fingerprint(text: string): string {
-  let h = 0x811c9dc5;
-  for (let k = 0; k < text.length; k++) h = Math.imul(h ^ text.charCodeAt(k), 0x01000193);
-  return (h >>> 0).toString(16).padStart(8, '0');
 }
 
 /**
@@ -164,7 +178,7 @@ export interface Entry {
   n: number;
   /** Counted as the Issues page counts; the rest are listed beside the count. */
   counted: boolean;
-  /** Every place of a finding whose places are listed in the places file, not on its line (its section there). */
+  /** Every place of a finding whose line gives only examples: its part in the places at the end. */
   places?: string;
 }
 
@@ -200,11 +214,11 @@ const APCA_CRITERIA: Record<string, Criterion> = {
 };
 
 /**
- * `placesFile`: a finding with more places than its line can say briefly lists them in a
- * places file that goes with the prompt (on the page). Off, every place stays on its line
- * (the offline check, whose output is read whole).
+ * `appendix`: a finding with more places than its line can say briefly lists them in the
+ * places part at the end of the prompt, kept apart from the findings so they read short. Off,
+ * every place stays on its line (the offline check, whose output is read line by line).
  */
-export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true }: { placesFile?: boolean } = {}): FixPrompt {
+export function fixPrompt(s: AppState, scope?: PromptScope, { appendix = true }: { appendix?: boolean } = {}): FixPrompt {
   // Issues from every theme, not just the one on screen.
   const model = s.themeModels.length ? mergeModels(s.themeModels) : s.model;
   const apca = s.settings.contrast.includes('apca');
@@ -221,7 +235,8 @@ export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true 
   const pals = scope && !scope.scales ? [] : palettes;
 
   const entries: Entry[] = [];
-  const add = (rule: string, line: string, counted: boolean, n = 1, places?: string) => entries.push({ rule, line, n, counted, ...(places ? { places } : {}) });
+  const entry = (rule: string, line: string, counted: boolean, n = 1, places?: string): Entry => ({ rule, line, n, counted, ...(places ? { places } : {}) });
+  const add = (rule: string, line: string, counted: boolean, n = 1, places?: string) => entries.push(entry(rule, line, counted, n, places));
   // Themes a finding is in, named from the shorter side: the themes it is in, or the ones it isn't.
   const only = (ts: string[]) => {
     const rest = themeNames.filter((t) => !ts.includes(t));
@@ -244,52 +259,137 @@ export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true 
     const where = [file && i.pos && !i.target ? `${file}:${i.pos.line}` : file, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
     return `${where || 'All files'}${themesOf(i)}:${i.message ? ` ${evidence(i.message)}` : ''}`;
   };
-  // The same finding in several places of one file (same rule, message and themes) is one line
-  // that names each place, so a rule a file breaks everywhere doesn't fill the prompt with copies.
-  // Messages that differ only in what they quote (“a value”, {a.reference}) count as the same;
-  // each place then keeps its own quotes.
+  // Every key path in a file whose last key is `k`, to name a list of places by a search when the
+  // search finds exactly them (“every “$schema” key”). Paths are dot-joined, as targets are.
+  const keysByName = new Map<string, Map<string, Set<string>>>();
+  const keyPaths = (fileId: string) => {
+    let byName = keysByName.get(fileId);
+    if (byName) return byName;
+    byName = new Map();
+    const walk = (node: JNode | undefined, path: string) => {
+      if (node?.kind !== 'object') return;
+      for (const e of node.entries) {
+        const at = path ? `${path}.${e.key}` : e.key;
+        byName!.set(e.key, (byName!.get(e.key) ?? new Set()).add(at));
+        walk(e.value, at);
+      }
+    };
+    walk(s.files.find((f) => f.id === fileId)?.doc.root, '');
+    keysByName.set(fileId, byName);
+    return byName;
+  };
+  const searchIn =
+    (fileIds: (string | undefined)[]): Search =>
+    (names) => {
+      const key = names[0]!.slice(names[0]!.lastIndexOf('.') + 1);
+      if (!key || /[{},]/.test(key) || !names.every((x) => x === key || x.endsWith(`.${key}`))) return undefined;
+      const want = new Set(names);
+      if (want.size !== names.length) return undefined;
+      // Exactly these places in every file named: no more, no fewer.
+      for (const id of fileIds) {
+        const all = id ? keyPaths(id).get(key) : undefined;
+        if (!all || all.size !== want.size || [...all].some((x) => !want.has(x))) return undefined;
+      }
+      return `every “${key}” key (${n(names.length)})`;
+    };
+
+  // The same finding in several places (same rule and message) is one line that names each place,
+  // so a rule broken everywhere doesn't fill the prompt with copies. Messages that differ only in
+  // what they quote (“a value”, {a.reference}) count as the same; each place then keeps its own
+  // quotes. Its places in several files are said once, with the files each is in, when that is
+  // shorter than a line per file.
   const QUOTED = /“[^”]*”|\{[^{}]*\}/g;
   const template = (m: string) => m.replace(QUOTED, (q) => (q.startsWith('{') ? '{…}' : '“…”'));
   const quotes = (m: string) => m.match(QUOTED) ?? [];
+  const placeOf = (x: Issue, sameMessage: boolean): Place => ({
+    ...(x.target ? { name: x.target } : x.pos ? { line: x.pos.line } : {}),
+    quotes: sameMessage ? '' : quotes(evidence(x.message ?? '')).join(', '),
+  });
+  const fileLabel = (i: Issue) => `${(i.fileId && fileName.get(i.fileId)) || 'All files'}${themesOf(i)}`;
+  /** One file's places of a finding (one theme set): its line, and its places at the end when the line gives only examples. */
+  const inFile = (g: Issue[]): Entry => {
+    const i = g[0]!;
+    const counted = i.severity !== 'info';
+    if (g.length === 1) return entry(i.code, issueLine(i), counted);
+    const sameMessage = g.every((x) => x.message === i.message);
+    const places = g.map((x) => placeOf(x, sameMessage));
+    const message = evidence(sameMessage ? i.message : template(i.message ?? ''));
+    const head = `${fileLabel(i)}:${message ? ` ${message}` : ''} In ${g.length} places`;
+    const search = searchIn([i.fileId]);
+    const inline = `${head}: ${placesInline(places, search)}.`;
+    // A list longer than what it would say about itself goes to the places at the end: the line
+    // keeps the values, where they sit and a few examples, and says where every place is.
+    const summary = `${head}, every one listed under Places ${NO} at the end. ${placesSummary(places)}`;
+    return appendix && summary.length < inline.length ? entry(i.code, summary, counted, g.length, placesSection(places, search)) : entry(i.code, inline, counted, g.length);
+  };
+  /** A finding's places in several files, each place once with the files it is in; none when a file holds a place twice. */
+  const acrossFiles = (subs: Issue[][]): Entry | undefined => {
+    const all = subs.flat();
+    const i = all[0]!;
+    const counted = i.severity !== 'info';
+    const sameMessage = all.every((x) => x.message === i.message);
+    const at = new Map<string, { place: Place; files: number[] }>();
+    for (const [k, g] of subs.entries())
+      for (const x of g) {
+        const place = placeOf(x, sameMessage);
+        const id = `${place.name !== undefined ? `n${place.name}` : `l${k}:${place.line}`}\u0000${place.quotes}`;
+        const a = at.get(id);
+        if (a?.files.includes(k)) return undefined;
+        if (a) a.files.push(k);
+        else at.set(id, { place, files: [k] });
+      }
+    const parts = new Map<string, { files: number[]; places: Place[] }>();
+    for (const { place, files } of at.values()) {
+      const key = files.join(',');
+      const part = parts.get(key) ?? { files, places: [] };
+      part.places.push(place);
+      parts.set(key, part);
+    }
+    const name = (k: number) => (subs[k]![0]!.fileId && fileName.get(subs[k]![0]!.fileId!)) || 'All files';
+    const where = (ks: number[]) => (ks.length === subs.length ? `in all ${subs.length} files` : ks.length === 1 ? `only in ${name(ks[0]!)}` : `only in ${ks.length} files (${ks.map(name).join(', ')})`);
+    const search = (ks: number[]) => searchIn(ks.map((k) => subs[k]![0]!.fileId));
+    const message = evidence(sameMessage ? i.message : template(i.message ?? ''));
+    const head = `${andList(subs.map((g) => fileLabel(g[0]!)))}:${message ? ` ${message}` : ''} In ${all.length} places`;
+    const inline = `${head}: ${[...parts.values()].map((p) => `${where(p.files)}, ${placesInline(p.places, search(p.files))}`).join(' | ')}.`;
+    const spread = [...parts.values()].sort((a, b) => b.places.length - a.places.length);
+    const more = spread.length - SHOWN;
+    const summary = `${head}, every one listed under Places ${NO} at the end. Files: ${spread
+      .slice(0, SHOWN)
+      .map((p) => `${n(p.places.length)} ${where(p.files)}`)
+      .join(', ')}${more > 0 ? `, and ${n(more)} more ${more === 1 ? 'set' : 'sets'} of files` : ''}. ${placesSummary([...at.values()].map((a) => a.place))}`;
+    if (!(appendix && summary.length < inline.length)) return entry(i.code, inline, counted, all.length);
+    const section = [...parts.values()].map((p) => `${where(p.files).replace(/^./, (c) => c.toUpperCase())}:\n\n${placesSection(p.places, search(p.files))}`).join('\n\n');
+    return entry(i.code, summary, counted, all.length, section);
+  };
+  const size = (es: Entry[]) => es.reduce((k, e) => k + e.line.length + (e.places?.length ?? 0), 0);
   const addIssues = (xs: Issue[]) => {
-    const groups = new Map<string, Issue[]>();
-    const order: (Issue | Issue[])[] = [];
+    const kinds = new Map<string, Map<string, Issue[]>>();
+    const order: (Issue | Map<string, Issue[]>)[] = [];
     for (const i of xs) {
       if (!i.target && !i.pos) {
         order.push(i);
         continue;
       }
       // Places with a one-click fix stay apart from those without, as the group buttons copy only the latter.
-      const key = [i.fileId, i.code, template(i.message ?? ''), i.themes?.join(','), i.fix ? 'fix' : ''].join('\u0000');
-      const g = groups.get(key);
-      if (g) g.push(i);
-      else {
-        const first = [i];
-        groups.set(key, first);
-        order.push(first);
+      const key = [i.code, template(i.message ?? ''), i.fix ? 'fix' : ''].join('\u0000');
+      let byFile = kinds.get(key);
+      if (!byFile) {
+        byFile = new Map();
+        kinds.set(key, byFile);
+        order.push(byFile);
       }
+      const sub = [i.fileId, i.themes?.join(',')].join('\u0000');
+      byFile.set(sub, [...(byFile.get(sub) ?? []), i]);
     }
     for (const g of order) {
-      const i = Array.isArray(g) ? g[0]! : g;
-      const counted = i.severity !== 'info';
-      if (!Array.isArray(g) || g.length === 1) {
-        add(i.code, issueLine(i), counted);
+      if (!(g instanceof Map)) {
+        add(g.code, issueLine(g), g.severity !== 'info');
         continue;
       }
-      const file = i.fileId ? fileName.get(i.fileId) : undefined;
-      const sameMessage = g.every((x) => x.message === i.message);
-      const places: Place[] = g.map((x) => ({
-        ...(x.target ? { name: x.target } : x.pos ? { line: x.pos.line } : {}),
-        quotes: sameMessage ? '' : quotes(evidence(x.message ?? '')).join(', '),
-      }));
-      const message = evidence(sameMessage ? i.message : template(i.message ?? ''));
-      const head = `${file ?? 'All files'}${themesOf(i)}:${message ? ` ${message}` : ''} In ${g.length} places`;
-      const inline = `${head}: ${placesInline(places)}.`;
-      // A list longer than what it would say about itself goes to the places file: the line keeps
-      // the values, where they sit and a few examples, and says where every place is.
-      const summary = `${head}, every one listed in ${PLACES_FILE} under ${NO}. ${placesSummary(places)}`;
-      if (placesFile && summary.length < inline.length) add(i.code, summary, counted, g.length, placesSection(places));
-      else add(i.code, inline, counted, g.length);
+      const subs = [...g.values()];
+      const apart = subs.map(inFile);
+      const together = subs.length > 1 ? acrossFiles(subs) : undefined;
+      entries.push(...(together && size([together]) < size(apart) ? [together] : apart));
     }
   };
   const byFile = (xs: Issue[]) => [...xs].sort((a, b) => (fileName.get(a.fileId ?? '') ?? '').localeCompare(fileName.get(b.fileId ?? '') ?? ''));
@@ -299,7 +399,6 @@ export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true 
   // level it misses, in which themes, with the ratio and both colors there, and the references
   // each token follows to its value, so the reader sees which token holds the color.
   const counted = (tone: string | undefined) => tone !== undefined && tone !== 'info';
-  const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
   const hex = (c: ColorInfo) => formatColor(c, 'hex').text;
   const chain = (id: string, m: Model | undefined) => {
     const ids = [id];
@@ -409,7 +508,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true 
           ...xs.map((e) => {
             const line = e.line.replace(NO, `#${++no}`);
             listedEntries.push({ ...e, line });
-            if (e.places) placeSections.push(`## #${no} ${e.line.slice(0, e.line.indexOf(`, every one listed in ${PLACES_FILE}`))}`, '', e.places, '');
+            if (e.places) placeSections.push(`## Places #${no}: ${e.line.slice(0, e.line.indexOf(', every one listed under Places'))}`, '', e.places, '');
             return `- #${no} ${line}`;
           }),
           '',
@@ -440,9 +539,16 @@ export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true 
       themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',
       targets.length ? `Contrast targets: ${targets.join(', ')}` : '',
       enhanced.length ? `Enhanced contrast (AAA text, or APCA Lc 75 text and Lc 60 UI) in: ${enhanced.join(', ')}` : '',
-      placeSections.length ? `Places file: ${PLACES_FILE}, fingerprint ${FINGERPRINT}` : '',
       // Read once: the form a token path takes when several share a parent.
-      [...required, ...advice].some((l) => /`[^`]*\.\{[^`]*\}`/.test(l)) ? 'Paths: `a.b.{c, d}` stands for `a.b.c` and `a.b.d`.' : '',
+      ...(() => {
+        const all = [...required, ...advice, ...placeSections];
+        const after = all.some((l) => /`[^`]*\.\{[^`]*\}`/.test(l));
+        const before = all.some((l) => /`\{[^`]*\}\.[^`]*`/.test(l));
+        return [
+          after || before ? `Paths: \`a.b.{c, d}\` stands for \`a.b.c\` and \`a.b.d\`${before ? '; `{a, b}.{c, d}` for `a.c`, `a.d`, `b.c` and `b.d`' : ''}.` : '',
+          all.some((l) => /every “[^”]+” key \(/.test(l)) ? 'Every “k” key: each key named k, at any depth of that file. DTsanity checked that these are exactly the finding’s places there.' : '',
+        ];
+      })(),
     ].filter(Boolean),
     '',
     'How to work through it:',
@@ -450,23 +556,21 @@ export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true 
     '',
     ...required,
     ...advice,
+    // Lookup data, kept last and marked apart, so the findings above read short and whole.
+    ...(placeSections.length
+      ? [
+          `# ${PLACES_TITLE}`,
+          '',
+          'Every place of the findings above whose line gives only examples, under the same numbers. These aren’t more findings: open a finding’s places when you work on it.',
+          '',
+          ...placeSections,
+        ]
+      : []),
   ]
     .filter((line, i, all) => line !== '' || all[i - 1] !== '')
     .join('\n')
     .trim();
-  if (!placeSections.length) return { text: `${text}\n`, count, more, entries: listedEntries };
-  // The prompt and its places file carry one fingerprint, of both, so a reader can tell they were made together.
-  const body = placeSections.join('\n').trim();
-  const print = fingerprint(`${text}\n${body}`);
-  const places = [
-    '# Places for a DTsanity findings report',
-    '',
-    `Fingerprint ${print}, DTsanity build ${__VERSION__}. Use this file only with the findings report that gives the same fingerprint.`,
-    'Every place of the findings the report lists here, under the report’s numbers. Paths: `a.b.{c, d}` stands for `a.b.c` and `a.b.d`.',
-    '',
-    body,
-  ].join('\n');
-  return { text: `${text.replace(FINGERPRINT, print)}\n`, count, more, entries: listedEntries, places: { name: PLACES_FILE, text: `${places}\n` } };
+  return { text: `${text}\n`, count, more, entries: listedEntries };
 }
 
 const rank = (id: string) => {
