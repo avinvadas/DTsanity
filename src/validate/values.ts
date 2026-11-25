@@ -71,7 +71,8 @@ interface Problem {
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const isRef = (v: unknown) => isAlias(v) || (isObj(v) && Object.keys(v).length === 1 && typeof v.$ref === 'string');
-const show = (v: unknown) => (typeof v === 'string' ? `"${v}"` : JSON.stringify(v));
+// Strings in “ ”, as every message quotes a value: the findings report groups places by what they quote.
+const show = (v: unknown) => (typeof v === 'string' ? `“${v}”` : JSON.stringify(v));
 const round3 = (n: number) => Math.round(n * 1000) / 1000;
 const toPx = (d: Dimension) => (d.unit === 'rem' ? d.value * ROOT_PX : d.value);
 const dim = (d: Dimension) => `${d.value}${d.unit}`;
@@ -329,7 +330,7 @@ class Checker {
     if (typeof v === 'string') {
       const c = cssToDtcg(v);
       this.add(
-        c ? `${at} is a CSS color string (${v}); DTCG colors are objects with a color space and components.` : `${at} is not a color: ${show(v)}.`,
+        c ? `${at} is a CSS color string, “${v}”; DTCG colors are objects with a color space and components.` : `${at} is not a color: ${show(v)}.`,
         !!c,
         !!c,
       );

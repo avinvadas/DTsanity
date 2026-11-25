@@ -112,7 +112,7 @@ export const FIX_EXCEPTIONS: readonly Principle[] = [
 export interface PromptRule {
   text: string;
   /** When the rule applies: always, or only when the prompt lists findings of that kind. */
-  when: 'always' | 'files' | 'advice';
+  when: 'always' | 'files' | 'advice' | 'places';
 }
 
 /**
@@ -143,6 +143,18 @@ export const PROMPT_RULES: readonly PromptRule[] = [
   {
     when: 'always',
     text: 'A change must not cause a finding of its own: a broken reference, a value DTCG can’t read, a pair that falls below its level, also as the color-vision deficiencies this report simulates see it, where it simulates them. If a finding needs a choice that neither the files nor your system’s rules settle, leave it and ask.',
+  },
+  {
+    when: 'places',
+    text: 'Findings that say “every one listed in dtsanity-places.md” keep their full list of places in that file, made with this report. Before you use it, check that its first lines give the same fingerprint as this report; if they don’t, the two come from different checks: stop and ask for a pair made together. If you can’t open the file, plan and report from this report, but don’t edit those findings: ask for the file first.',
+  },
+  {
+    when: 'places',
+    text: 'The examples on a finding’s line aren’t its whole list. A finding is done when its check passes in every place it counts, not when the examples are fixed.',
+  },
+  {
+    when: 'places',
+    text: 'Decline by value or by group only when your rule covers every place in it. Where it covers some of them (generated tokens, a group kept for compatibility), open the places, decide each part, and report the split with the count of each.',
   },
   {
     when: 'always',

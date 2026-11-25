@@ -1,3 +1,4 @@
+import { download } from '../io/export';
 import { fixPrompt, type FixPrompt, type PromptScope } from '../io/prompt';
 import { store } from '../state/app';
 import { h, icon, plural } from './dom';
@@ -15,6 +16,21 @@ export function copiedLabel({ count, more }: Pick<FixPrompt, 'text' | 'count' | 
   if (!count && !more) return empty;
   const others = more ? plural(more, 'other finding') : '';
   return count ? `Copied ${plural(count, 'correction')}${others ? `, plus ${others}` : ''}` : `Copied ${others}`;
+}
+
+/**
+ * Beside a copy button whose prompt lists some findings' places in a places file: saves
+ * that file, the one made with that copy (the same fingerprint). Replaced on the next copy,
+ * removed when the next copy needs none.
+ */
+export function showPlaces(copyButton: HTMLElement, p: Pick<FixPrompt, 'places'>, cls = 'small'): void {
+  const old = copyButton.nextElementSibling;
+  if (old?.classList.contains('places-btn')) old.remove();
+  const places = p.places;
+  if (!places) return;
+  copyButton.after(
+    h('button', { type: 'button', class: `${cls} places-btn`, 'data-tip': TIP.savePlaces, onclick: () => download(places.name, places.text, 'text/markdown') }, icon('download'), h('span', null, 'Save places file')),
+  );
 }
 
 /**
@@ -36,6 +52,7 @@ export function promptButton(scope?: PromptScope): HTMLButtonElement {
         try {
           await navigator.clipboard.writeText(p.text || 'No corrections needed: every check passes.');
           label.textContent = copiedLabel(p);
+          showPlaces(button, p);
         } catch {
           label.textContent = 'Copy failed';
         }

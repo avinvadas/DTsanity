@@ -1,6 +1,7 @@
 import { VISIONS } from '../color/cvd';
 import { formatContrast } from '../contrast/metrics';
 import { download, FIXED_FOLDER, fixedSet, isUnchanged } from '../io/export';
+import { showPlaces } from './prompt-link';
 import { fixPrompt } from '../io/prompt';
 import type { Fix, Issue } from '../model/types';
 import { glyphOf } from '../semantic/pairs';
@@ -342,10 +343,11 @@ export class TTMobile extends HTMLElement {
   private footer(s: AppState) {
     const changed = s.files.some((f) => !isUnchanged(f));
     const copy = async () => {
-      const { text } = fixPrompt(store.get());
+      const p = fixPrompt(store.get());
       try {
-        await navigator.clipboard.writeText(text || 'No corrections needed: every check passes.');
-        this.say('Findings report copied');
+        await navigator.clipboard.writeText(p.text || 'No corrections needed: every check passes.');
+        showPlaces(copyButton, p, 'm-secondary');
+        this.say(p.places ? 'Findings report copied. Save the places file too' : 'Findings report copied');
       } catch {
         this.say('Copy failed');
       }
@@ -356,12 +358,13 @@ export class TTMobile extends HTMLElement {
       icon('download'),
       s.files.length === 1 ? 'Get fixed file' : 'Get fixed files',
     );
+    const copyButton = h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy as prompt');
     // Nothing left to fix: no prompt; what was fixed here is the one way out, filling the footer.
     if (allClear(s)) return changed ? h('footer', { class: 'm-foot clear' }, (save.classList.replace('m-secondary', 'm-primary'), save)) : '';
     return h(
       'footer',
       { class: 'm-foot' },
-      h('button', { type: 'button', class: 'm-primary', onclick: copy }, icon('copy'), 'Copy as prompt'),
+      copyButton,
       save,
     );
   }

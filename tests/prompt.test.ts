@@ -22,7 +22,7 @@ describe('findings report', () => {
     expect(text).toMatch(/^# Findings in design token files/);
     expect(text).toMatch(/\n# Required \(\d+\)\n/);
     expect(text).toMatch(/## Broken reference \[unresolved-reference\] \(\d+\)\n\nBasis: Required · DTCG Format 7\.2 Reference Resolution\nProblem: .+\nDone when: .+\n/);
-    expect(text).toMatch(/\n- #\d+ dtcg-broken\.tokens\.json(:\d+ › `[^`]+`)?: /);
+    expect(text).toMatch(/\n- #\d+ dtcg-broken\.tokens\.json( › `[^`]+`)?: /);
     // It reports; the fix is the design system's: no one-click fix is offered as the answer.
     expect(text).not.toMatch(/Fix:|Did you mean/);
     expect(text).toContain('Closest existing name: {color.base}.');
@@ -125,7 +125,8 @@ describe('findings report', () => {
     addFiles([loadText(JSON.stringify(t, null, 2), 'alpha.tokens.json')]);
     const text = fixPrompt(store.get()).text;
     expect(text).toMatch(/## Token contains children \[token-has-children\] \(1\)\n\nBasis: .+\nProblem: .+\nDone when: .*inside “\$value” if it changes the value/);
-    expect(text).toMatch(/- #1 alpha\.tokens\.json:\d+ › `color\.veil\.alpha`: “alpha” sits beside “\$value”/);
+    // A token's path is its place: no line number beside it (it goes stale with the first edit).
+    expect(text).toMatch(/- #1 alpha\.tokens\.json › `color\.veil\.alpha`: “alpha” sits beside “\$value”/);
   });
 
   it('lists one rule broken in several places of a file once, naming each place', () => {
@@ -135,11 +136,12 @@ describe('findings report', () => {
     const section = (rule: string) => p.text.split('\n## ').find((x) => x.includes(`[${rule}]`))!.split('\n').filter((l) => l.startsWith('- #'));
     const missing = section('missing-type');
     expect(missing).toHaveLength(1);
-    expect(missing[0]).toMatch(/^- #\d+ set\.tokens\.json: .* In 3 places: `size\.a` \(line 3\), `size\.b` \(line 4\), `size\.c` \(line 5\)\.$/);
+    // Paths that share a parent name it once.
+    expect(missing[0]).toMatch(/^- #\d+ set\.tokens\.json: .* In 3 places: `size\.\{a, b, c\}`\.$/);
     // Messages that differ only in what they quote: one line, each place with its own quote, and no fix offered.
     const broken = section('unresolved-reference');
     expect(broken).toHaveLength(1);
-    expect(broken[0]).toMatch(/\{…\}.* In 2 places: `color\.x` \(line 7; \{size\.zz\}, \{size\.a\}\), `color\.y` \(line 7; \{size\.yy\}, \{size\.a\}\)\.$/);
+    expect(broken[0]).toMatch(/\{…\}.* In 2 places: \{size\.zz\}, \{size\.a\} at `color\.x`; \{size\.yy\}, \{size\.a\} at `color\.y`\.$/);
     expect(p.text).toMatch(/# Required \(6\)/);
   });
 

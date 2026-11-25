@@ -29,7 +29,8 @@ describe('offline check', () => {
     clearAll();
     updateSettings(SETTINGS);
     addFiles(parse(setTexts('backpack')));
-    const page = fixPrompt(store.get()).text;
+    // The offline check keeps every place on its line, as the page does with no places file.
+    const page = fixPrompt(store.get(), undefined, { placesFile: false }).text;
     const r = run(join(SAMPLES, 'backpack'));
     expect(stamp(r.stdout)).toBe(stamp(page));
     // Findings left: a failing exit, for scripts and CI.

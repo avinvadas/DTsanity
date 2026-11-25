@@ -35,6 +35,8 @@ export interface FixPrompt {
   more: number;
   /** Each finding as listed, in report order (the #n numbering); for the offline check's --json. */
   entries: readonly Entry[];
+  /** The places file that goes with the prompt, when a finding's places are listed there and not on its line. */
+  places?: { name: string; text: string };
 }
 
 /**
@@ -55,6 +57,90 @@ export interface PromptScope {
 
 const code = (s: string) => `\`${s}\``;
 const list = (xs: string[]) => xs.map(code).join(', ');
+
+/** The file that holds every place of the findings whose places a prompt doesn't list on their line. */
+export const PLACES_FILE = 'dtsanity-places.md';
+/** Stands for a finding's number until the findings are numbered. */
+const NO = '#\u0000';
+/** How many examples, values and groups a finding with its places in the file names on its line. */
+const SHOWN = 3;
+/** Stands for the fingerprint until the prompt and its places file are written. */
+const FINGERPRINT = '\u0000fingerprint';
+
+/** A place of a grouped finding: a token (its path), or a line where there is none, with what it quotes when that differs. */
+interface Place {
+  name?: string;
+  line?: number;
+  quotes: string;
+}
+
+const n = (x: number) => x.toLocaleString('en-US');
+
+/**
+ * Token paths with their parent written once: `a.b.{c, d}` for `a.b.c` and `a.b.d`, in the order
+ * they first appear. A name with a brace or comma in it is kept whole, so the form stays unambiguous.
+ */
+function pathParts(ids: string[]): string[] {
+  const groups = new Map<string, string[]>();
+  for (const id of ids) {
+    const cut = id.lastIndexOf('.');
+    const whole = cut <= 0 || /[{},]/.test(id);
+    const key = whole ? `\u0000${id}` : id.slice(0, cut);
+    groups.set(key, [...(groups.get(key) ?? []), whole ? id : id.slice(cut + 1)]);
+  }
+  return [...groups].map(([k, leaves]) => (k.startsWith('\u0000') ? code(leaves[0]!) : leaves.length === 1 ? code(`${k}.${leaves[0]}`) : code(`${k}.{${leaves.join(', ')}}`)));
+}
+
+/** Places by what they quote, in the order they first appear; each group's tokens and lines. */
+function byQuote(ps: Place[]): [string, Place[]][] {
+  const out = new Map<string, Place[]>();
+  for (const p of ps) out.set(p.quotes, [...(out.get(p.quotes) ?? []), p]);
+  return [...out];
+}
+
+const whereParts = (ps: Place[]) => {
+  const lines = ps.flatMap((p) => (!p.name && p.line ? [p.line] : []));
+  return [...pathParts(ps.flatMap((p) => (p.name ? [p.name] : []))), ...(lines.length ? [`${lines.length === 1 ? 'line' : 'lines'} ${lines.join(', ')}`] : [])];
+};
+
+/** Every place on the finding's line: each value it quotes once, with the places that hold it. */
+function placesInline(ps: Place[]): string {
+  const groups = byQuote(ps);
+  return groups.map(([q, xs]) => `${q ? `${q}${groups.length > 1 && xs.length > 1 ? ` (${n(xs.length)})` : ''} at ` : ''}${whereParts(xs).join(', ')}`).join('; ');
+}
+
+/** A finding's places as its line names them when every place is in the places file: values, where they sit, examples. */
+function placesSummary(ps: Place[]): string {
+  const more = (k: number, what: string) => (k > 0 ? `, and ${n(k)} more ${what}` : '');
+  const values = byQuote(ps)
+    .filter(([q]) => q)
+    .sort((a, b) => b[1].length - a[1].length);
+  const parents = new Map<string, number>();
+  for (const p of ps) if (p.name && p.name.lastIndexOf('.') > 0) parents.set(p.name.slice(0, p.name.lastIndexOf('.')), (parents.get(p.name.slice(0, p.name.lastIndexOf('.'))) ?? 0) + 1);
+  const under = [...parents].sort((a, b) => b[1] - a[1]);
+  const example = (p: Place) => `${p.name ? code(p.name) : `line ${p.line}`}${p.quotes ? ` (${p.quotes})` : ''}`;
+  return [
+    values.length ? `Values: ${values.slice(0, SHOWN).map(([q, xs]) => `${q} (${n(xs.length)})`).join(', ')}${more(values.length - SHOWN, values.length - SHOWN === 1 ? 'value' : 'values')}.` : '',
+    under.length ? `Under: ${under.slice(0, SHOWN).map(([k, c]) => `${code(k)} (${n(c)})`).join(', ')}${more(under.length - SHOWN, under.length - SHOWN === 1 ? 'group' : 'groups')}.` : '',
+    `Examples: ${ps.slice(0, SHOWN).map(example).join(', ')}.`,
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+/** A finding's section in the places file: one line per value and parent group. */
+function placesSection(ps: Place[]): string {
+  return byQuote(ps)
+    .flatMap(([q, xs]) => whereParts(xs).map((w) => `- ${q ? `${q}: ` : ''}${w}`))
+    .join('\n');
+}
+
+/** A short, stable fingerprint of a text (FNV-1a, 32 bits), to tell a prompt and its places file belong together. */
+function fingerprint(text: string): string {
+  let h = 0x811c9dc5;
+  for (let k = 0; k < text.length; k++) h = Math.imul(h ^ text.charCodeAt(k), 0x01000193);
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
 
 /**
  * A finding's message as evidence for the prompt. The page's messages may
@@ -78,6 +164,8 @@ export interface Entry {
   n: number;
   /** Counted as the Issues page counts; the rest are listed beside the count. */
   counted: boolean;
+  /** Every place of a finding whose places are listed in the places file, not on its line (its section there). */
+  places?: string;
 }
 
 /** The rules in the order the prompt lists them: unread files first, then as the Policy page groups them. */
@@ -111,7 +199,12 @@ const APCA_CRITERIA: Record<string, Criterion> = {
   },
 };
 
-export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
+/**
+ * `placesFile`: a finding with more places than its line can say briefly lists them in a
+ * places file that goes with the prompt (on the page). Off, every place stays on its line
+ * (the offline check, whose output is read whole).
+ */
+export function fixPrompt(s: AppState, scope?: PromptScope, { placesFile = true }: { placesFile?: boolean } = {}): FixPrompt {
   // Issues from every theme, not just the one on screen.
   const model = s.themeModels.length ? mergeModels(s.themeModels) : s.model;
   const apca = s.settings.contrast.includes('apca');
@@ -128,7 +221,14 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const pals = scope && !scope.scales ? [] : palettes;
 
   const entries: Entry[] = [];
-  const add = (rule: string, line: string, counted: boolean, n = 1) => entries.push({ rule, line, n, counted });
+  const add = (rule: string, line: string, counted: boolean, n = 1, places?: string) => entries.push({ rule, line, n, counted, ...(places ? { places } : {}) });
+  // Themes a finding is in, named from the shorter side: the themes it is in, or the ones it isn't.
+  const only = (ts: string[]) => {
+    const rest = themeNames.filter((t) => !ts.includes(t));
+    const listed = ` (${ts.join(', ')} only)`;
+    const but = ` (all themes but ${rest.join(', ')})`;
+    return rest.length && but.length < listed.length ? but : listed;
+  };
 
   // Files that couldn't be read: nothing in them was checked.
   const unread = !scope || scope.files ? s.loadErrors : [];
@@ -137,10 +237,11 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   // Format, structure, references and tier rules: the place and what is there. The rule's
   // problem and "done when" go once, above its findings; a one-click fix isn't given, since
   // the fix is the design system's to choose.
-  const themesOf = (i: Issue) => (i.themes?.length ? ` (${i.themes.join(', ')} only)` : '');
+  const themesOf = (i: Issue) => (i.themes?.length ? only(i.themes) : '');
+  // A token's path is its exact place; a line number is given only where there is no path (and goes stale with the first edit).
   const issueLine = (i: Issue) => {
     const file = i.fileId ? fileName.get(i.fileId) : undefined;
-    const where = [file && i.pos ? `${file}:${i.pos.line}` : file, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
+    const where = [file && i.pos && !i.target ? `${file}:${i.pos.line}` : file, i.target ? code(i.target) : undefined].filter(Boolean).join(' › ');
     return `${where || 'All files'}${themesOf(i)}:${i.message ? ` ${evidence(i.message)}` : ''}`;
   };
   // The same finding in several places of one file (same rule, message and themes) is one line
@@ -177,13 +278,18 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
       }
       const file = i.fileId ? fileName.get(i.fileId) : undefined;
       const sameMessage = g.every((x) => x.message === i.message);
-      const places = g.map((x) => {
-        const own = sameMessage ? [] : quotes(evidence(x.message ?? ''));
-        const notes = [x.pos ? `line ${x.pos.line}` : '', own.join(', ')].filter(Boolean).join('; ');
-        return `${x.target ? code(x.target) : ''}${x.target && notes ? ' ' : ''}${notes ? (x.target ? `(${notes})` : notes) : ''}`;
-      });
+      const places: Place[] = g.map((x) => ({
+        ...(x.target ? { name: x.target } : x.pos ? { line: x.pos.line } : {}),
+        quotes: sameMessage ? '' : quotes(evidence(x.message ?? '')).join(', '),
+      }));
       const message = evidence(sameMessage ? i.message : template(i.message ?? ''));
-      add(i.code, `${file ?? 'All files'}${themesOf(i)}:${message ? ` ${message}` : ''} In ${g.length} places: ${places.join(', ')}.`, counted, g.length);
+      const head = `${file ?? 'All files'}${themesOf(i)}:${message ? ` ${message}` : ''} In ${g.length} places`;
+      const inline = `${head}: ${placesInline(places)}.`;
+      // A list longer than what it would say about itself goes to the places file: the line keeps
+      // the values, where they sit and a few examples, and says where every place is.
+      const summary = `${head}, every one listed in ${PLACES_FILE} under ${NO}. ${placesSummary(places)}`;
+      if (placesFile && summary.length < inline.length) add(i.code, summary, counted, g.length, placesSection(places));
+      else add(i.code, inline, counted, g.length);
     }
   };
   const byFile = (xs: Issue[]) => [...xs].sort((a, b) => (fileName.get(a.fileId ?? '') ?? '').localeCompare(fileName.get(b.fileId ?? '') ?? ''));
@@ -265,7 +371,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
       }
     });
   }
-  for (const [message, e] of typeNotes) add(e.rule, `${evidence(message)}${e.themes.length && e.themes.length < themeNames.length ? ` (${e.themes.join(', ')} only)` : ''}`, false);
+  for (const [message, e] of typeNotes) add(e.rule, `${evidence(message)}${e.themes.length && e.themes.length < themeNames.length ? only(e.themes) : ''}`, false);
 
   // Base color scales.
   for (const p of pals) for (const f of p.flags) add(`scale-${f.kind}`, `${code(p.id)}: ${evidence(f.message)}`, false);
@@ -281,6 +387,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const ruleIds = [...byRule.keys()].sort((a, b) => rank(a) - rank(b));
   let no = 0;
   const listedEntries: Entry[] = [];
+  const placeSections: string[] = [];
   const part = (standing: 'required' | 'advice', title: string) => {
     const ids = ruleIds.filter((id) => standingOf(id, apca) === standing);
     if (!ids.length) return [];
@@ -299,7 +406,12 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
           c ? `Done when: ${c.done}` : '',
           c?.decline ? `Decline if: ${c.decline}` : '',
           '',
-          ...xs.map((e) => (listedEntries.push(e), `- #${++no} ${e.line}`)),
+          ...xs.map((e) => {
+            const line = e.line.replace(NO, `#${++no}`);
+            listedEntries.push({ ...e, line });
+            if (e.places) placeSections.push(`## #${no} ${e.line.slice(0, e.line.indexOf(`, every one listed in ${PLACES_FILE}`))}`, '', e.places, '');
+            return `- #${no} ${line}`;
+          }),
           '',
         ];
       }),
@@ -310,6 +422,7 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
   const listed = new Set<PromptRule['when']>(['always']);
   if (unread.length) listed.add('files');
   if (advice.length) listed.add('advice');
+  if (placeSections.length) listed.add('places');
 
   const targets = TARGETS.filter((t) => s.settings.contrast.includes(t.id)).map((t) => t.label);
   const enhanced = s.themes.filter((t) => t.contrast === 'enhanced').map((t) => t.name);
@@ -320,11 +433,17 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     '',
     FLAGS,
     '',
-    `Files: ${s.files.map((f) => f.name).join(', ')}`,
-    `Checked with: DTsanity build ${__VERSION__}, ${s.settings.acceptLegacy ? 'legacy formats accepted' : 'DTCG 2025.10 only'}`,
-    themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',
-    targets.length ? `Contrast targets: ${targets.join(', ')}` : '',
-    enhanced.length ? `Enhanced contrast (AAA text, or APCA Lc 75 text and Lc 60 UI) in: ${enhanced.join(', ')}` : '',
+    // What was checked, and how: only the lines that apply.
+    ...[
+      `Files: ${s.files.map((f) => f.name).join(', ')}`,
+      `Checked with: DTsanity build ${__VERSION__}, ${s.settings.acceptLegacy ? 'legacy formats accepted' : 'DTCG 2025.10 only'}`,
+      themeNames.length ? `Themes: ${themeNames.join(', ')}` : '',
+      targets.length ? `Contrast targets: ${targets.join(', ')}` : '',
+      enhanced.length ? `Enhanced contrast (AAA text, or APCA Lc 75 text and Lc 60 UI) in: ${enhanced.join(', ')}` : '',
+      placeSections.length ? `Places file: ${PLACES_FILE}, fingerprint ${FINGERPRINT}` : '',
+      // Read once: the form a token path takes when several share a parent.
+      [...required, ...advice].some((l) => /`[^`]*\.\{[^`]*\}`/.test(l)) ? 'Paths: `a.b.{c, d}` stands for `a.b.c` and `a.b.d`.' : '',
+    ].filter(Boolean),
     '',
     'How to work through it:',
     ...PROMPT_RULES.filter((r) => listed.has(r.when)).map((r) => `- ${r.text}`),
@@ -335,7 +454,19 @@ export function fixPrompt(s: AppState, scope?: PromptScope): FixPrompt {
     .filter((line, i, all) => line !== '' || all[i - 1] !== '')
     .join('\n')
     .trim();
-  return { text: `${text}\n`, count, more, entries: listedEntries };
+  if (!placeSections.length) return { text: `${text}\n`, count, more, entries: listedEntries };
+  // The prompt and its places file carry one fingerprint, of both, so a reader can tell they were made together.
+  const body = placeSections.join('\n').trim();
+  const print = fingerprint(`${text}\n${body}`);
+  const places = [
+    '# Places for a DTsanity findings report',
+    '',
+    `Fingerprint ${print}, DTsanity build ${__VERSION__}. Use this file only with the findings report that gives the same fingerprint.`,
+    'Every place of the findings the report lists here, under the report’s numbers. Paths: `a.b.{c, d}` stands for `a.b.c` and `a.b.d`.',
+    '',
+    body,
+  ].join('\n');
+  return { text: `${text.replace(FINGERPRINT, print)}\n`, count, more, entries: listedEntries, places: { name: PLACES_FILE, text: `${places}\n` } };
 }
 
 const rank = (id: string) => {

@@ -80,6 +80,7 @@ export const TIP = {
   downloadUpdated: 'Save the whole token set with your changes as one folder (zipped): every loaded file under its own name and in its own format, plus CHANGES.md listing each change.',
   downloadUpdatedNone: 'Active once you change the tokens here: apply a fix, re-alias a token or edit a curve.',
   copyScopedPrompt: 'Copy a report of these findings only, for an AI assistant, your design system’s tooling or a ticket. It names your tokens and stays on your clipboard.',
+  savePlaces: 'Some findings have more places than the prompt lists, so every place is in this file, made with the copy you just took. Give it to your assistant with the prompt. It is saved to this computer; nothing is uploaded.',
   copyFixPrompt: 'Copy a report of every finding still open (errors, warnings, contrast, color-vision and scale checks) for an AI assistant, your design system’s tooling or a ticket. It counts corrections as the Issues page does, and the rest (suggestions, typography and color scales) apart. It names your tokens and stays on your clipboard.',
   clearAll: 'Remove every loaded file and start over.',
 

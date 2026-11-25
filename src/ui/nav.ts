@@ -6,7 +6,7 @@ import { fixPrompt } from '../io/prompt';
 import { tierNames } from '../model/tiers';
 import { h, icon, masked, plural, severityIcon } from './dom';
 import { allClear, findings, findingTones, findingTotal, openLines } from './findings';
-import { copiedLabel } from './prompt-link';
+import { copiedLabel, showPlaces } from './prompt-link';
 import { TIP } from './tips';
 
 /**
@@ -298,6 +298,7 @@ export class TTNav extends HTMLElement {
           try {
             await navigator.clipboard.writeText(p.text || 'No corrections needed: every check passes.');
             label.textContent = copiedLabel(p, 'Nothing to fix');
+            showPlaces(copy, p, '');
           } catch {
             label.textContent = 'Copy failed';
           }

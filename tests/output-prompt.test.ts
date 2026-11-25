@@ -37,13 +37,14 @@ function items(text: string): string[] {
   for (const line of text.split('\n')) {
     if (line.startsWith('## ')) rule = /\[([a-z0-9-]+)\] \(\d+\)$/.exec(line)?.[1];
     else if (line.startsWith('# ')) rule = undefined;
-    else if (rule && line.startsWith('- #')) out.push(`[${rule}] ${line.replace(/^- #\d+ /, '')}`);
+    // The number, and the places file's pointer to it, count from 1 in every prompt: left out.
+    else if (rule && line.startsWith('- #')) out.push(`[${rule}] ${line.replace(/^- #\d+ /, '').replace(/ under #\d+\. /, ' under #n. ')}`);
   }
   return out;
 }
 
 /** How many findings a line stands for: one, or the places a grouped line names. */
-const weight = (line: string) => Number(/ In (\d+) places: /.exec(line)?.[1] ?? 1);
+const weight = (line: string) => Number(/ In (\d+) places[:,] /.exec(line)?.[1] ?? 1);
 const findingsIn = (lines: string[]) => lines.reduce((n, l) => n + weight(l), 0);
 
 const isTier = (i: Issue) => i.code.startsWith('tier-');
@@ -174,7 +175,8 @@ describe.each(SETS)('findings report: %s', (set) => {
       const foreign: string[] = [];
       for (const l of lines.filter((x) => x.startsWith('- #'))) {
         for (const [, name] of l.matchAll(/`([^`]+)`/g)) {
-          const parts = name!.split(/[./]/).filter((k) => k && k !== '*' && k !== '…');
+          // `a.b.{c, d}` is `a.b.c` and `a.b.d`: each part checked.
+          const parts = name!.replace(/\.\{(.*)\}$/, '.$1').split(/[./]|, /).filter((k) => k && k !== '*' && k !== '…');
           for (const k of parts) if (!loadedText.includes(k.toLowerCase())) foreign.push(`${name} (“${k}”)`);
         }
         for (const [file] of l.matchAll(/[\w$@ .\-/]+\.json\b/g)) {
@@ -187,6 +189,42 @@ describe.each(SETS)('findings report: %s', (set) => {
         if (full.text.toLowerCase().includes(word) && !loadedText.includes(word)) foreign.push(`set name ${other}`);
       }
       expect(foreign.slice(0, 8), 'every name comes from the loaded files').toEqual([]);
+
+      // B6: the places file. It carries the prompt's fingerprint, and lists every place of each
+      // finding that points to it (as many as the prompt counts), each name from the loaded files.
+      const pointers = [...full.text.matchAll(/^- #(\d+) .* In (\d+) places, every one listed in dtsanity-places\.md under #\1\. /gm)];
+      expect(!!full.places, 'a places file exactly when a finding points to it').toBe(pointers.length > 0);
+      // Its guardrails (open it before editing, examples aren't the list, decline only what a rule covers) exactly then too.
+      for (const rule of ['every one listed in dtsanity-places.md” keep', 'aren’t its whole list', 'Decline by value or by group only'])
+        expect(full.text.includes(rule), `guardrail: ${rule}`).toBe(!!full.places);
+      if (full.places) {
+        const print = /^Fingerprint ([0-9a-f]{8}),/m.exec(full.places.text)?.[1];
+        expect(full.text, 'the prompt names the same fingerprint').toContain(`fingerprint ${print}`);
+        const sections = new Map(full.places.text.split('\n## ').slice(1).map((sec) => [Number(/^#(\d+) /.exec(sec)?.[1]), sec]));
+        const short: string[] = [];
+        for (const [, no, count] of pointers) {
+          const sec = sections.get(Number(no));
+          if (!sec) {
+            short.push(`#${no}: no section`);
+            continue;
+          }
+          let listed = 0;
+          for (const l of sec.split('\n').filter((x) => x.startsWith('- '))) {
+            const where = l.replace(/^- (“.*?”(, (“.*?”|\{.*?\}))*|\{.*?\}(, \{.*?\})*): /, '');
+            for (const [, name] of where.matchAll(/`([^`]+)`/g)) {
+              const leaves = /\.\{(.*)\}$/.exec(name!)?.[1];
+              listed += leaves ? leaves.split(', ').length : 1;
+              const parts = name!.replace(/\.\{(.*)\}$/, '.$1').split(/[./]|, /).filter((k) => k && k !== '*');
+              for (const k of parts) if (!loadedText.includes(k.toLowerCase())) foreign.push(`places #${no} ${name}`);
+            }
+            const lineList = /lines? ([\d, ]+)$/.exec(where)?.[1];
+            if (lineList) listed += lineList.split(', ').length;
+          }
+          if (listed !== Number(count)) short.push(`#${no}: ${listed} of ${count}`);
+        }
+        expect(short.slice(0, 5), 'every place of each finding is in the places file').toEqual([]);
+        expect(foreign.slice(0, 8), 'every name in the places file comes from the loaded files').toEqual([]);
+      }
 
       // B3: the same files, loaded again, give the same prompt.
       expect(fixPrompt(store.get()).text === full.text, 'built twice, the same').toBe(true);
