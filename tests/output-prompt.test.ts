@@ -167,6 +167,27 @@ describe.each(SETS)('findings report: %s', (set) => {
       const around = (l: string) => new RegExp(`.{0,80}(${PRESCRIBES.source}).{0,40}`, 'i').exec(l)?.[0];
       expect(steers.slice(0, 3).map(around), 'no finding steers the fix').toEqual([]);
 
+      // B5: provenance. Everything the prompt names comes from the files loaded for this check:
+      // each `name` in a finding is a key in them (a `*` stands for the members of a group), each
+      // file named is a loaded one, and no other sample set's name appears unless these files hold it.
+      const loadedText = s.files.map((f) => `${f.name}\n${f.text}`).join('\n').toLowerCase();
+      const foreign: string[] = [];
+      for (const l of lines.filter((x) => x.startsWith('- #'))) {
+        for (const [, name] of l.matchAll(/`([^`]+)`/g)) {
+          const parts = name!.split(/[./]/).filter((k) => k && k !== '*' && k !== '…');
+          for (const k of parts) if (!loadedText.includes(k.toLowerCase())) foreign.push(`${name} (“${k}”)`);
+        }
+        for (const [file] of l.matchAll(/[\w$@ .\-/]+\.json\b/g)) {
+          const f = file!.trim().replace(/^- #\d+ /, '');
+          if (!s.files.some((x) => x.name === f || x.name.endsWith(`/${f}`) || f.endsWith(x.name))) foreign.push(`file ${f}`);
+        }
+      }
+      for (const other of SETS.filter((x) => x !== set)) {
+        const word = other.toLowerCase();
+        if (full.text.toLowerCase().includes(word) && !loadedText.includes(word)) foreign.push(`set name ${other}`);
+      }
+      expect(foreign.slice(0, 8), 'every name comes from the loaded files').toEqual([]);
+
       // B3: the same files, loaded again, give the same prompt.
       expect(fixPrompt(store.get()).text === full.text, 'built twice, the same').toBe(true);
       clearAll();
