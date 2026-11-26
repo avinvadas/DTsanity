@@ -1,13 +1,16 @@
 import { isUnchanged } from '../io/export';
 import { ACCEPT, fetchSource, isLoadError, normalizeUrl, parseSource, pastedSource, pickFiles, readFiles, reloadSource, type RawSource } from '../io/load';
 import type { SourceFile } from '../model/types';
-import { addFiles, clearAll, replaceFiles, setBusy, store, type LoadError, type SetAside } from '../state/app';
+import { addFiles, adjustments, clearAll, replaceFiles, revertAll, setBusy, store, type LoadError, type SetAside } from '../state/app';
 import { createStore } from '../state/store';
 import { targetSelect } from './contrast';
 import { h, masked, plural } from './dom';
 import { moreMenu, type MenuItem } from './menu';
 import { promptButton } from './prompt-link';
 import { TIP } from './tips';
+import { clearToasts, quietFiles, toast } from './toasts';
+import { changeText, findingChange, findings } from './findings';
+import { choiceDialog } from './modal';
 
 /** Length of the fades on the first load: the landing fading out, the results fading in. */
 export const LOAD_MS = 330;
@@ -69,38 +72,77 @@ export async function ingest(pending: Promise<(RawSource | LoadError)[]>) {
 
 /**
  * Read every loaded file from its source again (disk or URL) and re-run the
- * checks. Files whose source and content are unchanged keep their undo
- * history. Returns a short summary, or null if the user cancelled.
+ * checks. When something was changed in the tool (file edits, pairs, themes,
+ * palette choices), a dialog asks first: keep those changes, or go back to
+ * the files as they are now. Changes to a file can be kept only if the file
+ * is the same as when it was loaded; when one isn't, the only way is back.
+ * What happened is said in a note, with what the fresh check found.
  */
-export async function reloadAll(): Promise<string | null> {
-  const files = store.get().files;
-  const edited = files.filter((f) => !isUnchanged(f));
-  if (edited.length && !confirm(`Reloading replaces your unsaved edits in ${edited.map((f) => f.name).join(', ')}. Continue?`)) return null;
+export async function reloadAll(): Promise<void> {
+  const s = store.get();
   setBusy(true);
+  let results: (readonly [SourceFile, RawSource | LoadError])[];
   try {
-    const results = await Promise.all(files.map(async (f) => [f, await reloadSource(f)] as const));
-    const updated: SourceFile[] = [];
-    const errors: LoadError[] = [];
-    let changed = 0;
-    for (const [old, r] of results) {
-      const parsed = 'text' in r ? parseSource(r, store.get().settings) : r;
-      if (isLoadError(parsed)) {
-        errors.push({ ...parsed, name: old.name });
-        continue;
-      }
-      const textChanged = parsed.text !== old.text;
-      if (textChanged) changed++;
-      if (textChanged || edited.includes(old)) updated.push({ ...parsed, id: old.id, name: old.name });
-    }
-    replaceFiles(updated, errors);
-    const parts = [changed ? `${plural(changed, 'file')} changed` : 'No changes in the source files'];
-    if (errors.length) parts.push(`${plural(errors.length, 'file')} couldn't be reloaded`);
-    const summary = parts.join(' · ');
-    fileStatus.set({ at: new Date() });
-    return summary;
+    results = await Promise.all(s.files.map(async (f) => [f, await reloadSource(f)] as const));
   } finally {
     setBusy(false);
   }
+  const read = new Map<string, SourceFile>();
+  const errors: LoadError[] = [];
+  for (const [old, r] of results) {
+    const parsed = 'text' in r ? parseSource(r, store.get().settings) : r;
+    if (isLoadError(parsed)) errors.push({ ...parsed, name: old.name });
+    else read.set(old.id, { ...parsed, id: old.id, name: old.name });
+  }
+  const changed = s.files.filter((f) => read.has(f.id) && read.get(f.id)!.text !== f.text);
+  const unread = s.files.filter((f) => !read.has(f.id));
+  const made = adjustments(s);
+
+  let keep = true;
+  if (made.length) {
+    // Edits can be kept only on a file that reads the same as when it was loaded.
+    const lost = s.files.filter((f) => !isUnchanged(f) && changed.includes(f)).map((f) => f.name);
+    // Masked: steps name tokens.
+    const list = masked(h('ul', { class: 'choice-list' }, made.map((m) => h('li', null, m))));
+    const unreadNote = unread.length ? h('p', null, masked(h('span', null, unread.map((f) => f.name).join(', '))), ` couldn’t be read again and ${unread.length === 1 ? 'stays' : 'stay'} as ${unread.length === 1 ? 'it is' : 'they are'}.`) : null;
+    const settingsNote = h('p', { class: 'choice-note' }, 'Settings stay as they are either way.');
+    const answer = lost.length
+      ? await choiceDialog(
+          'Reload files and revert your changes?',
+          [
+            h('p', null, masked(h('span', null, lost.join(', '))), ` changed since ${lost.length === 1 ? 'it was' : 'they were'} loaded, so your changes can’t be kept. Reloading reverts all the changes you made here:`),
+            list,
+            unreadNote,
+            settingsNote,
+          ],
+          [{ label: 'Reload and revert', value: 'revert' as const, primary: true }],
+        )
+      : await choiceDialog(
+          'Keep your changes?',
+          [h('p', null, 'You made these changes here since the files were loaded:'), list, unreadNote, h('p', null, 'Keep them, or revert to the original files and their findings.'), settingsNote],
+          [
+            { label: 'Revert to original', value: 'revert' as const },
+            { label: 'Keep changes', value: 'keep' as const, primary: true },
+          ],
+        );
+    if (!answer) return;
+    keep = answer === 'keep';
+  }
+
+  clearToasts();
+  const before = findings(store.get());
+  quietFiles(() => {
+    if (keep) replaceFiles(changed.map((f) => read.get(f.id)!), errors);
+    else revertAll([...read.values()], errors);
+  });
+  fileStatus.set({ at: new Date() });
+  const lines = [
+    changed.length ? `${plural(changed.length, 'file')} changed since loaded.` : 'No file changed since loaded.',
+    made.length ? (keep ? 'Your changes are kept.' : 'Your changes are reverted.') : '',
+    unread.length ? `${plural(unread.length, 'file')} couldn’t be read again.` : '',
+    `${changeText(findingChange(before, findings(store.get())))}.`,
+  ];
+  toast('Files reloaded', lines.filter(Boolean).join(' '));
 }
 
 /**

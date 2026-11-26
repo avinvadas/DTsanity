@@ -25,7 +25,8 @@ import {
 import { componentOf, tiersOf } from '../model/tiers';
 import type { Model } from '../model/types';
 import type { Palette } from '../palette/detect';
-import { allModels, applyEdits, setPins, store } from '../state/app';
+import { allModels, setPins, store } from '../state/app';
+import { editWithToast } from './toasts';
 import { contrastOf } from '../state/contrast';
 import { palettesOf } from '../state/palettes';
 import { clearPreview, clearPreviewColors, preview, setPreview } from '../state/preview';
@@ -249,7 +250,7 @@ class CurveEditor {
       const edits = this.edits();
       if (edits.length) {
         const n = this.s.batch.length;
-        applyEdits(`Curve edit: ${this.p.name}${n ? ` and ${plural(n, 'more palette')}` : ''}`, edits);
+        editWithToast(`Curve edit: ${this.p.name}${n ? ` and ${plural(n, 'more palette')}` : ''}`, edits);
       }
       close();
     };

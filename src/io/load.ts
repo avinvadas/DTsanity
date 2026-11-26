@@ -376,11 +376,14 @@ export async function reloadSource(f: SourceFile): Promise<RawSource | LoadError
     return { ...(await fetchSource(f.url)), name: f.name };
   }
   if (f.handle) {
+    let read: RawSource | LoadError;
     try {
-      return await readFile(await f.handle.getFile(), f.handle, f.name);
+      read = await readFile(await f.handle.getFile(), f.handle, f.name);
     } catch (err) {
-      return { name: f.name, message: `Couldn't read the file again. Load it again from where it is now.${reason(err)}` };
+      read = { name: f.name, message: `Couldn't read the file again. Load it again from where it is now.${reason(err)}` };
     }
+    // Some browsers expose handles but can't read through them: then the file as it was chosen, when there is one.
+    if ('text' in read || !f.blob) return read;
   }
   if (f.blob) {
     try {

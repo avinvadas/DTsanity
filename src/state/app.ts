@@ -1,5 +1,6 @@
 import type { EndId } from '../contrast/analyze';
 import type { EndChoice } from '../contrast/ends';
+import { isUnchanged } from '../io/export';
 import { isLoadError, parseSource } from '../io/load';
 import { deleteIn, renameIn, setIn, type JDoc } from '../json/cst';
 import { makeIssue } from '../model/build';
@@ -177,6 +178,41 @@ export function addFiles(added: SourceFile[], errors: LoadError[] = [], setAside
     const aside = [...s.setAside.filter((x) => !fresh.has(x.name)), ...setAside];
     return { ...derive(s, files, s.settings, edited), loadErrors: errors, setAside: aside, setAsideNote: setAside.length, ...dropHistory(s, replaced) };
   });
+}
+
+/**
+ * Back to the files as read again, with nothing of what was changed in the
+ * tool: no file edits or their history, pair changes, theme edits, palette
+ * choices, pinned steps or contrast ends. Settings stay: they are preferences,
+ * not changes to this set. Files that couldn't be read again (`errors`) stay as they are.
+ */
+export function revertAll(updated: SourceFile[], errors: LoadError[] = []) {
+  store.set((s) => {
+    const byId = new Map(updated.map((f) => [f.id, f]));
+    const files = s.files.map((f) => byId.get(f.id) ?? f);
+    const base: AppState = { ...s, themesCustomized: false, pairEdits: NO_PAIR_EDITS, pins: {}, paletteOverrides: {}, contrastEnds: {} };
+    return { ...base, ...derive(base, files, s.settings), loadErrors: errors, ...dropHistory(s, new Set(byId.keys())) };
+  });
+}
+
+/** What was changed in the tool on top of the files as loaded, in words, for the Reload dialog. Empty when nothing was. */
+export function adjustments(s: AppState): string[] {
+  const out: string[] = [];
+  const edited = s.files.filter((f) => !isUnchanged(f)).length;
+  if (edited) {
+    // What was done, by the names it was done under ("Apply 4 fixes"); many, by their count.
+    const steps = s.past.map((c) => c.label);
+    const what = steps.length && steps.length <= 3 ? `: ${steps.join('; ')}` : steps.length ? `: ${steps.length} changes` : '';
+    out.push(`${edited === 1 ? '1 file' : `${edited} files`} edited${what}`);
+  }
+  const count = (n: number, one: string) => (n ? `${n} ${one}${n === 1 ? '' : 's'}` : '');
+  const pairs = [count(s.pairEdits.added.length, 'pair') && `${count(s.pairEdits.added.length, 'pair')} added`, count(s.pairEdits.removed.length, 'pair') && `${count(s.pairEdits.removed.length, 'pair')} removed`, count(Object.keys(s.pairEdits.kinds).length, 'pair') && `${count(Object.keys(s.pairEdits.kinds).length, 'pair')} checked at another level`].filter(Boolean);
+  if (pairs.length) out.push(`Contrast pairs: ${pairs.join(', ')}`);
+  if (s.themesCustomized) out.push('Theme edits');
+  if (Object.keys(s.paletteOverrides).length) out.push('Palettes included or left out by hand');
+  if (Object.keys(s.pins).length) out.push('Pinned palette steps');
+  if (Object.keys(s.contrastEnds).length) out.push('Contrast ends chosen on the Base tier');
+  return out;
 }
 
 /** Swap in fresh versions of loaded files (same ids, same order). Their edit history is dropped. */

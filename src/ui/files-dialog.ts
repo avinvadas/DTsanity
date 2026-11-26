@@ -1,5 +1,6 @@
 import { isUnchanged } from '../io/export';
 import { removeFile, restoreFiles, snapshotFiles, store } from '../state/app';
+import { holdFiles } from './toasts';
 import { h, masked, plural, xButton } from './dom';
 import { TIP } from './tips';
 
@@ -19,6 +20,8 @@ let open: HTMLDialogElement | undefined;
 export function openFilesDialog() {
   if (open) return open.showModal();
   const before = snapshotFiles();
+  // One note for what the dialog changed, when it closes: none if it was cancelled.
+  const release = holdFiles();
   let saved = false;
 
   const list = h('ul', { class: 'file-list' });
@@ -67,6 +70,7 @@ export function openFilesDialog() {
   dialog.addEventListener('close', () => {
     unsub();
     if (!saved && store.get().files !== before.files) restoreFiles(before);
+    release();
     dialog.remove();
     open = undefined;
   });

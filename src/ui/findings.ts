@@ -60,6 +60,42 @@ export function findingTones(f: Findings): Record<FindingKind, Severity | undefi
 /** Every finding the cards count, as the Issues label and title say it. */
 export const findingTotal = (f: Findings) => f.format.length + f.tiers.length + f.contrast.length + f.vision.length + f.groups.length;
 
+/**
+ * Each counted finding as a key that stays the same across a fresh check: an issue by its rule,
+ * file, place and token (not its message, whose numbers can change), a pair by its two tokens,
+ * a group by its name. Repeated keys are kept: they count apart.
+ */
+export function findingKeys(f: Findings): string[] {
+  const issue = (i: Issue) => ['i', i.code, i.fileId, (i.keyPath ?? []).join('\u0000'), i.target].join('\u0001');
+  return [
+    ...f.format.map(issue),
+    ...f.tiers.map(issue),
+    ...f.contrast.map((r) => `c\u0001${r.pair.id}`),
+    ...f.vision.map((r) => `v\u0001${r.pair.id}`),
+    ...f.groups.map((g) => `g\u0001${g.group.id}`),
+  ];
+}
+
+/** How many findings a fresh check no longer counts, and how many it counts that it didn't before. */
+export function findingChange(before: Findings, after: Findings): { gone: number; added: number } {
+  const left = new Map<string, number>();
+  for (const k of findingKeys(before)) left.set(k, (left.get(k) ?? 0) + 1);
+  let added = 0;
+  for (const k of findingKeys(after)) {
+    const n = left.get(k) ?? 0;
+    if (n) left.set(k, n - 1);
+    else added++;
+  }
+  return { gone: [...left.values()].reduce((a, b) => a + b, 0), added };
+}
+
+/** What a fresh check after a change found, said after the change: "Checked again: 14 findings gone, 1 new". */
+export function changeText({ gone, added }: { gone: number; added: number }): string {
+  if (!gone && !added) return 'Checked again: no finding changed';
+  const parts = [gone ? `${plural(gone, 'finding')} gone` : '', added ? (gone ? `${added} new` : `${plural(added, 'new finding')}`) : ''].filter(Boolean);
+  return `Checked again: ${parts.join(', ')}`;
+}
+
 /** Every file was read and nothing is left to fix: the findings report has nothing to say. */
 export const allClear = (s: AppState) => s.files.length > 0 && s.loadErrors.length === 0 && findingTotal(findings(s)) === 0;
 

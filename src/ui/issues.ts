@@ -3,7 +3,8 @@ import { formatContrast } from '../contrast/metrics';
 import { RULE_TITLE } from '../model/rules';
 import type { Category, Fix, Issue, Severity } from '../model/types';
 import { noFixNote, remedyOf } from '../policy/rules';
-import { applyFixes, store, undo, type AppState } from '../state/app';
+import { store, type AppState } from '../state/app';
+import { applyWithToast } from './toasts';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { collapsible, expand, setAll } from './collapsible';
 import { h, icon, masked, plural, severityIcon, viewHead, type Child } from './dom';
@@ -51,19 +52,8 @@ export class TTIssues extends HTMLElement {
     this.unsubs = [];
   }
 
-  private setStatus(text: string, withUndo = false) {
-    this.reload.status.replaceChildren(text);
-    if (withUndo) this.reload.status.append(' · ', h('button', { type: 'button', class: 'link', onclick: () => (undo(), this.setStatus('Undone')) }, 'Undo'));
-  }
-
   private apply(fixes: Fix[], label?: string) {
-    const edits = fixes.filter((f) => 'edits' in f).length;
-    const applied = applyFixes(fixes, label);
-    const waiting = fixes.length - applied;
-    this.setStatus(
-      fixes.length === 1 ? `Applied: ${fixes[0]!.label}` : `Applied ${applied} fixes${waiting ? `; ${waiting} more on the same tokens are offered again` : ''}`,
-      edits > 0,
-    );
+    applyWithToast(fixes, label);
   }
 
   /** The page has one section per card, in the cards' order, named and counted as they are; each card opens its own and scrolls to it. Info notes follow, uncounted. */

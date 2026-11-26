@@ -28,6 +28,12 @@ describe('reloadSource', () => {
     expect(await reloadSource(load(v1, { handle }))).toMatchObject({ message: expect.stringContaining('Load it again from where it is now') });
   });
 
+  it('reads the File as it was chosen when its handle can’t be read', async () => {
+    const handle = { name: 'tokens.json', getFile: async () => Promise.reject(new DOMException('no access', 'NotAllowedError')) } as unknown as FileSystemFileHandle;
+    const blob = new File([v1], 'tokens.json');
+    expect(await reloadSource(load(v1, { handle, blob }))).toMatchObject({ text: v1 });
+  });
+
   it('falls back to re-reading the File, explaining when the browser refuses', async () => {
     const blob = new File([v1], 'tokens.json');
     expect(await reloadSource(load(v1, { blob }))).toMatchObject({ text: v1 });

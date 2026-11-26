@@ -4,7 +4,7 @@ import { distance, type ColorInfo } from '../color/format';
 import { TIER_LABEL, tierNames, tierReadings, type Tier } from '../model/tiers';
 import type { Model, Severity } from '../model/types';
 import { aliasCandidates, checkColors, colorRef, colorSlot, glyphOf, parse, pointColor, tokenColor, hasRole, words, type AliasCandidate, type ContrastLevel, type PairKind } from '../semantic/pairs';
-import { addPair, allModels, applyEdits, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
+import { addPair, allModels, removePair, resetPairs, setPairKind, store, updateSettings, type AppState } from '../state/app';
 import { pairsOf, siblingFails, type PairRow, type SiblingRow } from '../state/pairs';
 import { caseCanvas, displayGamut, paintAll } from './canvas';
 import { collapsible, setAll } from './collapsible';
@@ -14,6 +14,7 @@ import { TIP } from './tips';
 import { swatchSelect } from './swatch-select';
 import { tokenField, type FieldStatus, type TokenOption } from './token-field';
 import { typographySection } from './typography';
+import { editWithToast } from './toasts';
 import { diagnosisFor } from './blocked';
 
 const KINDS: { id: PairKind; label: string }[] = [
@@ -350,7 +351,7 @@ export class TTSemantic extends HTMLElement {
       const edit = pointColor(model, id, target, mode);
       if (!edit) return;
       before?.();
-      applyEdits(`Point ${id} at ${target}${theme ? ` in ${theme}` : ''}`, [edit]);
+      editWithToast(`Point ${id} at ${target}${theme ? ` in ${theme}` : ''}`, [edit]);
     };
     // A raw value's first fix: the base color nearest to it, one click away.
     const nearest = own

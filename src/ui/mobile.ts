@@ -7,7 +7,7 @@ import { glyphOf } from '../semantic/pairs';
 import { applyFixes, removeFile, store, undo, type AppState } from '../state/app';
 import type { PairRow, SiblingRow } from '../state/pairs';
 import { displayGamut, paintAll, pairCanvas } from './canvas';
-import { allClear, findingCards, findings, openLines, type Findings } from './findings';
+import { allClear, changeText, findingCards, findingChange, findings, openLines, type Findings } from './findings';
 import { issueData, issueDetail, issueHead } from './issue';
 import { targetSelect } from './contrast';
 import { fileStatusLine, ingest } from './loader';
@@ -217,9 +217,16 @@ export class TTMobile extends HTMLElement {
     );
   }
 
+  private fixOne(fix: Fix) {
+    const before = findings(store.get());
+    applyFixes([fix]);
+    this.say(`Fixed. ${changeText(findingChange(before, findings(store.get())))}`, true);
+  }
+
   private fixAll(fixes: Fix[]) {
+    const before = findings(store.get());
     const applied = applyFixes(fixes);
-    this.say(`${plural(applied, 'fix', 'fixes')} applied`, true);
+    this.say(`${plural(applied, 'fix', 'fixes')} applied. ${changeText(findingChange(before, findings(store.get())))}`, true);
   }
 
   /** Every finding in one list, grouped by kind; a kind with nothing to fix says so in one line. */
@@ -276,7 +283,7 @@ export class TTMobile extends HTMLElement {
     const file = s.files.find((f) => f.id === i.fileId)?.name;
     const action =
       i.fix && 'edits' in i.fix
-        ? h('button', { type: 'button', class: 'm-fix', onclick: () => (applyFixes([i.fix!]), this.say('Fixed', true)) }, icon('tool'), i.fix.label)
+        ? h('button', { type: 'button', class: 'm-fix', onclick: () => this.fixOne(i.fix!) }, icon('tool'), i.fix.label)
         : null;
     const where = file && i.pos ? `${file}:${i.pos.line}` : (file ?? '');
     return h(

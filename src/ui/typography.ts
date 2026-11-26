@@ -1,7 +1,8 @@
 import type { Tier } from '../model/tiers';
 import type { Issue, Model } from '../model/types';
 import { formatPart, MIN_PX, orderStyles, partCandidates, PARTS, pointPart, rangeNotes, sizePx, styleCss, typeStyle, typographyIdsIn, type PartKey, type RangeNote, type StylePart, type TypeStyle } from '../semantic/typography';
-import { allModels, applyEdits, applyFixes, store } from '../state/app';
+import { allModels, store } from '../state/app';
+import { applyWithToast, editWithToast } from './toasts';
 import { withPolicy } from '../policy/rules';
 import { disclosure, isOpen } from './collapsible';
 import { h, masked, plural, severityIcon } from './dom';
@@ -319,7 +320,7 @@ function picker(id: string, key: PartKey | undefined, part: StylePart, group: { 
     );
     if (!edits.length) return;
     refocus = focusKey;
-    applyEdits(`Point ${id}${key ? ` ${key}` : ''} at ${target}${theme ? ` in ${theme}` : ''}`, edits);
+    editWithToast(`Point ${id}${key ? ` ${key}` : ''} at ${target}${theme ? ` in ${theme}` : ''}`, edits);
   };
   const same = part.literal !== undefined ? cands.flatMap((g) => g.tokens.filter((c) => c.same)) : [];
   const own = part.literal !== undefined && tier !== 'base' && !inherited;
@@ -339,7 +340,7 @@ function picker(id: string, key: PartKey | undefined, part: StylePart, group: { 
   const uses = editable ? same.slice(0, 2).map((c) => h('button', { type: 'button', class: 'small', 'data-tip': TIP.typeUseSame, onclick: () => point(c.id) }, `Use ${c.id}`)) : [];
   // Fixes sit beside the field; messages about it sit beneath it.
   const about = key ? issues.filter((i) => namesPart(i) && i.message.includes(`$value.${key}`)) : [];
-  const fixes = about.flatMap((i) => (i.fix ? [h('button', { type: 'button', class: 'small', onclick: () => applyFixes([i.fix!]) }, i.fix.label)] : []));
+  const fixes = about.flatMap((i) => (i.fix ? [h('button', { type: 'button', class: 'small', onclick: () => applyWithToast([i.fix!]) }, i.fix.label)] : []));
   return h(
     'span',
     { class: 'type-pick' },
@@ -355,6 +356,6 @@ function issueRow(i: Issue) {
     { class: `type-issue ${i.severity}` },
     severityIcon(i.severity),
     h('span', null, i.message),
-    i.fix ? h('button', { type: 'button', class: 'small', onclick: () => applyFixes([i.fix!]) }, i.fix.label) : null,
+    i.fix ? h('button', { type: 'button', class: 'small', onclick: () => applyWithToast([i.fix!]) }, i.fix.label) : null,
   );
 }
