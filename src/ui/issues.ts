@@ -208,7 +208,6 @@ export class TTIssues extends HTMLElement {
     const all = issuesOf(v);
     // All loaded files: a theme's model only knows its own, and the all-themes view merges several.
     const names = new Map(store.get().files.map((f) => [f.id, f.name]));
-    const count = (s: Severity) => all.filter((i) => i.severity === s).length;
     const where = (i: Issue) => {
       const name = i.fileId ? names.get(i.fileId) : undefined;
       if (!name) return '';
@@ -237,12 +236,8 @@ export class TTIssues extends HTMLElement {
     this.replaceChildren(
       // The count is the page's title: “Issues” over “N issues found” said it twice.
       viewHead(findingTotal(f) ? `${plural(findingTotal(f), 'issue')} found` : 'No issues found', {
-        // As the tier views lead with their count: what can be fixed here, then the severities, then the report for the rest.
-        summary: [
-          findingTotal(f) ? h('span', null, fixableText(f.withFix, findingTotal(f)).text) : null,
-          ...SEVERITIES.filter(count).map((s) => h('span', { class: `chip ${s}`, 'data-tip': SEVERITY_TIP[s] }, severityIcon(s), plural(count(s), SEVERITY_LABEL[s].toLowerCase()))),
-          findingTotal(f) && fixableText(f.withFix, findingTotal(f)).scope ? h('span', { class: 'vh-summary-end' }, promptButton(fixableText(f.withFix, findingTotal(f)).scope)) : null,
-        ],
+        // What can be fixed here. The cards below give the counts; the report is Copy as prompt in the sidebar.
+        summary: [findingTotal(f) ? h('span', null, fixableText(f.withFix, findingTotal(f)).text) : null],
         actions: this.reload.el,
       }),
       findingCards(f, (k) => this.go(k), () => '#issues', true, false, false),
